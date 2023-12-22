@@ -1,0 +1,921 @@
+<!DOCTYPE HTML>
+<head>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-12-10T11:17:08+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Objet-Paramètres</title>
+</head>
+<body>
+<div id="simpleObjParam" style="width:400px;height:620px;">
+	<input type="file" id="fileParam" style="display:none"/>
+	<input type="file" id="fileParam2" style="display:none"/>
+	<input type="file" id="fileAudioLoad" multiple style="display:none"/>
+	<input type="file" id="fileLoad" style="display:none"/>
+	<input type="file" id="fileGrpLoad" style="display:none"/>
+	<input type="file" id="imgParam" style="display:none"/>
+	<div id="paramFile"><button id="paramFileSelect" style="width:70px;margin-left:10px" onclick='openFileAudio();'>Audio : </button><span   id="lbmute" style="position:absolute;top:8px;left:99px;">Mute :</span> <span  style="position:absolute;top:6px;left:140px;"><input  type="checkbox" id="objMute" name="mute" /></span><span id="lbfichier" style="position:absolute;top:8px;left:170px;">File : </span><span id="paramLabel" style="position:absolute;top:8px;left:226px;"></span></div>
+	<div id="lbduree" style="position:absolute;top:44px;left:99px;">Durée :</div><div id="paramDr" style="position:absolute;top:44px;left:153px;">test</div>
+			<div id="lbcanaux" style="position:absolute;top:44px;left:270px;">canaux :</div> <div id="paramCanaux"  style="position:absolute;top:44px;left:340px;"></div>
+	<div style="margin:0px;padding:0px;width:50px;height:50px;" >
+		<span  id="dobjColor" style="position:absolute;top:66px;left:28px;width:50px;height:50px;border:1px solid black;" onclick='defGraphObj(event)'>
+		<svg id="objColor"  width="50" height="50" viewBox=" 0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+			<circle id="objParamColor" cx="55" cy="50" r="25" fill="green" />
+	   </svg>
+	   <input id="selectColor" type="color" style="display:none" value="" />
+	    <input id="selectStrokeColor" type="color" style="display:none" value="" />
+		</span>
+		<div id="dureeReelle" style="position:absolute;top:87px;left:124px;"><button onclick='defDureeReelle();'> Durée Réelle</button> </div>
+		
+   </div>
+   <div id="nspacialisation" onclick='openSpatialisation();' style="position:absolute;top:75px;left:340px;width:32px;height:32px;"><img src="./images/png/f3D.png" alt "3D" /></div>
+   <div id="tpenv" style="position:absolute;top:230px;left:50px;">Type de variation :</div>
+	<div style="position:absolute;top:260px;left:50px;"> 
+		<form action="">
+		<select id="selecType" size="1">
+			<option value="0"></option>
+			<option id="lbtpenv1" value="1">Linéaire</option>
+			<option id="lbtpenv2" value="2">Exponentielle</option>
+			<option id="lbtpenv3" value="3">Courbe</option>
+		</select>
+		</form>
+	</div>
+	<div>
+	<span  id="ongEnv" style="position:absolute;top:127px;left:184px;background-color:#d3dbde;width:80px;height:20px;border:1px solid black;padding-left:4px;" onclick="defEnv();" >Enveloppe</span>
+	<div id="panEnv" style="position:absolute;top:148px;left:184px;border:1px solid black;width:200px;height:128px;">
+		<div id="env1"  style="position:absolute;top:94px;left:0px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env2"  style="position:absolute;top:60px;left:14px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env3"  style="position:absolute;top:25px;left:50px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env4"  style="position:absolute;top:5px;left:100px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env5"  style="position:absolute;top:25px;left:150px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env6"  style="position:absolute;top:60px;left:174px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env7"  style="position:absolute;top:94px;left:196px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="panEnv2" style="display:none;">
+		<div id="envm1"  style="position:absolute;top:94px;left:0px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
+		<div id="envm2"  style="position:absolute;top:70px;left:10px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
+		<div id="envm3"  style="position:absolute;top:20px;left:50px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
+		<div id="envm4"  style="position:absolute;top:15px;left:100px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
+		<div id="envm5"  style="position:absolute;top:30px;left:150px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
+		<div id="envm6"  style="position:absolute;top:80px;left:160px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
+		<div id="envm7"  style="position:absolute;top:94px;left:196px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
+		</div>
+	</div>
+
+	<div id="listeFiltre" style="position:absolute;top:140px;left:80px;"><img alt="fx" src="./images/png/metafx.png"  /></div><div id="substituer" style="position:absolute;top:147px;left:125px;"><img alt="sub" src="./images/refresh.svg "  style="width:18px;height:18px;" /></div>
+	<div id="lbgain"  style="position:absolute;top:190px;left:38px;">Gain : <input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
+	<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span id="lbrate" style="position:absolute;top:300px;left:60px;"  >Vitesse de lecture : <input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.01" max="4.0" step="0.01" /></span> </p>
+	</div>
+	<div id="position" style="position:absolute;top:334px;left:80px;">Position : <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
+	<div id="lbdetune" style="position:absolute;top:384px;left:14px;">Detune : </div> <span id="etir" style="margin:0px;padding:0px;position:absolute;top:375px;left:88px;" ><input id="ndetune" style="width:80px;height:24px;" type="number"  value="0" min="-1199" max="1199" step="1" /></span><div class="slider"  style="position:absolute;top:383px;left:184px;"><input  style="margin-left:14px;width:180px;" id="detune" type="range" value="1" min="-1199" max="1199" step="1" /></div>
+	<div id="lblimites" style="position:absolute;top:436px;left:10px;">Limites :<img  src="./images/png/fondSlider.png" style="margin-left:30px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:88px;height:20px;" /><span style="position:absolute;top:20px;left:88px;" id="bgauchet"></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:346px;height:20px;"/><span style="position:absolute;top:20px;left:88px;" id="bdroitt"></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
+	</div>
+	<div id="lbnom" style="position:absolute;top:495px;left:10px;">Nom : <input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
+	<div id="lbinstrument" style="position:absolute;top:537px;left:10px;">Instrument : <input id="inpCanal" style="width:50px;" type="number"  value="0" min="0" max="64" step="1" /></div>
+	<div  style="position:absolute;top:480px;left:290px;"><img alt="Reverb. Convolution impulse reponse" title="Reverb. Convolution impulse reponse" src="./images/png/convol2.png" style="width:48px;"  onclick="fxAddPlugin();" /> </div>
+	<div  style="position:absolute;top:537px;left:260px;">
+		<select id="selecReverb" size="1"  value="0" onchange="convol(value);">
+			<option value="0"></option>
+		</select>
+		</div>
+	<div style="position:absolute;top:575px;left:250px;" ><button id="lbannul" onclick='objAnnul();'>Annuler</button> <button  id="lbvalid" onclick='objValid();'>Valider</button></div>
+</div>
+<script  src="impulseReponse.js"></script>
+<script >
+var selectObj={}
+var selectId=''
+var svobj=""
+const tableLang=[]
+
+dragElement2(document.getElementById("bgauche"));
+dragElement2(document.getElementById("bdroit"));
+dragElement2(document.getElementById("bgauchet"));
+dragElement2(document.getElementById("bdroitt"));
+dragElement2(document.getElementById("env1"));
+dragElement2(document.getElementById("env2"));
+dragElement2(document.getElementById("env3"));
+dragElement2(document.getElementById("env4"));
+dragElement2(document.getElementById("env5"));
+dragElement2(document.getElementById("env6"));
+dragElement2(document.getElementById("env7"));
+dragElement2(document.getElementById("envm1"));
+dragElement2(document.getElementById("envm2"));
+dragElement2(document.getElementById("envm3"));
+dragElement2(document.getElementById("envm4"));
+dragElement2(document.getElementById("envm5"));
+dragElement2(document.getElementById("envm6"));
+dragElement2(document.getElementById("envm7"));
+
+document.getElementById("listeFiltre").addEventListener('click',listeFx)
+document.getElementById("substituer").addEventListener('click',substituerFx)
+document.getElementById("objMute").addEventListener('click',mute)
+document.getElementById("ngain").addEventListener('input',gain)
+document.getElementById("selecType").addEventListener('click',envType)
+document.getElementById("objFlagTranspo").addEventListener('click',flagTranspo)
+document.getElementById("mnt").addEventListener('input',defPosition)
+document.getElementById("mn2").addEventListener('input',defPosition)
+document.getElementById("mn3").addEventListener('input',defPosition)
+document.getElementById("transposition").addEventListener('input',transpoToPosY)
+
+document.getElementById("ndetune").addEventListener('input',detune)
+document.getElementById("detune").addEventListener('input',sdetune)
+
+document.getElementById("inpNom").addEventListener('input',nom)
+document.getElementById("inpCanal").addEventListener('input',piste)
+var txt="<option value=''></option>";
+for(let i=0;i<tableIR.length;i++){
+	txt=txt+"<option value='"+tableIR[i]+"'>"+tableIR[i]+"</option>";
+}
+document.getElementById('selecReverb').innerHTML=txt
+function selectReverbImpulseResponse(value) {
+	console.log("impulse reponse",value)
+}
+
+function importLang(name) {
+   // Load lang
+   var xhttp = new XMLHttpRequest()
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var txt=xhttp.responseText
+			defLang(txt)
+		}
+	}
+	xhttp.open("GET", name, true)
+	xhttp.send()
+}
+function defLang (txt) {
+	var ntxt = txt.split('\n')
+	var sp=[]
+	for(let i=0;i<ntxt.length-1;i++){
+		sp=ntxt[i].split('=')
+		tableLang[sp[0]]=sp[1]
+	}
+	interfaceLang ()
+}
+
+
+
+function interfaceLang () {
+document.getElementById('paramFileSelect').firstChild.innerHTML=tableLang['objpAudio']
+document.getElementById('lbmute').innerHTML=tableLang["objpMute"]
+document.getElementById('lbfichier').innerHTML=tableLang["objpFile"]
+document.getElementById('lbduree').innerHTML=tableLang["objpDuree"]
+document.getElementById('lbcanaux').innerHTML=tableLang["objpCanaux"]
+document.getElementById('dureeReelle').firstChild.firstChild.innerHTML=tableLang["objpDreel"]
+document.getElementById('tpenv').innerHTML=tableLang["objpTpEnv"]
+document.getElementById('lbtpenv1').innerHTML=tableLang["objpTpEnv1"]
+document.getElementById('lbtpenv2').innerHTML=tableLang["objpTpEnv2"]
+document.getElementById('lbtpenv3').innerHTML=tableLang["objpTpEnv3"]
+document.getElementById('ongEnv').innerHTML=tableLang["objpEnv"]
+document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain "]
+document.getElementById('lbrate').firstChild.innerHTML=tableLang["objpRate"]
+document.getElementById('position').firstChild.innerHTML=tableLang["objpPos"]
+document.getElementById('lbdetune').firstChild.innerHTML=tableLang["objpDetune"]
+document.getElementById('lblimites').firstChild.innerHTML=tableLang["objpLimites"]
+document.getElementById('lbnom').firstChild.innerHTML=tableLang["objpNom"]
+document.getElementById('lbinstrument').firstChild.innerHTML=tableLang["objpInstrument"]
+document.getElementById('lbannul').innerHTML=tableLang["objpAnnul"]
+document.getElementById('lbvalid').innerHTML=tableLang["objpValid"]
+}
+
+function objetStringDef(txt,c) {
+	var tbtxt=txt.split(':')
+	selectObj={}
+	selectObj.basePosY=tbtxt[0]
+	selectObj.bkgColor=tbtxt[1]
+	selectObj.bkgHeight=tbtxt[2]
+	selectObj.bkgImg=tbtxt[3]
+	selectObj.bkgOpacity=tbtxt[4]
+	selectObj.bkgTrp=tbtxt[5]
+	selectObj.bkgWidth=tbtxt[6]
+	selectObj.borderBc=tbtxt[7]
+	selectObj.borderBr=tbtxt[8]
+	selectObj.borderBs=tbtxt[9]
+	selectObj.borderBw=tbtxt[10]
+	selectObj.borderDc=tbtxt[11]
+	selectObj.borderDr=tbtxt[12]
+	selectObj.borderDs=tbtxt[13]
+	selectObj.borderDw=tbtxt[14]
+	selectObj.borderGc=tbtxt[15]
+	selectObj.borderGr=tbtxt[16]
+	selectObj.borderGs=tbtxt[17]
+	selectObj.borderGw=tbtxt[18]
+	selectObj.borderHc=tbtxt[19]
+	selectObj.borderHr=tbtxt[20]
+	selectObj.borderHs=tbtxt[21]
+	selectObj.borderHw=tbtxt[22]
+	selectObj.buffer=tbtxt[23]
+	selectObj.class=parseInt(tbtxt[24])
+	selectObj.convolver=tbtxt[25]
+	selectObj.cx=tbtxt[26]
+	selectObj.cy=tbtxt[27]
+	selectObj.debut=parseFloat(tbtxt[28])
+	selectObj.detune=parseFloat(tbtxt[29])
+	selectObj.duree=parseFloat(tbtxt[30])
+	selectObj.envType=parseInt(tbtxt[31])
+	var ev=tbtxt[32].split(",")
+	selectObj.envX=[]
+	for(let j=0;j<7;j++){
+		selectObj.envX[j]=ev[j]
+	}
+	ev=tbtxt[33].split(",")
+	selectObj.envY=[]
+	for(let j=0;j<7;j++){
+		selectObj.envY[j]=ev[j]
+	}
+	if(parseInt(tbtxt[65])==13){
+		ev=tbtxt[72].split(",")
+		selectObj.envmX=[]
+		for(let j=0;j<7;j++){
+			selectObj.envmX[j]=ev[j]
+		}
+		ev=tbtxt[73].split(",")
+		selectObj.envmY=[]
+		for(let j=0;j<7;j++){
+			selectObj.envmY[j]=ev[j]
+		}
+	}
+	selectObj.etat=parseInt(tbtxt[34])
+	selectObj.file=tbtxt[35]
+	selectObj.fin=parseFloat(tbtxt[36])
+	selectObj.flagTranspo=tbtxt[37]
+	selectObj.gain=parseFloat(tbtxt[38])
+	selectObj.height=parseFloat(tbtxt[39])
+	selectObj.id=tbtxt[40]
+	selectObj.img=tbtxt[41]
+	selectObj.margeG=tbtxt[42]
+	selectObj.margeH=tbtxt[43]
+	selectObj.mute=parseInt(tbtxt[44])
+	selectObj.nom=tbtxt[45]
+	selectObj.objBorderC=tbtxt[46]
+	selectObj.objBorderW=parseFloat(tbtxt[47])
+	selectObj.objColor=tbtxt[48]
+	selectObj.objOpacity=parseFloat(tbtxt[49])
+	selectObj.piste=parseInt(tbtxt[50])
+	selectObj.posX=parseFloat(tbtxt[51])
+	selectObj.posY=parseFloat(tbtxt[52])
+	selectObj.r=parseFloat(tbtxt[53])
+	selectObj.radius=tbtxt[54]
+	selectObj.scaleX=parseFloat(tbtxt[55])
+	selectObj.scaleY=parseFloat(tbtxt[56])
+	selectObj.spD=[]
+	var lspD=tbtxt[57].split(",")
+	for(let j=0;j<lspD.length;j++){
+		selectObj.spD[j]=parseFloat(lspD[j])
+	}
+	selectObj.spT=[]
+	var lspT=tbtxt[58].split(",")
+	for(let j=0;j<lspT.length;j++){
+		selectObj.spT[j]=parseFloat(lspT[j])
+	}
+	selectObj.spX=[]
+	var lspX=tbtxt[59].split(",")
+	for(let j=0;j<lspX.length;j++){
+		selectObj.spX[j]=parseFloat(lspX[j])
+	}
+	selectObj.spY=[]
+	var lspY=tbtxt[60].split(",")
+	for(let j=0;j<lspY.length;j++){
+		selectObj.spY[j]=parseFloat(lspY[j])
+	}
+	selectObj.spZ=[]
+	var lspZ=tbtxt[61].split(",")
+	for(let j=0;j<lspZ.length;j++){
+		selectObj.spZ[j]=parseFloat(lspZ[j])
+	}
+	selectObj.tableFx=tbtxt[62]
+	selectObj.tableFxParam=tbtxt[63]
+	selectObj.transposition=parseFloat(tbtxt[64]).toFixed(2)
+	selectObj.type=tbtxt[65]
+	selectObj.vueDuree=tbtxt[66]
+	selectObj.x1=tbtxt[67]
+	selectObj.x2=tbtxt[68]
+	selectObj.y1=tbtxt[69]
+	selectObj.y2=tbtxt[70]
+	selectObj.width=parseFloat(tbtxt[71])
+	
+	if(selectObj.bkgTrp==true){
+		document.getElementById("dobjColor").style.backgroundColor='transparent'
+	}else{
+		document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
+	}
+	console.log("type",selectObj.type)
+	switch(selectObj.type){
+					case "1":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><circle id='circle' cx='50' cy='50' r='30' fill='"+selectObj.objColor+"' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "2":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id='carre'  x='25' y='25' width='50' height='50' fill='"+selectObj.objColor+"' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "3":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,40 0,0 40,20 0,40' fill='"+selectObj.objColor+"' transform='translate(34 34)'  stroke='"+selectObj.objBorderC+"' stroke-width='"+selectObj.objBorderW+"' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "4":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><ellipse cx='50' cy='50' rx='40' ry='20' fill='"+selectObj.objColor+"'  stroke='"+selectObj.objBorderC+"' stroke-width='"+selectObj.objBorderW+"'  /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break		
+					case "5":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id='carre'  x='20' y='30' width='60' height='40' fill='"+selectObj.objColor+"' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "6":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,0 0,10 50,5 0,0' fill='"+selectObj.objColor+"' transform='scale(1.8 1.8) translate(4 25)'/></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "7":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='scale(1.8 1.8) translate(8 20)'><circle cx='10' cy='10' r='10' fill='"+selectObj.objColor+"' /><rect  x='10' y='5' width='30' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "8":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='scale(1.8 1.8) translate(8 20)'><rect width='20' height='20' fill='"+selectObj.objColor+"' /><rect  x='10' y='5' width='30' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "9":
+						var txt="<svg width='50' height='50'  viewBox='0 0 60 60'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0,10 0,5 50,0 50,15 0,10 Z' transform='translate(5 20)' fill='"+selectObj.objColor+"' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "10":
+						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='10' y1='24' x2='40' y2='24' stroke='"+selectObj.objColor+"' stroke-width='6' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "11":
+						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='8' y1='40' x2='40' y2='8' stroke='"+selectObj.objBorderC+"' stroke-width='"+selectObj.objBorderW+"' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "12":
+						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='25' y1='10' x2='25' y2='40' stroke='"+selectObj.objBorderC+"' stroke-width='10' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "13":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 25 Q 25 30 50 0  Q 45 30 0 40  L 0 25 Z ' fill='"+selectObj.objColor+"' transform='scale(0.7 0.7) translate(10 10)'/></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "14":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0 Q 45 3 40 38 Q 30 10 0 7 Z ' fill='"+selectObj.objColor+"' transform='scale(0.8 0.8) translate(12 12)'/></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "15":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 35 L 0 30 Q 30 30 50 0 L 50 20  Q 40 30 0 35 Z' fill='"+selectObj.objColor+"' transform='scale(0.7 0.7) translate(10 20)'/></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "16":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0  Q 30 5 50 20 L 50 50  Q 40 10 0 5 Z'  fill='"+selectObj.objColor+"' transform='scale(0.7 0.7) translate(12 10)'/></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "18":
+						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(14 6)' ><rect x='0' y='2' width='4' height='34' fill='"+selectObj.objColor+"' /><rect x='6' y='2' width='10' height='10' fill='blue' /><rect x='6' y='14' width='10' height='10' fill='"+selectObj.objColor+"' /><rect x='6' y='26' width='10' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "19":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(6 3)' ><rect x='0' y='0' width='10' height='10' fill='blue' /><rect x='14' y='5' width='9' height='9' fill='"+selectObj.objColor+"' /><rect x='23' y='14' width='8' height='8' fill='"+selectObj.objColor+"' /><rect x='28' y='22' width='7' height='7' fill='"+selectObj.objColor+"' /><rect x='31' y='29' width='6' height='6' fill='"+selectObj.objColor+"' /><rect x='32' y='35' width='5' height='5' fill='"+selectObj.objColor+"' /><rect x='33' y='40' width='4' height='4' fill='"+selectObj.objColor+"' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "20":
+						var txt="<svg width='40' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(4 1)' ><line x1='5' y1='10' x2='40' y2='10' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='13' x2='40' y2='13' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='18' x2='40' y2='18' stroke='"+selectObj.objBorderC+"' stroke-width='3' /><line x1='5' y1='25' x2='40' y2='25' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='29' x2='40' y2='29' stroke='"+selectObj.objBorderC+"' stroke-width='4' /><line x1='5' y1='35' x2='40' y2='35' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='38' x2='40' y2='38' stroke='"+selectObj.objBorderC+"' stroke-width='2' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "21":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(12 12)' ><path d='m 0,18 c 2.563522,-4.224314 5.082396,-8.502207 9.5544,-10.436343 15.408596,-2.005519 10.194491,-4.131414 15.287035,-6.173611 15.94465,-2.511366 17.400141,2.490165 23.66551,4.997685 2.271129,3.188679 5.724476,4.406994 4.703704,13.082175 -1.620314,13.767922 -5.475164,14.575533 -8.966435,17.4919 -8.306339,2.87551 -16.042438,4.467977 -22.783564,3.821758  -6.306339,0.87551 -14.042438,2.467977 -20.783564,-10.821758 Z' fill='#deea1a' stroke='#000000' stroke-width='1' transform='scale(0.5 0.5) translate(0 4)'/></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "22":
+						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' transform='translate(5 5)'><circle  cx='4' cy='4' r='2' fill='green' /><circle  cx='10' cy='8' r='2' fill='green' /><circle cx='8' cy='16' r='2' fill='green' /><circle  cx='14' cy='20' r='2' fill='green' /><circle  cx='35' cy='27' r='2' fill='green' /><circle  cx='21' cy='33' r='2' fill='green' /><circle  cx='38' cy='19' r='2' fill='green' /><circle  cx='34' cy='35' r='2' fill='green' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "23":
+						var txt="<img src='./images/png/image-2.svg' alt='' width='40px' style='padding-left:5px;padding-top:5px;' />"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+				}
+
+	document.getElementById("dobjColor").style.backgroundImage='url('+selectObj.bkgImg+')'
+	document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
+	document.getElementById("dobjColor").style.backgroundSize=selectObj.bkgWidth+"px "+selectObj.bkgHeight+"px"
+	if(selectObj.type!=23){
+		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke",selectObj.objBorderC)
+		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke-width",selectObj.objBorderW)
+	}		
+	var pathnom=tbtxt[35].split('.')
+	document.getElementById("paramLabel").innerHTML=pathnom[0]
+	
+	if(selectObj.file!=""){
+		document.getElementById("paramDr").textContent=selectObj.duree.toFixed(2)
+		document.getElementById("paramCanaux").textContent=c
+	}
+	if(selectObj.mute==1){
+		document.getElementById("objMute").checked=true
+	}else{
+		document.getElementById("objMute").checked=false
+	}
+	document.getElementById("ngain").value=selectObj.gain
+	document.getElementById("selecType").value=selectObj.envType
+	if(selectObj.flagTranspo==1){
+		document.getElementById("objFlagTranspo").checked=true
+	}else{
+		document.getElementById("objFlagTranspo").checked=false
+	}
+	position(selectObj.posX)
+	document.getElementById("transposition").value=selectObj.transposition
+	
+	document.getElementById("detune").value=selectObj.detune
+	document.getElementById("ndetune").value=selectObj.detune
+	document.getElementById("bgauche").style.left=posLimite(selectObj.debut)+"px"
+	document.getElementById("bgauchet").style.left=(posLimite(selectObj.debut)-20) + "px";
+	document.getElementById("bgauchet").innerHTML=selectObj.debut;
+	document.getElementById("limFond").style.left=document.getElementById("bgauche").style.left
+	document.getElementById("bdroit").style.left=(posLimite(selectObj.fin)-8)+"px"
+	document.getElementById("bdroitt").style.left=(posLimite(selectObj.fin)-28) + "px";
+	document.getElementById("bdroitt").innerHTML=selectObj.fin;	
+	document.getElementById("limFond").style.width=(262-(262*(selectObj.debut+(1-selectObj.fin))))+"px"
+	
+	document.getElementById("inpNom").value=selectObj.nom
+	document.getElementById("inpCanal").value=selectObj.piste
+	document.getElementById("selecReverb").value=selectObj.convolver
+	
+	document.getElementById("env1").style.left=(200*selectObj.envX[0])+"px"
+	document.getElementById("env1").style.top=(128-(128*selectObj.envY[0]))+"px"
+	document.getElementById("env2").style.left=(200*selectObj.envX[1])+"px"
+	document.getElementById("env2").style.top=(128-(128*selectObj.envY[1]))+"px"
+	document.getElementById("env3").style.left=(200*selectObj.envX[2])+"px"
+	document.getElementById("env3").style.top=(128-(128*selectObj.envY[2]))+"px"
+	document.getElementById("env4").style.left=(200*selectObj.envX[3])+"px"
+	document.getElementById("env4").style.top=(128-(128*selectObj.envY[3]))+"px"
+	document.getElementById("env5").style.left=(200*selectObj.envX[4])+"px"
+	document.getElementById("env5").style.top=(128-(128*selectObj.envY[4]))+"px"
+	document.getElementById("env6").style.left=(200*selectObj.envX[5])+"px"
+	document.getElementById("env6").style.top=(128-(128*selectObj.envY[5]))+"px"
+	document.getElementById("env7").style.left=(200*selectObj.envX[6])+"px"
+	document.getElementById("env7").style.top=(128-(128*selectObj.envY[6]))+"px"
+	
+}
+function defDureeReelle(){
+	window.api.send("toMain", "dureeReelle;"+selectId)
+}
+function objetGraphToString() {
+var txt=selectObj.bkgColor+":"+selectObj.bkgHeight+":"+selectObj.bkgImg+":"+selectObj.bkgTrp+":"+selectObj.bkgWidth+":"+selectObj.borderBc+":"+selectObj.borderBr+":"+selectObj.borderBs+":"+selectObj.borderBw+":"+selectObj.borderDc+":"+selectObj.borderDr+":"+selectObj.borderDs+":"+selectObj.borderDw+":"+selectObj.borderGc+":"+selectObj.borderGr+":"+selectObj.borderGs+":"+selectObj.borderGw+":"+selectObj.borderHc+":"+selectObj.borderHr+":"+selectObj.borderHs+":"+selectObj.borderHw+":"+selectObj.height+":"+selectObj.margeG+":"+selectObj.margeH+":"+selectObj.objBorderC+":"+selectObj.objBorderW+":"+selectObj.objColor+":"+selectObj.objOpacity+":"+selectObj.r+":"+selectObj.width
+	return txt
+}
+var lang="Fr"
+window.api.receive("fromMain", (data) => {
+
+console.log(`objParam1 : `,data);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'defObjetSpatial':
+				console.log(`spatialisation :`,cmd[1])
+				break
+			case 'defObjet':
+				if(cmd[2]!=""){
+					selectId=cmd[1]
+					lang=cmd[2]
+					importLang('./Local/'+lang+'/objParam-'+lang+".txt")
+					objetStringDef(cmd[3],cmd[4])
+				}else{
+				console.log('alerte')
+				}
+				//console.log(`objParam2 :`,cmd[2],selectObj,selectId)
+				break
+			case 'defAudioObj':
+				defAudioFile(cmd[1],cmd[2],parseInt(cmd[3]))
+				break
+			case 'fileAudioParam':
+				paramFileAudio(cmd[2],cmd[3])
+				break
+			case 'objColor':
+				defObjColor(cmd[1],cmd[2])
+				break
+			case 'defBkgColor':
+				defBkgColor(cmd[1],cmd[2])
+				break
+			case 'bkgTransparent':
+				bkgTransparent(cmd[1])
+				break
+			case 'defBordureColor':
+				defBordureColor(cmd[1],cmd[2])
+				break
+			case 'defBordureWidth':
+				defBordureWidth(cmd[1],cmd[2])
+				break
+			case 'defBkgImg':
+				defBkgImg(cmd[1],cmd[2])
+				break
+			case 'bkgSize':
+				defBkgSize(cmd[1],cmd[2],cmd[3])
+				break
+			case 'transposition':
+				document.getElementById("transposition").value=parseFloat(cmd[2]).toFixed(2)
+				break
+			case 'position':
+				document.getElementById("mnt").value=cmd[1];
+				document.getElementById("mns").value=Math.floor(parseFloat(cmd[2]));
+				document.getElementById("mnl").value=Math.floor(parseFloat(cmd[3])*1000);
+				break
+			case 'spatialspXZ':
+				spatialspXZ(cmd[1],cmd[2],cmd[3])
+				break
+			case 'spatialspZY':
+				spatialspZY(cmd[1],cmd[2],cmd[3])
+				break
+			case 'spatialspXY':
+				spatialspXY(cmd[1],cmd[2],cmd[3])
+				break
+			case 'spatialspD':
+				spatialspD(cmd[1],cmd[2])
+				break
+			case 'spatialspT':
+				spatialspT(cmd[1],cmd[2])
+				break
+			case 'createSpatialPoint':
+				createSpatialPoint(cmd[1],cmd[2])
+				break
+			default :
+				
+				
+				break
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+function openFileAudio(){
+	var cmd="audioFileObj;"+selectId
+	console.log("cmd",cmd,selectObj);
+	window.api.send("toMain", cmd)
+}
+
+function paramFileAudio(d,c){
+		document.getElementById("paramDr").textContent=parseFloat(d).toFixed(2)
+		document.getElementById("paramCanaux").textContent=c
+}
+
+function defGraphObj(e){
+	e.preventDefault()
+	window.api.send("toMain", "defGraphObj;"+selectId)
+}
+function defBkgSize(id,w,h) {
+	document.getElementById("dobjColor").style.backgroundSize=w+"px "+h+"px"
+}
+
+function defBordureColor(id,color) {
+	document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke",color);
+}
+function defBordureWidth(id,w) {
+	document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke-width",w);
+}
+function defObjColor(id,color) {
+	document.getElementById("dobjColor").firstChild.firstChild.setAttribute("fill",color);
+}
+function defBkgColor(id,color) {
+	document.getElementById("dobjColor").style.backgroundColor=color
+}
+function bkgTransparent(id) {  
+	document.getElementById("dobjColor").style.backgroundColor='transparent'
+} 
+function defBkgImg(id,img) {
+	document.getElementById("dobjColor").style.backgroundImage='url('+img+')'
+	document.getElementById("dobjColor").style.backgroundSize="50px 50px"
+	selectObj.bkgImg=img
+}
+
+function objAnnul() {
+	window.api.send("toMain", "objParamAnnul;"+selectId)
+}
+function objValid() {
+	var cmd="objParamValid;"+selectId
+	console.log("cmd",cmd);
+	window.api.send("toMain",cmd )
+	
+}
+
+/* ******************************************************** param audio *********************************** */
+function defAudioFile(id,file,num) {
+	var defFile=file.split('/')
+	var defnom=defFile[defFile.length-1].split('.')
+	if(num==1){
+		document.getElementById("paramLabel").innerHTML=defnom[0]
+	}else{
+		document.getElementById("paramLabel2").innerHTML=defnom[0]
+	}
+}
+
+function mute() {
+	if(document.getElementById("objMute").checked==true){
+		selectObj.mute=1
+	}else{
+		selectObj.mute=0
+	}
+	console.log("mute",selectObj.mute)
+	window.api.send("toMain", "mute;"+selectId+";"+selectObj.mute);
+}
+function gain() {
+	selectObj.gain=document.getElementById("ngain").value
+	window.api.send("toMain", "gain;"+selectId+";"+selectObj.gain);
+}
+function envType() {
+	selectObj.envType=document.getElementById("selecType").value
+	console.log("type",selectObj.envType)
+	window.api.send("toMain", "envType;"+selectId+";"+selectObj.envType);
+}
+function flagTranspo() {
+	if(document.getElementById("objFlagTranspo").checked==true){
+		selectObj.flagTranspo=1
+	}else{
+		selectObj.flagTranspo=0
+	}
+	console.log("flagTranspo",selectObj.flagTranspo)
+	window.api.send("toMain", "flagTranspo;"+selectId+";"+selectObj.flagTranspo);
+}
+function defPosition(){
+	var ratioT=(720/12960);
+	var mn=parseInt(document.getElementById("mnt").value);
+	var s=parseInt(document.getElementById("mns").value);
+	var ml=parseInt(document.getElementById("mnl").value);
+	var tmp=(((mn*60)+s)+(ml/1000))/ratioT;
+	selectObj.posX=tmp;
+	window.api.send("toMain", "defPosition;"+selectId+";"+tmp);
+}
+function detune() {
+	selectObj.detune=document.getElementById("ndetune").value
+	document.getElementById("detune").value=selectObj.detune
+	window.api.send("toMain", "detune;"+selectId+";"+selectObj.detune);
+}
+function sdetune() {
+	selectObj.detune=document.getElementById("detune").value
+	document.getElementById("ndetune").value=selectObj.detune
+	window.api.send("toMain", "detune;"+selectId+";"+selectObj.detune);
+}
+
+function nom() {
+	selectObj.nom=document.getElementById("inpNom").value
+	console.log("nom",selectObj.nom)
+	window.api.send("toMain", "nom;"+selectId+";"+selectObj.nom);
+}
+function piste() {
+	selectObj.piste=document.getElementById("inpCanal").value
+	console.log("piste",selectObj.piste)
+	window.api.send("toMain", "piste;"+selectId+";"+selectObj.piste);
+}
+function convol(c) {
+	selectObj.convolver=c
+	console.log("selecReverb",selectObj.convolver)
+	window.api.send("toMain", "convolver;"+selectId+";"+selectObj.convolver);
+}
+function dragElement2(elmnt) {
+console.log("obj",elmnt)
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "Header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown2;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+	  	elmnt.onmousedown = dragMouseDown2;
+ 
+  }
+
+  function dragMouseDown2(e) {
+    e = e || window.event;
+    console.log("obj",elmnt.id);
+    e.preventDefault();
+    e.stopPropagation();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement2;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag2;
+  }
+
+  function elementDrag2(e) {
+  	 //elmnt.style.cursor="move";
+    e = e || window.event;
+    e.preventDefault();
+    e.stopPropagation();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    var dty=elmnt.offsetTop - pos2;
+    
+    
+
+    var dty=elmnt.offsetTop - pos2;
+    var dtx=parseInt(elmnt.style.left);
+    
+    var ratioDuree=selectObj.duree/262;
+    if (elmnt.id=="bgauche" ) {
+    	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	if((elmnt.offsetLeft - pos1)<84){
+	 		elmnt.style.left = 84 + "px";
+	 	}
+	 	if((elmnt.offsetLeft - pos1)>parseInt(document.getElementById("bdroit").style.left)){
+	 		elmnt.style.left = (parseInt(document.getElementById("bdroit").style.left)-4) + "px";
+	 	}
+	 	document.getElementById("limFond").style.left=elmnt.style.left;
+	 	var lw=parseInt(document.getElementById("bdroit").style.left)-parseInt(elmnt.style.left);
+	 	document.getElementById("limFond").style.width=(lw+4)+"px";
+	 	selectObj.debut=((parseFloat(elmnt.style.left)-84)/262).toFixed(2);
+	 	window.api.send("toMain", "debut;"+selectId+";"+selectObj.debut);
+	 	document.getElementById("bgauchet").style.left=(elmnt.offsetLeft - pos1-30) + "px";
+	   document.getElementById("bgauchet").innerHTML=selectObj.debut;
+	 }
+	 if (elmnt.id=="bdroit" ) {
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	if((elmnt.offsetLeft - pos1)>346){
+	 		elmnt.style.left = 346 + "px";
+	 	}
+	 	if((elmnt.offsetLeft - pos1)<parseInt(document.getElementById("bgauche").style.left)){
+	 		elmnt.style.left = (parseInt(document.getElementById("bgauche").style.left)+4) + "px";
+	 	}
+	 	var rw=parseInt(elmnt.style.left)-parseInt(document.getElementById("bgauche").style.left);
+	 	document.getElementById("limFond").style.width=(rw+4)+"px";
+	 	selectObj.fin=((parseFloat(elmnt.style.left)-84)/262).toFixed(2);
+	 	if(selectObj.fin>1){
+	 		selectObj.fin=1;
+	 	}
+	 	window.api.send("toMain", "fin;"+selectId+";"+selectObj.fin);
+		document.getElementById("bdroitt").style.left=(elmnt.offsetLeft - pos1-30) + "px";
+	 	document.getElementById("bdroitt").innerHTML=selectObj.fin;
+	 }
+	 if(elmnt.id=="env1" || elmnt.id=="env2" || elmnt.id=="env3" || elmnt.id=="env4" || elmnt.id=="env5" || elmnt.id=="env6" || elmnt.id=="env7"){
+	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	envDef(elmnt);
+	 }
+	 if(elmnt.id=="envm1" || elmnt.id=="envm2" || elmnt.id=="envm3" || elmnt.id=="envm4" || elmnt.id=="envm5" || elmnt.id=="envm6" || elmnt.id=="envm7"){
+	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	envDef2(elmnt);
+	 	console.log("env2",elmnt.id);
+	 }
+	if(elmnt.id=="envT1" || elmnt.id=="envT2" || elmnt.id=="envT3" || elmnt.id=="envT4" || elmnt.id=="envT5" || elmnt.id=="envT6" || elmnt.id=="envT7"){
+	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	envTDef(elmnt);
+	 }
+  }
+
+  function closeDragElement2() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+    elmnt.style.cursor="default";
+    //console.log("limite b",selectObj.debut,selectObj.fin)
+    var nex=[]
+    for(let i=0;i<7;i++){
+    	nex[i]={
+     		x:selectObj.envX[i],
+   		y:selectObj.envY[i]
+   	}
+    }
+    nex=nex.sort((s1, s2) => {
+   		 return s1.x - s2.x;
+			});
+    for(let i=0;i<7;i++){
+    	selectObj.envX[i]=nex[i].x
+    	selectObj.envY[i]=nex[i].y
+    }
+  }
+}
+
+
+function envDef(elmnt){
+		var nid=parseInt(elmnt.id.substring(3,elmnt.id.length))-1;
+		var y=parseFloat(elmnt.style.top)
+		var x=parseFloat(elmnt.style.left)
+	 	if(y<0){
+	 		elmnt.style.top="0px";
+	 	}
+	 	if(y>parseFloat(elmnt.parentNode.style.height)-2){
+	 		elmnt.style.top=(parseFloat(elmnt.parentNode.style.height)-4)+"px";
+	 	}
+	 	if(x<0){
+	 		elmnt.style.left="0px";
+	 	}
+	 	if(x>(parseInt(elmnt.parentNode.style.width)-2)){
+	 		elmnt.style.left=(parseFloat(elmnt.parentNode.style.width)-4)+"px";
+	 	}
+	 	var nid=parseInt(elmnt.id.substring(3))-1;
+	 	selectObj.envX[nid]=(parseFloat(elmnt.style.left)/199).toFixed(2);
+	   selectObj.envY[nid]=(1-(parseFloat(elmnt.style.top)/128)).toFixed(2);
+	   window.api.send("toMain", "env;"+selectId+";"+nid+";"+selectObj.envX[nid]+";"+selectObj.envY[nid]);
+	 	console.log(elmnt.id,nid,selectObj.envX[nid],selectObj.envY[nid]);
+}
+function envDef2(elmnt){
+		var nid=parseInt(elmnt.id.substring(4,elmnt.id.length))-1;
+	 	if(parseInt(elmnt.style.top)<0){
+	 		elmnt.style.top="0px";
+	 	}
+	 	if(parseInt(elmnt.style.top)>parseInt(elmnt.parentNode.style.height)-2){
+	 		elmnt.style.top=(parseInt(elmnt.style.top)-4)+"px";
+	 	}
+	 	if(parseInt(elmnt.style.left)<0){
+	 		elmnt.style.left="0px";
+	 	}
+	 	if(parseInt(elmnt.style.left)>(parseInt(elmnt.parentNode.style.width)-2)){
+	 		elmnt.style.left=(parseInt(elmnt.parentNode.style.width)-4)+"px";
+	 	}
+	 	var nid=parseInt(elmnt.id.substring(4))-1;
+	 	selectObj.envmX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
+	   selectObj.envmY[nid]=(1-(parseInt(elmnt.style.top)/128)).toFixed(2);
+	   window.api.send("toMain", "envm;"+selectId+";"+nid+";"+selectObj.envmX[nid]+";"+selectObj.envmY[nid]);
+	 	console.log(elmnt.id,nid,selectObj.envmX[nid],selectObj.envmY[nid]);
+}
+
+function envTDef(elmnt){
+		var nid=parseInt(elmnt.id.substring(4,elmnt.id.length))-1;
+	 	if(parseInt(elmnt.style.top)<0){
+	 		elmnt.style.top=0+"px";
+	 	}
+	 	if(parseInt(elmnt.style.top)>parseInt(elmnt.parentNode.style.height)-2){
+	 		elmnt.style.top=(parseInt(elmnt.style.top)-4)+"px";
+	 	}
+	 	if(parseInt(elmnt.style.left)<0){
+	 		elmnt.style.left=0+"px";
+	 	}
+	 	if(parseInt(elmnt.style.left)>(parseInt(elmnt.parentNode.style.width)-2)){
+	 		elmnt.style.left=(parseInt(elmnt.parentNode.style.width)-4)+"px";
+	 	}
+	 	var nid=parseInt(elmnt.id.substring(4))-1;
+	 	selectObj.envX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
+	   selectObj.envY[nid]=(1-(parseInt(elmnt.style.top)/180));
+	   
+	 	//console.log(elmnt.id,nid,selectObj,"destY",tableObjet,selectObj.envX[nid],selectObj.envY[nid]);
+}
+function invTransposition(y){
+	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
+ 	let invT=(refViewBoxHeight-y )/(refViewBoxHeight/2);
+ 	console.log("refViewBoxHeight",refViewBoxHeight);
+   return invT;
+}
+function transpoToPosY(){
+	var transpo=parseFloat(document.getElementById("transposition").value)
+	window.api.send("toMain", "transpoToPosY;"+selectId+";"+transpo);
+}
+function position(x){
+	var ratioT=(720/12960);
+	var tmp=x*ratioT;
+	var mn=Math.floor(tmp/60);
+	var s=Math.floor(tmp%60);
+	var ml=tmp-((mn*60)+s);
+	window.api.send("toMain", "position;"+mn+";"+s+";"+ml);
+}
+function posLimite(x){
+	var pos=(x*266)+88
+	return pos
+}
+function limiteToPos(x){
+	var pos=(x-88)/266
+	return pos
+}
+
+function listeFx() {
+	window.api.send("toMain", "openListeFx");
+}
+function substituerFx() {
+	console.log("substituer")
+	window.api.send("toMain", "substituerFx");
+}
+/* ******************************************************** param spatialisation *********************************** */
+function openSpatialisation() {
+	if(selectObj.spT[0]!=0){
+		selectObj.spT[0]=0
+	}
+	var cmd="winSpatial;"+selectId+";"+selectObj.spT+";"+selectObj.spX+";"+selectObj.spY+";"+selectObj.spZ+";"+selectObj.spD+";"+selectObj.gain
+console.log("open spatialisation","spX",selectObj.spX,"cmd",cmd)
+	window.api.send("toMain", cmd)
+}
+function spatialspXZ(pt,X,Z) {
+	selectObj.spX[pt]=parseFloat(X);
+   selectObj.spZ[pt]=parseFloat(Z);
+   console.log("spat XZ",pt,selectObj.spX,selectObj.spY,selectObj.spZ)
+}
+function spatialspZY(pt,Z,Y) {
+	selectObj.spZ[pt]=parseFloat(Z);
+   selectObj.spY[pt]=parseFloat(Y);
+}
+function spatialspXY(pt,X,Y) {
+	selectObj.spX[pt]=parseFloat(X);
+   selectObj.spY[pt]=parseFloat(Y);
+}
+function spatialspD(pt,X) {
+	selectObj.spD[pt]=parseFloat(X);
+}
+function spatialspT(pt,T) {
+	selectObj.spT[pt]=parseFloat(T);
+}
+function createSpatialPoint(pt,t) {
+	selectObj.spT[pt]=parseFloat(t);
+}
+</script>
+</body>
+</html>

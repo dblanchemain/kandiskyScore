@@ -1,0 +1,1049 @@
+<!DOCTYPE HTML>
+<head>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-12-08T13:45:58+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Groupe prédéfini</title>
+</head>
+<body>
+
+<div id="simpleObjParam" style="width:400px;height:620px;">
+	<div id="paramFile"><button id="paramFileSelect" style="width:70px;margin-left:10px" onclick='openFileAudio();'>Audio : </button><span id="lbmute" style="position:absolute;top:8px;left:99px;">Mute :</span> <span  style="position:absolute;top:6px;left:140px;"><input  type="checkbox" id="objMute" name="mute" /></span><span style="position:absolute;top:8px;left:170px;" id="lbfichier" >Fichier : </span><span id="paramLabel" style="position:absolute;top:8px;left:226px;"></span></div>
+	<div id="lbduree" style="position:absolute;top:44px;left:99px;">Durée :<span id="paramDuree" style="position:absolute;top:0px;left:54px;"></span> </div>
+			<div id="lbcanaux" style="position:absolute;top:44px;left:270px;">canaux : <span id="paramCanaux"  style="position:absolute;top:0px;left:60px;"></span> </div>
+	<div style="margin:0px;padding:0px;width:50px;height:50px;" >
+		<span  id="dobjColor" style="position:absolute;top:60px;left:20px;width:50px;height:50px;border:1px solid black;">
+		<svg id="objColor"  width="50" height="50" viewBox=" 0 0 50 50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+			<line id="objParamColor" x1="14" y1="4" x2="14" y2="42" fill="none" stroke="#0000ff" stroke-width="4" opacity="1" />
+			<rect id="objParamColor" x="20" y="4" width="10" height="10" fill="#0000ff" opacity="1" />
+			<rect id="objParamColor" x="20" y="18" width="10" height="10" fill="#0000ff" opacity="1" />
+			<rect id="objParamColor" x="20" y="32" width="10" height="10" fill="#0000ff" opacity="1" />
+	   </svg>
+	   <input id="selectColor" type="color" style="display:none" value="" />
+	    <input id="selectStrokeColor" type="color" style="display:none" value="" />
+		</span>
+			
+		<input type="file" id="fileParam" style="display:none"/>
+		<input type="file" id="fileParam2" style="display:none"/>
+		<input type="file" id="fileAudioLoad" multiple style="display:none"/>
+		<input type="file" id="fileLoad" style="display:none"/>
+		<input type="file" id="fileGrpLoad" style="display:none"/>
+		<input type="file" id="imgParam" style="display:none"/>
+	<div id="dureeReelle" style="position:absolute;top:87px;left:124px;"><button onclick='defDureeReelle();'> Durée Réelle</button> </div>
+		 
+   </div>
+	
+   <div id="tpenv" style="position:absolute;top:230px;left:40px;">Type de variation :</div>
+	<div style="position:absolute;top:260px;left:50px;"> 
+		<form action="">
+		<select id="selecType" size="1">
+			<option  value="0"></option>
+			<option id="lbtpenv1"value="1">Linéaire</option>
+			<option id="lbtpenv2" value="2">Exponentielle</option>
+			<option id="lbtpenv3" >Courbe</option>
+		</select>
+		</form>
+	</div>
+	<div>
+	<span  id="ongEnv" style="position:absolute;top:127px;left:184px;background-color:#d3dbde;width:80px;height:20px;border:1px solid black;padding-left:4px;" onclick="defEnv();" >Enveloppe</span>
+	<div id="panEnv" style="position:absolute;top:148px;left:184px;border:1px solid black;width:200px;height:128px;">
+		<div id="env1"  style="position:absolute;top:94px;left:0px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env2"  style="position:absolute;top:60px;left:14px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env3"  style="position:absolute;top:25px;left:50px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env4"  style="position:absolute;top:5px;left:100px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env5"  style="position:absolute;top:25px;left:150px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env6"  style="position:absolute;top:60px;left:174px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env7"  style="position:absolute;top:94px;left:196px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+	</div>
+
+	<div id="lbgain"  style="position:absolute;top:190px;left:38px;">Gain : <input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
+	<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span style="position:absolute;top:300px;left:60px;" id="lbrate"  >Vitesse de lecture : <input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></span> </p>
+	</div>
+	<div id="position" style="position:absolute;top:334px;left:80px;">Position : <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
+	<div id="lbdetune" style="position:absolute;top:384px;left:14px;">Detune : </div> <span id="etir" style="margin:0px;padding:0px;position:absolute;top:375px;left:88px;" ><input id="ndetune" style="width:80px;height:24px;" type="number"  value="0" min="-1199" max="1199" step="1" /></span><div class="slider"  style="position:absolute;top:383px;left:184px;"><input  style="margin-left:14px;width:180px;" id="detune" type="range" value="1" min="-1199" max="1199" step="1" /></div>
+	<div id="lblimites" style="position:absolute;top:436px;left:10px;">Limites :<img  src="./images/png/fondSlider.png" style="margin-left:30px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:88px;height:20px;" /><span style="position:absolute;top:20px;left:88px;" id="bgauchet"></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:346px;height:20px;"/><span style="position:absolute;top:20px;left:88px;" id="bdroitt"></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
+	</div>
+	<div style="position:absolute;top:495px;left:10px;"><span id="lbnom" >Nom : </span><input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
+	<div  id="lbinstrument" style="position:absolute;top:537px;left:10px;"><span id="lbinstrument" >Piste : </span><input id="inpCanal" style="width:50px;" type="number"  value="0" min="0" max="64" step="1" /></div>
+	<div  style="position:absolute;top:480px;left:290px;"><img alt="Reverb. Convolution impulse reponse" title="Reverb. Convolution impulse reponse" src="./images/png/convol2.png" style="width:48px;"  onclick="fxAddPlugin();" /> </div>
+	<div  style="position:absolute;top:537px;left:260px;">
+		<select id="selecReverb" size="1"  value="0" onchange="convol(value);">
+			<option value="0"></option>
+		</select>
+		</div>
+	<div style="position:absolute;top:575px;left:700px;" ><button id="lbvalid" onclick='objValid();'>Valider</button></div>
+</div>
+
+
+<div style="margin:0px;padding:0px;">
+	   <input id="grpColor" type="color" style="display:none" value="#ffffff" />
+	   <input id="grpBkgColor" type="color" style="display:none" value="#ffffff" />
+	    <input id="grpStrokeColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpGaucheColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpHautColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpDroitColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpBasColor" type="color" style="display:none" value="#ffffff" />
+		
+</div>
+
+<div style="position:absolute;top:144px;left:420px;"><span id="bkg">Arrière-plan : </span><input id="ibkgGrp" type="text" style="width:90px" value="" /></div>
+<div ><span style="position:absolute;top:146px;left:650px;" id="transpa"> Transparence </span><span style="position:absolute;top:144px;left:630px;"><input id="bkgGrpTransparent" type="checkbox" checked /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="bkgOpac">Bkg Opacité : </span><input id="bkgGrpOpacity" style="width:40px;"type="number" value="1" min="0" max="1" step="0.1" /></span></div>
+<div  style="position:absolute;top:175px;left:420px;"><span id="lbwidth">Largeur : </span><input id="bkgGrpw" style="width:60px;" type="number" value="20" step="1" /><span id="lbheight"> Hauteur : </span><input id="bkgGrph" type="number" style="width:60px;" step="1" value="50"/><span id="lbbkgcolor"> Couleur : </span><input id="bkgGrpColor" type="color" value="transparent"/></div>
+
+<table style="position:absolute;top:220px;left:420px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
+	<tbody>
+		<tr><td  id="lbcadre" colspan="6" style="text-align:center; "> Cadre </td></tr>
+		<tr><td id="tp" style="border:0px;"></td><td>Type</td><td id="ep" >Épais.</td><td id="rd" >Radius</td><td id="cl" >Couleur</td><td id="mg">Marge</td></tr>
+		<tr><td id="lbgauche" >Gauche</td><td><form action=""><select id="gaucheType" size="1"><option value="none" id="pb1" >Pas de bordure</option><option value="dotted" id="pt1">Pointillés</option><option value="dashed" id="dh1">Tirets</option><option value="solid" id="plein1">Pleine</option><option value="double" id="double1">Double</option></select></form></td><td><input  id="gaucheWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="gaucheRadius" style="width:84px;height:24px;" type="text"  value=""  /></td><td style="border:none;" ><input id="gaucheGrpColor" type="color"  value="#ffffff" /></td><td><input  id="plGrpGauche" style="width:44px;height:24px;" type="number"  value="0"  step="1" /></td></tr>
+		<tr><td  id="lbhaut" >Haut</td><td><form action=""><select id="hautType" size="1"><option value="none"  id="pb2" >Pas de bordure</option><option value="dotted"  id="pt2" >Pointillés</option><option value="dashed"  id="dh2" >Tirets</option><option value="solid"  id="plein2">Pleine</option><option value="double" id="double2">Double</option></select></form></td><td><input id="hautWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="hautRadius" style="width:84px;height:24px;" type="text"  value="" /></td><td  style="border:none;" ><input id="hautGrpColor" type="color" value="#ffffff" /></td><td><input  id="plGrpHaut" style="width:44px;height:24px;" type="number"  value="0"     step="1" /></td></tr>
+		<tr><td  id="lbdroit">Droit</td><td><form action=""><select id="droitGrpType" size="1"><option value="none"  id="pb3">Pas de bordure</option><option value="dotted"  id="pt3">Pointillés</option><option value="dashed"  id="dh3">Tirets</option><option value="solid" id="plein3">Pleine</option><option value="double" id="double3">Double</option></select></form></td><td><input id="droitWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="droitRadius" style="width:84px;height:24px;" type="text"  value="" /></td><td  style="border:none;" ><input id="droitGrpColor" type="color" value="#ffffff" /></td><td style="border:none;" ></td></tr>
+		<tr><td  id="lbbas">Bas</td><td><form action=""><select id="basType" size="1"><option value="none"  id="pb4">Pas de bordure</option><option value="dotted"  id="pt4">Pointillés</option><option value="dashed"  id="dh4">Tirets</option><option value="solid" id="plein4">Pleine</option><option value="double" id="double4">Double</option></select></form></td><td><input id="basWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="basRadius" style="width:84px;height:24px;" type="text"  /></td><td  style="border:none;" ><input id="basGrpColor" type="color"  value="#ffffff" /></td><td style="border:none;" ></td></tr>
+	</tbody>
+</table>
+</div>
+
+<script  src="impulseReponse.js"></script>
+<script >
+var selectObj={}
+var selectId=''
+var svobj=""
+
+const tableLang=[]
+
+function importLang(name) {
+   // Load lang
+   var xhttp = new XMLHttpRequest()
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var txt=xhttp.responseText
+			defLang(txt)
+		}
+	}
+	xhttp.open("GET", name, true)
+	xhttp.send()
+}
+function defLang (txt) {
+	var ntxt = txt.split('\n')
+	var sp=[]
+	for(let i=0;i<ntxt.length-1;i++){
+		sp=ntxt[i].split('=')
+		tableLang[sp[0]]=sp[1]
+	}
+	interfaceLang ()
+}
+
+
+
+function interfaceLang () {
+document.getElementById('paramFileSelect').firstChild.innerHTML=tableLang['objpAudio']
+document.getElementById('lbmute').innerHTML=tableLang["objpMute"]
+document.getElementById('lbfichier').innerHTML=tableLang["objpFile"]
+document.getElementById('lbduree').innerHTML=tableLang["objpDuree"]
+document.getElementById('lbcanaux').innerHTML=tableLang["objpCanaux"]
+document.getElementById('dureeReelle').firstChild.firstChild.innerHTML=tableLang["objpDreel"]
+document.getElementById('tpenv').innerHTML=tableLang["objpTpEnv"]
+document.getElementById('lbtpenv1').innerHTML=tableLang["objpTpEnv1"]
+document.getElementById('lbtpenv2').innerHTML=tableLang["objpTpEnv2"]
+document.getElementById('lbtpenv3').innerHTML=tableLang["objpTpEnv3"]
+document.getElementById('ongEnv').innerHTML=tableLang["objpEnv"]
+document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain "]
+document.getElementById('lbrate').firstChild.innerHTML=tableLang["objpRate"]
+document.getElementById('position').firstChild.innerHTML=tableLang["objpPos"]
+document.getElementById('lbdetune').firstChild.innerHTML=tableLang["objpDetune"]
+document.getElementById('lblimites').firstChild.innerHTML=tableLang["objpLimites"]
+document.getElementById('lbnom').innerHTML=tableLang["objpNom"]
+document.getElementById('lbinstrument').innerHTML=tableLang["objpInstrument"]
+document.getElementById('bkg').innerHTML=tableLang["objgBkg"]
+document.getElementById('transpa').innerHTML=tableLang["objgTranspa"]
+document.getElementById('bkgOpac').innerHTML=tableLang["objgBkgOpacity"]
+document.getElementById('lbwidth').innerHTML=tableLang["objgWidth"]
+document.getElementById('lbheight').innerHTML=tableLang["objgHeight"]
+document.getElementById('lbbkgcolor').innerHTML=tableLang["objgColor"]
+document.getElementById('lbcadre').innerHTML=tableLang["objgCadre"]
+document.getElementById('tp').innerHTML=tableLang["objgBorderT"]
+document.getElementById('ep').innerHTML=tableLang["objgBorderE"]
+document.getElementById('rd').innerHTML=tableLang["objgBorderR"]
+document.getElementById('cl').innerHTML=tableLang["objgColor"]
+document.getElementById('mg').innerHTML=tableLang["objgBorderM"]
+document.getElementById('lbgauche').innerHTML=tableLang["objgBorderG"]
+document.getElementById('lbhaut').innerHTML=tableLang["objgBorderH"]
+document.getElementById('lbdroit').innerHTML=tableLang["objgBorderD"]
+document.getElementById('lbbas').innerHTML=tableLang["objgBorderB"]
+document.getElementById('pb1').innerHTML=tableLang["objgPb"]
+document.getElementById('pt1').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh1').innerHTML=tableLang["objgTir"]
+document.getElementById('plein1').innerHTML=tableLang["objgPlein"]
+document.getElementById('double1').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb2').innerHTML=tableLang["objgPb"]
+document.getElementById('pt2').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh2').innerHTML=tableLang["objgTir"]
+document.getElementById('plein2').innerHTML=tableLang["objgPlein"]
+document.getElementById('double2').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb3').innerHTML=tableLang["objgPb"]
+document.getElementById('pt3').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh3').innerHTML=tableLang["objgTir"]
+document.getElementById('plein3').innerHTML=tableLang["objgPlein"]
+document.getElementById('double3').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb4').innerHTML=tableLang["objgPb"]
+document.getElementById('pt4').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh4').innerHTML=tableLang["objgTir"]
+document.getElementById('plein4').innerHTML=tableLang["objgPlein"]
+document.getElementById('double4').innerHTML=tableLang["objgDouble"]
+document.getElementById('lbvalid').innerHTML=tableLang["objgValid"]
+}
+
+dragElement2(document.getElementById("bgauche"));
+dragElement2(document.getElementById("bdroit"));
+dragElement2(document.getElementById("bgauchet"));
+dragElement2(document.getElementById("bdroitt"));
+dragElement2(document.getElementById("env1"));
+dragElement2(document.getElementById("env2"));
+dragElement2(document.getElementById("env3"));
+dragElement2(document.getElementById("env4"));
+dragElement2(document.getElementById("env5"));
+dragElement2(document.getElementById("env6"));
+dragElement2(document.getElementById("env7"));
+
+
+document.getElementById("objMute").addEventListener('click',mute)
+document.getElementById("ngain").addEventListener('input',gain)
+document.getElementById("selecType").addEventListener('click',envType)
+document.getElementById("objFlagTranspo").addEventListener('click',flagTranspo)
+document.getElementById("mnt").addEventListener('input',defPosition)
+document.getElementById("mn2").addEventListener('input',defPosition)
+document.getElementById("mn3").addEventListener('input',defPosition)
+document.getElementById("ndetune").addEventListener('input',detune)
+document.getElementById("detune").addEventListener('input',sdetune)
+
+document.getElementById("inpNom").addEventListener('input',nom)
+document.getElementById("inpCanal").addEventListener('input',piste)
+
+
+document.getElementById("ibkgGrp").addEventListener('click',objBkgGrpImg)
+document.getElementById("bkgGrpw").addEventListener('input',bkgGrpWidth)
+document.getElementById("bkgGrph").addEventListener('input',bkgGrpHeight)
+document.getElementById("bkgGrpTransparent").addEventListener('input',bkgGrpTransparent)
+
+
+
+document.getElementById("bkgGrpOpacity").addEventListener('input',bkgGrpOpacity)
+
+document.getElementById("gaucheType").addEventListener('input',grpGaucheType)
+document.getElementById("gaucheWidth").addEventListener('input',grpGaucheWidth)
+document.getElementById("gaucheRadius").addEventListener('input',grpGaucheRadius)
+document.getElementById("hautType").addEventListener('input',grpHautType)
+document.getElementById("hautWidth").addEventListener('input',grpHautWidth)
+document.getElementById("hautRadius").addEventListener('input',grpHautRadius)
+document.getElementById("droitGrpType").addEventListener('input',grpDroitType)
+document.getElementById("droitWidth").addEventListener('input',grpDroitWidth)
+document.getElementById("droitRadius").addEventListener('input',grpDroitRadius)
+document.getElementById("basType").addEventListener('input',grpBasType)
+document.getElementById("basWidth").addEventListener('input',grpBasWidth)
+document.getElementById("basRadius").addEventListener('input',grpBasRadius)
+
+document.getElementById("plGrpGauche").addEventListener('input',grpMargeGauche)
+document.getElementById("plGrpHaut").addEventListener('input',grpMargeHaut)
+
+var txt="<option value=''></option>";
+for(let i=0;i<tableIR.length;i++){
+	txt=txt+"<option value='"+tableIR[i]+"'>"+tableIR[i]+"</option>";
+}
+document.getElementById('selecReverb').innerHTML=txt
+function selectReverbImpulseResponse(value) {
+	console.log("impulse reponse",value)
+}
+function paletteValid() {
+	document.getElementById('fenetreFlot').style.display='none'
+}
+
+function objetStringDef(txt,c) {
+	var tbtxt=txt.split(':')
+	selectObj={}
+	selectObj.basePosY=tbtxt[0]
+	selectObj.bkgColor=tbtxt[1]
+	selectObj.bkgHeight=tbtxt[2]
+	selectObj.bkgImg=tbtxt[3]
+	selectObj.bkgOpacity=tbtxt[4]
+	selectObj.bkgTrp=tbtxt[5]
+	selectObj.bkgWidth=tbtxt[6]
+	selectObj.borderBc=tbtxt[7]
+	selectObj.borderBr=tbtxt[8]
+	selectObj.borderBs=tbtxt[9]
+	selectObj.borderBw=tbtxt[10]
+	selectObj.borderDc=tbtxt[11]
+	selectObj.borderDr=tbtxt[12]
+	selectObj.borderDs=tbtxt[13]
+	selectObj.borderDw=tbtxt[14]
+	selectObj.borderGc=tbtxt[15]
+	selectObj.borderGr=tbtxt[16]
+	selectObj.borderGs=tbtxt[17]
+	selectObj.borderGw=tbtxt[18]
+	selectObj.borderHc=tbtxt[19]
+	selectObj.borderHr=tbtxt[20]
+	selectObj.borderHs=tbtxt[21]
+	selectObj.borderHw=tbtxt[22]
+	selectObj.buffer=tbtxt[23]
+	selectObj.class=parseInt(tbtxt[24])
+	selectObj.convolver=tbtxt[25]
+	selectObj.cx=tbtxt[26]
+	selectObj.cy=tbtxt[27]
+	selectObj.debut=parseFloat(tbtxt[28])
+	selectObj.detune=parseFloat(tbtxt[29])
+	selectObj.duree=parseFloat(tbtxt[30])
+	selectObj.envType=parseInt(tbtxt[31])
+	var ev=tbtxt[32].split(",")
+	selectObj.envX=[]
+	for(let j=0;j<7;j++){
+		selectObj.envX[j]=ev[j]
+	}
+	ev=tbtxt[33].split(",")
+	selectObj.envY=[]
+	for(let j=0;j<7;j++){
+		selectObj.envY[j]=ev[j]
+	}
+	selectObj.etat=parseInt(tbtxt[34])
+	selectObj.file=tbtxt[35]
+	selectObj.fin=parseFloat(tbtxt[36])
+	selectObj.flagTranspo=tbtxt[37]
+	selectObj.gain=parseFloat(tbtxt[38])
+	selectObj.height=parseFloat(tbtxt[39])
+	selectObj.id=tbtxt[40]
+	selectObj.img=tbtxt[41]
+	selectObj.liste=tbtxt[42]
+	selectObj.margeG=tbtxt[43]
+	selectObj.margeH=tbtxt[44]
+	selectObj.mute=parseInt(tbtxt[45])
+	selectObj.nom=tbtxt[46]
+	selectObj.objBorderC=tbtxt[47]
+	selectObj.objBorderW=parseFloat(tbtxt[48])
+	selectObj.objColor=tbtxt[49]
+	selectObj.objOpacity=parseFloat(tbtxt[50])
+	selectObj.piste=parseInt(tbtxt[51])
+	selectObj.posX=parseFloat(tbtxt[52])
+	selectObj.posY=parseFloat(tbtxt[53])
+	selectObj.r=parseFloat(tbtxt[54])
+	selectObj.radius=tbtxt[55]
+	selectObj.scaleX=parseFloat(tbtxt[56])
+	selectObj.scaleY=parseFloat(tbtxt[57])
+	selectObj.spD=tbtxt[58]
+	selectObj.spT=[]
+	var lspT=tbtxt[59].split(",")
+	for(let j=0;j<lspT.length;j++){
+		selectObj.spT[j]=parseFloat(lspT[j])
+	}
+	selectObj.spX=[]
+	var lspX=tbtxt[60].split(",")
+	for(let j=0;j<lspX.length;j++){
+		selectObj.spX[j]=parseFloat(lspX[j])
+	}
+	selectObj.spY=[]
+	var lspY=tbtxt[61].split(",")
+	for(let j=0;j<lspY.length;j++){
+		selectObj.spY[j]=parseFloat(lspY[j])
+	}
+	selectObj.spZ=[]
+	var lspZ=tbtxt[62].split(",")
+	for(let j=0;j<lspZ.length;j++){
+		selectObj.spZ[j]=parseFloat(lspZ[j])
+	}
+	selectObj.tableFx=tbtxt[63]
+	selectObj.tableFxParam=tbtxt[64]
+	selectObj.transposition=parseFloat(tbtxt[65]).toFixed(2)
+	selectObj.type=tbtxt[66]
+	selectObj.vueDuree=tbtxt[67]
+	selectObj.x1=tbtxt[68]
+	selectObj.x2=tbtxt[69]
+	selectObj.y1=tbtxt[70]
+	selectObj.y2=tbtxt[71]
+	selectObj.width=parseFloat(tbtxt[72])
+	
+	if(selectObj.bkgTrp==true){
+		document.getElementById("dobjColor").style.backgroundColor='transparent'
+	}else{
+		document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
+	}
+	console.log("type",selectObj.type)
+	switch(selectObj.type){
+					case "18":
+						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(14 6)' ><rect x='0' y='2' width='4' height='34' fill='"+selectObj.objColor+"' /><rect x='6' y='2' width='10' height='10' fill='blue' /><rect x='6' y='14' width='10' height='10' fill='"+selectObj.objColor+"' /><rect x='6' y='26' width='10' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "19":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(6 3)' ><rect x='0' y='0' width='10' height='10' fill='blue' /><rect x='14' y='5' width='9' height='9' fill='"+selectObj.objColor+"' /><rect x='23' y='14' width='8' height='8' fill='"+selectObj.objColor+"' /><rect x='28' y='22' width='7' height='7' fill='"+selectObj.objColor+"' /><rect x='31' y='29' width='6' height='6' fill='"+selectObj.objColor+"' /><rect x='32' y='35' width='5' height='5' fill='"+selectObj.objColor+"' /><rect x='33' y='40' width='4' height='4' fill='"+selectObj.objColor+"' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break
+					case "20":
+						var txt="<svg width='40' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(4 1)' ><line x1='5' y1='10' x2='40' y2='10' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='13' x2='40' y2='13' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='18' x2='40' y2='18' stroke='"+selectObj.objBorderC+"' stroke-width='3' /><line x1='5' y1='25' x2='40' y2='25' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='29' x2='40' y2='29' stroke='"+selectObj.objBorderC+"' stroke-width='4' /><line x1='5' y1='35' x2='40' y2='35' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='38' x2='40' y2='38' stroke='"+selectObj.objBorderC+"' stroke-width='2' /></g></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+					case "22":
+						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' transform='translate(5 5)'><circle  cx='4' cy='4' r='2' fill='green' /><circle  cx='10' cy='8' r='2' fill='green' /><circle cx='8' cy='16' r='2' fill='green' /><circle  cx='14' cy='20' r='2' fill='green' /><circle  cx='35' cy='27' r='2' fill='green' /><circle  cx='21' cy='33' r='2' fill='green' /><circle  cx='38' cy='19' r='2' fill='green' /><circle  cx='34' cy='35' r='2' fill='green' /></svg>"
+						document.getElementById("dobjColor").innerHTML=txt	
+						break	
+				}
+
+	document.getElementById("dobjColor").style.backgroundImage='url('+selectObj.bkgImg+')'
+	document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
+	document.getElementById("dobjColor").style.backgroundSize=selectObj.bkgWidth+"px "+selectObj.bkgHeight+"px"
+	if(selectObj.type!=23){
+		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke",selectObj.objBorderC)
+		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke-width",selectObj.objBorderW)
+	}		
+	var pathnom=tbtxt[35].split('.')
+	document.getElementById("paramLabel").innerHTML=pathnom[0]
+	if(selectObj.file!=""){
+		document.getElementById("paramDuree").innerHTML=selectObj.duree.toFixed(2)
+		//document.getElementById("paramCanaux").innerHTML=c
+	}
+	if(selectObj.mute==1){
+		document.getElementById("objMute").checked=true
+	}else{
+		document.getElementById("objMute").checked=false
+	}
+	document.getElementById("ngain").value=selectObj.gain
+	document.getElementById("selecType").value=selectObj.envType
+	if(selectObj.flagTranspo==1){
+		document.getElementById("objFlagTranspo").checked=true
+	}else{
+		document.getElementById("objFlagTranspo").checked=false
+	}
+	position(selectObj.posX)
+	document.getElementById("transposition").value=selectObj.transposition
+	
+	document.getElementById("detune").value=selectObj.detune
+	document.getElementById("ndetune").value=selectObj.detune
+	document.getElementById("bgauche").style.left=posLimite(selectObj.debut)+"px"
+	document.getElementById("bgauchet").style.left=(posLimite(selectObj.debut)-20) + "px";
+	document.getElementById("bgauchet").innerHTML=selectObj.debut;
+	document.getElementById("limFond").style.left=document.getElementById("bgauche").style.left
+	document.getElementById("bdroit").style.left=(posLimite(selectObj.fin)-8)+"px"
+	document.getElementById("bdroitt").style.left=(posLimite(selectObj.fin)-28) + "px";
+	document.getElementById("bdroitt").innerHTML=selectObj.fin;	
+	document.getElementById("limFond").style.width=(262-(262*(selectObj.debut+(1-selectObj.fin))))+"px"
+	
+	document.getElementById("inpNom").value=selectObj.nom
+	document.getElementById("inpCanal").value=selectObj.piste
+	document.getElementById("selecReverb").value=selectObj.convolver
+	
+	document.getElementById("env1").style.left=(200*selectObj.envX[0])+"px"
+	document.getElementById("env1").style.top=(128-(128*selectObj.envY[0]))+"px"
+	document.getElementById("env2").style.left=(200*selectObj.envX[1])+"px"
+	document.getElementById("env2").style.top=(128-(128*selectObj.envY[1]))+"px"
+	document.getElementById("env3").style.left=(200*selectObj.envX[2])+"px"
+	document.getElementById("env3").style.top=(128-(128*selectObj.envY[2]))+"px"
+	document.getElementById("env4").style.left=(200*selectObj.envX[3])+"px"
+	document.getElementById("env4").style.top=(128-(128*selectObj.envY[3]))+"px"
+	document.getElementById("env5").style.left=(200*selectObj.envX[4])+"px"
+	document.getElementById("env5").style.top=(128-(128*selectObj.envY[4]))+"px"
+	document.getElementById("env6").style.left=(200*selectObj.envX[5])+"px"
+	document.getElementById("env6").style.top=(128-(128*selectObj.envY[5]))+"px"
+	document.getElementById("env7").style.left=(200*selectObj.envX[6])+"px"
+	document.getElementById("env7").style.top=(128-(128*selectObj.envY[6]))+"px"
+	
+	var opac=selectObj.bkgOpacity
+	var nopac=Math.round(opac*255)
+	var color=selectObj.bkgColor
+	var ncolor=color+(nopac.toString(16)) 
+	document.getElementById("dobjColor").style.backgroundColor=ncolor; 
+	document.getElementById("bkgGrpColor").value=selectObj.bkgColor
+	document.getElementById("bkgGrph").value=selectObj.bkgHeight
+	document.getElementById("ibkgGrp").value=selectObj.bkgImg
+	document.getElementById("bkgGrpOpacity").value=selectObj.bkgOpacity
+	document.getElementById("bkgGrpw").value=selectObj.bkgWidth
+	
+	document.getElementById("basGrpColor").value=selectObj.borderBc
+	document.getElementById("basRadius").value=selectObj.borderBr
+	document.getElementById("basType").value=selectObj.borderBs
+	document.getElementById("basWidth").value=selectObj.borderBw
+	
+	document.getElementById("droitGrpColor").value=selectObj.borderDc
+	document.getElementById("droitRadius").value=selectObj.borderDr
+	document.getElementById("droitGrpType").value=selectObj.borderDs
+	document.getElementById("droitWidth").value=selectObj.borderDw
+
+	document.getElementById("gaucheGrpColor").value=selectObj.borderGc
+	document.getElementById("gaucheRadius").value=selectObj.borderGr
+	document.getElementById("gaucheType").value=selectObj.borderGs
+	document.getElementById("gaucheWidth").value=selectObj.borderGw
+	document.getElementById("hautGrpColor").value=selectObj.borderHc
+	document.getElementById("hautRadius").value=selectObj.borderHr
+	document.getElementById("hautType").value=selectObj.borderHs
+	document.getElementById("hautWidth").value=selectObj.borderHw
+
+	if(selectObj.bkgTrp=="true"){
+		document.getElementById("bkgGrpTransparent").checked=true
+	}else{
+		document.getElementById("bkgGrpTransparent").checked=false
+	}
+	console.log("preDef",selectObj)
+}
+function objetGraphToString() {
+var txt=selectObj.bkgColor+":"+selectObj.bkgHeight+":"+selectObj.bkgImg+":"+selectObj.bkgTrp+":"+selectObj.bkgWidth+":"+selectObj.borderBc+":"+selectObj.borderBr+":"+selectObj.borderBs+":"+selectObj.borderBw+":"+selectObj.borderDc+":"+selectObj.borderDr+":"+selectObj.borderDs+":"+selectObj.borderDw+":"+selectObj.borderGc+":"+selectObj.borderGr+":"+selectObj.borderGs+":"+selectObj.borderGw+":"+selectObj.borderHc+":"+selectObj.borderHr+":"+selectObj.borderHs+":"+selectObj.borderHw+":"+selectObj.height+":"+selectObj.margeG+":"+selectObj.margeH+":"+selectObj.objBorderC+":"+selectObj.objBorderW+":"+selectObj.objColor+":"+selectObj.objOpacity+":"+selectObj.r+":"+selectObj.width
+	return txt
+}
+window.api.receive("fromMain", (data) => {
+
+console.log(`objParam1 : `,data);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'defObjetSpatial':
+				console.log(`spatialisation :`,cmd[1])
+				break
+			case 'defPreDef':
+				if(cmd[3]!=""){
+					selectId=cmd[1]
+				lang=cmd[2]
+				importLang('./Local/'+lang+'/preDef-'+lang+".txt")
+				console.log("tableLang",tableLang)
+					objetStringDef(cmd[3],cmd[4])
+				}else{
+				console.log('alerte')
+				}
+				//console.log(`objParam2 :`,cmd[2],selectObj,selectId)
+				break
+			case 'defAudioObj':
+				defAudioFile(cmd[1],cmd[2])
+				break
+			case 'fileAudioParam':
+				paramFileAudio(cmd[2],cmd[3])
+				break
+			case 'defGrpImg':
+				document.getElementById("dobjColor").style.backgroundImage="url('"+cmd[2]+"')"
+				document.getElementById("ibkgGrp").value=cmd[2]
+				break
+			default :
+				
+				
+				break
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+function openFileAudio(){
+	var cmd="audioPreDef;"+selectId
+	console.log("cmd",cmd,selectObj);
+	window.api.send("toMain", cmd)
+}
+function paramFileAudio(d,c){
+	document.getElementById("paramDuree").innerHTML=parseFloat(d).toFixed(2)
+	document.getElementById("paramCanaux").innerHTML=c
+}
+
+
+function objValid() {
+	var cmd="preDefValid;"+selectId
+	console.log("cmd",cmd);
+	window.api.send("toMain",cmd )
+	
+}
+
+function bkgGrpOpacity(e) {
+	var opac=parseFloat(document.getElementById("bkgGrpOpacity").value)
+	var nopac=Math.round(opac*255)
+	var color=selectObj.bkgColor
+	var ncolor=color+(nopac.toString(16)) 
+	document.getElementById("dobjColor").style.backgroundColor=ncolor; 
+	window.api.send("toMain", "bkgGrpOpacity;"+selectId+";"+opac)
+}
+function bkgGrpTransparent(e) {
+	if(document.getElementById("bkgGrpTransparent").checked==true){
+		window.api.send("toMain", "grpBkgTransparent;"+selectId)
+		document.getElementById("dobjColor").style.backgroundColor='transparent'
+	}else{
+		document.getElementById("dobjColor").style.backgroundColor=document.getElementById("bkgGrpColor").value
+		window.api.send("toMain", "bkgGrpColor;"+selectId+";"+document.getElementById("bkgGrpColor").value)
+	}
+}
+const objColor = document.getElementById("selectColor");
+const inpColor = document.getElementById("dobjColor");
+inpColor.addEventListener("click", (e) => {
+  if (objColor) {
+    objColor.click();
+  }
+  e.preventDefault();
+}, false);
+objColor.addEventListener("change", defColor, false);
+
+
+function defColor(e) {
+console.log(this.value,document.getElementById("dobjColor").firstChild.firstChild)
+	document.getElementById("dobjColor").firstChild.firstChild.firstChild.setAttribute("fill",this.value)
+	document.getElementById("dobjColor").firstChild.firstChild.firstChild.nextSibling.setAttribute("fill",this.value)
+	document.getElementById("dobjColor").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute("fill",this.value)
+	document.getElementById("dobjColor").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute("fill",this.value)
+	window.api.send("toMain", "preDefColor;"+selectId+";"+this.value)
+}
+function objBkgGrpImg(e) {
+	window.api.send("toMain", "bkgGrpImg;"+selectId)
+}
+const bkgGrpColor = document.getElementById("grpBkgColor");
+const inpBkgGrpColor = document.getElementById("bkgGrpColor");
+inpBkgGrpColor.addEventListener("click", (e) => {
+  if (bkgGrpColor) {
+    bkgGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+bkgGrpColor.addEventListener("change", defBkgGrpColor, false);
+
+
+function defBkgGrpColor(e) {
+	selectObj.bkgColor=this.value
+	document.getElementById("dobjColor").style.backgroundColor=this.value;
+	document.getElementById("bkgGrpColor").value=this.value;
+	window.api.send("toMain", "bkgGrpColor;"+selectId+";"+this.value)
+	document.getElementById("bkgGrpTransparent").checked=false
+}
+function bkgGrpWidth(e) {
+var bkgGrpw=document.getElementById("bkgGrpw").value
+window.api.send("toMain", "bkgGrpWidth;"+selectId+";"+bkgGrpw)
+//document.getElementById("objImg").style.backgroundSize=bkgw+"px "+document.getElementById("bkgh").value+"px"
+}
+function bkgGrpHeight(e) {
+var bkgGrph=document.getElementById("bkgGrph").value
+window.api.send("toMain", "bkgGrpHeight;"+selectId+";"+document.getElementById("bkgGrph").value)
+//document.getElementById("objImg").style.backgroundSize=document.getElementById("bkgh").value+"px "+bkgh+"px"
+}
+function defBordureWidth(e) {
+var bwidth=document.getElementById("epsBordure").value
+window.api.send("toMain", "bordureWidth;"+selectId+";"+bwidth)
+document.getElementById("objImg").firstChild.firstChild.setAttribute('stroke-width',bwidth)
+}
+
+function grpMargeGauche(e) {
+var pl=document.getElementById("plGrpGauche").value
+document.getElementById("plGrpGauche").value=0
+window.api.send("toMain", "grpMGauche;"+selectId+";"+pl)
+}
+function grpMargeHaut(e) {
+var pl=document.getElementById("plGrpHaut").value
+document.getElementById("plGrpHaut").value=0
+window.api.send("toMain", "grpMHaut;"+selectId+";"+pl)
+}
+function grpGaucheType(e) {
+var gtype=document.getElementById("gaucheType").value
+window.api.send("toMain", "grpGaucheType;"+selectId+";"+gtype)
+}
+function grpGaucheWidth(e) {
+var gwidth=document.getElementById("gaucheWidth").value
+window.api.send("toMain", "grpGaucheWidth;"+selectId+";"+gwidth)
+}
+const gaucheGrpColor = document.getElementById("grpGaucheColor");
+const inpGaucheGrpColor = document.getElementById("gaucheGrpColor");
+inpGaucheGrpColor.addEventListener("click", (e) => {
+  if (gaucheGrpColor) {
+    gaucheGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+gaucheGrpColor.addEventListener("change", defGaucheGrpColor, false);
+function defGaucheGrpColor(e) {
+	document.getElementById("gaucheGrpColor").value=this.value;
+	window.api.send("toMain", "grpGaucheColor;"+selectId+";"+this.value)
+}
+function grpGaucheRadius(e) {
+	document.getElementById("gaucheRadius").value=this.value;
+	window.api.send("toMain", "grpGaucheRadius;"+selectId+";"+this.value)
+}
+function grpHautType(e) {
+var gtype=document.getElementById("hautType").value
+window.api.send("toMain", "hautType;"+selectId+";"+gtype)
+}
+function grpHautWidth(e) {
+var gwidth=document.getElementById("hautWidth").value
+window.api.send("toMain", "hautWidth;"+selectId+";"+gwidth)
+}
+const hautGrpColor = document.getElementById("grpHautColor");
+const inpHautGrpColor = document.getElementById("hautGrpColor");
+inpHautGrpColor.addEventListener("click", (e) => {
+  if (hautGrpColor) {
+    hautGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+hautGrpColor.addEventListener("change", defHautGrpColor, false);
+function defHautGrpColor(e) {
+	document.getElementById("hautGrpColor").value=this.value;
+	window.api.send("toMain", "grpHautColor;"+selectId+";"+this.value)
+}
+function grpHautRadius(e) {
+	document.getElementById("hautGrpRadius").value=this.value;
+	window.api.send("toMain", "hautRadius;"+selectId+";"+this.value)
+}
+function grpDroitType(e) {
+var gtype=document.getElementById("droitGrpType").value
+window.api.send("toMain", "droitType;"+selectId+";"+gtype)
+}
+function grpDroitWidth(e) {
+var gwidth=document.getElementById("droitWidth").value
+window.api.send("toMain", "droitWidth;"+selectId+";"+gwidth)
+}
+const droitGrpColor = document.getElementById("grpDroitColor");
+const inpDroitGrpColor = document.getElementById("droitGrpColor");
+inpDroitGrpColor.addEventListener("click", (e) => {
+  if (droitGrpColor) {
+    droitGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+droitGrpColor.addEventListener("change", defDroitGrpColor, false);
+function defDroitGrpColor(e) {
+	document.getElementById("droitGrpColor").value=this.value;
+	window.api.send("toMain", "grpDroitColor;"+selectId+";"+this.value)
+}
+function grpDroitRadius(e) {
+	document.getElementById("droitRadius").value=this.value;
+	window.api.send("toMain", "droitRadius;"+selectId+";"+this.value)
+}
+function grpBasType(e) {
+var gtype=document.getElementById("basType").value
+window.api.send("toMain", "basType;"+selectId+";"+gtype)
+}
+function grpBasWidth(e) {
+var gwidth=document.getElementById("basWidth").value
+window.api.send("toMain", "basWidth;"+selectId+";"+gwidth)
+}
+const basGrpColor = document.getElementById("grpBasColor");
+const inpBasGrpColor = document.getElementById("basGrpColor");
+inpBasGrpColor.addEventListener("click", (e) => {
+  if (basGrpColor) {
+    basGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+basGrpColor.addEventListener("change", defBasGrpColor, false);
+function defBasGrpColor(e) {
+	document.getElementById("basGrpColor").value=this.value;
+	window.api.send("toMain", "grpBasColor;"+selectId+";"+this.value)
+}
+function grpBasRadius(e) {
+	document.getElementById("basRadius").value=this.value;
+	window.api.send("toMain", "basRadius;"+selectId+";"+this.value)
+}
+
+/* ******************************************************** param audio *********************************** */
+function defAudioFile(id,file) {
+	var defFile=file.split('/')
+	var defnom=defFile[defFile.length-1].split('.')
+	document.getElementById("paramLabel").innerHTML=defnom[0]
+	console.log(`objParam :`,id,file)
+}
+
+function mute() {
+	if(document.getElementById("objMute").checked==true){
+		selectObj.mute=1
+	}else{
+		selectObj.mute=0
+	}
+	console.log("mute",selectObj.mute)
+	window.api.send("toMain", "mutePreDef;"+selectId+";"+selectObj.mute);
+}
+function gain() {
+	selectObj.gain=document.getElementById("ngain").value
+	window.api.send("toMain", "preDefGain;"+selectId+";"+selectObj.gain);
+}
+function envType() {
+	selectObj.envType=document.getElementById("selecType").value
+	console.log("type",selectObj.envType)
+	window.api.send("toMain", "envPreDefType;"+selectId+";"+selectObj.envType);
+}
+function flagTranspo() {
+	if(document.getElementById("objFlagTranspo").checked==true){
+		selectObj.flagTranspo=1
+	}else{
+		selectObj.flagTranspo=0
+	}
+	console.log("flagTranspo",selectObj.flagTranspo)
+	window.api.send("toMain", "preDefFlagTranspo;"+selectId+";"+selectObj.flagTranspo);
+}
+function defPosition(){
+	var ratioT=(720/12960);
+	var mn=parseInt(document.getElementById("mnt").value);
+	var s=parseInt(document.getElementById("mns").value);
+	var ml=parseInt(document.getElementById("mnl").value);
+	var tmp=(((mn*60)+s)+(ml/1000))/ratioT;
+	//document.getElementById(selectObj).style.left=tmp+"px";
+	selectObj.posX=tmp;
+	console.log("flagTranspo",selectObj.posX)
+}
+function detune() {
+	selectObj.detune=document.getElementById("ndetune").value
+	document.getElementById("detune").value=selectObj.detune
+	window.api.send("toMain", "preDefDetune;"+selectId+";"+selectObj.detune);
+}
+function sdetune() {
+	selectObj.detune=document.getElementById("detune").value
+	document.getElementById("ndetune").value=selectObj.detune
+	window.api.send("toMain", "preDefDetune;"+selectId+";"+selectObj.detune);
+}
+
+function nom() {
+	selectObj.nom=document.getElementById("inpNom").value
+	console.log("nom",selectObj.nom)
+	window.api.send("toMain", "preDefNom;"+selectId+";"+selectObj.nom);
+}
+
+function piste() {
+	selectObj.piste=document.getElementById("inpCanal").value
+	console.log("piste",selectObj.piste)
+	window.api.send("toMain", "preDefPiste;"+selectId+";"+selectObj.piste);
+}
+function convol(c) {
+	selectObj.convolver=c
+	console.log("selecReverb",selectObj.convolver)
+	window.api.send("toMain", "preDefConvolver;"+selectId+";"+selectObj.convolver);
+}
+
+
+
+function dragElement2(elmnt) {
+console.log("obj",elmnt)
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "Header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown2;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+	  	elmnt.onmousedown = dragMouseDown2;
+ 
+  }
+
+  function dragMouseDown2(e) {
+    e = e || window.event;
+    console.log("obj",elmnt.id);
+    e.preventDefault();
+    e.stopPropagation();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement2;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag2;
+  }
+
+  function elementDrag2(e) {
+  	 //elmnt.style.cursor="move";
+    e = e || window.event;
+    e.preventDefault();
+    e.stopPropagation();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    var dty=elmnt.offsetTop - pos2;
+    
+    
+
+    var dty=elmnt.offsetTop - pos2;
+    var dtx=parseInt(elmnt.style.left);
+     
+    var ratioDuree=selectObj.duree/262;
+    if (elmnt.id=="bgauche" ) {
+    	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	if((elmnt.offsetLeft - pos1)<84){
+	 		elmnt.style.left = 84 + "px";
+	 	}
+	 	if((elmnt.offsetLeft - pos1)>parseInt(document.getElementById("bdroit").style.left)){
+	 		elmnt.style.left = (parseInt(document.getElementById("bdroit").style.left)-4) + "px";
+	 	}
+	 	document.getElementById("limFond").style.left=elmnt.style.left;
+	 	var lw=parseInt(document.getElementById("bdroit").style.left)-parseInt(elmnt.style.left);
+	 	document.getElementById("limFond").style.width=(lw+4)+"px";
+	 	selectObj.debut=((parseFloat(elmnt.style.left)-84)/262).toFixed(2);
+	 	window.api.send("toMain", "preDefDebut;"+selectId+";"+selectObj.debut);
+	 	document.getElementById("bgauchet").style.left=(elmnt.offsetLeft - pos1-30) + "px";
+	   document.getElementById("bgauchet").innerHTML=selectObj.debut;
+	 }
+	 if (elmnt.id=="bdroit" ) {
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	if((elmnt.offsetLeft - pos1)>346){
+	 		elmnt.style.left = 346 + "px";
+	 	}
+	 	if((elmnt.offsetLeft - pos1)<parseInt(document.getElementById("bgauche").style.left)){
+	 		elmnt.style.left = (parseInt(document.getElementById("bgauche").style.left)+4) + "px";
+	 	}
+	 	var rw=parseInt(elmnt.style.left)-parseInt(document.getElementById("bgauche").style.left);
+	 	document.getElementById("limFond").style.width=(rw+4)+"px";
+	 	selectObj.fin=((parseFloat(elmnt.style.left)-84)/262).toFixed(2);
+	 	if(selectObj.fin>1){
+	 		selectObj.fin=1;
+	 	}
+	 	window.api.send("toMain", "preDefFin;"+selectId+";"+selectObj.fin);
+		document.getElementById("bdroitt").style.left=(elmnt.offsetLeft - pos1-30) + "px";
+	 	document.getElementById("bdroitt").innerHTML=selectObj.fin;
+	 }
+	 if(elmnt.id=="env1" || elmnt.id=="env2" || elmnt.id=="env3" || elmnt.id=="env4" || elmnt.id=="env5" || elmnt.id=="env6" || elmnt.id=="env7"){
+	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	envDef(elmnt);
+	 }
+	 if(elmnt.id=="envm1" || elmnt.id=="envm2" || elmnt.id=="envm3" || elmnt.id=="envm4" || elmnt.id=="envm5" || elmnt.id=="envm6" || elmnt.id=="envm7"){
+	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	envDef2(elmnt);
+	 	console.log("env2",elmnt.id);
+	 }
+	if(elmnt.id=="envT1" || elmnt.id=="envT2" || elmnt.id=="envT3" || elmnt.id=="envT4" || elmnt.id=="envT5" || elmnt.id=="envT6" || elmnt.id=="envT7"){
+	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	envTDef(elmnt);
+	 }
+  }
+
+  function closeDragElement2() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+    elmnt.style.cursor="default";
+    //console.log("limite b",selectObj.debut,selectObj.fin)
+    var nex=[]
+    for(let i=0;i<7;i++){
+    	nex[i]={
+     		x:selectObj.envX[i],
+   		y:selectObj.envY[i]
+   	}
+    }
+    nex=nex.sort((s1, s2) => {
+   		 return s1.x - s2.x;
+			});
+    for(let i=0;i<7;i++){
+    	selectObj.envX[i]=nex[i].x
+    	selectObj.envY[i]=nex[i].y
+    }
+  }
+}
+
+
+function envDef(elmnt){
+		var nid=parseInt(elmnt.id.substring(3,elmnt.id.length))-1;
+		var y=parseFloat(elmnt.style.top)
+		var x=parseFloat(elmnt.style.left)
+	 	if(y<0){
+	 		elmnt.style.top="0px";
+	 	}
+	 	if(y>parseFloat(elmnt.parentNode.style.height)-2){
+	 		elmnt.style.top=(parseFloat(elmnt.parentNode.style.height)-4)+"px";
+	 	}
+	 	if(x<0){
+	 		elmnt.style.left="0px";
+	 	}
+	 	if(x>(parseInt(elmnt.parentNode.style.width)-2)){
+	 		elmnt.style.left=(parseFloat(elmnt.parentNode.style.width)-4)+"px";
+	 	}
+	 	var nid=parseInt(elmnt.id.substring(3))-1;
+	 	selectObj.envX[nid]=(parseFloat(elmnt.style.left)/199).toFixed(2);
+	   selectObj.envY[nid]=(1-(parseFloat(elmnt.style.top)/128)).toFixed(2);
+	   window.api.send("toMain", "preDefEnv;"+selectId+";"+nid+";"+selectObj.envX[nid]+";"+selectObj.envY[nid]);
+	 	console.log(elmnt.id,nid,selectObj.envX[nid],selectObj.envY[nid]);
+}
+function envDef2(elmnt){
+		var nid=parseInt(elmnt.id.substring(3,elmnt.id.length))-1;
+	 	if(parseInt(elmnt.style.top)<0){
+	 		elmnt.style.top="0px";
+	 	}
+	 	if(parseInt(elmnt.style.top)>parseInt(elmnt.parentNode.style.height)-2){
+	 		elmnt.style.top=(parseInt(elmnt.style.top)-4)+"px";
+	 	}
+	 	if(parseInt(elmnt.style.left)<0){
+	 		elmnt.style.left="0px";
+	 	}
+	 	if(parseInt(elmnt.style.left)>(parseInt(elmnt.parentNode.style.width)-2)){
+	 		elmnt.style.left=(parseInt(elmnt.parentNode.style.width)-4)+"px";
+	 	}
+	 	var nid=parseInt(elmnt.id.substring(4))-1;
+	 	selectObj.envmX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
+	   selectObj.envmY[nid]=(1-(parseInt(elmnt.style.top)/180)).toFixed(2);
+	   
+	 	console.log(elmnt.id,nid,selectObj.envX[nid],selectObj.envY[nid]);
+}
+
+function envTDef(elmnt){
+		var nid=parseInt(elmnt.id.substring(4,elmnt.id.length))-1;
+	 	if(parseInt(elmnt.style.top)<0){
+	 		elmnt.style.top=0+"px";
+	 	}
+	 	if(parseInt(elmnt.style.top)>parseInt(elmnt.parentNode.style.height)-2){
+	 		elmnt.style.top=(parseInt(elmnt.style.top)-4)+"px";
+	 	}
+	 	if(parseInt(elmnt.style.left)<0){
+	 		elmnt.style.left=0+"px";
+	 	}
+	 	if(parseInt(elmnt.style.left)>(parseInt(elmnt.parentNode.style.width)-2)){
+	 		elmnt.style.left=(parseInt(elmnt.parentNode.style.width)-4)+"px";
+	 	}
+	 	var nid=parseInt(elmnt.id.substring(4))-1;
+	 	selectObj.envX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
+	   selectObj.envY[nid]=(1-(parseInt(elmnt.style.top)/180));
+	   
+	 	//console.log(elmnt.id,nid,selectObj,"destY",tableObjet,selectObj.envX[nid],selectObj.envY[nid]);
+}
+function invTransposition(y){
+	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
+ 	let invT=(refViewBoxHeight-y )/(refViewBoxHeight/2);
+ 	console.log("refViewBoxHeight",refViewBoxHeight);
+   return invT;
+}
+function position(x){
+	var ratioT=(720/12960);
+	var tmp=x*ratioT;
+	var mn=Math.floor(tmp/60);
+	var s=Math.floor(tmp%60);
+	var ml=tmp-((mn*60)+s);
+	window.api.send("toMain", "position;"+mn+";"+s+";"+ml);
+}
+function posLimite(x){
+	var pos=(x*266)+88
+	return pos
+}
+function limiteToPos(x){
+	var pos=(x-88)/266
+	return pos
+}
+
+function listeFx() {
+	window.api.send("toMain", "openListeFx");
+}
+/* ******************************************************** param spatialisation *********************************** */
+function openSpatialisation() {
+	if(selectObj.spT[0]!=0){
+		selectObj.spT[0]=0
+	}
+	var cmd="winSpatial;"+selectId+";"+selectObj.spT+";"+selectObj.spX+";"+selectObj.spY+";"+selectObj.spZ+";"+selectObj.spD+";"+selectObj.gain
+console.log("open spatialisation","spX",selectObj.spX,"cmd",cmd)
+	window.api.send("toMain", cmd)
+}
+function spatialspXZ(pt,X,Z) {
+	selectObj.spX[pt]=parseFloat(X);
+   selectObj.spZ[pt]=parseFloat(Z);
+   console.log("spat XZ",pt,selectObj.spX,selectObj.spY,selectObj.spZ)
+}
+function spatialspZY(pt,Z,Y) {
+	selectObj.spZ[pt]=parseFloat(Z);
+   selectObj.spY[pt]=parseFloat(Y);
+}
+function spatialspXY(pt,X,Y) {
+	selectObj.spX[pt]=parseFloat(X);
+   selectObj.spY[pt]=parseFloat(Y);
+}
+function spatialspD(X) {
+	selectObj.spD=parseFloat(X);
+}
+function spatialspT(pt,T) {
+	selectObj.spT[pt]=parseFloat(T);
+}
+function createSpatialPoint(pt,t) {
+	selectObj.spT[pt]=parseFloat(t);
+}
+</script>
+</body>
+</html>

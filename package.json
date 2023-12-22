@@ -1,0 +1,14 @@
+{
+  "name": "kandiskyscore",
+  "version": "1.0.0",
+  "description": "Éditeur électroacoustique",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron  ."
+  },
+  "author": "D.Blanchemain",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "electron": "^25.4.0"
+  }
+}
