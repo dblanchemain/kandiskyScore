@@ -1,0 +1,881 @@
+
+/*
+Code generated with Faust version 2.30.5
+Compilation options: -lang wasm-ib -es 1 -scal -ftz 2
+*/
+
+function getJSONfreeverb() {
+	return '{"name": "Stereo Verb","filename": "freeverb.dsp","version": "2.30.5","compile_options": "-lang wasm-ib -es 1 -scal -ftz 2","library_list": ["/home/dominique/public_html/kandiskyscore2/Plugins/guitarix.lib","/usr/share/faust/stdfaust.lib","/usr/share/faust/oscillators.lib","/usr/share/faust/filters.lib","/usr/share/faust/maths.lib","/usr/share/faust/platform.lib"],"include_pathnames": ["/usr/share/faust","/usr/local/share/faust","/usr/share/faust",".","/home/dominique/public_html/kandiskyscore2/Plugins","/home/dominique/public_html/kandiskyscore2/Plugins"],"size": 149880,"inputs": 2,"outputs": 2,"meta": [ { "author": "brummer" },{ "category": "Reverb" },{ "compile_options": "-lang wasm-ib -es 1 -scal -ftz 2" },{ "copyright": "(c)brummer 2008" },{ "filename": "freeverb.dsp" },{ "filters.lib/lowpass0_highpass1": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },{ "filters.lib/name": "Faust Filters Library" },{ "filters.lib/nlf2:author": "Julius O. Smith III" },{ "filters.lib/nlf2:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },{ "filters.lib/nlf2:license": "MIT-style STK-4.3 license" },{ "filters.lib/version": "0.3" },{ "license": "BSD" },{ "maths.lib/author": "GRAME" },{ "maths.lib/copyright": "GRAME" },{ "maths.lib/license": "LGPL with exception" },{ "maths.lib/name": "Faust Math Library" },{ "maths.lib/version": "2.3" },{ "name": "Stereo Verb" },{ "oscillators.lib/name": "Faust Oscillator Library" },{ "oscillators.lib/version": "0.1" },{ "platform.lib/name": "Generic Platform Library" },{ "platform.lib/version": "0.1" },{ "version": "0.01" }],"ui": [ {"type": "vgroup","label": "Stereo Verb","items": [ {"type": "hslider","label": "LFO freq","address": "/Stereo_Verb/LFO_freq","index": 74948,"meta": [{ "name": "LFO Freq" },{ "unit": "Hz" }],"init": 0.2,"min": 0,"max": 5,"step": 0.01},{"type": "vslider","label": "RoomSize","address": "/Stereo_Verb/RoomSize","index": 4,"meta": [{ "name": "Room Size" }],"init": 0.5,"min": 0,"max": 1,"step": 0.025},{"type": "vslider","label": "damp","address": "/Stereo_Verb/damp","index": 8,"meta": [{ "name": "Damp" }],"init": 0.5,"min": 0,"max": 1,"step": 0.025},{"type": "checkbox","label": "invert","address": "/Stereo_Verb/invert","index": 74936,"meta": [{ "enum": "linear|pingpong" }]},{"type": "vslider","label": "wet_dry","address": "/Stereo_Verb/wet_dry","index": 0,"meta": [{ "name": "Dry/Wet" }],"init": 50,"min": 0,"max": 100,"step": 1}]}]}';
+}
+function getBase64Codefreeverb() { return "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uJOAgAABAEEAC7ETeyJuYW1lIjogIlN0ZXJlbyBWZXJiIiwiZmlsZW5hbWUiOiAiZnJlZXZlcmIuZHNwIiwidmVyc2lvbiI6ICIyLjMwLjUiLCJjb21waWxlX29wdGlvbnMiOiAiLWxhbmcgd2FzbS1pYiAtZXMgMSAtc2NhbCAtZnR6IDIiLCJsaWJyYXJ5X2xpc3QiOiBbIi9ob21lL2RvbWluaXF1ZS9wdWJsaWNfaHRtbC9rYW5kaXNreXNjb3JlMi9QbHVnaW5zL2d1aXRhcml4LmxpYiIsIi91c3Ivc2hhcmUvZmF1c3Qvc3RkZmF1c3QubGliIiwiL3Vzci9zaGFyZS9mYXVzdC9vc2NpbGxhdG9ycy5saWIiLCIvdXNyL3NoYXJlL2ZhdXN0L2ZpbHRlcnMubGliIiwiL3Vzci9zaGFyZS9mYXVzdC9tYXRocy5saWIiLCIvdXNyL3NoYXJlL2ZhdXN0L3BsYXRmb3JtLmxpYiJdLCJpbmNsdWRlX3BhdGhuYW1lcyI6IFsiL3Vzci9zaGFyZS9mYXVzdCIsIi91c3IvbG9jYWwvc2hhcmUvZmF1c3QiLCIvdXNyL3NoYXJlL2ZhdXN0IiwiLiIsIi9ob21lL2RvbWluaXF1ZS9wdWJsaWNfaHRtbC9rYW5kaXNreXNjb3JlMi9QbHVnaW5zIiwiL2hvbWUvZG9taW5pcXVlL3B1YmxpY19odG1sL2thbmRpc2t5c2NvcmUyL1BsdWdpbnMiXSwic2l6ZSI6IDE0OTg4MCwiaW5wdXRzIjogMiwib3V0cHV0cyI6IDIsIm1ldGEiOiBbIHsgImF1dGhvciI6ICJicnVtbWVyIiB9LHsgImNhdGVnb3J5IjogIlJldmVyYiIgfSx7ICJjb21waWxlX29wdGlvbnMiOiAiLWxhbmcgd2FzbS1pYiAtZXMgMSAtc2NhbCAtZnR6IDIiIH0seyAiY29weXJpZ2h0IjogIihjKWJydW1tZXIgMjAwOCIgfSx7ICJmaWxlbmFtZSI6ICJmcmVldmVyYi5kc3AiIH0seyAiZmlsdGVycy5saWIvbG93cGFzczBfaGlnaHBhc3MxIjogIkNvcHlyaWdodCAoQykgMjAwMy0yMDE5IGJ5IEp1bGl1cyBPLiBTbWl0aCBJSUkgPGpvc0BjY3JtYS5zdGFuZm9yZC5lZHU+IiB9LHsgImZpbHRlcnMubGliL25hbWUiOiAiRmF1c3QgRmlsdGVycyBMaWJyYXJ5IiB9LHsgImZpbHRlcnMubGliL25sZjI6YXV0aG9yIjogIkp1bGl1cyBPLiBTbWl0aCBJSUkiIH0seyAiZmlsdGVycy5saWIvbmxmMjpjb3B5cmlnaHQiOiAiQ29weXJpZ2h0IChDKSAyMDAzLTIwMTkgYnkgSnVsaXVzIE8uIFNtaXRoIElJSSA8am9zQGNjcm1hLnN0YW5mb3JkLmVkdT4iIH0seyAiZmlsdGVycy5saWIvbmxmMjpsaWNlbnNlIjogIk1JVC1zdHlsZSBTVEstNC4zIGxpY2Vuc2UiIH0seyAiZmlsdGVycy5saWIvdmVyc2lvbiI6ICIwLjMiIH0seyAibGljZW5zZSI6ICJCU0QiIH0seyAibWF0aHMubGliL2F1dGhvciI6ICJHUkFNRSIgfSx7ICJtYXRocy5saWIvY29weXJpZ2h0IjogIkdSQU1FIiB9LHsgIm1hdGhzLmxpYi9saWNlbnNlIjogIkxHUEwgd2l0aCBleGNlcHRpb24iIH0seyAibWF0aHMubGliL25hbWUiOiAiRmF1c3QgTWF0aCBMaWJyYXJ5IiB9LHsgIm1hdGhzLmxpYi92ZXJzaW9uIjogIjIuMyIgfSx7ICJuYW1lIjogIlN0ZXJlbyBWZXJiIiB9LHsgIm9zY2lsbGF0b3JzLmxpYi9uYW1lIjogIkZhdXN0IE9zY2lsbGF0b3IgTGlicmFyeSIgfSx7ICJvc2NpbGxhdG9ycy5saWIvdmVyc2lvbiI6ICIwLjEiIH0seyAicGxhdGZvcm0ubGliL25hbWUiOiAiR2VuZXJpYyBQbGF0Zm9ybSBMaWJyYXJ5IiB9LHsgInBsYXRmb3JtLmxpYi92ZXJzaW9uIjogIjAuMSIgfSx7ICJ2ZXJzaW9uIjogIjAuMDEiIH1dLCJ1aSI6IFsgeyJ0eXBlIjogInZncm91cCIsImxhYmVsIjogIlN0ZXJlbyBWZXJiIiwiaXRlbXMiOiBbIHsidHlwZSI6ICJoc2xpZGVyIiwibGFiZWwiOiAiTEZPIGZyZXEiLCJhZGRyZXNzIjogIi9TdGVyZW9fVmVyYi9MRk9fZnJlcSIsImluZGV4IjogNzQ5NDgsIm1ldGEiOiBbeyAibmFtZSI6ICJMRk8gRnJlcSIgfSx7ICJ1bml0IjogIkh6IiB9XSwiaW5pdCI6IDAuMiwibWluIjogMCwibWF4IjogNSwic3RlcCI6IDAuMDF9LHsidHlwZSI6ICJ2c2xpZGVyIiwibGFiZWwiOiAiUm9vbVNpemUiLCJhZGRyZXNzIjogIi9TdGVyZW9fVmVyYi9Sb29tU2l6ZSIsImluZGV4IjogNCwibWV0YSI6IFt7ICJuYW1lIjogIlJvb20gU2l6ZSIgfV0sImluaXQiOiAwLjUsIm1pbiI6IDAsIm1heCI6IDEsInN0ZXAiOiAwLjAyNX0seyJ0eXBlIjogInZzbGlkZXIiLCJsYWJlbCI6ICJkYW1wIiwiYWRkcmVzcyI6ICIvU3RlcmVvX1ZlcmIvZGFtcCIsImluZGV4IjogOCwibWV0YSI6IFt7ICJuYW1lIjogIkRhbXAiIH1dLCJpbml0IjogMC41LCJtaW4iOiAwLCJtYXgiOiAxLCJzdGVwIjogMC4wMjV9LHsidHlwZSI6ICJjaGVja2JveCIsImxhYmVsIjogImludmVydCIsImFkZHJlc3MiOiAiL1N0ZXJlb19WZXJiL2ludmVydCIsImluZGV4IjogNzQ5MzYsIm1ldGEiOiBbeyAiZW51bSI6ICJsaW5lYXJ8cGluZ3BvbmciIH1dfSx7InR5cGUiOiAidnNsaWRlciIsImxhYmVsIjogIndldF9kcnkiLCJhZGRyZXNzIjogIi9TdGVyZW9fVmVyYi93ZXRfZHJ5IiwiaW5kZXgiOiAwLCJtZXRhIjogW3sgIm5hbWUiOiAiRHJ5L1dldCIgfV0sImluaXQiOiA1MCwibWluIjogMCwibWF4IjogMTAwLCJzdGVwIjogMX1dfV19"; }
+
+/*
+ faust2wasm: GRAME 2017-2019
+*/
+
+'use strict';
+
+if (typeof (AudioWorkletNode) === "undefined") {
+    alert("AudioWorklet is not supported in this browser !")
+}
+
+class freeverbNode extends AudioWorkletNode {
+
+    constructor(context, baseURL, options) {
+        super(context, 'freeverb', options);
+
+        this.baseURL = baseURL;
+        this.json = options.processorOptions.json;
+        this.json_object = JSON.parse(this.json);
+
+        // JSON parsing functions
+        this.parse_ui = function (ui, obj) {
+            for (var i = 0; i < ui.length; i++) {
+                this.parse_group(ui[i], obj);
+            }
+        }
+
+        this.parse_group = function (group, obj) {
+            if (group.items) {
+                this.parse_items(group.items, obj);
+            }
+        }
+
+        this.parse_items = function (items, obj) {
+            for (var i = 0; i < items.length; i++) {
+                this.parse_item(items[i], obj);
+            }
+        }
+
+        this.parse_item = function (item, obj) {
+            if (item.type === "vgroup"
+                || item.type === "hgroup"
+                || item.type === "tgroup") {
+                this.parse_items(item.items, obj);
+            } else if (item.type === "hbargraph"
+                || item.type === "vbargraph") {
+                // Keep bargraph adresses
+                obj.outputs_items.push(item.address);
+            } else if (item.type === "vslider"
+                || item.type === "hslider"
+                || item.type === "button"
+                || item.type === "checkbox"
+                || item.type === "nentry") {
+                // Keep inputs adresses
+                obj.inputs_items.push(item.address);
+                obj.descriptor.push(item);
+                // Decode MIDI
+                if (item.meta !== undefined) {
+                    for (var i = 0; i < item.meta.length; i++) {
+                        if (item.meta[i].midi !== undefined) {
+                            if (item.meta[i].midi.trim() === "pitchwheel") {
+                                obj.fPitchwheelLabel.push({
+                                    path: item.address,
+                                    min: parseFloat(item.min),
+                                    max: parseFloat(item.max)
+                                });
+                            } else if (item.meta[i].midi.trim().split(" ")[0] === "ctrl") {
+                                obj.fCtrlLabel[parseInt(item.meta[i].midi.trim().split(" ")[1])]
+                                    .push({
+                                        path: item.address,
+                                        min: parseFloat(item.min),
+                                        max: parseFloat(item.max)
+                                    });
+                            }
+                        }
+                    }
+                }
+                // Define setXXX/getXXX, replacing '/c' with 'C' everywhere in the string
+                var set_name = "set" + item.address;
+                var get_name = "get" + item.address;
+                set_name = set_name.replace(/\/./g, (x) => { return x.substr(1, 1).toUpperCase(); });
+                get_name = get_name.replace(/\/./g, (x) => { return x.substr(1, 1).toUpperCase(); });
+                obj[set_name] = (val) => { obj.setParamValue(item.address, val); };
+                obj[get_name] = () => { return obj.getParamValue(item.address); };
+                //console.log(set_name);
+                //console.log(get_name);
+            }
+        }
+
+        this.output_handler = null;
+
+        // input/output items
+        this.inputs_items = [];
+        this.outputs_items = [];
+        this.descriptor = [];
+
+        // MIDI
+        this.fPitchwheelLabel = [];
+        this.fCtrlLabel = new Array(128);
+        for (var i = 0; i < this.fCtrlLabel.length; i++) { this.fCtrlLabel[i] = []; }
+
+        // Parse UI
+        this.parse_ui(this.json_object.ui, this);
+
+        // Set message handler
+        this.port.onmessage = this.handleMessage.bind(this);
+        try {
+            if (this.parameters) this.parameters.forEach(p => p.automationRate = "k-rate");
+        } catch (e) { }
+    }
+
+    // To be called by the message port with messages coming from the processor
+    handleMessage(event) {
+        var msg = event.data;
+        if (this.output_handler) {
+            this.output_handler(msg.path, msg.value);
+        }
+    }
+
+    // Public API
+
+    /**
+     * Destroy the node, deallocate resources.
+     */
+    destroy() {
+        this.port.postMessage({ type: "destroy" });
+        this.port.close();
+    }
+
+    /**
+     *  Returns a full JSON description of the DSP.
+     */
+    getJSON() {
+        return this.json;
+    }
+
+    // For WAP
+    async getMetadata() {
+        return new Promise(resolve => {
+            let real_url = (this.baseURL === "") ? "main.json" : (this.baseURL + "/main.json");
+            fetch(real_url).then(responseJSON => {
+                return responseJSON.json();
+            }).then(json => {
+                resolve(json);
+            })
+        });
+    }
+
+    /**
+     *  Set the control value at a given path.
+     *
+     * @param path - a path to the control
+     * @param val - the value to be set
+     */
+    setParamValue(path, val) {
+        // Needed for sample accurate control
+        this.parameters.get(path).setValueAtTime(val, 0);
+    }
+
+    // For WAP
+    setParam(path, val) {
+        // Needed for sample accurate control
+        this.parameters.get(path).setValueAtTime(val, 0);
+    }
+
+    /**
+     *  Get the control value at a given path.
+     *
+     * @return the current control value
+     */
+    getParamValue(path) {
+        return this.parameters.get(path).value;
+    }
+
+    // For WAP
+    getParam(path) {
+        return this.parameters.get(path).value;
+    }
+
+    /**
+     * Setup a control output handler with a function of type (path, value)
+     * to be used on each generated output value. This handler will be called
+     * each audio cycle at the end of the 'compute' method.
+     *
+     * @param handler - a function of type function(path, value)
+     */
+    setOutputParamHandler(handler) {
+        this.output_handler = handler;
+    }
+
+    /**
+     * Get the current output handler.
+     */
+    getOutputParamHandler() {
+        return this.output_handler;
+    }
+
+    getNumInputs() {
+        return parseInt(this.json_object.inputs);
+    }
+
+    getNumOutputs() {
+        return parseInt(this.json_object.outputs);
+    }
+
+    // For WAP
+    inputChannelCount() {
+        return parseInt(this.json_object.inputs);
+    }
+
+    outputChannelCount() {
+        return parseInt(this.json_object.outputs);
+    }
+
+    /**
+     * Returns an array of all input paths (to be used with setParamValue/getParamValue)
+     */
+    getParams() {
+        return this.inputs_items;
+    }
+
+    // For WAP
+    getDescriptor() {
+        var desc = {};
+        for (const item in this.descriptor) {
+            if (this.descriptor.hasOwnProperty(item)) {
+                if (this.descriptor[item].label != "bypass") {
+                    desc = Object.assign({ [this.descriptor[item].label]: { minValue: this.descriptor[item].min, maxValue: this.descriptor[item].max, defaultValue: this.descriptor[item].init } }, desc);
+                }
+            }
+        }
+        return desc;
+    }
+
+    /**
+     * Control change
+     *
+     * @param channel - the MIDI channel (0..15, not used for now)
+     * @param ctrl - the MIDI controller number (0..127)
+     * @param value - the MIDI controller value (0..127)
+     */
+    ctrlChange(channel, ctrl, value) {
+        if (this.fCtrlLabel[ctrl] !== []) {
+            for (var i = 0; i < this.fCtrlLabel[ctrl].length; i++) {
+                var path = this.fCtrlLabel[ctrl][i].path;
+                this.setParamValue(path, freeverbNode.remap(value, 0, 127, this.fCtrlLabel[ctrl][i].min, this.fCtrlLabel[ctrl][i].max));
+                if (this.output_handler) {
+                    this.output_handler(path, this.getParamValue(path));
+                }
+            }
+        }
+    }
+
+    /**
+     * PitchWeel
+     *
+     * @param channel - the MIDI channel (0..15, not used for now)
+     * @param value - the MIDI controller value (0..16383)
+     */
+    pitchWheel(channel, wheel) {
+        for (var i = 0; i < this.fPitchwheelLabel.length; i++) {
+            var pw = this.fPitchwheelLabel[i];
+            this.setParamValue(pw.path, freeverbNode.remap(wheel, 0, 16383, pw.min, pw.max));
+            if (this.output_handler) {
+                this.output_handler(pw.path, this.getParamValue(pw.path));
+            }
+        }
+    }
+
+    /**
+     * Generic MIDI message handler.
+     */
+    midiMessage(data) {
+        var cmd = data[0] >> 4;
+        var channel = data[0] & 0xf;
+        var data1 = data[1];
+        var data2 = data[2];
+
+        if (channel === 9) {
+            return;
+        } else if (cmd === 11) {
+            this.ctrlChange(channel, data1, data2);
+        } else if (cmd === 14) {
+            this.pitchWheel(channel, (data2 * 128.0 + data1));
+        }
+    }
+
+    // For WAP
+    onMidi(data) {
+        midiMessage(data);
+    }
+
+    /**
+     * @returns {Object} describes the path for each available param and its current value
+     */
+    async getState() {
+        var params = new Object();
+        for (let i = 0; i < this.getParams().length; i++) {
+            Object.assign(params, { [this.getParams()[i]]: `${this.getParam(this.getParams()[i])}` });
+        }
+        return new Promise(resolve => { resolve(params) });
+    }
+
+    /**
+     * Sets each params with the value indicated in the state object
+     * @param {Object} state 
+     */
+    async setState(state) {
+        return new Promise(resolve => {
+            for (const param in state) {
+                if (state.hasOwnProperty(param)) this.setParam(param, state[param]);
+            }
+            try {
+                this.gui.setAttribute('state', JSON.stringify(state));
+            } catch (error) {
+                console.warn("Plugin without gui or GUI not defined", error);
+            }
+            resolve(state);
+        })
+    }
+
+    /**
+     * A different call closer to the preset management
+     * @param {Object} patch to assign as a preset to the node
+     */
+    setPatch(patch) {
+        this.setState(this.presets[patch])
+    }
+
+    static remap(v, mn0, mx0, mn1, mx1) {
+        return (1.0 * (v - mn0) / (mx0 - mn0)) * (mx1 - mn1) + mn1;
+    }
+
+}
+
+// Factory class
+class freeverb {
+
+    static fWorkletProcessors;
+
+    /**
+     * Factory constructor.
+     *
+     * @param context - the audio context
+     * @param baseURL - the baseURL of the plugin folder
+     */
+    constructor(context, baseURL = "") {
+        console.log("baseLatency " + context.baseLatency);
+        console.log("outputLatency " + context.outputLatency);
+        console.log("sampleRate " + context.sampleRate);
+
+        this.context = context;
+        this.baseURL = baseURL;
+        this.pathTable = [];
+
+        this.fWorkletProcessors = this.fWorkletProcessors || [];
+    }
+
+    heap2Str(buf) {
+        let str = "";
+        let i = 0;
+        while (buf[i] !== 0) {
+            str += String.fromCharCode(buf[i++]);
+        }
+        return str;
+    }
+
+    /**
+     * Load additionnal resources to prepare the custom AudioWorkletNode. Returns a promise to be used with the created node.
+     */
+    async load() {
+        try {
+            const importObject = {
+                env: {
+                    memoryBase: 0,
+                    tableBase: 0,
+                    _abs: Math.abs,
+
+                    // Float version
+                    _acosf: Math.acos,
+                    _asinf: Math.asin,
+                    _atanf: Math.atan,
+                    _atan2f: Math.atan2,
+                    _ceilf: Math.ceil,
+                    _cosf: Math.cos,
+                    _expf: Math.exp,
+                    _floorf: Math.floor,
+                    _fmodf: (x, y) => x % y,
+                    _logf: Math.log,
+                    _log10f: Math.log10,
+                    _max_f: Math.max,
+                    _min_f: Math.min,
+                    _remainderf: (x, y) => x - Math.round(x / y) * y,
+                    _powf: Math.pow,
+                    _roundf: Math.fround,
+                    _sinf: Math.sin,
+                    _sqrtf: Math.sqrt,
+                    _tanf: Math.tan,
+                    _acoshf: Math.acosh,
+                    _asinhf: Math.asinh,
+                    _atanhf: Math.atanh,
+                    _coshf: Math.cosh,
+                    _sinhf: Math.sinh,
+                    _tanhf: Math.tanh,
+
+                    // Double version
+                    _acos: Math.acos,
+                    _asin: Math.asin,
+                    _atan: Math.atan,
+                    _atan2: Math.atan2,
+                    _ceil: Math.ceil,
+                    _cos: Math.cos,
+                    _exp: Math.exp,
+                    _floor: Math.floor,
+                    _fmod: (x, y) => x % y,
+                    _log: Math.log,
+                    _log10: Math.log10,
+                    _max_: Math.max,
+                    _min_: Math.min,
+                    _remainder: (x, y) => x - Math.round(x / y) * y,
+                    _pow: Math.pow,
+                    _round: Math.fround,
+                    _sin: Math.sin,
+                    _sqrt: Math.sqrt,
+                    _tan: Math.tan,
+                    _acosh: Math.acosh,
+                    _asinh: Math.asinh,
+                    _atanh: Math.atanh,
+                    _cosh: Math.cosh,
+                    _sinh: Math.sinh,
+                    _tanh: Math.tanh,
+
+                    table: new WebAssembly.Table({ initial: 0, element: "anyfunc" })
+                }
+            };
+
+            let real_url = (this.baseURL === "") ? "freeverb.wasm" : (this.baseURL + "/freeverb.wasm");
+            const dspFile = await fetch(real_url);
+            const dspBuffer = await dspFile.arrayBuffer();
+            const dspModule = await WebAssembly.compile(dspBuffer);
+            const dspInstance = await WebAssembly.instantiate(dspModule, importObject);
+
+            let HEAPU8 = new Uint8Array(dspInstance.exports.memory.buffer);
+            let json = this.heap2Str(HEAPU8);
+            let json_object = JSON.parse(json);
+            let options = { wasm_module: dspModule, json: json };
+
+            if (this.fWorkletProcessors.indexOf(name) === -1) {
+                try {
+                    let re = /JSON_STR/g;
+                    let freeverbProcessorString1 = freeverbProcessorString.replace(re, json);
+                    let real_url = window.URL.createObjectURL(new Blob([freeverbProcessorString1], { type: 'text/javascript' }));
+                    await this.context.audioWorklet.addModule(real_url);
+                    // Keep the DSP name
+                    console.log("Keep the DSP name");
+                    this.fWorkletProcessors.push(name);
+                } catch (e) {
+                    console.error(e);
+                    console.error("Faust " + this.name + " cannot be loaded or compiled");
+                    return null;
+                }
+            }
+            this.node = new freeverbNode(this.context, this.baseURL,
+                {
+                    numberOfInputs: (parseInt(json_object.inputs) > 0) ? 1 : 0,
+                    numberOfOutputs: (parseInt(json_object.outputs) > 0) ? 1 : 0,
+                    channelCount: Math.max(1, parseInt(json_object.inputs)),
+                    outputChannelCount: [parseInt(json_object.outputs)],
+                    channelCountMode: "explicit",
+                    channelInterpretation: "speakers",
+                    processorOptions: options
+                });
+            this.node.onprocessorerror = () => { console.log('An error from freeverb-processor was detected.'); }
+            return (this.node);
+        } catch (e) {
+            console.error(e);
+            console.error("Faust " + this.name + " cannot be loaded or compiled");
+            return null;
+        }
+    }
+
+    async loadGui() {
+        return new Promise((resolve, reject) => {
+            try {
+                // DO THIS ONLY ONCE. If another instance has already been added, do not add the html file again
+                let real_url = (this.baseURL === "") ? "main.html" : (this.baseURL + "/main.html");
+                if (!this.linkExists(real_url)) {
+                    // LINK DOES NOT EXIST, let's add it to the document
+                    var link = document.createElement('link');
+                    link.rel = 'import';
+                    link.href = real_url;
+                    document.head.appendChild(link);
+                    link.onload = (e) => {
+                        // the file has been loaded, instanciate GUI
+                        // and get back the HTML elem
+                        // HERE WE COULD REMOVE THE HARD CODED NAME
+                        var element = createfreeverbGUI(this.node);
+                        resolve(element);
+                    }
+                } else {
+                    // LINK EXIST, WE AT LEAST CREATED ONE INSTANCE PREVIOUSLY
+                    // so we can create another instance
+                    var element = createfreeverbGUI(this.node);
+                    resolve(element);
+                }
+            } catch (e) {
+                console.log(e);
+                reject(e);
+            }
+        });
+    };
+
+    linkExists(url) {
+        return document.querySelectorAll(`link[href="${url}"]`).length > 0;
+    }
+}
+
+// Template string for AudioWorkletProcessor
+
+let freeverbProcessorString = `
+
+    'use strict';
+
+    // Monophonic Faust DSP
+    class freeverbProcessor extends AudioWorkletProcessor {
+        
+        // JSON parsing functions
+        static parse_ui(ui, obj, callback)
+        {
+            for (var i = 0; i < ui.length; i++) {
+                freeverbProcessor.parse_group(ui[i], obj, callback);
+            }
+        }
+        
+        static parse_group(group, obj, callback)
+        {
+            if (group.items) {
+                freeverbProcessor.parse_items(group.items, obj, callback);
+            }
+        }
+        
+        static parse_items(items, obj, callback)
+        {
+            for (var i = 0; i < items.length; i++) {
+                callback(items[i], obj, callback);
+            }
+        }
+        
+        static parse_item1(item, obj, callback)
+        {
+            if (item.type === "vgroup"
+                || item.type === "hgroup"
+                || item.type === "tgroup") {
+                freeverbProcessor.parse_items(item.items, obj, callback);
+            } else if (item.type === "hbargraph"
+                       || item.type === "vbargraph") {
+                // Nothing
+            } else if (item.type === "vslider"
+                       || item.type === "hslider"
+                       || item.type === "button"
+                       || item.type === "checkbox"
+                       || item.type === "nentry") {
+                obj.push({ name: item.address,
+                         defaultValue: item.init,
+                         minValue: item.min,
+                         maxValue: item.max });
+            }
+        }
+        
+        static parse_item2(item, obj, callback)
+        {
+            if (item.type === "vgroup"
+                || item.type === "hgroup"
+                || item.type === "tgroup") {
+                freeverbProcessor.parse_items(item.items, obj, callback);
+            } else if (item.type === "hbargraph"
+                       || item.type === "vbargraph") {
+                // Keep bargraph adresses
+                obj.outputs_items.push(item.address);
+                obj.pathTable[item.address] = parseInt(item.index);
+            } else if (item.type === "vslider"
+                       || item.type === "hslider"
+                       || item.type === "button"
+                       || item.type === "checkbox"
+                       || item.type === "nentry") {
+                // Keep inputs adresses
+                obj.inputs_items.push(item.address);
+                obj.pathTable[item.address] = parseInt(item.index);
+            }
+        }
+     
+        static get parameterDescriptors() 
+        {
+            // Analyse JSON to generate AudioParam parameters
+            var params = [];
+            freeverbProcessor.parse_ui(JSON.parse(\`JSON_STR\`).ui, params, freeverbProcessor.parse_item1);
+            return params;
+        }
+       
+        constructor(options)
+        {
+            super(options);
+            this.running = true;
+            
+            const importObject = {
+                    env: {
+                        memoryBase: 0,
+                        tableBase: 0,
+
+                        // Integer version
+                        _abs: Math.abs,
+
+                        // Float version
+                        _acosf: Math.acos,
+                        _asinf: Math.asin,
+                        _atanf: Math.atan,
+                        _atan2f: Math.atan2,
+                        _ceilf: Math.ceil,
+                        _cosf: Math.cos,
+                        _expf: Math.exp,
+                        _floorf: Math.floor,
+                        _fmodf: function(x, y) { return x % y; },
+                        _logf: Math.log,
+                        _log10f: Math.log10,
+                        _max_f: Math.max,
+                        _min_f: Math.min,
+                        _remainderf: function(x, y) { return x - Math.round(x/y) * y; },
+                        _powf: Math.pow,
+                        _roundf: Math.fround,
+                        _sinf: Math.sin,
+                        _sqrtf: Math.sqrt,
+                        _tanf: Math.tan,
+                        _acoshf: Math.acosh,
+                        _asinhf: Math.asinh,
+                        _atanhf: Math.atanh,
+                        _coshf: Math.cosh,
+                        _sinhf: Math.sinh,
+                        _tanhf: Math.tanh,
+
+                        // Double version
+                        _acos: Math.acos,
+                        _asin: Math.asin,
+                        _atan: Math.atan,
+                        _atan2: Math.atan2,
+                        _ceil: Math.ceil,
+                        _cos: Math.cos,
+                        _exp: Math.exp,
+                        _floor: Math.floor,
+                        _fmod: function(x, y) { return x % y; },
+                        _log: Math.log,
+                        _log10: Math.log10,
+                        _max_: Math.max,
+                        _min_: Math.min,
+                        _remainder:function(x, y) { return x - Math.round(x/y) * y; },
+                        _pow: Math.pow,
+                        _round: Math.fround,
+                        _sin: Math.sin,
+                        _sqrt: Math.sqrt,
+                        _tan: Math.tan,
+                        _acosh: Math.acosh,
+                        _asinh: Math.asinh,
+                        _atanh: Math.atanh,
+                        _cosh: Math.cosh,
+                        _sinh: Math.sinh,
+                        _tanh: Math.tanh,
+
+                        table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' })
+                    }
+            };
+            
+            this.freeverb_instance = new WebAssembly.Instance(options.processorOptions.wasm_module, importObject);
+            this.json_object = JSON.parse(options.processorOptions.json);
+         
+            this.output_handler = function(path, value) { this.port.postMessage({ path: path, value: value }); };
+            
+            this.ins = null;
+            this.outs = null;
+
+            this.dspInChannnels = [];
+            this.dspOutChannnels = [];
+
+            this.numIn = parseInt(this.json_object.inputs);
+            this.numOut = parseInt(this.json_object.outputs);
+
+            // Memory allocator
+            this.ptr_size = 4;
+            this.sample_size = 4;
+            this.integer_size = 4;
+            
+            this.factory = this.freeverb_instance.exports;
+            this.HEAP = this.freeverb_instance.exports.memory.buffer;
+            this.HEAP32 = new Int32Array(this.HEAP);
+            this.HEAPF32 = new Float32Array(this.HEAP);
+
+            // Warning: keeps a ref on HEAP in Chrome and prevent proper GC
+            //console.log(this.HEAP);
+            //console.log(this.HEAP32);
+            //console.log(this.HEAPF32);
+
+            // bargraph
+            this.outputs_timer = 5;
+            this.outputs_items = [];
+
+            // input items
+            this.inputs_items = [];
+        
+            // Start of HEAP index
+
+            // DSP is placed first with index 0. Audio buffer start at the end of DSP.
+            this.audio_heap_ptr = parseInt(this.json_object.size);
+
+            // Setup pointers offset
+            this.audio_heap_ptr_inputs = this.audio_heap_ptr;
+            this.audio_heap_ptr_outputs = this.audio_heap_ptr_inputs + (this.numIn * this.ptr_size);
+
+            // Setup buffer offset
+            this.audio_heap_inputs = this.audio_heap_ptr_outputs + (this.numOut * this.ptr_size);
+            this.audio_heap_outputs = this.audio_heap_inputs + (this.numIn * NUM_FRAMES * this.sample_size);
+            
+            // Start of DSP memory : DSP is placed first with index 0
+            this.dsp = 0;
+
+            this.pathTable = [];
+         
+            // Send output values to the AudioNode
+            this.update_outputs = function ()
+            {
+                if (this.outputs_items.length > 0 && this.output_handler && this.outputs_timer-- === 0) {
+                    this.outputs_timer = 5;
+                    for (var i = 0; i < this.outputs_items.length; i++) {
+                        this.output_handler(this.outputs_items[i], this.HEAPF32[this.pathTable[this.outputs_items[i]] >> 2]);
+                    }
+                }
+            }
+            
+            this.initAux = function ()
+            {
+                var i;
+                
+                if (this.numIn > 0) {
+                    this.ins = this.audio_heap_ptr_inputs;
+                    for (i = 0; i < this.numIn; i++) {
+                        this.HEAP32[(this.ins >> 2) + i] = this.audio_heap_inputs + ((NUM_FRAMES * this.sample_size) * i);
+                    }
+                    
+                    // Prepare Ins buffer tables
+                    var dspInChans = this.HEAP32.subarray(this.ins >> 2, (this.ins + this.numIn * this.ptr_size) >> 2);
+                    for (i = 0; i < this.numIn; i++) {
+                        this.dspInChannnels[i] = this.HEAPF32.subarray(dspInChans[i] >> 2, (dspInChans[i] + NUM_FRAMES * this.sample_size) >> 2);
+                    }
+                }
+                
+                if (this.numOut > 0) {
+                    this.outs = this.audio_heap_ptr_outputs;
+                    for (i = 0; i < this.numOut; i++) {
+                        this.HEAP32[(this.outs >> 2) + i] = this.audio_heap_outputs + ((NUM_FRAMES * this.sample_size) * i);
+                    }
+                    
+                    // Prepare Out buffer tables
+                    var dspOutChans = this.HEAP32.subarray(this.outs >> 2, (this.outs + this.numOut * this.ptr_size) >> 2);
+                    for (i = 0; i < this.numOut; i++) {
+                        this.dspOutChannnels[i] = this.HEAPF32.subarray(dspOutChans[i] >> 2, (dspOutChans[i] + NUM_FRAMES * this.sample_size) >> 2);
+                    }
+                }
+                
+                // Parse UI
+                freeverbProcessor.parse_ui(this.json_object.ui, this, freeverbProcessor.parse_item2);
+                
+                // Init DSP
+                this.factory.init(this.dsp, sampleRate); // 'sampleRate' is defined in AudioWorkletGlobalScope  
+            }
+
+            this.setParamValue = function (path, val)
+            {
+                this.HEAPF32[this.pathTable[path] >> 2] = val;
+            }
+
+            this.getParamValue = function (path)
+            {
+                return this.HEAPF32[this.pathTable[path] >> 2];
+            }
+
+            // Init resulting DSP
+            this.initAux();
+        }
+        
+        process(inputs, outputs, parameters) 
+        {
+            var input = inputs[0];
+            var output = outputs[0];
+            
+            // Check inputs
+            if (this.numIn > 0 && (!input || !input[0] || input[0].length === 0)) {
+                //console.log("Process input error");
+                return true;
+            }
+            // Check outputs
+            if (this.numOut > 0 && (!output || !output[0] || output[0].length === 0)) {
+                //console.log("Process output error");
+                return true;
+            }
+            
+            // Copy inputs
+            if (input !== undefined) {
+                for (var chan = 0; chan < Math.min(this.numIn, input.length); ++chan) {
+                    var dspInput = this.dspInChannnels[chan];
+                    dspInput.set(input[chan]);
+                }
+            }
+            
+            /*
+            TODO: sample accurate control change is not yet handled
+            When no automation occurs, params[i][1] has a length of 1,
+            otherwise params[i][1] has a length of NUM_FRAMES with possible control change each sample
+            */
+            
+            // Update controls
+            for (const path in parameters) {
+                const paramArray = parameters[path];
+                this.setParamValue(path, paramArray[0]);
+            }
+        
+          	// Compute
+            try {
+                this.factory.compute(this.dsp, NUM_FRAMES, this.ins, this.outs);
+            } catch(e) {
+                console.log("ERROR in compute (" + e + ")");
+            }
+            
+            // Update bargraph
+            this.update_outputs();
+            
+            // Copy outputs
+            if (output !== undefined) {
+                for (var chan = 0; chan < Math.min(this.numOut, output.length); ++chan) {
+                    var dspOutput = this.dspOutChannnels[chan];
+                    output[chan].set(dspOutput);
+                }
+            }
+            
+            return this.running;
+    	}
+        
+        handleMessage(event)
+        {
+            var msg = event.data;
+            switch (msg.type) {
+                case "destroy": this.running = false; break;
+            }
+        }
+    }
+
+    // Globals
+    const NUM_FRAMES = 128;
+    try {
+        registerProcessor('freeverb', freeverbProcessor);
+    } catch (error) {
+        console.warn(error);
+    }
+`;
+
+const dspName = "freeverb";
+
+// WAP factory or npm package module
+if (typeof module === "undefined") {
+    window.freeverb = freeverb;
+    window.Faustfreeverb = freeverb;
+    window[dspName] = freeverb;
+} else {
+    module.exports = { freeverb };
+}
