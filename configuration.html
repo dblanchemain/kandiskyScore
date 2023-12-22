@@ -1,0 +1,1569 @@
+<!DOCTYPE HTML>
+<head>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-12-14T17:50:15+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KandiskyScore-Configuration</title>
+</head>
+<body>
+<div id="configuration" style="width:840px;height:650px;">
+	<div style="padding:10px;padding-bottom:2px;"><span id="ongletGen" style="background-color:#EAEAEA;width:60px;padding:4px;border:0px solid black;">Générale</span><span id="ongletSpacial" style="background-color:#B4B4B4;width:120px;padding:4px;border:0px solid black;">Spacialisation</span><span id="ongletInterface" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Interface</span><span id="ongletPalette" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Palette</span></div>
+	<div id="panGen" align="center" style="padding:10px;background-color:#f9f9fd;overflow:auto;height:520px;border:0px solid black;display:block">
+		<table id="tableTranscript" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
+		<tbody>
+			<tr><td id="name">Nom du projet :</td><td colspan="4" ><input id="projetNom" style="width:600px;" type="text" value="" /></td></tr>
+			<tr><td id="debut">Date de début :</td><td><input id="projetDebut" style="width:80px;" type="text" value="" /></td><td id="fin">Date de fin :</td><td><input id="projetFin" style="width:80px;" type="text" value="" /></td></tr>
+			<tr><td id="comment">Commentaire :</td><td colspan="5"><textarea id="projetComment" value=""  rows="7" cols="80" ></textarea></td></tr>
+		</tbody>
+		</table>
+		<table id="tableTranscript" align="center" border="1" style="margin-top:20px;font-size:1em;" cellpadding="4" cellspacing="0" >
+		<tbody>
+			<tr><td id="dprojet">Dossier du projet  :</td><td colspan="4" ><input id="dossierProjet" style="width:600px;" type="text" value="" /></td></tr>
+			<tr><td id="daudio">Dossier Audio :</td><td colspan="4" ><input id="dossierAudio" style="width:600px;" type="text" value="" /></td></tr>
+			<tr><td id="dimg">Dossier images :</td><td colspan="4" ><input id="dossierImg" style="width:600px;" type="text" value="" /></td></tr>
+			<tr><td id="greffon">Greffon spat3D :</td><td colspan="4" ><input id="greffon3D" style="width:200px;" type="text" value="" /> <input id="spat3DCanaux" style="width:60px;" type="number" value="18" min="2" max="128" step="1" /></td></tr>
+			<tr><td id="workspace" rowspan="2">Espace de travail </td><td><span id="regle" >Regle (ms/sec) : </span><input  id="spaceRegle" type="checkbox" checked /><span id="mesure"> Mesure : </span><input  id="spaceMesure" type="checkbox"  checked  /><span id="grille"> Grille : </span><input   id="spaceGrille" type="checkbox"  checked  /><span id="spaceS"> Seconde : </span><input   id="spaceSeconde" type="checkbox"  /></td></tr>
+			<tr><td ><span id="width">Dimension Lageur : </span><input  id="spaceWidth" style="width:60px;" type="number" value="" min="" max="" step="10" /><span id="height"> Hauteur : </span><input   id="spaceHeight" type="number" style="width:60px;"  value=""  min="" max="" step="10" /><span id="zoom"> Zoom : </span><input   id="spaceScale" type="number" style="width:60px;"  value="1"  min="" max="" step="0.1" /></td></tr>
+			<tr><td id="svg">SVG </td><td><span id="svgR">Regle (ms/sec) : </span><input  id="svgRegle" type="checkbox"  /><span id="svgM"> Mesure :</span> <input  id="svgMesure" type="checkbox"  /><span id="svgG"> Grille : </span><input   id="svgGrille" type="checkbox"  /><span id="svgS"> Seconde : </span><input   id="svgSeconde" type="checkbox"  /></td></tr>
+		</tbody>
+		</table>
+	<div style="position:absolute;top:615px;left:350px;"><button onclick='defautProjet();'>Defaut</button><button style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button onclick='exportProjet();'>Valider</button> <button style="margin-left:50px;" onclick='closeConfigProjet();'>Quitter</button></div>
+	</div>
+	<div id="panSpacial" align="center" style="padding:10px;background-color:#f9f9fd;overflow:auto;height:520px;border:0px solid black;display:none">
+		<table id="auditeur" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
+		<tbody>
+			<tr><td colspan="2" style="text-align:center" >Auditeur <a href="https://developer.mozilla.org/fr/docs/Web/API/AudioListener" target="_blanck" ><img src="./images/png/books-48.png" alt="doc" style="width:32px;"/></a></td><td></td><td  style="text-align:center" colspan="2">Source(s) audio <a href="https://developer.mozilla.org/en-US/docs/Web/API/PannerNode" target="_blanck" ><img src="./images/png/books-48.png" alt="doc" style="width:32px;"/></a></td></tr>
+			<tr><td>Listener ForwardX :</td><td ><input id="listenerForwardX" style="width:60px;" type="number" value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Panning Model : </td><td ><select id="selectPanningModel" size="1"  value="equalpower" onchange="">
+			<option value="equalpower" selected="selected">Equalpower </option>
+			<option value="HRTF" >HRTF</option></select></td></tr>
+			<tr><td>Listener ForwardY :</td><td><input id="listenerForwardY" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1"  /></td><td></td><td>Distance Model : </td><td><select id="selectDistanceModel" size="1"  value="linear" onchange="">
+			<option value="linear">Linear</option>
+			<option value="inverse" selected="selected">Inverse</option>
+			<option value="exponential">Exponential</option>
+			</select></td></tr>
+			<tr><td>Listener ForwardZ :</td><td><input id="listenerForwardZ" style="width:60px;" type="number"   value="-1" min="-1" max="1" step="0.1"  /></td><td></td><td>Ref Distance : </td><td><input  id="refDistance" type="number" style="width:60px;" type="number"  value="1" min="0" max="1000" step="1"  /> </td></tr>
+			<tr><td colspan="2"></td><td></td><td>MaxDistance : </td><td ><input id="maxDistance" style="width:60px;" type="number" value="10000" min="0" max="10000" step="1"  /></td></tr>
+			<tr><td>Listener Up X :</td><td ><input id="listenerUpX" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Rolloff Factor : </td><td ><input id="rolloffFactor" style="width:60px;" type="number" value="1" min="0" max="1" step="0.1"  /></td></tr>
+			<tr><td>Listener Up Y :</td><td><input id="listenerUpY" style="width:60px;" type="number"  value="1" min="-1" max="1" step="0.1" /></td><td></td><td>Cone Inner Angle : </td><td><input  id="coneInnerAngle" style="width:60px;" type="number" value="360" min="0" max="360" step="1"   /> </td></tr>
+			<tr><td>Listener Up Z :</td><td><input id="listenerUpZ" style="width:60px;" type="number"   value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Cone Outer Angle : </td><td><input  id="coneOuterAngle" type="number" style="width:60px;" type="number" value="0" min="0" max="360" step="1"   /> </td></tr>
+			<tr><td colspan="2"></td><td></td><td>Cone Outer Gain : </td><td ><input id="coneOuterGain" style="width:60px;" type="number" value="0" min="0" max="360" step="1"  /></td></tr>
+			<tr><td>listener Position X :</td><td  ><input id="listenerPositionX" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1" /></td><td></td><td colspan="2"></td></tr>
+			<tr><td>listener Position Y :</td><td><input id="listenerPositionY" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1"/></td><td></td><td>Orientation X : </td><td><input  id="orientationX" style="width:60px;" type="number" value="1" min="0" max="360" step="1"   /> </td></tr>
+			<tr><td>listener Position Z :</td><td><input id="listenerPositionZ" style="width:60px;" type="number"   value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Orientation Y : </td><td><input  id="orientationY" type="number" style="width:60px;" type="number" value="0" min="0" max="360" step="1"   /> </td></tr>
+			<tr><td colspan="2"></td><td></td><td>Orientation Z : </td><td><input  id="orientationZ" type="number" style="width:60px;" type="number" value="0" min="0" max="360" step="1"   /> </td></tr>
+		</tbody>
+		</table>
+		<div style="position:absolute;top:600px;left:450px;"><button onclick='defautSpace();'>Defaut</button></div>
+	<div style="position:absolute;top:615px;left:450px;"><button style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button onclick='exportSpace();'>Valider</button> <button onclick='closeConfigSpace();'>Quitter</button></div>
+	</div>
+	<div id="panInterface"  style="padding:10px;background-color:#f9f9fd;overflow:auto;height:500px;border:0px solid black;display:none">
+	<div style="margin:20px;" ><span id="lang" >Langue : </span><select id="selectLang" size="1"  value="" onchange="selectLang();">
+			<option value="" ></option>
+			<option value="D" >D</option>
+			<option value="En" >En</option>
+			<option value="Es" >Es</option>
+			<option value="Fr" selected="selected">Fr </option>
+			<option value="I" >I</option>
+			</select></div>
+	<table id="tableTranscript" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
+		<tbody>
+			<tr ><td rowspan="2" id="palette">Palette</td><td id="bkgP">Arrière plan:</td><td><div id="clPaletteBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="paletteBkg" type="color" style="display:none" value="#e2e2e2" /></td><td id="PPcolor">Couleur de la police :</td><td><div id="clfontPalette" style="width:50px;height:30px;border:1px solid black;" ></div><input id="fontPalette" type="color" style="display:none" value="#000000" /></td></tr><tr><td id="PTFont">Taille de la police :</td><td ><input id="tailleFontpalette" style="width:50px;" type="number" min="0.6" max="2" value="1" step="0.01" /></td><td id="Psep">Séparateur :</td><td><div id="clPaletteSepBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="paletteSepBkg" type="color" style="display:none" value="#000000" /></td></tr>
+			<tr><td rowspan="2" id="Binfos">Barre d'infos</td><td id="bkgB">Arrière plan :</td><td><div id="clInfoBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="infoBkg" type="color" style="display:none" value="#2c2c2c" /></td><td id="bColorF">Couleur de la police :</td><td><div id="clInfoFont" style="width:50px;height:30px;border:1px solid black;" ></div><input id="infoFont" type="color" style="display:none" value="#ffffff" /></td></tr><tr><td id="bTPolice">Taille de la police:</td><td><input id="tailleFontInfos" style="width:50px;" type="number" min="0.6" max="2" value="1" step="0.01" /></td><td></td><td></td></tr>
+			<tr><td rowspan="2" id="Reglette">Réglettes</td><td id="Rbkg">Arrière plan :</td><td><div id="clRegleBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="regleBkg" type="color" style="display:none" value="#3c3c3c" /></td><td id="RcolorF">Couleur de la police :</td><td><div id="clRegleFont" style="width:50px;height:30px;border:1px solid black;" ></div><input id="regleFont" type="color" style="display:none" value="#000000" /></td></tr><tr><td id="RTfont">Taille de la Police :</td><td><input id="tailleFontRegle" style="width:50px;" type="number" min="0.6" max="2" value="1" step="0.01" /></td><td></td><td></td></tr>
+			<tr><td rowspan="2" id="interv">Intervalle</td><td id="Ibkg">Arrière plan intervalle :</td><td><div id="clIntervalBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="intervalBkg" type="color" style="display:none" value="#0ab12d" /></td><td id="iTFont">Taille de la police :</td><td><input id="tailleFontInterval" style="width:50px;" type="number" min="0.4" max="2" value="1" step="0.01" /></td></tr><tr><td id="iColorF">Couleur de la police :</td><td><div id="clIntervalFont" style="width:50px;height:30px;border:1px solid black;" ></div><input id="intervalFont" type="color" style="display:none" value="#000000" /></td><td></td><td></tr>
+			<tr><td  rowspan="2" id="works">Espace de travail</td><td id="wBkg">Arrière plan :</td><td><div id="clWorkspaceBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="workspaceBkg" type="color" style="display:none" value="#f5f5f5" /></td><td id="wColorG">Couleur de la grille:</td><td><div id="clgrilleBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="grilleBkg" type="color" style="display:none" value="#959595" /></td></tr>
+			<tr><td id="WopacityG">Opacité de la grille:</td><td><input id="opacityGrille" style="width:50px;" type="number" min="0" max="1" value="1" step="0.1" /></td><td id="wColorS">Couleur du suiveur:</td><td><div id="clsuiveurBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="suiveurBkg" type="color" style="display:none" value="#ff0000" /></td></tr>
+			<tr><td rowspan="3" id="popup">Popup</td><td id="pBkgT">Arrière plan titre:</td><td><div id="clpopupTitreBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="popupTitreBkg" type="color" style="display:none" value="#313237" /></td><td id="pColorFT">Couleur de la police:</td><td><div id="clpopupTitreFont" style="width:50px;height:30px;border:1px solid black;" ></div><input id="popupTitreFont" type="color" style="display:none" value="#fffbfb" /></td></tr>
+			<tr><td id="pTFontT">Taille de la police titre :</td><td><input id="tailleFontTitrePopup" style="width:50px;" type="number" min="0.6" max="2" value="1" step="0.01" /></td><td id="pBkg">Arrière plan popup :</td><td><div id="clBkgPopup" style="width:50px;height:30px;border:1px solid black;" ></div><input id="bkgPopup" type="color" style="display:none" value="#f9f9fd" /></td></tr>
+			<tr><td id="pTfont">Taille de la police popup  :</td><td><input id="tailleFontpopup" style="width:50px;" type="number" min="0.6" max="2" value="1" step="0.01" /></td><td id="pColorF">Couleur de la police  popup  :</td><td><div id="clFontPopup" style="width:50px;height:30px;border:1px solid black;" ></div><input id="fontPopup" type="color" style="display:none" value="#000000" /></td></tr>
+		<tr><td  id="onglet" rowspan="2">Onglet popup</td><td id="oBkg">Arrière plan :</td><td><div id="clongletBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="ongletBkg" type="color" style="display:none" value="#B4B4B4" /></td><td id="oColorF">Couleur de la police:</td><td><div id="clongletFont" style="width:50px;height:30px;border:1px solid black;" ></div><input id="ongletFont" type="color" style="display:none" value="#000000" /></td></tr>
+		<tr><td id="oactif">Arrière plan Actif :</td><td><div id="clongletActifBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="ongletActifBkg" type="color" style="display:none" value="#EAEAEA" /></td><td id="oActifF">Taille de la police :</td><td><input id="tailleFontOnglet" style="width:50px;" type="number" min="0.6" max="2" value="1" step="0.01" /></td></tr>
+		<tr><td  id="svg" rowspan="2">SVG</td><td id="sBkg">Arrière plan :</td><td><div id="clsvgBkg" style="width:50px;height:30px;border:1px solid black;" ></div><input id="svgBkg" type="color" style="display:none" value="#f5f5f5" /></td><td id="sColorF">Couleur de la font:</td><td><div id="clSvgFontColor" style="width:50px;height:30px;border:1px solid black;" ></div><input id="svgFontColor" type="color" style="display:none" value="#959595" /></td></tr><tr><td id="sTFont">Taille de la police :</td><td><input id="svgFontSize" type="number"  min="0.2" max="4" value="1.0" step="0.01" /></td><td></td><td></td></tr>
+		</tbody>
+	</table>
+	<div style="position:absolute;top:600px;left:150px;"><button  id="save" onclick='configSave();'>Sauvergarder</button></div>
+	<div style="position:absolute;top:600px;left:450px;"><button id="defaut" onclick='defautInterface();'>Defaut</button></div>
+	<div style="position:absolute;top:615px;left:450px;"><button id="Annul" style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button id="valid" onclick='exportInterface();'>Valider</button> <button id="Quit" onclick='closeConfigInterface();'>Quitter</button></div>
+</div>
+<div id="panPalette" align="center" style="padding:10px;background-color:#f9f9fd;overflow:auto;height:520px;border:0px solid black;display:none">
+		<table id="tablePalette" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
+		<tbody>
+			<tr>
+						<td style="padding-left:6px" ><div id="Disque"><svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><circle id='circle' cx='50' cy='50' r='30' fill='green' /></svg></div><input id="inpDisque" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px" ><div id="Carre"  ><svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id='carre'  x='25' y='25' width='50' height='50' fill='blue' /></svg></div><input id="inpCarre" type="color" style="display:none" value="#000000" /></td>
+						<td   style="padding-left:0px"><div id="Triangle"  ><svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,40 0,0 40,20 0,40' fill='#ff0000' transform='translate(34 34)'  stroke='#ff000' stroke-width='0' /></svg></div><input id="inpTriangle" type="color" style="display:none" value="#000000" /></td>
+						<td  style="padding-left:0px"><div id="Ellipse" ><svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><ellipse cx='0' cy='0' rx='40' ry='20' fill='#ba21e0'  transform='translate(52 50)'   /></svg></div><input id="inpEllipse" type="color" style="display:none" value="#000000" /></td>
+					</tr><tr>
+						<td  style="padding-left:0px"><div id="Rectangle" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id="carre"  x='14' y='10' width='40' height='20' fill='#21e033' /></svg></div><input id="inpRectangle" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px"><div id="Trianglelong" ><svg width='50' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='5,5 5,15 55,10 5,5' fill='#ff0000' transform='translate(0 10)'  /></svg></div><input id="inpTrianglelong" type="color" style="display:none" value="#000000" /></td>
+						<td  style="padding-left:0px"><div id="Rondlong" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='translate(4 10)' ><circle id="circle" cx='10' cy='10' r='10' fill='#008000' /><rect id="carre"  x='10' y='5' width='30' height='10' fill='#008000' /></g></svg></div><input id="inpRondlong" type="color" style="display:none" value="#000000" /></td>
+						<td  style="padding-left:4px"><div id="Carrelong" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='translate(4 10)' ><rect id="carre"  x='0' y='0' width='20' height='20' fill='blue' /><rect id="carre"  x='10' y='5' width='30' height='10' fill='blue' /></g></svg></div><input id="inpCarrelong" type="color" style="display:none" value="#000000" /></td>
+					</tr>
+					<tr>
+						<td style="padding-left:0px"><div id="Crescendo" ><svg width='50' height='15'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0,10 0,5 50,0 50,15 0,10 Z' fill='#ff0000' /></svg></div><input id="inpCrescendo" type="color" style="display:none" value="#000000" /></td>
+						<td  style="padding-left:0px"><div id="Ligne" ><svg width='40' height='8'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='5' y1='0' x2='40' y2='0' stroke='#000000' stroke-width='8' /></svg></div><input id="inpLigne" type="color" style="display:none" value="#000000" /></td>
+						<td  style="padding-left:0px"><div id="Glissando" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='8' y1='34' x2='48' y2='4' stroke='#23a7f0' stroke-width='4' /></svg></div><input id="inpGlissando" type="color" style="display:none" value="#000000" /></td>
+						<td  style="padding-left:0px"><div id="Block" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='26' y1='6' x2='26' y2='36' stroke='#9b8d11' stroke-width='10' /></svg></div><input id="inpBlock" type="color" style="display:none" value="#000000" /></td>
+					</tr>
+					<tr>
+						<td  style="padding-left:0px"></td>
+						<td  style="padding-left:0px"><div id="Decresc" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 25 Q 25 30 50 0  Q 45 30 0 40  L 0 25 Z ' fill='#800080' transform='scale(0.7 0.7) translate(10 4)'/></svg></div><input id="inpDecresc" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px"><div id="Decrescb" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0 Q 45 3 40 38 Q 30 10 0 7 Z ' fill='#800080' transform='scale(0.7 0.7) translate(10 6)'/></svg></div><input id="inpDecrescb" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px"><div id="Cresc" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 35 L 0 30 Q 30 30 50 0 L 50 20  Q 40 30 0 35 Z' fill='#e7a016' transform='scale(0.7 0.7) translate(10 6)'/></svg></div><input id="inpCresc" type="color" style="display:none" value="#000000" /></td>
+					</tr>
+					<tr>
+						<td style="padding-left:0px"><div id="Crescb" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0  Q 30 5 50 20 L 50 50  Q 40 10 0 5 Z' fill='#e7a016' transform='scale(0.7 0.7) translate(4 4)'/></svg></div><input id="inpCrescb" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px"><div id="Agregat" ><svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='translate(20 4)' ><rect id="carre"  x='0' y='2' width='4' height='34' fill='blue' /><rect id="carre"  x='6' y='2' width='10' height='10' fill='blue' /><rect id="carre"  x='6' y='14' width='10' height='10' fill='blue' /><rect id="carre"  x='6' y='26' width='10' height='10' fill='blue' /></g></svg></div><input id="inpAgregat" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px"><div id="Arpege" ><svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='translate(10 4)' ><rect id="carre"  x='0' y='0' width='10' height='10' fill='blue' /><rect id="carre"  x='14' y='5' width='9' height='9' fill='blue' /><rect id="carre"  x='23' y='14' width='8' height='8' fill='blue' /><rect id="carre"  x='28' y='22' width='7' height='7' fill='blue' /><rect id="carre"  x='31' y='29' width='6' height='6' fill='blue' /><rect id="carre"  x='32' y='35' width='5' height='5' fill='blue' /><rect id="carre"  x='33' y='40' width='4' height='4' fill='blue' /></g></svg></div><input id="inpArpege" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px"><div id="Multilignes" ><svg width='40' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='translate(10 4)' ><line x1='5' y1='10' x2='40' y2='10' stroke='#000000' stroke-width='2' /><line x1='5' y1='13' x2='40' y2='13' stroke='#000000' stroke-width='2' /><line x1='5' y1='18' x2='40' y2='18' stroke='#000000' stroke-width='3' /><line x1='5' y1='25' x2='40' y2='25' stroke='#000000' stroke-width='2' /><line x1='5' y1='29' x2='40' y2='29' stroke='#000000' stroke-width='4' /><line x1='5' y1='35' x2='40' y2='35' stroke='#000000' stroke-width='2' /><line x1='5' y1='38' x2='40' y2='38' stroke='#000000' stroke-width='2' /></g></svg></div><input id="inpMultilignes" type="color" style="display:none" value="#000000" /></td>
+					</tr>
+						<td style="padding-left:0px"><div id="Nuage" ><svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='m 0,18 c 2.563522,-4.224314 5.082396,-8.502207 9.5544,-10.436343 15.408596,-2.005519 10.194491,-4.131414 15.287035,-6.173611 15.94465,-2.511366 17.400141,2.490165 23.66551,4.997685 2.271129,3.188679 5.724476,4.406994 4.703704,13.082175 -1.620314,13.767922 -5.475164,14.575533 -8.966435,17.4919 -8.306339,2.87551 -16.042438,4.467977 -22.783564,3.821758  -6.306339,0.87551 -14.042438,2.467977 -20.783564,-10.821758 Z' fill='#deea1a' stroke="#000000" stroke-width="1" transform='scale(0.6 0.6) translate(20 20)'/></svg></div><input id="inpNuage" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:0px"><div id="Texture" ><svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' transform='translate(6 4)'><rect id="carre"  x='0' y='0' width='40' height='40' fill='none' stroke='#000000' stroke-width:'1' /><circle id="circle" cx='4' cy='4' r='2' fill='green' /><circle id="circle" cx='10' cy='8' r='2' fill='green' /><circle id="circle" cx='8' cy='16' r='2' fill='green' /><circle id="circle" cx='14' cy='20' r='2' fill='green' /><circle id="circle" cx='35' cy='27' r='2' fill='green' /><circle id="circle" cx='21' cy='33' r='2' fill='green' /><circle id="circle" cx='38' cy='19' r='2' fill='green' /><circle id="circle" cx='34' cy='35' r='2' fill='green' /></svg></div><input id="inpTexture" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:6px;padding-top:6px"><div id="Image" ></div><input id="inpImage" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:6px;padding-top:6px"><div id="Symb" ><svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform="translate(20 8) scale(1 1)"><path style='fill-rule:evenodd;stroke-width:0.26458332' d='m 9.3813333,9.8152992 c 0,-2.1314839 -5.32183,-4.2034359 -5.32183,-6.2457539 0,-1.028436 1.4515,-2.027238 5.92667,-2.92152997 0.0603,-0.01111 0.0907,-0.0299 0.0907,-0.04101 0,-0.0336 -0.3325797,-0.06323 -0.5746797,-0.06323 -0.12091,0 -0.33258,0.0037 -0.48366,0.02963 -5.80575,1.14776197 -7.74091,2.47464797 -7.74091,3.81608497 0,2.161382 5.68457,4.2481504 5.68457,6.3201027 0,1.0287 -1.45124,1.997604 -5.92666,2.891896 v 0.0299 0.02963 c 4.47542,0.894556 5.92666,1.86346 5.92666,2.891896 0,2.071952 -5.68457,4.158721 -5.68457,6.320102 0,1.341702 1.93516,2.668323 7.74091,3.816085 0.15108,0.02593 0.36275,0.02963 0.48366,0.02963 0.2421,0 0.5746797,-0.02963 0.5746797,-0.06324 0,-0.01111 -0.0304,-0.0299 -0.0907,-0.04101 -4.47517,-0.894292 -5.92667,-1.893094 -5.92667,-2.921529 0,-2.042319 5.32183,-4.114271 5.32183,-6.245755 0,-1.356518 -1.93516,-2.653241 -7.62,-3.81582 5.68484,-1.162835 7.62,-2.459558 7.62,-3.8160768' /></g></svg></div><input id="inpSymb" type="color" style="display:none" value="#000000" /></td>
+					</tr>
+					<tr>
+						<td style="padding-left:0px"><div id="ToutBas" ><svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform="translate(10 8) scale(1 1)"><line x1=16 y1=6 x2=16 y2=24  stroke='#f26e07' stroke-width='6' /><polyline points='8,22 16,30 24,22 8,22' fill='#f26e07'   /><line x1='25' y1='10' x2='40' y2='10' stroke='#000000' stroke-width='1' /><line x1='25' y1='13' x2='40' y2='13' stroke='#000000' stroke-width='1' /><line x1='25' y1='16' x2='40' y2='16' stroke='#000000' stroke-width='1' /><line x1='25' y1='19' x2='40' y2='19' stroke='#000000' stroke-width='1' /><line x1='23' y1='24' x2='40' y2='24' stroke='#23a7f0' stroke-width='4' /></g></svg></div><input id="inpToutBas" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:3px"><div id="Fleche" ></div><input id="inpFleche" type="color"  value="#f26e07" /></td>
+						<td style="padding-left:4px"><div id="Marque1" ></div><input id="inpMarque1" type="color"  value="#000000" /></td>
+						<td style="padding-left:3px;"><div id="Marque2" ></div><input id="inpMarque2" type="color" value="#23a7f0" /></td>
+					</tr>
+					<tr>
+						<td style="padding-left:0px"><div id="Lecteur" ><svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,40 0,0 40,20 0,40' fill='#2373b2' transform='translate(34 34)'  stroke='#ff000' stroke-width='0' /></svg></div><input id="inpLecteur" type="color" style="display:none" value="#000000" /></td>
+						<td style="padding-left:3px"></td>
+						<td style="padding-left:4px"></td>
+						<td style="padding-left:3px;"></td>
+					</tr>
+			
+		</tbody>
+		</table>
+		<div style="position:absolute;top:600px;left:150px;"><button onclick='paletteDefault();'>Defaut</button></div>
+	<div style="position:absolute;top:615px;left:450px;"><button style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button onclick='exportPalette();'>Valider</button> <button onclick='closeConfigPalette();'>Quitter</button></div>
+	</div>
+</div>
+<script  type="text/javascript" src="./config.js" ></script>
+
+<script >
+
+let paramProjet={}
+let paramSpace={}
+const tableLang=[]
+
+function importLang(name) {
+   // Load lang
+   var xhttp = new XMLHttpRequest()
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var txt=xhttp.responseText
+			defLang(txt)
+		}
+	}
+	xhttp.open("GET", name, true)
+	xhttp.send()
+}
+function defLang (txt) {
+	var ntxt = txt.split('\n')
+	var sp=[]
+	for(let i=0;i<ntxt.length-1;i++){
+		sp=ntxt[i].split('=')
+		tableLang[sp[0]]=sp[1]
+	}
+	interfaceLang ()
+}
+
+
+
+function interfaceLang () {
+document.getElementById('ongletGen').innerHTML=tableLang['cfGeneral']
+document.getElementById('ongletSpacial').innerHTML=tableLang['cfSpat']
+document.getElementById('ongletInterface').innerHTML=tableLang['cfInterf']
+document.getElementById('ongletPalette').innerHTML=tableLang['cfPalette']
+document.getElementById('name').innerHTML=tableLang['cfNomProjet']
+document.getElementById('debut').innerHTML=tableLang['cfDebut']
+document.getElementById('fin').innerHTML=tableLang['cfFin']
+document.getElementById('comment').innerHTML=tableLang['cfComment']
+document.getElementById('dprojet').innerHTML=tableLang['cfDossier']
+document.getElementById('daudio').innerHTML=tableLang['cfDossierAudio']
+document.getElementById('dimg').innerHTML=tableLang['cfDossierImages']
+document.getElementById('greffon').innerHTML=tableLang['cfGreffon3D']
+document.getElementById('workspace').innerHTML=tableLang['cfWorkspace']
+document.getElementById('regle').innerHTML=tableLang['cfRegle']
+document.getElementById('mesure').innerHTML=tableLang['cfMesure']
+document.getElementById('grille').innerHTML=tableLang['cfGrille']
+document.getElementById('svg').innerHTML=tableLang['cfSvg']
+document.getElementById('svgR').innerHTML=tableLang['cfRegle']
+document.getElementById('svgM').innerHTML=tableLang['cfMesure']
+document.getElementById('svgG').innerHTML=tableLang['cfGrille']
+document.getElementById('lang').innerHTML=tableLang['cfLang']
+document.getElementById('palette').innerHTML=tableLang['cfPalette']
+document.getElementById('bkgP').innerHTML=tableLang['cfBkg']
+document.getElementById('PPcolor').innerHTML=tableLang['cfCPolice']
+document.getElementById('PTFont').innerHTML=tableLang['cfTPolice']
+document.getElementById('Binfos').innerHTML=tableLang['cfBrInfos']
+document.getElementById('bkgB').innerHTML=tableLang['cfBkg']
+document.getElementById('bTPolice').innerHTML=tableLang['cfTPolice']
+document.getElementById('bColorF').innerHTML=tableLang['cfCPolice']
+document.getElementById('Reglette').innerHTML=tableLang['cfReglette']
+document.getElementById('Rbkg').innerHTML=tableLang['cfBkg']
+document.getElementById('RTfont').innerHTML=tableLang['cfTPolice']
+document.getElementById('RcolorF').innerHTML=tableLang['cfCPolice']
+document.getElementById('interv').innerHTML=tableLang['cfInterv']
+document.getElementById('Ibkg').innerHTML=tableLang['cfBkg']
+document.getElementById('iTFont').innerHTML=tableLang['cfTPolice']
+document.getElementById('iColorF').innerHTML=tableLang['cfCPolice']
+document.getElementById('works').innerHTML=tableLang['cfWorkspace']
+document.getElementById('wBkg').innerHTML=tableLang['cfBkg']
+document.getElementById('wColorG').innerHTML=tableLang['cfCGrille']
+document.getElementById('WopacityG').innerHTML=tableLang['cfOGrille']
+document.getElementById('wColorS').innerHTML=tableLang['cfCSuiveur']
+document.getElementById('popup').innerHTML=tableLang['cfPopup']
+document.getElementById('pBkgT').innerHTML=tableLang['cfPopBkgT']
+document.getElementById('pColorFT').innerHTML=tableLang['cfPopCT']
+document.getElementById('pTFontT').innerHTML=tableLang['cfPopTT']
+document.getElementById('pBkg').innerHTML=tableLang['cfPopBkg']
+document.getElementById('pTfont').innerHTML=tableLang['cfPopT']
+document.getElementById('pColorF').innerHTML=tableLang['cfPopC']
+document.getElementById('onglet').innerHTML=tableLang['cfOng']
+document.getElementById('oBkg').innerHTML=tableLang['cfBkg']
+document.getElementById('oColorF').innerHTML=tableLang['cfCPolice']
+document.getElementById('oactif').innerHTML=tableLang['cfBkgActif']
+document.getElementById('oActifF').innerHTML=tableLang['cfTPolice']
+document.getElementById('svg').innerHTML=tableLang['cfSvg']
+document.getElementById('svgBkg').innerHTML=tableLang['cfBkg']
+document.getElementById('sColorF').innerHTML=tableLang['cfCPolice']
+document.getElementById('sTFont').innerHTML=tableLang['cfTPolice']
+document.getElementById('svgS').innerHTML=tableLang['cfSeconde']
+document.getElementById('spaceS').innerHTML=tableLang['cfSeconde']
+}
+
+document.getElementById("ongletGen").addEventListener('click',defongletGen);
+document.getElementById("ongletSpacial").addEventListener('click',defongletSpacial);
+document.getElementById("ongletInterface").addEventListener('click',defongletInterface);
+document.getElementById("ongletPalette").addEventListener('click',defongletPalette);
+
+let imgpart="<svg  width='12.791215mm'   height='12.978383mm'   viewBox='0 0 12.791215 12.978383'   >  <g     inkscape:label='Calque 1'     inkscape:groupmode='layer'     id='layer1'     transform='translate(-0.36629491,-1.5850514)'>    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1007.19 2835.47,1007.19'       id='polyline16'       transform='matrix(0.0047485,0,0,0.04115467,-0.30671944,-36.064026)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1032.19 2835.47,1032.19'       id='polyline18'       transform='matrix(0.0046537,0,0,0.04115467,-0.2932833,-36.04607)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1057.19 2835.47,1057.19'       id='polyline20'       transform='matrix(0.00464426,0,0,0.04115467,-0.29194454,-36.04607)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1082.19 2835.47,1082.19'       id='polyline22'       transform='matrix(0.00467749,0,0,0.04115467,-0.29665391,-36.014548)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1107.19 2835.47,1107.19'       id='polyline24'       transform='matrix(0.0046774,0,0,0.04115467,-0.29664174,-35.976276)' />    <path       class='Accidental'       stroke='#000000'       d='M 3.194572,5.4471365 3.1506956,2.8910588 c 0,-0.040264 0.026528,-0.060395 0.079667,-0.060395 0.053097,0 0.079634,0.020295 0.079634,0.060395 L 3.282905,4.2858335 c 0.061077,-0.072539 0.1135543,-0.1227224 0.1574291,-0.1507847 0.043909,-0.028119 0.103704,-0.042138 0.1793837,-0.042138 0.075673,0 0.1457063,0.041487 0.2100099,0.1244586 0.064304,0.082858 0.096458,0.1861335 0.096458,0.3095895 0,0.1847968 -0.1636726,0.4406906 -0.4909825,0.7677874 -0.1217746,0.1312073 -0.1850026,0.1967945 -0.189686,0.1967945 h -0.020044 c -0.020607,0 -0.030906,-0.014834 -0.030906,-0.04442 M 3.2796446,4.4144245 3.2693801,5.3269003 C 3.3394402,5.2488179 3.4106095,5.119404 3.4828912,4.9384787 3.5551338,4.7575615 3.591278,4.6028319 3.591278,4.4742167 c 0,-0.064226 -0.00902,-0.1232605 -0.027092,-0.176842 -0.018066,-0.053549 -0.046334,-0.080364 -0.084832,-0.080364 -0.038461,0 -0.072969,0.015975 -0.103497,0.048251 -0.030522,0.032195 -0.062597,0.081881 -0.096213,0.1491872'       id='path170-0'       style='stroke-width:0.0377808' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='341.873,541.732 389.787,541.732'       id='polyline172-2'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='341.873,516.732 389.787,516.732'       id='polyline174-3'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='341.873,491.732 389.787,491.732'       id='polyline176-7'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='431.609,541.732 479.523,541.732'       id='polyline178-5'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='521.346,541.732 569.26,541.732'       id='polyline180-9'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='521.346,516.732 569.26,516.732'       id='polyline182-2'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='Stem'       fill='none'       stroke='#000000'       stroke-width='3.25'       stroke-linecap='round'       stroke-linejoin='bevel'       points='350.998,483.928 350.998,691.732'       id='polyline184-2'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='Stem'       fill='none'       stroke='#000000'       stroke-width='3.25'       stroke-linecap='round'       stroke-linejoin='bevel'       points='440.734,546.428 440.734,691.732'       id='polyline186-8'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='Stem'       fill='none'       stroke='#000000'       stroke-width='3.25'       stroke-linecap='round'       stroke-linejoin='bevel'       points='530.471,508.928 530.471,691.732'       id='polyline188-9'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <path       fill='#000000'       d='m 1.941034,3.6427899 c 0.1083872,0 0.1987034,0.032195 0.2709492,0.09647 0.072243,0.064226 0.1083873,0.15671 0.1083873,0.2771748 0,0.1847398 -0.080639,0.3575065 -0.2419542,0.5182999 C 1.9171026,4.6954872 1.7437538,4.7758595 1.558404,4.7758595 1.4500179,4.7758595 1.3586258,4.742442 1.2841947,4.6755835 1.214099,4.6032069 1.1790681,4.512035 1.1790681,4.4023127 1.1790681,4.222667 1.2592561,4.0512125 1.419669,3.887868 1.580081,3.7245395 1.7538809,3.6428795 1.941034,3.6428795'       id='path190-7'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 1.941034,1.5850595 c 0.1083872,0 0.1987034,0.032276 0.2709492,0.09647 0.072243,0.064226 0.1083873,0.1567183 0.1083873,0.277183 0,0.184748 -0.080639,0.3575064 -0.2419542,0.5183081 C 1.9171026,2.637757 1.7437538,2.7181373 1.558404,2.7181373 1.4500179,2.7181373 1.3586258,2.6847198 1.2841947,2.6177475 1.214099,2.545371 1.1790681,2.454199 1.1790681,2.3444767 c 0,-0.1796294 0.080188,-0.3510838 0.2406009,-0.5144284 0.160412,-0.163345 0.3342119,-0.2449969 0.521365,-0.2449969'       id='path192-3'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 5.0534119,4.1572346 c 0.108385,0 0.1987019,0.032195 0.2709836,0.096462 0.072242,0.064226 0.1083861,0.1567182 0.1083861,0.2771748 0,0.1847479 -0.080672,0.3575065 -0.2419877,0.5183082 -0.1613147,0.1607524 -0.3346291,0.2411246 -0.5199792,0.2411246 -0.1083861,0 -0.1998126,-0.033418 -0.2742089,-0.100276 -0.070095,-0.072376 -0.1051616,-0.1635565 -0.1051616,-0.2732707 0,-0.1796375 0.080222,-0.351092 0.2406359,-0.5144367 0.160412,-0.1633446 0.3341772,-0.2449885 0.5213316,-0.2449885'       id='path194-6'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 8.1657874,6.787425 c 0.1083873,0 0.1987381,0.032113 0.270984,0.09647 0.072243,0.064226 0.1083872,0.1567102 0.1083872,0.2771668 0,0.184748 -0.080672,0.3575227 -0.2419893,0.5183081 -0.1613141,0.1607366 -0.3346284,0.2411252 -0.5199778,0.2411252 -0.1083872,0 -0.1997782,-0.033418 -0.2742098,-0.100276 -0.070102,-0.072377 -0.1051255,-0.1635565 -0.1051255,-0.2732707 0,-0.1796457 0.080189,-0.351092 0.2406008,-0.5144367 C 7.804869,6.8691749 7.9786693,6.787523 8.1657869,6.787523'       id='path196-1'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 8.1657874,3.6427899 c 0.1083873,0 0.1987381,0.032195 0.270984,0.09647 0.072243,0.064226 0.1083872,0.15671 0.1083872,0.2771748 0,0.1847398 -0.080672,0.3575065 -0.2419893,0.5182999 -0.1613141,0.1607529 -0.3346284,0.2411252 -0.5199778,0.2411252 -0.1083872,0 -0.1997782,-0.033418 -0.2742098,-0.100276 C 7.4388793,4.6032069 7.4038562,4.512035 7.4038562,4.4023127 7.4038562,4.222667 7.4840453,4.0512125 7.644457,3.887868 7.8048695,3.7245395 7.9786698,3.6428795 8.1657874,3.6428795'       id='path200-9'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 8.1657874,2.6139247 c 0.1083873,0 0.1987381,0.032194 0.270984,0.09647 0.072243,0.064226 0.1083872,0.1567019 0.1083872,0.2771667 0,0.1847479 -0.080672,0.3575146 -0.2419893,0.5183082 C 8.1418552,3.6666139 7.9685409,3.7470025 7.7831915,3.7470025 7.6748043,3.7470025 7.5834133,3.713585 7.5089817,3.6466127 7.4388793,3.5742361 7.4038562,3.4830561 7.4038562,3.3733419 7.4038562,3.1936961 7.4840453,3.0222417 7.644457,2.858897 7.804869,2.6955687 7.9786693,2.6139005 8.1657869,2.6139005'       id='path202-3'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 5.0534119,7.2438299 c 0.108385,0 0.1987019,0.032195 0.2709836,0.096364 0.072242,0.064226 0.1083861,0.1567183 0.1083861,0.2771912 0,0.1847316 -0.080672,0.3574983 -0.2419877,0.5182919 C 5.0294795,8.2964297 4.856165,8.3767939 4.6708149,8.3767939 4.5624288,8.3767939 4.4710023,8.3433769 4.396606,8.2764041 4.326511,8.2040271 4.2914444,8.1128557 4.2914444,8.0031497 c 0,-0.1796458 0.080222,-0.351092 0.240636,-0.5144449 0.160412,-0.1633446 0.3341772,-0.2449802 0.5213315,-0.2449802'       id='path204-1'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 11.359498,7.4965206 c -0.144527,0.0617 -0.261307,0.09255 -0.350374,0.09255 -0.08907,0 -0.163569,-0.030075 -0.223537,-0.090372 -0.05997,-0.060232 -0.08997,-0.1352253 -0.08997,-0.2250685 0,-0.089827 0.02483,-0.1635485 0.0745,-0.2212134 0.0497,-0.057706 0.109045,-0.086452 0.178031,-0.086452 0.06902,0 0.118688,0.022251 0.149036,0.066508 0.03035,0.04442 0.0478,0.083943 0.05231,0.1186472 0.0045,0.034721 0.01526,0.079468 0.03225,0.1343695 0.01696,0.054853 0.04016,0.082312 0.0696,0.082312 0.02944,0 0.06785,-0.034069 0.115184,-0.1022399 0.04731,-0.068138 0.07776,-0.1176691 0.09132,-0.1485188 0.01353,-0.030809 0.03104,-0.045643 0.05255,-0.04442 0.02151,8.15e-4 0.03677,0.013937 0.04579,0.0379 l -0.619968,2.757361 c -0.02237,0.027142 -0.0539,0.040508 -0.09455,0.040508 -0.04065,0 -0.07236,-0.01353 -0.09511,-0.040508 l 0.348989,-1.3464911 c -0.151361,0.064226 -0.271055,0.096364 -0.359012,0.096364 -0.08799,0 -0.161974,-0.030075 -0.221942,-0.090373 -0.05997,-0.060314 -0.08997,-0.1352331 -0.08997,-0.2250763 0,-0.089827 0.02431,-0.1634262 0.0729,-0.2208793 0.04859,-0.05738 0.107312,-0.086126 0.176125,-0.086126 0.06885,0 0.119034,0.022088 0.150665,0.066345 0.03159,0.044176 0.05084,0.091677 0.05772,0.1427157 0.01807,0.1286153 0.05417,0.1929392 0.108387,0.1929392 0.02709,0 0.06558,-0.037574 0.115427,-0.1125179 0.05168,-0.069932 0.08327,-0.1249802 0.09482,-0.1652845 l 0.158817,-0.6231157'       id='path226-9'       style='stroke-width:0.0377808' />    <path       fill='#000000'         d='m 3.9325022,13.156595 c 0,0.03945 0.015894,0.07393 0.047691,0.103555 0.033235,0.03472 0.069367,0.06594 0.1083872,0.09386 0.046963,0.03301 0.083106,0.0701 0.1083872,0.111277 0.030351,0.04931 0.045501,0.101802 0.045501,0.15755 0,0.108888 -0.036771,0.196215 -0.1102589,0.262023 -0.073533,0.06577 -0.1608979,0.09864 -0.2620359,0.09864 -0.070822,0 -0.1325955,-0.01932 -0.1853493,-0.05795 -0.052746,-0.03855 -0.07912,-0.09168 -0.07912,-0.15948 0,-0.04287 0.00902,-0.07988 0.027092,-0.111232 0.019528,-0.02958 0.043452,-0.04433 0.071793,-0.04433 0.028366,0 0.052305,0.01198 0.071835,0.03594 0.019488,0.02396 0.02924,0.05314 0.02924,0.08744 0,0.01679 -0.0119,0.03407 -0.035758,0.05208 -0.022028,0.02144 -0.033055,0.03855 -0.033055,0.05143 0,0.03138 0.013174,0.05355 0.039572,0.06683 0.026357,0.01328 0.055467,0.01989 0.087235,0.01989 0.047339,0 0.091772,-0.01727 0.1333241,-0.05217 0.038674,-0.03945 0.05799,-0.08559 0.05799,-0.13825 0,-0.04931 -0.016604,-0.09713 -0.04988,-0.143416 -0.02349,-0.03081 -0.059411,-0.06455 -0.1078312,-0.100932 -0.043003,-0.02958 -0.077698,-0.0617 -0.1040507,-0.09647 -0.033609,-0.03945 -0.050394,-0.0821 -0.050394,-0.127986 0,-0.105407 0.033398,-0.194423 0.1002701,-0.266849 0.062499,-0.07075 0.1421688,-0.106042 0.2389714,-0.106042 0.080565,0 0.1374855,0.02208 0.170713,0.06635 0.04047,0.04801 0.060693,0.10072 0.060693,0.158193 0,0.04793 -0.00902,0.08427 -0.027092,0.108665 -0.019528,0.02657 -0.043811,0.03986 -0.072904,0.03986 -0.029068,0 -0.053726,-0.0074 -0.073982,-0.02242 -0.020215,-0.015 -0.030351,-0.03301 -0.030351,-0.05404 0,-0.0057 0.00752,-0.02502 0.022788,-0.05974 0.014073,-0.03138 0.021121,-0.06259 0.021121,-0.09365 0,-0.03106 -0.0049,-0.05323 -0.014636,-0.06651 -0.013738,-0.01793 -0.028889,-0.02787 -0.045501,-0.02958 -0.047347,0 -0.08591,0.02225 -0.115704,0.06651 -0.029828,0.04442 -0.044709,0.09462 -0.044709,0.150834 m 1.0979473,-0.217367 -0.1663776,0.63662 c -0.062499,0.237051 -0.1589549,0.458509 -0.2894007,0.664269 -0.1372788,0.215622 -0.277262,0.323437 -0.4199861,0.323437 -0.075158,0 -0.1411626,-0.02307 -0.1980787,-0.06912 -0.056912,-0.04605 -0.085361,-0.105943 -0.085361,-0.179718 0,-0.08406 0.015363,-0.154951 0.046065,-0.212867 0.031813,-0.0591 0.073354,-0.08874 0.1246534,-0.08874 0.04047,0 0.074154,0.01727 0.1010681,0.05175 0.026921,0.03448 0.040365,0.07401 0.040365,0.118647 0,0.04279 -0.019325,0.07995 -0.05799,0.111243 -0.042978,0.03431 -0.064483,0.06879 -0.064483,0.103543 0,0.02657 0.029803,0.03994 0.089419,0.03994 0.062499,0 0.1103636,-0.03073 0.1436259,-0.09201 0.036101,-0.06569 0.06521,-0.159261 0.087233,-0.281006 0.00539,-0.03301 0.0096,-0.05535 0.012489,-0.06683 L 4.6163865,12.939163 H 4.443523 c -0.015159,0 -0.026921,-0.0065 -0.035244,-0.01989 -0.00833,-0.0163 -0.012448,-0.03187 -0.012448,-0.04695 0,-0.01973 0.00424,-0.03448 0.012448,-0.04434 0.01121,-0.01337 0.022959,-0.01996 0.035244,-0.01996 h 0.204322 c 0.053824,-0.194211 0.1466772,-0.367834 0.2785442,-0.520851 0.1289895,-0.149636 0.2677239,-0.22445 0.4162054,-0.22445 0.076236,0 0.1421679,0.02388 0.1978008,0.07139 0.05563,0.0476 0.083998,0.106813 0.085076,0.177453 0,0.07931 -0.014432,0.14939 -0.043354,0.210308 -0.03468,0.05909 -0.076407,0.08873 -0.1251728,0.08873 -0.040095,0 -0.074089,-0.01679 -0.1019021,-0.05053 -0.027819,-0.03367 -0.04172,-0.0727 -0.04172,-0.117344 0,-0.03945 0.020493,-0.07433 0.061526,-0.104848 0.040993,-0.03049 0.061494,-0.06717 0.061494,-0.109971 0,-0.02958 -0.031249,-0.04442 -0.093752,-0.04442 -0.033234,0 -0.067219,0.01386 -0.101901,0.04181 -0.022028,0.01793 -0.046963,0.05599 -0.074774,0.113789 -0.018066,0.03602 -0.033397,0.08037 -0.046065,0.133139 -0.00253,0.01157 -0.012105,0.07067 -0.028709,0.177453 -0.0097,0.0626 -0.020215,0.115314 -0.031429,0.15821 h 0.1869462 c 0.015535,0 0.028824,0.0065 0.039849,0.01858 0.010985,0.01239 0.016506,0.02763 0.016506,0.04564 0,0.0181 -0.00547,0.03367 -0.016506,0.04694 -0.01103,0.01329 -0.024307,0.01996 -0.039849,0.01996 H 5.0304405'       id='path294-4'       style='stroke-width:0.0377808' />    <path       fill='#000000'       fill-rule='evenodd'       d='M 1.1790679,10.639705 H 7.516578 v 0.514437 H 1.1790679 v -0.514437'       id='path296-7'       style='stroke-width:0.0377808' />    <path       fill='#000000'       fill-rule='evenodd'       d='M 1.1790679,9.868054 H 7.516578 v 0.514437 H 1.1790679 V 9.868054'       id='path298-8'       style='stroke-width:0.0377808' />  </g></svg>"
+document.getElementById("Image").innerHTML=imgpart
+window.api.receive("fromMain", (data) => {
+console.log(`Received ${data} from renderer process`);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'winSize':
+				winDefSize(cmd[1])
+				
+			case 'defProjet':
+				lang=cmd[1]
+				importLang('./Local/'+lang+'/configInterf-'+lang+".txt")
+				console.log('tableLang',tableLang)
+				importProjet(cmd[2])
+				importSpace(cmd[3])
+				importInterface(cmd[4])
+				importPalette(cmd[5])
+				configProjet()
+				configSpace()
+				configInterface()
+				configPalette()
+				break
+			default :
+				console.log(`Received ${data} from renderer process`);
+				break
+	}         
+});
+
+defautInterface()
+configInterface()
+defongletGen() 
+function winDefSize(param) {
+	var dt=param.split(',')
+	mainwinWidth=dt[0]
+	mainwinHeight=dt[1]
+	document.getElementById("spaceWidth").value=mainwinWidth
+	document.getElementById("spaceHeight").value=mainwinHeight	
+}
+function winResize(param) {
+		var dt=param.split(',')
+		mainwinWidth=dt[0]
+		mainwinheight=dt[1]
+console.log(`width : `,mainwinWidth,` height : `,mainwinheight)
+		
+}
+function defInterface() {
+	document.getElementById("clBkgPopup").style.backgroundColor=popupBkgColor
+	document.getElementById("tailleFontpopup").value=parseFloat(popupFontSize);
+	document.getElementById("clongletBkg").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletGen").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
+	document.getElementById("clongletActifBkg").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("panGen").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("panInterface").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("panSpacial").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletGen").style.fontSize=popupFontOngletSize;
+ 	document.getElementById("ongletInterface").style.fontSize=popupFontOngletSize;
+ 	document.getElementById("tailleFontOnglet").value=parseFloat(popupFontOngletSize);
+}
+function defongletGen(e) {
+	document.getElementById("ongletGen").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	document.getElementById("panGen").style.display="block";
+	document.getElementById("panInterface").style.display="none";
+	document.getElementById("panSpacial").style.display="none";
+	document.getElementById("panPalette").style.display="none";
+}
+function defongletSpacial(e) {
+	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	document.getElementById("panSpacial").style.display="block";
+	document.getElementById("panGen").style.display="none";
+	document.getElementById("panInterface").style.display="none";
+	document.getElementById("panPalette").style.display="none";
+}
+function defongletInterface(e) {
+	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletInterface").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	document.getElementById("panGen").style.display="none";
+	document.getElementById("panSpacial").style.display="none";
+	document.getElementById("panInterface").style.display="block";
+	document.getElementById("panPalette").style.display="none";
+}
+function defongletPalette(e) {
+	document.getElementById("ongletPalette").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
+	document.getElementById("panGen").style.display="none";
+	document.getElementById("panSpacial").style.display="none";
+	document.getElementById("panInterface").style.display="none";
+	document.getElementById("panPalette").style.display="block";
+}
+function closeConfigProjet() {
+	exportProjet()
+	window.api.send("toMain", 'configClose')
+}
+function closeConfigSpace() {
+	exportSpace()
+	window.api.send("toMain", 'configClose')
+}
+function closeConfigInterface() {
+	exportInterface()
+	window.api.send("toMain", 'configClose')
+}
+function closeConfigPalette() {
+	exportPalette()
+	window.api.send("toMain", 'configClose')
+}
+function annulConfig() {
+	window.api.send("toMain", 'configClose')
+}
+
+function defautInterface() {
+	restoreInterface()
+	configInterface()
+}
+function configSave() {
+	window.api.send("toMain", 'configSave;'+lang)
+}
+function restoreInterface() {
+ paletteBkg="#e2e2e2";
+ fontPalette="#000000";
+ fontPaletteSize="1em";
+ separateurPalette="#000000";
+ fontSizeMenu="1em";
+ bkgInfo="#2c2c2c";
+ fontInfoSize="1em";
+ fontInfoColor="#ffffff";
+ regleBackground="#3c3c3c";
+ regleFontSize="0.9em";
+ regleFontColor="#ffffff";
+ intervalBackground="#57E5c9";
+ intervalFontSize="0.68em";
+ fontIntervalColor="#000000";
+ workSpaceBkg="#f5f5f5";
+ spaceGrilleOpacity=0.2;
+ colorGrille="#959595";
+ suiveurBkg="red";
+ popupTitreBkg="#313237";
+ popupHeaderFontSize="1em";
+ popupFontTitreColor="#fffbfb";
+ popupFontColor="#000000";
+ popupBkgColor="#f9f9fd";
+ popupFontSize="1em";
+ popupOngletFontColor="#000000";
+ popupFontOngletSize="1em";
+ popupOngletBkg="#B4B4B4";
+ popupOngletActifBkg="#EAEAEA";
+ vueSvgBackground="#000000"
+ vueSvgFontSize=1
+ vueSvgFontColor="#ffffff"
+ lang='Fr'
+}
+function importInterface(txt){
+var interf=txt.split(':')
+console.log(interf)
+ paletteBkg=interf[0]
+ fontPalette=interf[1]
+ fontPaletteSize=interf[2]
+ separateurPalette=interf[3]
+ fontSizeMenu=interf[4]
+ bkgInfo=interf[5]
+ fontInfoSize=interf[6]
+ fontInfoColor=interf[7]
+ regleBackground=interf[8]
+ regleFontSize=interf[9]
+ regleFontColor=interf[10]
+ intervalBackground=interf[11]
+ intervalFontSize=interf[12]
+ fontIntervalColor=interf[13]
+ workSpaceBkg=interf[14]
+ spaceGrilleOpacity=interf[15]
+ colorGrille=interf[16]
+ suiveurBkg=interf[17]
+ popupTitreBkg=interf[18]
+ popupHeaderFontSize=interf[19]
+ popupFontTitreColor=interf[20]
+ popupFontColor=interf[21]
+ popupBkgColor=interf[22]
+ popupFontSize=interf[23]
+ popupOngletFontColor=interf[24]
+ popupFontOngletSize=interf[25]
+ popupOngletBkg=interf[26]
+ popupOngletActifBkg=interf[27]
+ lang=interf[28]
+ vueSvgBackground=interf[29]
+ vueSvgFontSize=interf[30]
+ vueSvgFontColor=interf[31]
+ console.log(lang)
+}
+function defInterface() {
+ paletteBkg=document.getElementById("clPaletteBkg").style.backgroundColor
+ fontPalette=document.getElementById("clfontPalette").style.backgroundColor
+ fontPaletteSize=document.getElementById("tailleFontpalette").value
+ separateurPalette=document.getElementById("clPaletteSepBkg").style.backgroundColor
+ bkgInfo=document.getElementById("clInfoBkg").style.backgroundColor
+ fontInfoColor=document.getElementById("clInfoFont").style.backgroundColor
+ fontInfoSize=document.getElementById("tailleFontInfos").value
+ regleBackground=document.getElementById("clRegleBkg").style.backgroundColor
+ regleFontColor=document.getElementById("clRegleFont").style.backgroundColor
+ regleFontSize=document.getElementById("tailleFontRegle").value
+ intervalBackground=document.getElementById("clIntervalBkg").style.backgroundColor
+ fontIntervalColor=document.getElementById("clIntervalFont").style.backgroundColor
+ intervalFontSize=document.getElementById("tailleFontInterval").value
+ workSpaceBkg=document.getElementById("clWorkspaceBkg").style.backgroundColor
+ colorGrille=document.getElementById("clgrilleBkg").style.backgroundColor
+ spaceGrilleOpacity=document.getElementById("opacityGrille").value
+ suiveurBkg=document.getElementById("clsuiveurBkg").style.backgroundColor
+ popupTitreBkg=document.getElementById("clpopupTitreBkg").style.backgroundColor
+ popupFontTitreColor=document.getElementById("clpopupTitreFont").style.backgroundColor
+ popupHeaderFontSize=document.getElementById("tailleFontTitrePopup").value
+ popupFontColor=document.getElementById("clFontPopup").style.backgroundColor
+ popupBkgColor=document.getElementById("clBkgPopup").style.backgroundColor
+ popupFontSize=document.getElementById("tailleFontpopup").value
+ popupOngletBkg=document.getElementById("clongletBkg").style.backgroundColor
+ popupOngletActifBkg=document.getElementById("clongletActifBkg").style.backgroundColor
+ popupOngletFontColor=document.getElementById("clongletFont").style.backgroundColor
+ popupFontOngletSize=document.getElementById("tailleFontOnglet").value
+ vueSvgBackground=document.getElementById("clsvgBkg").style.backgroundColor
+ vueSvgFontSize=document.getElementById("svgFontSize").value
+ vueSvgFontColor=document.getElementById("clSvgFontColor").style.backgroundColor
+ lang=document.getElementById("selectLang").value
+}
+function configInterface() {
+ document.getElementById("clPaletteBkg").style.backgroundColor=paletteBkg;
+ document.getElementById("clfontPalette").style.backgroundColor=fontPalette;
+ document.getElementById("tailleFontpalette").value=parseFloat(fontPaletteSize);
+ document.getElementById("clPaletteSepBkg").style.backgroundColor=separateurPalette;
+ document.getElementById("clInfoBkg").style.backgroundColor=bkgInfo;
+ document.getElementById("clInfoFont").style.backgroundColor=fontInfoColor;
+ document.getElementById("tailleFontInfos").value=parseFloat(fontInfoSize);
+ document.getElementById("clRegleBkg").style.backgroundColor=regleBackground;
+ document.getElementById("clRegleFont").style.backgroundColor=regleFontColor;
+ document.getElementById("tailleFontRegle").value=parseFloat(regleFontSize);
+ document.getElementById("clIntervalBkg").style.backgroundColor=intervalBackground;
+ document.getElementById("clIntervalFont").style.backgroundColor=fontIntervalColor;
+ document.getElementById("tailleFontInterval").value=parseFloat(intervalFontSize);
+ document.getElementById("clWorkspaceBkg").style.backgroundColor=workSpaceBkg;
+ document.getElementById("clgrilleBkg").style.backgroundColor=colorGrille;
+ document.getElementById("opacityGrille").value=spaceGrilleOpacity;
+ document.getElementById("clsuiveurBkg").style.backgroundColor=suiveurBkg;
+ document.getElementById("clpopupTitreBkg").style.backgroundColor=popupTitreBkg;
+ document.getElementById("clpopupTitreFont").style.backgroundColor=popupFontTitreColor;
+ document.getElementById("tailleFontTitrePopup").value=parseFloat(popupHeaderFontSize);
+ document.getElementById("clFontPopup").style.backgroundColor=popupFontColor
+ document.getElementById("clBkgPopup").style.backgroundColor=popupBkgColor;
+ document.getElementById("tailleFontpopup").value=parseFloat(popupFontSize);
+ document.getElementById("clongletBkg").style.backgroundColor=popupOngletBkg;
+ document.getElementById("clongletActifBkg").style.backgroundColor=popupOngletActifBkg;
+ document.getElementById("clongletFont").style.backgroundColor=popupOngletFontColor;
+ document.getElementById("tailleFontOnglet").value=popupFontOngletSize
+ document.getElementById("clsvgBkg").style.backgroundColor=vueSvgBackground
+ document.getElementById("svgFontSize").value=vueSvgFontSize
+ document.getElementById("clSvgFontColor").style.backgroundColor=vueSvgFontColor
+ document.getElementById("selectLang").value=lang
+}
+function defautProjet(){
+	paramProjet={}
+		paramProjet={
+		name:"",
+		start:"",
+		end:"",
+		comment:"",
+		path:"",
+		audioPath:"",
+		imgPath:"",
+		greffon3D:"",
+		greffonC:18,
+		regle:'true',
+		mesure:'true',
+		grille:'true',
+		spaceSeconde:'true',
+		width:1510,
+		height:870,
+		zoom:1,
+		svgRegle:'false',
+		svgMesure:'false',
+		svgGrille:'false',
+		svgSeconde:'false'
+	}
+	configProjet()
+}
+function defautSpace(){
+	paramSpace={}
+		paramSpace={
+		lForwardX:0,
+		lForwardY:0,
+		lForwardZ:-1,
+		lUpX:0,
+		lUpY:1,
+		lUpZ:0,
+		lPosX:0,
+		lPosY:0,
+		lPosZ:0,
+		PModel:'equalpower',
+		DModel:'linear',
+		refD:1,
+		maxD:10000,
+		rolF:1,
+		coneIA:360,
+		coneOA:0,
+		coneOG:0,
+		orX:1,
+		orY:0,
+		orZ:0
+	}
+	configSpace()
+}
+function importProjet(txt){
+   tableProjet=txt.split(',')
+	paramProjet={
+	name:tableProjet[0],
+	start:tableProjet[1],
+	end:tableProjet[2],
+	comment:tableProjet[3],
+	path:tableProjet[4],
+	audioPath:tableProjet[5],
+	imgPath:tableProjet[6],
+	greffon3D:tableProjet[7],
+	greffonC:tableProjet[8],
+	regle:tableProjet[9],
+	mesure:tableProjet[10],
+	grille:tableProjet[11],
+	width:tableProjet[12],
+	height:tableProjet[13],
+	zoom:tableProjet[14],
+	svgRegle:tableProjet[15],
+	svgMesure:tableProjet[16],
+	svgGrille:tableProjet[17],
+	spaceSeconde:tableProjet[18],
+	svgSeconde:tableProjet[19],
+	}
+	console.log("configprojet",paramProjet)
+}
+function configProjet(){
+	document.getElementById("projetNom").value=paramProjet.name
+	document.getElementById("projetDebut").value=paramProjet.start
+	document.getElementById("projetFin").value=paramProjet.end
+	document.getElementById("projetComment").value=paramProjet.comment
+	document.getElementById("dossierProjet").value=paramProjet.path
+	document.getElementById("dossierAudio").value=paramProjet.audioPath
+	document.getElementById("dossierImg").value=paramProjet.imgPath
+	document.getElementById("greffon3D").value=paramProjet.greffon3D
+	document.getElementById("spat3DCanaux").value=paramProjet.greffonC
+	document.getElementById("spaceRegle").checked=false
+	if(paramProjet.regle=="true"){
+		document.getElementById("spaceRegle").checked=true
+	}
+	document.getElementById("spaceMesure").checked=false
+	if(paramProjet.mesure=="true"){
+		document.getElementById("spaceMesure").checked=true
+	}
+	document.getElementById("spaceGrille").checked=false
+	if(paramProjet.grille=="true"){
+		document.getElementById("spaceGrille").checked=true
+	}
+	document.getElementById("spaceWidth").value=paramProjet.width
+	document.getElementById("spaceHeight").value=paramProjet.height
+	document.getElementById("spaceScale").value=paramProjet.zoom
+	document.getElementById("svgRegle").checked=false
+	if(paramProjet.svgRegle=="true"){
+		document.getElementById("svgRegle").checked=true
+	}
+	document.getElementById("svgMesure").checked=false
+	if(paramProjet.svgMesure=="true"){
+		document.getElementById("svgMesure").checked=true
+	}
+	document.getElementById("svgGrille").checked=false
+	if(paramProjet.svgGrille=="true"){
+		document.getElementById("svgGrille").checked=true
+	}
+	document.getElementById("spaceSeconde").checked=false
+	if(paramProjet.spaceSeconde=="true"){
+		document.getElementById("spaceSeconde").checked=true
+	}
+	document.getElementById("svgSeconde").checked=false
+	if(paramProjet.svgSeconde=="true"){
+		document.getElementById("svgSeconde").checked=true
+	}
+}
+function defProjet() {
+	paramProjet.name=document.getElementById("projetNom").value
+	paramProjet.start=document.getElementById("projetDebut").value
+	paramProjet.end=document.getElementById("projetFin").value
+	paramProjet.comment=document.getElementById("projetComment").value
+	paramProjet.path=document.getElementById("dossierProjet").value
+	paramProjet.audioPath=document.getElementById("dossierAudio").value
+	paramProjet.imgPath=document.getElementById("dossierImg").value
+	paramProjet.greffon3D=document.getElementById("greffon3D").value
+	paramProjet.greffonC=document.getElementById("spat3DCanaux").value
+	paramProjet.regle=false
+	if(document.getElementById("spaceRegle").checked==true){
+		paramProjet.regle=true
+	}
+	paramProjet.mesure=false
+	if(document.getElementById("spaceMesure").checked==true){
+		paramProjet.mesure=true
+	}
+	paramProjet.grille=false
+	if(document.getElementById("spaceGrille").checked==true){
+		paramProjet.grille=true
+	}
+	paramProjet.width=document.getElementById("spaceWidth").value
+	paramProjet.height=document.getElementById("spaceHeight").value
+	paramProjet.zoom=document.getElementById("spaceScale").value
+	paramProjet.svgRegle=false
+	if(document.getElementById("svgRegle").checked==true){
+		paramProjet.svgRegle=true
+	}
+	paramProjet.svgMesure=false
+	if(document.getElementById("svgMesure").checked==true){
+		paramProjet.svgMesure=true
+	}
+	paramProjet.svgGrille=false
+	if(document.getElementById("svgGrille").checked==true){
+		paramProjet.svgGrille=true
+	}
+	paramProjet.spaceSeconde=false
+	if(document.getElementById("spaceSeconde").checked==true){
+		paramProjet.spaceSeconde=true
+	}
+	paramProjet.svgSeconde=false
+	if(document.getElementById("svgSeconde").checked==true){
+		paramProjet.svgSeconde=true
+	}
+}
+function importSpace(txt){
+var tableSpace=txt.split(',')
+	paramSpace={
+		lForwardX:tableSpace[0],
+		lForwardY:tableSpace[1],
+		lForwardZ:tableSpace[2],
+		lUpX:tableSpace[3],
+		lUpY:tableSpace[4],
+		lUpZ:tableSpace[5],
+		lPosX:tableSpace[6],
+		lPosY:tableSpace[7],
+		lPosZ:tableSpace[8],
+		PModel:tableSpace[9],
+		DModel:tableSpace[10],
+		refD:tableSpace[11],
+		maxD:tableSpace[12],
+		rolF:tableSpace[13],
+		coneIA:tableSpace[14],
+		coneOA:tableSpace[15],
+		coneOG:tableSpace[16],
+		orX:tableSpace[17],
+		orY:tableSpace[18],
+		orZ:tableSpace[19]
+	}
+}
+function configSpace(){
+	document.getElementById("listenerForwardX").value=paramSpace.lForwardX
+	document.getElementById("listenerForwardY").value=paramSpace.lForwardY
+	document.getElementById("listenerForwardZ").value=paramSpace.lForwardZ
+	document.getElementById("listenerUpX").value=paramSpace.lUpX
+	document.getElementById("listenerUpY").value=paramSpace.lUpY
+	document.getElementById("listenerUpZ").value=paramSpace.lUpZ
+	document.getElementById("listenerPositionX").value=paramSpace.lposX
+	document.getElementById("listenerPositionY").value=paramSpace.lposY
+	document.getElementById("listenerPositionZ").value=paramSpace.lposZ
+	document.getElementById("selectPanningModel").value=paramSpace.PModel
+	document.getElementById("selectDistanceModel").value=paramSpace.DModel
+	document.getElementById("refDistance").value=paramSpace.refD
+	document.getElementById("maxDistance").value=paramSpace.maxD
+	document.getElementById("rolloffFactor").value=paramSpace.rolF
+	document.getElementById("coneInnerAngle").value=paramSpace.coneIA
+	document.getElementById("coneOuterAngle").value=paramSpace.coneOA
+	document.getElementById("coneOuterGain").value=paramSpace.coneOG
+	document.getElementById("orientationX").value=paramSpace.orX
+	document.getElementById("orientationY").value=paramSpace.orY
+	document.getElementById("orientationZ").value=paramSpace.orZ
+}
+function defSpace(){
+	paramSpace.lForwardX=document.getElementById("listenerForwardX").value
+	paramSpace.lForwardY=document.getElementById("listenerForwardY").value
+	paramSpace.lForwardZ=document.getElementById("listenerForwardZ").value
+	paramSpace.lUpX=document.getElementById("listenerUpX").value
+	paramSpace.lUpY=document.getElementById("listenerUpY").value
+	paramSpace.lUpZ=document.getElementById("listenerUpZ").value
+	paramSpace.lposX=document.getElementById("listenerPositionX").value
+	paramSpace.lposY=document.getElementById("listenerPositionY").value
+	paramSpace.lposZ=document.getElementById("listenerPositionZ").value
+	paramSpace.PModel=document.getElementById("selectPanningModel").value
+	paramSpace.DModel=document.getElementById("selectDistanceModel").value
+	paramSpace.refD=document.getElementById("refDistance").value
+	paramSpace.maxD=document.getElementById("maxDistance").value
+	paramSpace.rolF=document.getElementById("rolloffFactor").value
+	paramSpace.coneIA=document.getElementById("coneInnerAngle").value
+	paramSpace.coneOA=document.getElementById("coneOuterAngle").value
+	paramSpace.coneOG=document.getElementById("coneOuterGain").value
+	paramSpace.orX=document.getElementById("orientationX").value
+	paramSpace.orY=document.getElementById("orientationY").value
+	paramSpace.orZ=document.getElementById("orientationZ").value
+}
+function exportProjet() {
+defProjet()
+console.log("defprojet",paramProjet)
+var txt=paramProjet.name+","+paramProjet.start+","+paramProjet.end+","+paramProjet.comment+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+paramProjet.greffon3D+","+paramProjet.greffonC+","+paramProjet.regle+","+paramProjet.mesure+","+paramProjet.grille+","+paramProjet.width+","+paramProjet.height+","+paramProjet.zoom+","+paramProjet.svgRegle+","+paramProjet.svgMesure+","+paramProjet.svgGrille+","+paramProjet.spaceSeconde+","+paramProjet.svgSeconde
+
+window.api.send("toMain", 'exportProjet;'+txt)
+}
+function exportSpace() {
+defSpace()
+console.log(paramSpace,txt)
+var txt=paramSpace.lForwardX+","+paramSpace.lForwardY+","+paramSpace.lForwardZ+","+paramSpace.lUpX+","+paramSpace.lUpY+","+paramSpace.lUpZ+","+paramSpace.lPosX+","+paramSpace.lPosY+","+paramSpace.lPosZ+","+paramSpace.PModel+","+paramSpace.DModel+","+paramSpace.refD+","+paramSpace.maxD+","+paramSpace.rolF+","+paramSpace.coneIA+","+paramSpace.coneOA+","+paramSpace.coneOG+","+paramSpace.orX+","+paramSpace.orY+","+paramSpace.orZ
+window.api.send("toMain", 'exportSpace;'+txt)
+}
+function exportInterface() {
+defInterface()
+var txt=paletteBkg+":"+ fontPalette+":"+ fontPaletteSize+":"+ separateurPalette+":"+ fontSizeMenu+":"+ bkgInfo+":"+ fontInfoSize+":"+ fontInfoColor+":"+ regleBackground+":"+ regleFontSize+":"+ regleFontColor+":"+ intervalBackground+":"+ intervalFontSize+":"+ fontIntervalColor+":"+ workSpaceBkg+":"+ spaceGrilleOpacity+":"+ colorGrille+":"+ suiveurBkg+":"+ popupTitreBkg+":"+ popupHeaderFontSize+":"+ popupFontTitreColor+":"+ popupFontColor+":"+ popupBkgColor+":"+ popupFontSize+":"+ popupOngletFontColor+":"+ popupFontOngletSize+":"+ popupOngletBkg+":"+ popupOngletActifBkg+":"+lang+":"+ vueSvgBackground+":"+vueSvgFontSize+":"+vueSvgFontColor
+window.api.send("toMain", 'exportInterface;'+txt)
+}
+
+/* ************************************************* interface *************************************** */
+
+const paletteColor = document.getElementById("paletteBkg");
+const paletteBkgColor = document.getElementById("clPaletteBkg");
+paletteBkgColor.addEventListener("click", (e) => {
+  if ( paletteColor) {
+     paletteColor.click();
+  }
+  e.preventDefault();
+}, false);
+paletteColor.addEventListener("change", defBkgpalette, false);
+function defBkgpalette(e) {
+document.getElementById("clPaletteBkg").style.backgroundColor=this.value;
+paletteBkg=this.value;
+}
+const paletteFontColor = document.getElementById("fontPalette");
+const paletteFontBkgColor = document.getElementById("clfontPalette");
+paletteFontBkgColor.addEventListener("click", (e) => {
+  if ( paletteFontColor) {
+     paletteFontColor.click();
+  }
+  e.preventDefault();
+}, false);
+paletteFontColor.addEventListener("change", defFontpalette, false);
+function defFontpalette(e) {
+document.getElementById("clfontPalette").style.backgroundColor=this.value;
+fontPalette=this.value;
+}
+const paletteSepColor = document.getElementById("paletteSepBkg");
+const paletteSepBkgColor = document.getElementById("clPaletteSepBkg");
+paletteSepBkgColor.addEventListener("click", (e) => {
+  if ( paletteSepColor) {
+     paletteSepColor.click();
+  }
+  e.preventDefault();
+}, false);
+paletteSepColor.addEventListener("change", defBkgSeppalette, false);
+function defBkgSeppalette(e) {
+	document.getElementById("clPaletteSepBkg").style.backgroundColor=this.value;
+}
+const infoColor = document.getElementById("infoBkg");
+const infoBkgColor = document.getElementById("clInfoBkg");
+infoBkgColor.addEventListener("click", (e) => {
+  if ( infoColor) {
+     infoColor.click();
+  }
+  e.preventDefault();
+}, false);
+infoColor.addEventListener("change", defBkginfo, false);
+function defBkginfo(e) {
+	document.getElementById("clInfoBkg").style.backgroundColor=this.value;
+	bkgInfo=this.value;
+}
+const infoFontColor = document.getElementById("infoFont");
+const infoFontBkgColor = document.getElementById("clInfoFont");
+infoFontBkgColor.addEventListener("click", (e) => {
+  if ( infoFontColor) {
+     infoFontColor.click();
+  }
+  e.preventDefault();
+}, false);
+infoFontColor.addEventListener("change", defFontinfo, false);
+function defFontinfo(e) {
+	document.getElementById("clInfoFont").style.backgroundColor=this.value;
+	fontInfoColor=this.value;
+}
+const regleColor = document.getElementById("regleBkg");
+const regleBkgColor = document.getElementById("clRegleBkg");
+regleBkgColor.addEventListener("click", (e) => {
+  if ( regleColor) {
+     regleColor.click();
+  }
+  e.preventDefault();
+}, false);
+regleColor.addEventListener("change", defBkgregle, false);
+function defBkgregle(e) {
+	document.getElementById("clRegleBkg").style.backgroundColor=this.value;
+	regleBackground=this.value;
+}
+const regleFont = document.getElementById("regleFont");
+const regleFontBkgColor = document.getElementById("clRegleFont");
+regleFontBkgColor.addEventListener("click", (e) => {
+  if ( regleFont) {
+     regleFont.click();
+  }
+  e.preventDefault();
+}, false);
+regleFont.addEventListener("change", defFontregle, false);
+function defFontregle(e) {
+	document.getElementById("clRegleFont").style.backgroundColor=this.value;
+	regleFontColor=this.value;
+}
+const intervalBkg = document.getElementById("intervalBkg");
+const intervalBkgColor = document.getElementById("clIntervalBkg");
+intervalBkgColor.addEventListener("click", (e) => {
+  if ( intervalBkg) {
+     intervalBkg.click();
+  }
+  e.preventDefault();
+}, false);
+intervalBkg.addEventListener("change", defIntervalBkg, false);
+function defIntervalBkg(e) {
+	document.getElementById("clIntervalBkg").style.backgroundColor=this.value;
+	intervalBackground=this.value;
+}
+const intervalFont = document.getElementById("intervalFont");
+const intervalFontColor = document.getElementById("clIntervalFont");
+intervalFontColor.addEventListener("click", (e) => {
+  if ( intervalFont) {
+     intervalFont.click();
+  }
+  e.preventDefault();
+}, false);
+intervalFont.addEventListener("change", defIntervalFont, false);
+function defIntervalFont(e) {
+	document.getElementById("clIntervalFont").style.backgroundColor=this.value;
+	fontIntervalColor=this.value;
+}
+const workspaceColor = document.getElementById("workspaceBkg");
+const workspaceBkgColor = document.getElementById("clWorkspaceBkg");
+workspaceBkgColor.addEventListener("click", (e) => {
+  if ( workspaceColor) {
+     workspaceColor.click();
+  }
+  e.preventDefault();
+}, false);
+workspaceColor.addEventListener("change", defworkspaceBkg, false);
+function defworkspaceBkg(e) {
+	document.getElementById("clWorkspaceBkg").style.backgroundColor=this.value;
+	workSpaceBkg=this.value;
+}
+const grilleColor = document.getElementById("grilleBkg");
+const grilleBkgColor = document.getElementById("clgrilleBkg");
+grilleBkgColor.addEventListener("click", (e) => {
+  if ( grilleColor) {
+     grilleColor.click();
+  }
+  e.preventDefault();
+}, false);
+grilleColor.addEventListener("change", defgrilleBkg, false);
+function defgrilleBkg(e) {
+	document.getElementById("clgrilleBkg").style.backgroundColor=this.value;
+	colorGrille=this.value;
+}
+const suiveurColor = document.getElementById("suiveurBkg");
+const suiveurBkgColor = document.getElementById("clsuiveurBkg");
+suiveurBkgColor.addEventListener("click", (e) => {
+  if ( suiveurColor) {
+     suiveurColor.click();
+  }
+  e.preventDefault();
+}, false);
+suiveurColor.addEventListener("change", defsuiveurBkg, false);
+function defsuiveurBkg(e) {
+	document.getElementById("clsuiveurBkg").style.backgroundColor=this.value;
+	suiveurBkg=this.value;
+}
+const popupTitreColor = document.getElementById("popupTitreBkg");
+const popupTitreBkgColor = document.getElementById("clpopupTitreBkg");
+popupTitreBkgColor.addEventListener("click", (e) => {
+  if ( popupTitreColor) {
+     popupTitreColor.click();
+  }
+  e.preventDefault();
+}, false);
+popupTitreColor.addEventListener("change", defpopupTitreBkg, false);
+function defpopupTitreBkg(e) {
+	document.getElementById("clpopupTitreBkg").style.backgroundColor=this.value;
+	popupTitreBkg=this.value;
+}
+const popupTitreFont = document.getElementById("popupTitreFont");
+const popupTitreBkgFont = document.getElementById("clpopupTitreFont");
+popupTitreBkgFont.addEventListener("click", (e) => {
+  if ( popupTitreFont) {
+     popupTitreFont.click();
+  }
+  e.preventDefault();
+}, false);
+popupTitreFont.addEventListener("change", defpopupTitreFont, false);
+function defpopupTitreFont(e) {
+	document.getElementById("clpopupTitreFont").style.backgroundColor=this.value;
+	popupFontTitreColor=this.value;
+}
+const bkgPopup = document.getElementById("bkgPopup");
+const bkgPopupColor = document.getElementById("clBkgPopup");
+bkgPopupColor.addEventListener("click", (e) => {
+  if (bkgPopup) {
+     bkgPopup.click();
+  }
+  e.preventDefault();
+}, false);
+bkgPopup.addEventListener("change", defpopupBkg, false);
+function defpopupBkg(e) {
+	document.getElementById("clBkgPopup").style.backgroundColor=this.value;
+	popupBkgColor=this.value;
+}
+const fontPopup = document.getElementById("fontPopup");
+const fontPopupColor = document.getElementById("clFontPopup");
+fontPopupColor.addEventListener("click", (e) => {
+  if (fontPopup) {
+    fontPopup.click();
+  }
+  e.preventDefault();
+}, false);
+fontPopup.addEventListener("change", defpopupFont, false);
+function defpopupFont(e) {
+	document.getElementById("clFontPopup").style.backgroundColor=this.value;
+	popupFontColor=this.value;
+}
+const ongletColor = document.getElementById("ongletBkg");
+const ongletBkg = document.getElementById("clongletBkg");
+ongletBkg.addEventListener("click", (e) => {
+  if (ongletColor) {
+    ongletColor.click();
+  }
+  e.preventDefault();
+}, false);
+ongletColor.addEventListener("change", defongletColor, false);
+function defongletColor(e) {
+	document.getElementById("clongletBkg").style.backgroundColor=this.value;
+	popupOngletBkg=this.value;
+}
+const ongletActifColor = document.getElementById("ongletActifBkg");
+const ongletActifBkg = document.getElementById("clongletActifBkg");
+ongletActifBkg.addEventListener("click", (e) => {
+  if (ongletActifColor) {
+    ongletActifColor.click();
+  }
+  e.preventDefault();
+}, false);
+ongletActifColor.addEventListener("change", defongletActifColor, false);
+function defongletActifColor(e) {
+	document.getElementById("clongletActifBkg").style.backgroundColor=this.value;
+	popupOngletActifBkg=this.value;
+}
+const ongletFontColor = document.getElementById("ongletFont");
+const ongletFont = document.getElementById("clongletFont");
+ongletFont.addEventListener("click", (e) => {
+  if (ongletFontColor) {
+    ongletFontColor.click();
+  }
+  e.preventDefault();
+}, false);
+ongletFontColor.addEventListener("change", defongletFont, false);
+function defongletFont(e) {
+	document.getElementById("clongletFont").style.backgroundColor=this.value;
+	popupOngletFontColor=this.value;
+}
+const svgBkgColor = document.getElementById("svgBkg");
+const svgBkg = document.getElementById("clsvgBkg");
+svgBkg.addEventListener("click", (e) => {
+  if (svgBkgColor) {
+    svgBkgColor.click();
+  }
+  e.preventDefault();
+}, false);
+svgBkgColor.addEventListener("change", defSvgBkgColor, false);
+function defSvgBkgColor(e) {
+	document.getElementById("clsvgBkg").style.backgroundColor=this.value;
+	vueSvgBackground=this.value;
+}
+const svgFontColor = document.getElementById("svgFontColor");
+const svgColorFont = document.getElementById("clSvgFontColor");
+svgColorFont.addEventListener("click", (e) => {
+  if (svgFontColor) {
+    svgFontColor.click();
+  }
+  e.preventDefault();
+}, false);
+svgFontColor.addEventListener("change", defSvgFontColor, false);
+function defSvgFontColor(e) {
+	document.getElementById("clSvgFontColor").style.backgroundColor=this.value;
+	vueSvgFontColor=this.value;
+}
+function selectLang(e) {
+	lang=document.getElementById("selectLang").value
+	console.log("lang",lang)
+	window.api.send("toMain", 'copyDefautMenu;'+lang)
+}
+/* ************************************************* palette *************************************** */
+
+function paletteDefault() {
+	paletteRestore()
+	configPalette()
+}
+function paletteRestore() {
+	paletteDisque="green"
+	paletteCarre="blue"
+	paletteTriangle="red"
+	paletteEllipse="#ba21e0"
+	paletteRectangle="#21e033"
+	paletteTrianglelong="red"
+	paletteRondlong="#008000"
+	paletteCarrelong="blue"
+	paletteCrescendo="#ff0000"
+	paletteLigne="#000000"
+	paletteGlissando="#23a7f0"
+	paletteBlock="#9b8d11"
+	paletteDecresc="#800080"
+	paletteDecrescb="#800080"
+	paletteCresc="#e7a016"
+	paletteCrescb="#e7a016"
+	paletteAgregat="blue"
+	paletteArpege="blue"
+	paletteMultilignes="#000000"
+	paletteNuage="#deea1a"
+	paletteTexture="green"
+	paletteImage="#000000"
+	paletteSymb="#000000"
+	paletteFleche="#f26e07"
+	paletteMarque1="#000000"
+	paletteMarque2="#23a7f0"
+	paletteLecteur="#2373b2"
+}
+function importPalette(txt){
+	var interf=txt.split(',')
+	console.log(interf)
+	paletteDisque=interf[0]
+	paletteCarre=interf[1]
+	paletteTriangle=interf[2]
+	paletteEllipse=interf[3]
+	paletteRectangle=interf[4]
+	paletteTrianglelong=interf[5]
+	paletteRondlong=interf[6]
+	paletteCarrelong=interf[7]
+	paletteCrescendo=interf[8]
+	paletteLigne=interf[9]
+	paletteGlissando=interf[10]
+	paletteBlock=interf[11]
+	paletteDecresc=interf[12]
+	paletteDecrescb=interf[13]
+	paletteCresc=interf[14]
+	paletteCrescb=interf[15]
+	paletteAgregat=interf[16]
+	paletteArpege=interf[17]
+	paletteMultilignes=interf[18]
+	paletteNuage=interf[19]
+	paletteTexture=interf[20]
+	paletteImage=interf[21]
+	paletteSymb=interf[22]
+	paletteFleche=interf[23]
+	paletteMarque1=interf[24]
+	paletteMarque2=interf[25]
+	paletteLecteur=interf[26]
+}
+function configPalette(txt) {
+	document.getElementById("Disque").firstChild.firstChild.setAttribute('fill',paletteDisque)
+	document.getElementById("Carre").firstChild.firstChild.setAttribute('fill',paletteCarre)
+	document.getElementById("Triangle").firstChild.firstChild.setAttribute('fill',paletteTriangle)
+	document.getElementById("Ellipse").firstChild.firstChild.setAttribute('fill',paletteEllipse)
+	document.getElementById("Rectangle").firstChild.firstChild.setAttribute('fill',paletteRectangle)
+	document.getElementById("Trianglelong").firstChild.firstChild.setAttribute('fill',paletteTrianglelong)
+	document.getElementById("Rondlong").firstChild.firstChild.firstChild.setAttribute('fill',paletteRondlong)
+	document.getElementById("Rondlong").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteRondlong)
+	document.getElementById("Carrelong").firstChild.firstChild.firstChild.setAttribute('fill',paletteCarrelong)
+	document.getElementById("Carrelong").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteCarrelong)
+	document.getElementById("Crescendo").firstChild.firstChild.setAttribute('fill',paletteCrescendo)
+	document.getElementById("Ligne").firstChild.firstChild.setAttribute('stroke',paletteLigne)
+	document.getElementById("Glissando").firstChild.firstChild.setAttribute('stroke',paletteGlissando)
+	document.getElementById("Block").firstChild.firstChild.setAttribute('stroke',paletteBlock)
+	document.getElementById("Decresc").firstChild.firstChild.setAttribute('fill',paletteDecresc)
+	document.getElementById("Decrescb").firstChild.firstChild.setAttribute('fill',paletteDecrescb)
+	document.getElementById("Cresc").firstChild.firstChild.setAttribute('fill',paletteCresc)
+	document.getElementById("Crescb").firstChild.firstChild.setAttribute('fill',paletteCrescb)
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.setAttribute('fill',paletteAgregat)
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteAgregat)
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('fill',paletteAgregat)
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteAgregat)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.setAttribute('fill',paletteArpege)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteArpege)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('fill',paletteArpege)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteArpege)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteArpege)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteArpege)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteArpege)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.setAttribute('stroke',paletteMultilignes)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.setAttribute('stroke',paletteMultilignes)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMultilignes)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMultilignes)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMultilignes)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMultilignes)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMultilignes)
+	document.getElementById("Nuage").firstChild.firstChild.setAttribute('fill',paletteNuage)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.setAttribute('fill',paletteTexture)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.setAttribute('fill',paletteTexture)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteTexture)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteTexture)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteTexture)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteTexture)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteTexture)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',paletteTexture)
+	var txt=imgpart.replaceAll('#000000', paletteImage)
+	txt=imgpart.replaceAll('#000000', paletteImage)
+	document.getElementById("Image").innerHTML=txt
+	document.getElementById("Symb").firstChild.firstChild.firstChild.setAttribute('fill',paletteSymb)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.setAttribute('stroke',paletteFleche)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteFleche)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque2)
+	document.getElementById("Lecteur").firstChild.firstChild.setAttribute('fill',paletteLecteur)
+}
+function exportPalette() {
+var txt=paletteDisque+","+paletteCarre+","+paletteTriangle+","+paletteEllipse+","+paletteRectangle+","+paletteTrianglelong+","+paletteRondlong+","+paletteCarrelong+","+paletteCrescendo+","+paletteLigne+","+paletteGlissando+","+paletteBlock+","+paletteDecresc+","+paletteDecrescb+","+paletteCresc+","+paletteCrescb+","+paletteAgregat+","+paletteArpege+","+paletteMultilignes+","+paletteNuage+","+paletteTexture+","+paletteImage+","+paletteSymb+","+paletteFleche+","+paletteMarque1+","+paletteMarque2+","+paletteLecteur
+window.api.send("toMain", 'exportPalette;'+txt)
+}
+const refDisque = document.getElementById("inpDisque");
+const ongletDisque = document.getElementById("Disque");
+ongletDisque.addEventListener("click", (e) => {
+  if (refDisque) {
+    refDisque.click();
+  }
+  e.preventDefault();
+}, false);
+refDisque.addEventListener("change", defCircle, false);
+function defCircle(e) {
+	document.getElementById("Disque").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteDisque=this.value;
+}
+const refCarre = document.getElementById("inpCarre");
+const ongletCarre = document.getElementById("Carre");
+ongletCarre.addEventListener("click", (e) => {
+  if (refCarre) {
+    refCarre.click();
+  }
+  e.preventDefault();
+}, false);
+refCarre.addEventListener("change", defCarre, false);
+function defCarre(e) {
+	document.getElementById("Carre").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteCarre=this.value;
+}
+const refTriangle = document.getElementById("inpTriangle");
+const ongletTriangle = document.getElementById("Triangle");
+ongletTriangle.addEventListener("click", (e) => {
+  if (refTriangle) {
+    refTriangle.click();
+  }
+  e.preventDefault();
+}, false);
+refTriangle.addEventListener("change", defTriangle, false);
+function defTriangle(e) {
+	document.getElementById("Triangle").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteCarre=this.value;
+}
+const refEllipse = document.getElementById("inpEllipse");
+const ongletEllipse = document.getElementById("Ellipse");
+ongletEllipse.addEventListener("click", (e) => {
+  if (refEllipse) {
+    refEllipse.click();
+  }
+  e.preventDefault();
+}, false);
+refEllipse.addEventListener("change", defEllipse, false);
+function defEllipse(e) {
+	document.getElementById("Ellipse").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteEllipse=this.value;
+}
+const refRectangle = document.getElementById("inpRectangle");
+const ongletRectangle = document.getElementById("Rectangle");
+ongletRectangle.addEventListener("click", (e) => {
+  if (refRectangle) {
+    refRectangle.click();
+  }
+  e.preventDefault();
+}, false);
+refRectangle.addEventListener("change", defRectangle, false);
+function defRectangle(e) {
+	document.getElementById("Rectangle").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteRectangle=this.value;
+}
+const refTrianglelong = document.getElementById("inpTrianglelong");
+const ongletTrianglelong = document.getElementById("Trianglelong");
+ongletTrianglelong.addEventListener("click", (e) => {
+  if (refTrianglelong) {
+    refTrianglelong.click();
+  }
+  e.preventDefault();
+}, false);
+refTrianglelong.addEventListener("change", defTrianglelong, false);
+function defTrianglelong(e) {
+	document.getElementById("Trianglelong").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteTrianglelong=this.value;
+}
+const refRondlong = document.getElementById("inpRondlong");
+const ongletRondlong = document.getElementById("Rondlong");
+ongletRondlong.addEventListener("click", (e) => {
+  if (refRondlong) {
+    refRondlong.click();
+  }
+  e.preventDefault();
+}, false);
+refRondlong.addEventListener("change", defRondlong, false);
+function defRondlong(e) {
+	document.getElementById("Rondlong").firstChild.firstChild.firstChild.setAttribute('fill',this.value)
+	document.getElementById("Rondlong").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',this.value)
+	paletteRondlong=this.value;
+}
+const refCarrelong = document.getElementById("inpCarrelong");
+const ongletCarrelong = document.getElementById("Carrelong");
+ongletCarrelong.addEventListener("click", (e) => {
+  if (refCarrelong) {
+    refCarrelong.click();
+  }
+  e.preventDefault();
+}, false);
+refCarrelong.addEventListener("change", defCarrelong, false);
+function defCarrelong(e) {
+	document.getElementById("Carrelong").firstChild.firstChild.firstChild.setAttribute('fill',this.value)
+	document.getElementById("Carrelong").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',this.value)
+	paletteCarrelong=this.value;
+}
+const refCrescendo = document.getElementById("inpCrescendo");
+const ongletCrescendo = document.getElementById("Crescendo");
+ongletCrescendo.addEventListener("click", (e) => {
+  if (refCrescendo) {
+    refCrescendo.click();
+  }
+  e.preventDefault();
+}, false);
+refCrescendo.addEventListener("change", defCrescendo, false);
+function defCrescendo(e) {
+	document.getElementById("Crescendo").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteCrescendo=this.value;
+}
+const refLigne = document.getElementById("inpLigne");
+const ongletLigne = document.getElementById("Ligne");
+ongletLigne.addEventListener("click", (e) => {
+  if (refLigne) {
+    refLigne.click();
+  }
+  e.preventDefault();
+}, false);
+refLigne.addEventListener("change", defLigne, false);
+function defLigne(e) {
+	document.getElementById("Ligne").firstChild.firstChild.setAttribute('stroke',this.value)
+	paletteLigne=this.value;
+}
+const refGlissando = document.getElementById("inpGlissando");
+const ongletGlissando = document.getElementById("Glissando");
+ongletGlissando.addEventListener("click", (e) => {
+  if (refGlissando) {
+    refGlissando.click();
+  }
+  e.preventDefault();
+}, false);
+refGlissando.addEventListener("change", defGlissando, false);
+function defGlissando(e) {
+	document.getElementById("Glissando").firstChild.firstChild.setAttribute('stroke',this.value)
+	paletteGlissando=this.value;
+}
+const refBlock = document.getElementById("inpBlock");
+const ongletBlock = document.getElementById("Block");
+ongletBlock.addEventListener("click", (e) => {
+  if (refBlock) {
+    refBlock.click();
+  }
+  e.preventDefault();
+}, false);
+refBlock.addEventListener("change", defBlock, false);
+function defBlock(e) {
+	document.getElementById("Block").firstChild.firstChild.setAttribute('stroke',this.value)
+	paletteBlock=this.value;
+}
+
+const refDecresc = document.getElementById("inpDecresc");
+const ongletDecresc = document.getElementById("Decresc");
+ongletDecresc.addEventListener("click", (e) => {
+  if (refDecresc) {
+    refDecresc.click();
+  }
+  e.preventDefault();
+}, false);
+refDecresc.addEventListener("change", defDecresc, false);
+function defDecresc(e) {
+	document.getElementById("Decresc").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteDecresc=this.value;
+}
+const refDecrescb = document.getElementById("inpDecrescb");
+const ongletDecrescb = document.getElementById("Decrescb");
+ongletDecrescb.addEventListener("click", (e) => {
+  if (refDecrescb) {
+    refDecrescb.click();
+  }
+  e.preventDefault();
+}, false);
+refDecrescb.addEventListener("change", defDecrescb, false);
+function defDecrescb(e) {
+	document.getElementById("Decrescb").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteDecrescb=this.value;
+}
+const refCresc = document.getElementById("inpCresc");
+const ongletCresc = document.getElementById("Cresc");
+ongletCresc.addEventListener("click", (e) => {
+  if (refCresc) {
+    refCresc.click();
+  }
+  e.preventDefault();
+}, false);
+refCresc.addEventListener("change", defCresc, false);
+function defCresc(e) {
+	document.getElementById("Cresc").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteCresc=this.value;
+}
+const refCrescb = document.getElementById("inpCrescb");
+const ongletCrescb = document.getElementById("Crescb");
+ongletCrescb.addEventListener("click", (e) => {
+  if (refCrescb) {
+    refCrescb.click();
+  }
+  e.preventDefault();
+}, false);
+refCrescb.addEventListener("change", defCrescb, false);
+function defCrescb(e) {
+	document.getElementById("Crescb").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteCrescb=this.value;
+}
+const refAgregat = document.getElementById("inpAgregat");
+const ongletAgregat = document.getElementById("Agregat");
+ongletAgregat.addEventListener("click", (e) => {
+  if (refAgregat) {
+    refAgregat.click();
+  }
+  e.preventDefault();
+}, false);
+refAgregat.addEventListener("change", defAgregat, false);
+function defAgregat(e) {
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.setAttribute('fill',this.value)
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Agregat").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+	paletteAgregat=this.value;
+}
+const refArpege = document.getElementById("inpArpege");
+const ongletArpege = document.getElementById("Arpege");
+ongletArpege.addEventListener("click", (e) => {
+  if (refArpege) {
+    refArpege.click();
+  }
+  e.preventDefault();
+}, false);
+refArpege.addEventListener("change", defArpege, false);
+function defArpege(e) {
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.setAttribute('fill',this.value)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Arpege").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+
+	paletteArpege=this.value;
+}
+const refMultilignes = document.getElementById("inpMultilignes");
+const ongletMultilignes = document.getElementById("Multilignes");
+ongletMultilignes.addEventListener("click", (e) => {
+  if (refMultilignes) {
+    refMultilignes.click();
+  }
+  e.preventDefault();
+}, false);
+refMultilignes.addEventListener("change", defMultilignes, false);
+function defMultilignes(e) {
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.setAttribute('stroke',this.value)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("Multilignes").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+
+	paletteMultilignes=this.value;
+}
+const refNuage = document.getElementById("inpNuage");
+const ongletNuage = document.getElementById("Nuage");
+ongletNuage.addEventListener("click", (e) => {
+  if (refNuage) {
+    refNuage.click();
+  }
+  e.preventDefault();
+}, false);
+refNuage.addEventListener("change", defNuage, false);
+function defNuage(e) {
+	document.getElementById("Nuage").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteNuage=this.value;
+}
+const refTexture = document.getElementById("inpTexture");
+const ongletTexture = document.getElementById("Texture");
+ongletTexture.addEventListener("click", (e) => {
+  if (refTexture) {
+    refTexture.click();
+  }
+  e.preventDefault();
+}, false);
+refTexture.addEventListener("change", defTexture, false);
+function defTexture(e) {
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+	document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+document.getElementById("Texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('fill',this.value)
+
+	paletteTexture=this.value;
+}
+const refImage = document.getElementById("inpImage");
+const ongletImage = document.getElementById("Image");
+ongletImage.addEventListener("click", (e) => {
+  if (refImage) {
+    refImage.click();
+  }
+  e.preventDefault();
+}, false);
+refImage.addEventListener("change", defImage, false);
+function defImage(e) {
+	var txt=imgpart.replaceAll('#000000', this.value)
+	txt=imgpart.replaceAll('#000000', this.value)
+	document.getElementById("Image").innerHTML=txt
+	paletteImage=this.value;
+}
+const refSymb = document.getElementById("inpSymb");
+const ongletSymb = document.getElementById("Symb");
+ongletSymb.addEventListener("click", (e) => {
+  if (refSymb) {
+    refSymb.click();
+  }
+  e.preventDefault();
+}, false);
+refSymb.addEventListener("change", defSymb, false);
+function defSymb(e) {
+	document.getElementById("Symb").firstChild.firstChild.firstChild.setAttribute('fill',this.value)
+	paletteSymb=this.value;
+}
+const refFleche = document.getElementById("inpFleche");
+const ongletFleche = document.getElementById("Fleche");
+ongletFleche.addEventListener("click", (e) => {
+  if (refFleche) {
+    refFleche.click();
+  }
+  e.preventDefault();
+}, false);
+refFleche.addEventListener("change", defFleche, false);
+function defFleche(e) {
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.setAttribute('stroke',this.value)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',this.value)
+	paletteFleche=this.value;
+}
+const refMarque1 = document.getElementById("inpMarque1");
+const ongletMarque1 = document.getElementById("Marque1");
+ongletMarque1.addEventListener("click", (e) => {
+  if (refMarque1) {
+    refMarque1.click();
+  }
+  e.preventDefault();
+}, false);
+refMarque1.addEventListener("change", defMarque1, false);
+function defMarque1(e) {
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	paletteMarque1=this.value;
+}
+const refMarque2 = document.getElementById("inpMarque2");
+const ongletMarque2 = document.getElementById("Marque2");
+ongletMarque2.addEventListener("click", (e) => {
+  if (refMarque2) {
+    refMarque2.click();
+  }
+  e.preventDefault();
+}, false);
+refMarque2.addEventListener("change", defMarque2, false);
+function defMarque2(e) {	document.getElementById("ToutBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',this.value)
+	paletteMarque2=this.value;
+}
+const refLecteur = document.getElementById("inpLecteur");
+const ongletLecteur = document.getElementById("Lecteur");
+ongletLecteur.addEventListener("click", (e) => {
+  if (refLecteur) {
+    refLecteur.click();
+  }
+  e.preventDefault();
+}, false);
+refLecteur.addEventListener("change", defLecteur, false);
+function defLecteur(e) {
+	document.getElementById("Lecteur").firstChild.firstChild.setAttribute('fill',this.value)
+	paletteLecteur=this.value;
+}
+</script>
+</body>
+</html>

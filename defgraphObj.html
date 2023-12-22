@@ -1,0 +1,866 @@
+<!DOCTYPE HTML>
+<head>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-12-08T11:24:01+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graph.Objet</title>
+</head>
+<body>
+<div style="margin:10px;padding:10px;">
+		<div  id="objImg" style="margin-left:20px;width:50px;height:50px;border:1px solid black;">
+		<svg id="objColor"  width="50" height="50" viewBox=" 0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+			<circle id="objParamColor" cx="50" cy="50" r="30" fill="green" />
+	   </svg>
+	   <input id="selectColor" type="color" style="display:none" value="#ffffff" />
+	   <input id="selectBkgColor" type="color" style="display:none" value="#ffffff" />
+	    <input id="selectStrokeColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="selectGaucheColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="selectHautColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="selectDroitColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="selectBasColor" type="color" style="display:none" value="#ffffff" />
+		</div>
+		<div  id="objDimXY" style="position:absolute;top:30px;left:130px;"><span>Dim XY : </span><input  id="objDim" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="10" step="0.1" />
+		</div>
+		<div  id="rotation" style="position:absolute;top:30px;left:130px;"><span>Rotate : </span><input  id="objRotate" style="width:44px;height:24px;" type="number"  value="0" min="-180" max="180" step="1" />
+		</div>
+		<div  id="objLong" style="position:absolute;top:30px;left:250px;"><span>Dim X : </span><input  id="objWidth" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="10" step="0.1" />
+		</div>
+		<div  id="objHauteur" style="position:absolute;top:30px;left:365px;"><span>Dim Y : </span><input  id="objHeight" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="10" step="0.1" />
+		</div>
+</div>
+<div style="position:absolute;top:134px;left:10px;border:1px solid black;width:510px;height:76px;"> </div>
+<div  style="position:absolute;top:90px;left:40px;" ><span id="bordure">Bordure : </span><input  id="epsBordure" style="width:44px;" type="number" step="1" value="0"  value="0" min="0" max="10"/><span id="bdcolor">  Couleur :</span> <input id="bordureColor" type="color" value="#ffffff"/>  &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<span id="opacity">Opacité : </span><input id="objOpacity" type="number" value="1" min="0" max="1" step="0.1" /></div>
+<div style="position:absolute;top:144px;left:30px;"><span id="bkg">Arrière-plan : </span><input id="ibkg" type="text" style="width:90px" value="" /></div>
+<div ><span id="transpa" style="position:absolute;top:146px;left:230px;"> Transparence : </span><span style="position:absolute;top:144px;left:330px;"><input id="bkgTransparent" type="checkbox" checked /> &nbsp;&nbsp;<span id="bkgOpac">Bkg Opacité : </span><input id="bkgOpacity" style="width:40px;"type="number" value="1" min="0" max="1" step="0.1" /></span></div>
+<div   style="position:absolute;top:175px;left:30px;" ><span id="lbwidth">Largeur :</span> <input id="bkgw" style="width:60px;" type="number" value="50" step="1" /><span id="lbheight">Hauteur : </span><input id="bkgh" type="number" style="width:60px;" step="1" value="50"/><span id="lbbkgcolor">  Couleur : </span><input id="bkgColor" type="color" value="transparent"/></div>
+
+<table style="position:absolute;top:220px;left:10px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
+	<tbody>
+		<tr><td id="lbcadre" colspan="6" style="text-align:center; "> Cadre </td></tr>
+		<tr><td style="border:0px;"></td><td id="tp" >Type</td><td id="ep" >Épais.</td><td id="rd" >Radius</td><td id="cl" >Couleur</td><td id="mg" >Marge</td></tr>
+		<tr><td id="lbgauche" >Gauche</td><td ><form action=""><select id="gaucheType" size="1"><option id="pb1" value="none">Pas de bordure</option><option id="pt1" value="dotted">Pointillés</option><option id="dh1" value="dashed">Tirets</option><option id="plein1" value="solid">Pleine</option><option id="double1" value="double">Double</option></select></form></td><td><input  id="gaucheWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td ><input  id="gaucheRadius" style="width:84px;height:24px;" type="text"  value=""  /></td><td style="border:none;" ><input id="gaucheColor" type="color"  value="#ffffff" /></td><td><input  id="plGauche" style="width:44px;height:24px;" type="number"  value="0"   step="1" /></td></tr>
+		<tr><td id="lbhaut" >Haut</td><td><form action=""><select id="hautType" size="1"><option id="pb2" value="none">Pas de bordure</option><option value="dotted" id="pt2" >Pointillés</option><option id="dh2" value="dashed">Tirets</option><option value="solid" id="plein2">Pleine</option><option value="double" id="double2" >Double</option></select></form></td><td><input id="hautWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="hautRadius" style="width:84px;height:24px;" type="text"  value="" /></td><td  style="border:none;" ><input id="hautColor" type="color" value="#ffffff" /></td><td><input  id="plHaut" style="width:44px;height:24px;" type="number"  value="0"   step="1" /></td></tr>
+		<tr><td id="lbdroit" >Droit</td><td><form action=""><select id="droitType" size="1"><option id="pb3" value="none">Pas de bordure</option><option value="dotted" id="pt3" >Pointillés</option><option value="dashed" id="dh3" >Tirets</option><option id="plein3" value="solid">Pleine</option><option value="double" id="double3" >Double</option></select></form></td><td><input id="droitWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="droitRadius" style="width:84px;height:24px;" type="text"  value="" /></td><td  style="border:none;" ><input id="droitColor" type="color" value="#ffffff" /></td><td style="border:none;" ></td></tr>
+		<tr><td id="lbbas">Bas</td><td><form action=""><select id="basType" size="1"><option value="none" id="pb4" >Pas de bordure</option><option value="dotted" id="pt4">Pointillés</option><option id="dh4" value="dashed">Tirets</option><option value="solid" id="plein4">Pleine</option><option value="double" id="double4">Double</option></select></form></td><td><input id="basWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="basRadius" style="width:84px;height:24px;" type="text"  /></td><td  style="border:none;" ><input id="basColor" type="color"  value="#ffffff" /></td><td style="border:none;" ></td></tr>
+	</tbody>
+</table>
+	<div style="position:absolute;top:500px;left:310px;" ><button id="lbannul" onclick='objGraphAnnul();'>Annuler</button> <button id="lbvalid" onclick='objGraphValid();'>Valider</button></div>
+
+<script>
+let objId=0;
+let objGraph={}
+const tableLang=[]
+
+function importLang(name) {
+   // Load lang
+   var xhttp = new XMLHttpRequest()
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var txt=xhttp.responseText
+			defLang(txt)
+		}
+	}
+	xhttp.open("GET", name, true)
+	xhttp.send()
+}
+function defLang (txt) {
+	var ntxt = txt.split('\n')
+	var sp=[]
+	for(let i=0;i<ntxt.length-1;i++){
+		sp=ntxt[i].split('=')
+		tableLang[sp[0]]=sp[1]
+	}
+	interfaceLang ()
+}
+
+
+
+function interfaceLang () {
+document.getElementById('objDimXY').firstChild.innerHTML=tableLang['objgDim']
+document.getElementById('objLong').firstChild.innerHTML=tableLang['objgDimX']
+document.getElementById('objHauteur').firstChild.innerHTML=tableLang['objgDimY']
+document.getElementById('rotation').firstChild.innerHTML=tableLang['objgRot']
+document.getElementById('bordure').innerHTML=tableLang["objgBordure"]
+document.getElementById('bdcolor').innerHTML=tableLang["objgColor"]
+document.getElementById('opacity').innerHTML=tableLang["objgOpacity"]
+document.getElementById('bkg').innerHTML=tableLang["objgBkg"]
+document.getElementById('transpa').innerHTML=tableLang["objgTranspa"]
+document.getElementById('bkgOpac').innerHTML=tableLang["objgBkgOpacity"]
+document.getElementById('lbwidth').innerHTML=tableLang["objgWidth"]
+document.getElementById('lbheight').innerHTML=tableLang["objgHeight"]
+document.getElementById('lbbkgcolor').innerHTML=tableLang["objgColor"]
+document.getElementById('lbcadre').innerHTML=tableLang["objgCadre"]
+document.getElementById('tp').innerHTML=tableLang["objgBorderT"]
+document.getElementById('ep').innerHTML=tableLang["objgBorderE"]
+document.getElementById('rd').innerHTML=tableLang["objgBorderR"]
+document.getElementById('cl').innerHTML=tableLang["objgColor"]
+document.getElementById('mg').innerHTML=tableLang["objgBorderM"]
+document.getElementById('lbgauche').innerHTML=tableLang["objgBorderG"]
+document.getElementById('lbhaut').innerHTML=tableLang["objgBorderH"]
+document.getElementById('lbdroit').innerHTML=tableLang["objgBorderD"]
+document.getElementById('lbbas').innerHTML=tableLang["objgBorderB"]
+document.getElementById('pb1').innerHTML=tableLang["objgPb"]
+document.getElementById('pt1').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh1').innerHTML=tableLang["objgTir"]
+document.getElementById('plein1').innerHTML=tableLang["objgPlein"]
+document.getElementById('double1').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb2').innerHTML=tableLang["objgPb"]
+document.getElementById('pt2').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh2').innerHTML=tableLang["objgTir"]
+document.getElementById('plein2').innerHTML=tableLang["objgPlein"]
+document.getElementById('double2').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb3').innerHTML=tableLang["objgPb"]
+document.getElementById('pt3').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh3').innerHTML=tableLang["objgTir"]
+document.getElementById('plein3').innerHTML=tableLang["objgPlein"]
+document.getElementById('double3').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb4').innerHTML=tableLang["objgPb"]
+document.getElementById('pt4').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh4').innerHTML=tableLang["objgTir"]
+document.getElementById('plein4').innerHTML=tableLang["objgPlein"]
+document.getElementById('double4').innerHTML=tableLang["objgDouble"]
+document.getElementById('lbannul').innerHTML=tableLang["objgAnnul"]
+document.getElementById('lbvalid').firstChild.innerHTML=tableLang["objgValid"]
+}
+
+document.getElementById("ibkg").addEventListener('click',objBkgImg)
+document.getElementById("bkgw").addEventListener('input',defBkgWidth)
+document.getElementById("bkgh").addEventListener('input',defBkgHeight)
+document.getElementById("bkgTransparent").addEventListener('input',bkgTransparent)
+document.getElementById("epsBordure").addEventListener('input',defBordureWidth)
+document.getElementById("plGauche").addEventListener('input',defMargeGauche)
+document.getElementById("plHaut").addEventListener('input',defMargeHaut)
+
+document.getElementById("objDim").addEventListener('input',objDimXY)
+document.getElementById("objLong").addEventListener('input',objScaleX)
+document.getElementById("objHauteur").addEventListener('input',objScaleY)
+document.getElementById("objRotate").addEventListener('input',objRotate)
+
+document.getElementById("objOpacity").addEventListener('input',objetOpacity)
+document.getElementById("bkgOpacity").addEventListener('input',bkgOpacity)
+
+document.getElementById("gaucheType").addEventListener('input',defGaucheType)
+document.getElementById("gaucheWidth").addEventListener('input',defGaucheWidth)
+document.getElementById("gaucheRadius").addEventListener('input',defGaucheRadius)
+document.getElementById("hautType").addEventListener('input',defHautType)
+document.getElementById("hautWidth").addEventListener('input',defHautWidth)
+document.getElementById("hautRadius").addEventListener('input',defHautRadius)
+document.getElementById("droitType").addEventListener('input',defDroitType)
+document.getElementById("droitWidth").addEventListener('input',defDroitWidth)
+document.getElementById("droitRadius").addEventListener('input',defDroitRadius)
+document.getElementById("basType").addEventListener('input',defBasType)
+document.getElementById("basWidth").addEventListener('input',defBasWidth)
+document.getElementById("basRadius").addEventListener('input',defBasRadius)
+
+document.getElementById("plGauche").addEventListener('input',defMargeGauche)
+
+var type=0
+window.api.receive("fromMain", (data) => {
+
+console.log(`defGraphObjet : `,data);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'defBkgImg':
+				var txt = cmd[2].split('/')
+				var txt2=txt[txt.length-1].split('.')
+				console.log(`graph:`,cmd[1],cmd[2],txt,txt2[0])
+				document.getElementById("ibkg").value=txt[txt.length-1]
+				objGraph.bkgImg=txt[txt.length-1]
+				document.getElementById("objImg").style.backgroundImage='url('+cmd[2]+')'
+				var sw=document.getElementById("bkgw").value
+				var sh=document.getElementById("bkgh").value
+				document.getElementById("objImg").style.backgroundSize=sw+"px "+sh+"px"
+				break
+			case 'defGraphObjet':
+				console.log(`graph:`,cmd[1])
+				lang=cmd[2]
+				importLang('./Local/'+lang+'/objGraph-'+lang+".txt")
+				objetStringToGraph(cmd[3])
+				objetParamsToGraph()
+				type=cmd[4]
+				objId=cmd[1]
+				switch(cmd[4]){
+					case "1":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><circle id='circle' cx='50' cy='50' r='30'  fill='"+objGraph.objColor+"' /></svg>"
+						document.getElementById("objImg").innerHTML=txt
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objDimXY").firstChild.innerHTML="Dim XY : "
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "2":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id='carre'  x='25' y='25' width='50' height='50' fill='"+objGraph.objColor+"' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").firstChild.innerHTML="Dim XY : "
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break	
+					case "3":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,40 0,0 40,20 0,40' fill='"+objGraph.objColor+"' transform='translate(34 34)'  stroke='"+objGraph.objBorderC+"' stroke-width='"+objGraph.objBorderW+"' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objLong").firstChild.innerHTML="Dim XY : "
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break	
+					case "4":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><ellipse cx='50' cy='50' rx='40' ry='20' fill='"+objGraph.objColor+"'  stroke='"+objGraph.objBorderC+"' stroke-width='"+objGraph.objBorderW+"'  /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break	
+					case "5":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id='carre'  x='20' y='30' width='60' height='40' fill='"+objGraph.objColor+"' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "6":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,0 0,10 50,5 0,0' fill='"+objGraph.objColor+"' transform='scale(1.8 1.8) translate(4 25)'/></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "7":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='scale(1.8 1.8) translate(8 20)'><circle cx='10' cy='10' r='10' fill='"+objGraph.objColor+"' /><rect  x='10' y='5' width='30' height='10' fill='"+objGraph.objColor+"' /></g></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "8":
+						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='scale(1.8 1.8) translate(8 20)'><rect width='20' height='20' fill='"+objGraph.objColor+"' /><rect  x='10' y='5' width='30' height='10' fill='"+objGraph.objColor+"' /></g></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "9":
+						var txt="<svg width='50' height='50'  viewBox='0 0 60 60'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0,10 0,5 50,0 50,15 0,10 Z' transform='translate(5 20)' fill='"+objGraph.objColor+"' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "10":
+						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='10' y1='24' x2='40' y2='24' stroke='"+objGraph.objColor+"' stroke-width='6' /></svg>"	
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "11":
+						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='8' y1='40' x2='40' y2='8' stroke='"+objGraph.objBorderC+"' stroke-width='"+objGraph.objBorderW+"' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objLong").firstChild.innerHTML="W : "
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='none'
+						document.getElementById("plHaut").style.display='none'
+						break
+					case "12":
+						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='25' y1='10' x2='25' y2='40' stroke='"+objGraph.objBorderC+"' stroke-width='10' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "13":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 25 Q 25 30 50 0  Q 45 30 0 40  L 0 25 Z ' fill='"+objGraph.objColor+"' transform='scale(0.7 0.7) translate(10 10)'/></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "14":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0 Q 45 3 40 38 Q 30 10 0 7 Z ' fill='"+objGraph.objColor+"' transform='scale(0.8 0.8) translate(12 12)'/></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "15":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 35 L 0 30 Q 30 30 50 0 L 50 20  Q 40 30 0 35 Z' fill='"+objGraph.objColor+"' transform='scale(0.7 0.7) translate(10 20)'/></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "16":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0  Q 30 5 50 20 L 50 50  Q 40 10 0 5 Z'  fill='"+objGraph.objColor+"' transform='scale(0.7 0.7) translate(12 10)'/></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='block'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "18":
+						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(14 6)' ><rect x='0' y='2' width='4' height='34' fill='"+objGraph.objColor+"' /><rect x='6' y='2' width='10' height='10' fill='"+objGraph.objColor+"' /><rect x='6' y='14' width='10' height='10' fill='"+objGraph.objColor+"' /><rect x='6' y='26' width='10' height='10' fill='"+objGraph.objColor+"' /></g></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='none'
+						document.getElementById("plHaut").style.display='none'
+						break
+					case "19":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(6 3)' ><rect x='0' y='0' width='10' height='10' fill='"+objGraph.objColor+"' /><rect x='14' y='5' width='9' height='9' fill='"+objGraph.objColor+"' /><rect x='23' y='14' width='8' height='8' fill='"+objGraph.objColor+"' /><rect x='28' y='22' width='7' height='7' fill='"+objGraph.objColor+"' /><rect x='31' y='29' width='6' height='6' fill='"+objGraph.objColor+"' /><rect x='32' y='35' width='5' height='5' fill='"+objGraph.objColor+"' /><rect x='33' y='40' width='4' height='4' fill='"+objGraph.objColor+"' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='none'
+						document.getElementById("plHaut").style.display='none'
+						break
+					case "20":
+						var txt="<svg width='40' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(4 1)' ><line x1='5' y1='10' x2='40' y2='10' stroke='"+objGraph.objBorderC+"' stroke-width='2' /><line x1='5' y1='13' x2='40' y2='13' stroke='"+objGraph.objBorderC+"' stroke-width='2' /><line x1='5' y1='18' x2='40' y2='18' stroke='"+objGraph.objBorderC+"' stroke-width='3' /><line x1='5' y1='25' x2='40' y2='25' stroke='"+objGraph.objBorderC+"' stroke-width='2' /><line x1='5' y1='29' x2='40' y2='29' stroke='"+objGraph.objBorderC+"' stroke-width='4' /><line x1='5' y1='35' x2='40' y2='35' stroke='"+objGraph.objBorderC+"' stroke-width='2' /><line x1='5' y1='38' x2='40' y2='38' stroke='"+objGraph.objBorderC+"' stroke-width='2' /></g></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='none'
+						document.getElementById("plHaut").style.display='none'
+						break
+					case "21":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(12 12)' ><path d='m 0,18 c 2.563522,-4.224314 5.082396,-8.502207 9.5544,-10.436343 15.408596,-2.005519 10.194491,-4.131414 15.287035,-6.173611 15.94465,-2.511366 17.400141,2.490165 23.66551,4.997685 2.271129,3.188679 5.724476,4.406994 4.703704,13.082175 -1.620314,13.767922 -5.475164,14.575533 -8.966435,17.4919 -8.306339,2.87551 -16.042438,4.467977 -22.783564,3.821758  -6.306339,0.87551 -14.042438,2.467977 -20.783564,-10.821758 Z' fill='#deea1a' stroke='#000000' stroke-width='1' transform='scale(0.5 0.5) translate(0 4)'/></g></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					case "22":
+						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' transform='translate(5 5)'><circle  cx='4' cy='4' r='2' fill='green' /><circle  cx='10' cy='8' r='2' fill='green' /><circle cx='8' cy='16' r='2' fill='green' /><circle  cx='14' cy='20' r='2' fill='green' /><circle  cx='35' cy='27' r='2' fill='green' /><circle  cx='21' cy='33' r='2' fill='green' /><circle  cx='38' cy='19' r='2' fill='green' /><circle  cx='34' cy='35' r='2' fill='green' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='none'
+						document.getElementById("plHaut").style.display='none'
+						break
+					case "23":
+						var txt="<img src='./images/png/image-2.svg' alt='' width='40px'  style='padding-left:5px;padding-top:5px;' />"
+						document.getElementById("objImg").innerHTML=txt
+						document.getElementById("rotation").style.display='block'
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
+					default:
+						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' transform='translate(5 5)'><circle  cx='4' cy='4' r='2' fill='green' /><circle  cx='10' cy='8' r='2' fill='green' /><circle cx='8' cy='16' r='2' fill='green' /><circle  cx='14' cy='20' r='2' fill='green' /><circle  cx='35' cy='27' r='2' fill='green' /><circle  cx='21' cy='33' r='2' fill='green' /><circle  cx='38' cy='19' r='2' fill='green' /><circle  cx='34' cy='35' r='2' fill='green' /></svg>"
+						document.getElementById("objImg").innerHTML=txt	
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("rotation").style.display='none'
+						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("plGauche").style.display='none'
+						document.getElementById("plHaut").style.display='none'
+						break
+				}
+				console.log(`graph:`,document.getElementById("objImg"))
+			
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+function objDimXY(e) {
+	switch(type) {
+		case "1":
+			objScaleXY()
+			break
+		case "2":
+			objScaleXY()
+			break
+		case "3":
+			objScaleXY()
+			break
+
+		case "19":
+			
+			break
+		case "20":
+			
+			break
+		case "22":
+			
+			break
+		case "23":
+			
+			break
+		case "24":
+			
+			break
+		
+		default:
+			objScaleXY()
+			break
+	}		
+}
+function objWidth(e) {
+	switch(type) {
+		case "10":
+			
+			break
+		case "12":
+			
+			break
+		case "17":
+			
+			break
+		case "18":
+			
+			break
+		case "19":
+			
+			break
+		case "20":
+			
+			break
+		case "22":
+			
+			break
+
+		case "24":
+			
+			break
+		
+		default:
+			objScaleX()
+			var scaleX=parseFloat(document.getElementById("objWidth").value)
+			break
+	}		
+}
+function objetRayon(e) {
+	var rayon=parseFloat(document.getElementById("objWidth").value)
+	document.getElementById("bkgw").value=rayon*2
+	document.getElementById("bkgh").value=rayon*2
+	document.getElementById("plGauche").value=(rayon-10)
+	document.getElementById("plHaut").value=(rayon-10)
+	window.api.send("toMain", "bkgWidth;"+objId+";"+(rayon*2))
+	window.api.send("toMain", "bkgHeight;"+objId+";"+(rayon*2))
+	window.api.send("toMain", "margeGauche;"+objId+";"+(rayon-10))
+	window.api.send("toMain", "margeHaut;"+objId+";"+(rayon-10))
+	window.api.send("toMain", "objRayon;"+objId+";"+rayon)
+}
+function objScaleXY(e) {
+	var scaleXY=parseFloat(document.getElementById("objDim").value)
+	window.api.send("toMain", "objScaleXY;"+objId+";"+scaleXY)
+}
+function objScaleX(e) {
+	var scaleX=parseFloat(document.getElementById("objWidth").value)
+	window.api.send("toMain", "objScaleX;"+objId+";"+scaleX)
+}
+function objScaleY(e) {
+	var scaleY=parseFloat(document.getElementById("objHeight").value)
+	window.api.send("toMain", "objScaleY;"+objId+";"+scaleY)
+}
+function objRotate(e) {
+	var rotate=document.getElementById("objRotate").value
+	window.api.send("toMain", "imgRotate;"+objId+";"+rotate)
+}
+function objetCarre(e) {
+	var lg=parseFloat(document.getElementById("objWidth").value)
+	document.getElementById("bkgw").value=lg
+	document.getElementById("bkgh").value=lg
+	document.getElementById("plGauche").value=lg
+	document.getElementById("plHaut").value=lg
+	window.api.send("toMain", "bkgWidth;"+objId+";"+lg)
+	window.api.send("toMain", "bkgHeight;"+objId+";"+lg)
+	window.api.send("toMain", "margeGauche;"+objId+";"+lg)
+	window.api.send("toMain", "margeHaut;"+objId+";"+lg)
+	//window.api.send("toMain", "objRayon;"+objId+";"+lg)
+}
+function objetOpacity(e) {
+	var opac=document.getElementById("objOpacity").value
+	window.api.send("toMain", "objOpacity;"+objId+";"+opac)
+}
+function bkgOpacity(e) {
+	var opac=document.getElementById("bkgOpacity").value
+	window.api.send("toMain", "bkgOpacity;"+objId+";"+opac)
+}
+function bkgTransparent(e) {
+	if(document.getElementById("bkgTransparent").checked==true){
+		window.api.send("toMain", "bkgTransparent;"+objId)
+		document.getElementById("objImg").style.backgroundColor='transparent'
+	}else{
+		document.getElementById("objImg").style.backgroundColor=document.getElementById("bkgColor").value
+		window.api.send("toMain", "bkgColor;"+objId+";"+document.getElementById("bkgColor").value)
+	}
+}
+const objColor = document.getElementById("selectColor");
+const inpColor = document.getElementById("objImg");
+inpColor.addEventListener("click", (e) => {
+  if (objColor) {
+    objColor.click();
+  }
+  e.preventDefault();
+}, false);
+objColor.addEventListener("change", defColor, false);
+
+function defColor(e) {
+console.log(this.value)
+	document.getElementById("objImg").firstChild.firstChild.setAttribute("fill",this.value)
+	document.getElementById("objImg").firstChild.firstChild.setAttribute("stroke",this.value)
+	window.api.send("toMain", "objColor;"+objId+";"+this.value)
+}
+function objBkgImg(e) {
+	window.api.send("toMain", "defBkgImg;"+objId)
+}
+const bkgColor = document.getElementById("selectBkgColor");
+const inpBkgColor = document.getElementById("bkgColor");
+inpBkgColor.addEventListener("click", (e) => {
+  if (bkgColor) {
+    bkgColor.click();
+  }
+  e.preventDefault();
+}, false);
+bkgColor.addEventListener("change", defBkgColor, false);
+
+
+function defBkgColor(e) {
+	document.getElementById("objImg").style.backgroundColor=this.value;
+	document.getElementById("bkgColor").value=this.value;
+	window.api.send("toMain", "bkgColor;"+objId+";"+this.value)
+	document.getElementById("bkgTransparent").checked=false
+}
+function defBkgWidth(e) {
+var bkgw=document.getElementById("bkgw").value
+window.api.send("toMain", "bkgWidth;"+objId+";"+bkgw+";"+document.getElementById("bkgh").value)
+document.getElementById("objImg").style.backgroundSize=bkgw+"px "+document.getElementById("bkgh").value+"px"
+}
+function defBkgHeight(e) {
+var bkgh=document.getElementById("bkgh").value
+window.api.send("toMain", "bkgHeight;"+objId+";"+document.getElementById("bkgh").value+";"+bkgh)
+document.getElementById("objImg").style.backgroundSize=document.getElementById("bkgh").value+"px "+bkgh+"px"
+}
+function defBordureWidth(e) {
+var bwidth=document.getElementById("epsBordure").value
+window.api.send("toMain", "bordureWidth;"+objId+";"+bwidth)
+document.getElementById("objImg").firstChild.firstChild.setAttribute('stroke-width',bwidth)
+}
+const strokeColor = document.getElementById("selectStrokeColor");
+const inpStrokeColor = document.getElementById("bordureColor");
+inpStrokeColor.addEventListener("click", (e) => {
+  if (strokeColor) {
+    strokeColor.click();
+  }
+  e.preventDefault();
+}, false);
+strokeColor.addEventListener("change", defBordureColor, false);
+function defBordureColor(e) {
+	document.getElementById("bordureColor").value=this.value;
+	document.getElementById("objImg").firstChild.firstChild.setAttribute('stroke',this.value)
+	window.api.send("toMain", "bordureColor;"+objId+";"+this.value)
+}
+function defMargeGauche(e) {
+var pl=document.getElementById("plGauche").value
+window.api.send("toMain", "margeGauche;"+objId+";"+pl)
+}
+function defMargeHaut(e) {
+var pl=document.getElementById("plHaut").value
+window.api.send("toMain", "margeHaut;"+objId+";"+pl)
+}
+function defGaucheType(e) {
+var gtype=document.getElementById("gaucheType").value
+window.api.send("toMain", "gaucheType;"+objId+";"+gtype)
+}
+function defGaucheWidth(e) {
+var gwidth=document.getElementById("gaucheWidth").value
+window.api.send("toMain", "gaucheWidth;"+objId+";"+gwidth)
+}
+const gaucheColor = document.getElementById("selectGaucheColor");
+const inpGaucheColor = document.getElementById("gaucheColor");
+inpGaucheColor.addEventListener("click", (e) => {
+  if (gaucheColor) {
+    gaucheColor.click();
+  }
+  e.preventDefault();
+}, false);
+gaucheColor.addEventListener("change", defGaucheColor, false);
+function defGaucheColor(e) {
+	document.getElementById("gaucheColor").value=this.value;
+	window.api.send("toMain", "gaucheColor;"+objId+";"+this.value)
+}
+function defGaucheRadius(e) {
+	document.getElementById("gaucheRadius").value=this.value;
+	window.api.send("toMain", "gaucheRadius;"+objId+";"+this.value)
+}
+function defHautType(e) {
+var gtype=document.getElementById("hautType").value
+window.api.send("toMain", "hautType;"+objId+";"+gtype)
+}
+function defHautWidth(e) {
+var gwidth=document.getElementById("hautWidth").value
+window.api.send("toMain", "hautWidth;"+objId+";"+gwidth)
+}
+const hautColor = document.getElementById("selectHautColor");
+const inpHautColor = document.getElementById("hautColor");
+inpHautColor.addEventListener("click", (e) => {
+  if (hautColor) {
+    hautColor.click();
+  }
+  e.preventDefault();
+}, false);
+hautColor.addEventListener("change", defHautColor, false);
+function defHautColor(e) {
+	document.getElementById("hautColor").value=this.value;
+	window.api.send("toMain", "hautColor;"+objId+";"+this.value)
+}
+function defHautRadius(e) {
+	document.getElementById("hautRadius").value=this.value;
+	window.api.send("toMain", "hautRadius;"+objId+";"+this.value)
+}
+function defDroitType(e) {
+var gtype=document.getElementById("droitType").value
+window.api.send("toMain", "droitType;"+objId+";"+gtype)
+}
+function defDroitWidth(e) {
+var gwidth=document.getElementById("droitWidth").value
+window.api.send("toMain", "droitWidth;"+objId+";"+gwidth)
+}
+const droitColor = document.getElementById("selectDroitColor");
+const inpDroitColor = document.getElementById("droitColor");
+inpDroitColor.addEventListener("click", (e) => {
+  if (droitColor) {
+    droitColor.click();
+  }
+  e.preventDefault();
+}, false);
+droitColor.addEventListener("change", defDroitColor, false);
+function defDroitColor(e) {
+	document.getElementById("droitColor").value=this.value;
+	window.api.send("toMain", "droitColor;"+objId+";"+this.value)
+}
+function defDroitRadius(e) {
+	document.getElementById("droitRadius").value=this.value;
+	window.api.send("toMain", "droitRadius;"+objId+";"+this.value)
+}
+function defBasType(e) {
+var gtype=document.getElementById("basType").value
+window.api.send("toMain", "basType;"+objId+";"+gtype)
+}
+function defBasWidth(e) {
+var gwidth=document.getElementById("basWidth").value
+window.api.send("toMain", "basWidth;"+objId+";"+gwidth)
+}
+const basColor = document.getElementById("selectBasColor");
+const inpBasColor = document.getElementById("basColor");
+inpBasColor.addEventListener("click", (e) => {
+  if (basColor) {
+    basColor.click();
+  }
+  e.preventDefault();
+}, false);
+basColor.addEventListener("change", defBasColor, false);
+function defBasColor(e) {
+	document.getElementById("basColor").value=this.value;
+	window.api.send("toMain", "basColor;"+objId+";"+this.value)
+}
+function defBasRadius(e) {
+	document.getElementById("basRadius").value=this.value;
+	window.api.send("toMain", "basRadius;"+objId+";"+this.value)
+}
+
+function objetParamsToGraph() {
+	document.getElementById("bkgColor").value=objGraph.bkgColor
+	document.getElementById("bkgh").value=objGraph.bkgHeight
+	document.getElementById("ibkg").value=objGraph.bkgImg
+	document.getElementById("bkgOpacity").value=objGraph.bkgOpacity
+	document.getElementById("bkgw").value=objGraph.bkgWidth
+	document.getElementById("basColor").value=objGraph.borderBc
+	document.getElementById("basRadius").value=objGraph.borderBr
+	document.getElementById("basType").value=objGraph.borderBs
+	document.getElementById("basWidth").value=objGraph.borderBw
+	document.getElementById("droitColor").value=objGraph.borderDc
+	document.getElementById("droitRadius").value=objGraph.borderDr
+	document.getElementById("droitType").value=objGraph.borderDs
+	document.getElementById("droitWidth").value=objGraph.borderDw
+	document.getElementById("gaucheColor").value=objGraph.borderGc
+	document.getElementById("gaucheRadius").value=objGraph.borderGr
+	document.getElementById("gaucheType").value=objGraph.borderGs
+	document.getElementById("gaucheWidth").value=objGraph.borderGw
+	document.getElementById("hautColor").value=objGraph.borderHc
+	document.getElementById("hautRadius").value=objGraph.borderHr
+	document.getElementById("hautType").value=objGraph.borderHs
+	document.getElementById("hautWidth").value=objGraph.borderHw
+	document.getElementById("plGauche").value=objGraph.margeG
+	document.getElementById("plHaut").value=objGraph.margeH
+	document.getElementById("bordureColor").value=objGraph.objBorderC
+	document.getElementById("epsBordure").value=objGraph.objBorderW
+	document.getElementById("objParamColor").setAttribute("fill",objGraph.objColor)
+	document.getElementById("objOpacity").value=objGraph.objOpacity
+	document.getElementById("objWidth").value=objGraph.scaleX
+	document.getElementById("objHeight").value=objGraph.scaleY
+	document.getElementById("objImg").style.backgroundImage='url('+objGraph.bkgImg+')'
+	document.getElementById("objImg").style.backgroundSize=objGraph.bkgWidth+"px "+objGraph.bkgHeight+"px"
+	document.getElementById("objImg").style.backgroundColor=document.getElementById("bkgColor").value
+	document.getElementById("objParamColor").setAttribute("stroke",objGraph.objBorderC)
+	document.getElementById("objParamColor").setAttribute("stroke-width",objGraph.objBorderW)
+	
+	if(objGraph.bkgTrp=="true"){
+		document.getElementById("bkgTransparent").checked=true
+	}else{
+		document.getElementById("bkgTransparent").checked=false
+	}
+	
+	console.log("objetParamsToGraph")
+}
+function objetGraphToString() {
+	var txt = document.getElementById('bkgColor').value+","+document.getElementById('bkgh').value+","+document.getElementById('objImg').style.backgroundImage+","+document.getElementById('bkgw').value+","+document.getElementById('basColor').value+","+document.getElementById('basRadius').value+","+document.getElementById('basType').value+","+document.getElementById('basWidth').value+","+document.getElementById('droitColor').value+","+document.getElementById('droitRadius').value+","+document.getElementById('droitType').value+","+document.getElementById('droitWidth').value+","+document.getElementById('gaucheColor').value+","+document.getElementById('gaucheRadius').value+","+document.getElementById('gaucheType').value+","+document.getElementById('gaucheWidth').value+","+document.getElementById('hautColor').value+","+document.getElementById('hautRadius').value+","+document.getElementById('hautType').value+","+document.getElementById('hautWidth').value+","+document.getElementById('plGauche').value+","+document.getElementById('plHaut').value+","+document.getElementById('bordureColor').value+","+document.getElementById('epsBordure').value+","+document.getElementById('objImg').firstChild.firstChild.getAttribute('fill')+","+document.getElementById('objOpacity').value+","+document.getElementById('rayon').value
+		return txt
+}
+function objetStringToGraph(txt) {
+	var ntxt=txt.split(':')
+	objGraph = {
+	bkgColor:ntxt[0],
+	bkgHeight:ntxt[1],
+	bkgImg:ntxt[2],
+	bkgOpacity:ntxt[3],
+	bkgTrp:ntxt[4],
+	bkgWidth:ntxt[5],
+	borderBc:ntxt[6],
+	borderBr:ntxt[7],
+	borderBs:ntxt[8],
+	borderBw:ntxt[9],
+	borderDc:ntxt[10],
+	borderDr:ntxt[11],
+	borderDs:ntxt[12],
+	borderDw:ntxt[13],
+	borderGc:ntxt[14],
+	borderGr:ntxt[15],
+	borderGs:ntxt[16],
+	borderGw:ntxt[17],
+	borderHc:ntxt[18],
+	borderHr:ntxt[19],
+	borderHs:ntxt[20],
+	borderHw:ntxt[21],
+	cx:ntxt[22],
+	cy:ntxt[23],
+	height:ntxt[24],
+	margeG:ntxt[25],
+	margeH:ntxt[26],
+	objBorderC:ntxt[27],
+	objBorderW:ntxt[28],
+	objColor:ntxt[29],
+	objOpacity:ntxt[30],
+	radius:ntxt[31],
+	rayon:ntxt[32],
+	scaleX:ntxt[33],
+	scaleY:ntxt[34],
+	width:ntxt[35]
+	}
+	console.log("objGraph",objGraph)
+}
+function objGraphValid() {
+	window.api.send("toMain", "objGraphValid;"+objId)
+}
+function objGraphAnnul() {
+	window.api.send("toMain", "objGraphAnnul;"+objId)
+}
+</script>
+</body>
+</html>

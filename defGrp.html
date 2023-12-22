@@ -1,0 +1,453 @@
+<!DOCTYPE HTML>
+<head>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-12-08T11:02:15+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Groupe</title>
+</head>
+<body>
+<div style="margin:10px;padding:10px;">
+		<div  id="grpImg" style="margin-left:20px;width:50px;height:50px;border:1px solid black;">
+		<svg id="objColor"  width="50" height="50" viewBox=" 0 0 50 50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+			<rect id="objParamColor" x="5" y="5" width="40" height="40" fill="none" stroke="#000000" stroke-width="1" opacity="0" />
+	   </svg>
+	   <input id="grpColor" type="color" style="display:none" value="#ffffff" />
+	   <input id="grpBkgColor" type="color" style="display:none" value="#ffffff" />
+	    <input id="grpStrokeColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpGaucheColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpHautColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpDroitColor" type="color" style="display:none" value="#ffffff" />
+	     <input id="grpBasColor" type="color" style="display:none" value="#ffffff" />
+		</div>
+		
+</div>
+<div  style="position:absolute;top:30px;left:300px;"><span id="objLong">Dim XY : </span><input  id="objWidth" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="10" step="0.1" />
+</div>
+	<div  style="position:absolute;top:100px;left:10px;"><span id="nom" >Nom : </span><input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
+<div style="position:absolute;top:144px;left:30px;"><span id="bkg">Arrière-plan : </span><input id="ibkgGrp" type="text" style="width:90px" value="" /></div>
+<div ><span id="transpa" style="position:absolute;top:146px;left:230px;"> Transparence : </span><span style="position:absolute;top:144px;left:330px;"><input id="bkgGrpTransparent" type="checkbox" checked /> &nbsp;&nbsp;<span id="bkgOpac">Bkg Opacité : </span><input id="bkgGrpOpacity" style="width:40px;"type="number" value="1" min="0" max="1" step="0.1" /></span></div>
+<div  style="position:absolute;top:175px;left:30px;" ><span id="lbwidth">Largeur : </span><input id="bkgGrpw" style="width:60px;" type="number" value="20" step="1" /><span id="lbheight"> Hauteur : </span><input id="bkgGrph" type="number" style="width:60px;" step="1" value="50"/><span id="lbbkgcolor">  Couleur : </span><input id="bkgGrpColor" type="color" value="transparent"/></div>
+
+<table style="position:absolute;top:220px;left:10px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
+	<tbody>
+		<tr><td  id="lbcadre" colspan="6" style="text-align:center; "> Cadre </td></tr>
+		<tr><td style="border:0px;"></td><td id="tp" >Type</td><td id="ep" >Épais.</td><td id="rd" >Radius</td><td id="cl" >Couleur</td><td id="mg" >Marge</td></tr>
+		<tr><td  id="lbgauche" >Gauche</td><td><form action=""><select id="gaucheType" size="1"><option  id="pb1" value="none">Pas de bordure</option><option value="dotted"  id="pt1" >Pointillés</option><option  id="dh1" value="dashed">Tirets</option><option  id="plein1" value="solid">Pleine</option><option value="double"  id="double1">Double</option></select></form></td><td><input  id="gaucheWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="gaucheRadius" style="width:84px;height:24px;" type="text"  value=""  /></td><td style="border:none;" ><input id="gaucheGrpColor" type="color"  value="#ffffff" /></td><td><input  id="plGrpGauche" style="width:44px;height:24px;" type="number"  value="0"  step="1" /></td></tr>
+		<tr><td  id="lbhaut" >Haut</td><td><form action=""><select id="hautType" size="1"><option value="none"  id="pb2" >Pas de bordure</option><option value="dotted"  id="pt2" >Pointillés</option><option value="dashed"  id="dh2" >Tirets</option><option value="solid"  id="plein2" >Pleine</option><option value="double" id="double2" >Double</option></select></form></td><td><input id="hautWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="hautRadius" style="width:84px;height:24px;" type="text"  value="" /></td><td  style="border:none;" ><input id="hautGrpColor" type="color" value="#ffffff" /></td><td><input  id="plGrpHaut" style="width:44px;height:24px;" type="number"  value="0"     step="1" /></td></tr>
+		<tr><td  id="lbdroit" >Droit</td><td><form action=""><select id="droitGrpType" size="1"><option value="none"  id="pb3">Pas de bordure</option><option value="dotted"  id="pt3">Pointillés</option><option value="dashed"  id="dh3">Tirets</option><option value="solid"  id="plein3">Pleine</option><option value="double"  id="double3">Double</option></select></form></td><td><input id="droitWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="droitRadius" style="width:84px;height:24px;" type="text"  value="" /></td><td  style="border:none;" ><input id="droitGrpColor" type="color" value="#ffffff" /></td><td style="border:none;" ></td></tr>
+		<tr><td id="lbbas">Bas</td><td><form action=""><select id="basType" size="1"><option value="none" id="pb4">Pas de bordure</option><option value="dotted"  id="pt4">Pointillés</option><option value="dashed"  id="dh4">Tirets</option><option value="solid"  id="plein4">Pleine</option><option value="double"  id="double4">Double</option></select></form></td><td><input id="basWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="basRadius" style="width:84px;height:24px;" type="text"  /></td><td  style="border:none;" ><input id="basGrpColor" type="color"  value="#ffffff" /></td><td style="border:none;" ></td></tr>
+	</tbody>
+</table>
+	<div style="position:absolute;top:500px;left:310px;" ><button  id="lbannul" onclick='symbGraphAnnul();'>Annuler</button> <button  id="lbvalid"  onclick='symbGraphValid();'>Valider</button></div>
+
+<script>
+let objId=0;
+let objGraph={}
+
+document.getElementById("inpNom").addEventListener('input',grpNom)
+document.getElementById("ibkgGrp").addEventListener('click',objBkgGrpImg)
+document.getElementById("bkgGrpw").addEventListener('input',bkgGrpWidth)
+document.getElementById("bkgGrph").addEventListener('input',bkgGrpHeight)
+document.getElementById("bkgGrpTransparent").addEventListener('input',bkgGrpTransparent)
+
+document.getElementById("objWidth").addEventListener('input',objScaleX)
+
+document.getElementById("bkgGrpOpacity").addEventListener('input',bkgGrpOpacity)
+
+document.getElementById("gaucheType").addEventListener('input',grpGaucheType)
+document.getElementById("gaucheWidth").addEventListener('input',grpGaucheWidth)
+document.getElementById("gaucheRadius").addEventListener('input',grpGaucheRadius)
+document.getElementById("hautType").addEventListener('input',grpHautType)
+document.getElementById("hautWidth").addEventListener('input',grpHautWidth)
+document.getElementById("hautRadius").addEventListener('input',grpHautRadius)
+document.getElementById("droitGrpType").addEventListener('input',grpDroitType)
+document.getElementById("droitWidth").addEventListener('input',grpDroitWidth)
+document.getElementById("droitRadius").addEventListener('input',grpDroitRadius)
+document.getElementById("basType").addEventListener('input',grpBasType)
+document.getElementById("basWidth").addEventListener('input',grpBasWidth)
+document.getElementById("basRadius").addEventListener('input',grpBasRadius)
+
+document.getElementById("plGrpGauche").addEventListener('input',grpMargeGauche)
+document.getElementById("plGrpHaut").addEventListener('input',grpMargeHaut)
+
+var type=0
+const tableLang=[]
+
+function importLang(name) {
+   // Load lang
+   var xhttp = new XMLHttpRequest()
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var txt=xhttp.responseText
+			defLang(txt)
+		}
+	}
+	xhttp.open("GET", name, true)
+	xhttp.send()
+}
+function defLang (txt) {
+	var ntxt = txt.split('\n')
+	var sp=[]
+	for(let i=0;i<ntxt.length-1;i++){
+		sp=ntxt[i].split('=')
+		tableLang[sp[0]]=sp[1]
+	}
+	interfaceLang ()
+}
+
+
+
+function interfaceLang () {
+document.getElementById('nom').innerHTML=tableLang['objgNom']
+document.getElementById('objLong').innerHTML=tableLang['objgDim']
+document.getElementById('bkg').innerHTML=tableLang["objgBkg"]
+document.getElementById('transpa').innerHTML=tableLang["objgTranspa"]
+document.getElementById('bkgOpac').innerHTML=tableLang["objgBkgOpacity"]
+document.getElementById('lbwidth').innerHTML=tableLang["objgWidth"]
+document.getElementById('lbheight').innerHTML=tableLang["objgHeight"]
+document.getElementById('lbbkgcolor').innerHTML=tableLang["objgColor"]
+document.getElementById('lbcadre').innerHTML=tableLang["objgCadre"]
+document.getElementById('pb1').innerHTML=tableLang["objgPb"]
+document.getElementById('pt1').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh1').innerHTML=tableLang["objgTir"]
+document.getElementById('plein1').innerHTML=tableLang["objgPlein"]
+document.getElementById('double1').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb2').innerHTML=tableLang["objgPb"]
+document.getElementById('pt2').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh2').innerHTML=tableLang["objgTir"]
+document.getElementById('plein2').innerHTML=tableLang["objgPlein"]
+document.getElementById('double2').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb3').innerHTML=tableLang["objgPb"]
+document.getElementById('pt3').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh3').innerHTML=tableLang["objgTir"]
+document.getElementById('plein3').innerHTML=tableLang["objgPlein"]
+document.getElementById('double3').innerHTML=tableLang["objgDouble"]
+document.getElementById('pb4').innerHTML=tableLang["objgPb"]
+document.getElementById('pt4').innerHTML=tableLang["objgPoint"]
+document.getElementById('dh4').innerHTML=tableLang["objgTir"]
+document.getElementById('plein4').innerHTML=tableLang["objgPlein"]
+document.getElementById('double4').innerHTML=tableLang["objgDouble"]
+
+document.getElementById('lbgauche').innerHTML=tableLang["objgBorderG"]
+document.getElementById('lbhaut').innerHTML=tableLang["objgBorderH"]
+document.getElementById('lbdroit').innerHTML=tableLang["objgBorderD"]
+document.getElementById('lbbas').innerHTML=tableLang["objgBorderB"]
+document.getElementById('lbannul').innerHTML=tableLang["objgAnnul"]
+document.getElementById('lbvalid').innerHTML=tableLang["objgValid"]
+}
+window.api.receive("fromMain", (data) => {
+
+console.log(`defGraphObjet : `,data);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'defSymbBkgImg':
+				var txt = cmd[2].split('/')
+				var txt2=txt[txt.length-1].split('.')
+				console.log(`graph:`,cmd[1],cmd[2],txt,txt2[0])
+				document.getElementById("ibkg").value=txt[txt.length-1]
+				objGraph.bkgImg=txt[txt.length-1]
+				document.getElementById("objImg").style.backgroundImage='url('+cmd[2]+')'
+				var sw=document.getElementById("bkgw").value
+				var sh=document.getElementById("bkgh").value
+				document.getElementById("objImg").style.backgroundSize=sw+"px "+sh+"px"
+				break
+			case 'defGrp':
+				lang=cmd[2]
+				importLang('./Local/'+lang+'/grpParam-'+lang+".txt")
+				console.log(`importLang:`,tableLang)
+				grpStringToGraph(cmd[3])
+				grpParamsToGraph()
+				objId=cmd[1]
+				break
+			case 'defGrpImg':
+				document.getElementById("grpImg").style.backgroundImage="url('"+cmd[2]+"')"
+				document.getElementById("ibkgGrp").value=cmd[2]
+				break
+			
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+function objDimXY(e) {
+	switch(type) {
+		
+		
+		default:
+			objScaleXY()
+			break
+	}		
+}
+function objWidth(e) {
+	switch(type) {
+		
+		
+		default:
+			objScaleX()
+			objScaleY()
+			var scaleX=parseFloat(document.getElementById("objWidth").value)
+			break
+	}		
+}
+function objScaleX(e) {
+	var scaleX=parseFloat(document.getElementById("objWidth").value)
+	window.api.send("toMain", "objScaleGrpXY;"+objId+";"+scaleX)
+}
+function bkgGrpOpacity(e) {
+	var opac=parseFloat(document.getElementById("bkgGrpOpacity").value)
+	var nopac=Math.round(opac*255)
+	var color=objGraph.bkgColor
+	var ncolor=color+(nopac.toString(16)) 
+	document.getElementById("grpImg").style.backgroundColor=ncolor; 
+	window.api.send("toMain", "bkgGrpOpacity;"+objId+";"+opac)
+}
+function bkgGrpTransparent(e) {
+	if(document.getElementById("bkgGrpTransparent").checked==true){
+		window.api.send("toMain", "grpBkgTransparent;"+objId)
+		document.getElementById("grpImg").style.backgroundColor='transparent'
+	}else{
+		document.getElementById("grpImg").style.backgroundColor=document.getElementById("bkgGrpColor").value
+		window.api.send("toMain", "bkgGrpColor;"+objId+";"+document.getElementById("bkgGrpColor").value)
+	}
+}
+function grpNom(e) {
+	var nom=document.getElementById("inpNom").value
+	window.api.send("toMain", "grpNom;"+objId+";"+nom)
+}
+
+function objBkgGrpImg(e) {
+	window.api.send("toMain", "bkgGrpImg;"+objId)
+}
+const bkgGrpColor = document.getElementById("grpBkgColor");
+const inpBkgGrpColor = document.getElementById("bkgGrpColor");
+inpBkgGrpColor.addEventListener("click", (e) => {
+  if (bkgGrpColor) {
+    bkgGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+bkgGrpColor.addEventListener("change", defGrpColor, false);
+
+
+function defGrpColor(e) {
+	objGraph.bkgColor=this.value
+	document.getElementById("grpImg").style.backgroundColor=this.value;
+	document.getElementById("bkgGrpColor").value=this.value;
+	window.api.send("toMain", "bkgGrpColor;"+objId+";"+this.value)
+	document.getElementById("bkgGrpTransparent").checked=false
+}
+function bkgGrpWidth(e) {
+var bkgGrpw=document.getElementById("bkgGrpw").value
+window.api.send("toMain", "bkgGrpWidth;"+objId+";"+bkgGrpw)
+//document.getElementById("objImg").style.backgroundSize=bkgw+"px "+document.getElementById("bkgh").value+"px"
+}
+function bkgGrpHeight(e) {
+var bkgGrph=document.getElementById("bkgGrph").value
+window.api.send("toMain", "bkgGrpHeight;"+objId+";"+document.getElementById("bkgGrph").value)
+//document.getElementById("objImg").style.backgroundSize=document.getElementById("bkgh").value+"px "+bkgh+"px"
+}
+function defBordureWidth(e) {
+var bwidth=document.getElementById("epsBordure").value
+window.api.send("toMain", "bordureWidth;"+objId+";"+bwidth)
+document.getElementById("objImg").firstChild.firstChild.setAttribute('stroke-width',bwidth)
+}
+
+function grpMargeGauche(e) {
+var pl=document.getElementById("plGrpGauche").value
+document.getElementById("plGrpGauche").value=0
+window.api.send("toMain", "grpMGauche;"+objId+";"+pl)
+}
+function grpMargeHaut(e) {
+var pl=document.getElementById("plGrpHaut").value
+document.getElementById("plGrpHaut").value=0
+window.api.send("toMain", "grpMHaut;"+objId+";"+pl)
+}
+function grpGaucheType(e) {
+var gtype=document.getElementById("gaucheType").value
+window.api.send("toMain", "grpGaucheType;"+objId+";"+gtype)
+}
+function grpGaucheWidth(e) {
+var gwidth=document.getElementById("gaucheWidth").value
+window.api.send("toMain", "grpGaucheWidth;"+objId+";"+gwidth)
+}
+const gaucheGrpColor = document.getElementById("grpGaucheColor");
+const inpGaucheGrpColor = document.getElementById("gaucheGrpColor");
+inpGaucheGrpColor.addEventListener("click", (e) => {
+  if (gaucheGrpColor) {
+    gaucheGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+gaucheGrpColor.addEventListener("change", defGaucheGrpColor, false);
+function defGaucheGrpColor(e) {
+	document.getElementById("gaucheGrpColor").value=this.value;
+	window.api.send("toMain", "grpGaucheColor;"+objId+";"+this.value)
+}
+function grpGaucheRadius(e) {
+	document.getElementById("gaucheRadius").value=this.value;
+	window.api.send("toMain", "grpGaucheRadius;"+objId+";"+this.value)
+}
+function grpHautType(e) {
+var gtype=document.getElementById("hautType").value
+window.api.send("toMain", "hautType;"+objId+";"+gtype)
+}
+function grpHautWidth(e) {
+var gwidth=document.getElementById("hautWidth").value
+window.api.send("toMain", "hautWidth;"+objId+";"+gwidth)
+}
+const hautGrpColor = document.getElementById("grpHautColor");
+const inpHautGrpColor = document.getElementById("hautGrpColor");
+inpHautGrpColor.addEventListener("click", (e) => {
+  if (hautGrpColor) {
+    hautGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+hautGrpColor.addEventListener("change", defHautGrpColor, false);
+function defHautGrpColor(e) {
+	document.getElementById("hautGrpColor").value=this.value;
+	window.api.send("toMain", "grpHautColor;"+objId+";"+this.value)
+}
+function grpHautRadius(e) {
+	document.getElementById("hautGrpRadius").value=this.value;
+	window.api.send("toMain", "hautRadius;"+objId+";"+this.value)
+}
+function grpDroitType(e) {
+var gtype=document.getElementById("droitGrpType").value
+window.api.send("toMain", "droitType;"+objId+";"+gtype)
+}
+function grpDroitWidth(e) {
+var gwidth=document.getElementById("droitWidth").value
+window.api.send("toMain", "droitWidth;"+objId+";"+gwidth)
+}
+const droitGrpColor = document.getElementById("grpDroitColor");
+const inpDroitGrpColor = document.getElementById("droitGrpColor");
+inpDroitGrpColor.addEventListener("click", (e) => {
+  if (droitGrpColor) {
+    droitGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+droitGrpColor.addEventListener("change", defDroitGrpColor, false);
+function defDroitGrpColor(e) {
+	document.getElementById("droitGrpColor").value=this.value;
+	window.api.send("toMain", "grpDroitColor;"+objId+";"+this.value)
+}
+function grpDroitRadius(e) {
+	document.getElementById("droitRadius").value=this.value;
+	window.api.send("toMain", "droitRadius;"+objId+";"+this.value)
+}
+function grpBasType(e) {
+var gtype=document.getElementById("basType").value
+window.api.send("toMain", "basType;"+objId+";"+gtype)
+}
+function grpBasWidth(e) {
+var gwidth=document.getElementById("basWidth").value
+window.api.send("toMain", "basWidth;"+objId+";"+gwidth)
+}
+const basGrpColor = document.getElementById("grpBasColor");
+const inpBasGrpColor = document.getElementById("basGrpColor");
+inpBasGrpColor.addEventListener("click", (e) => {
+  if (basGrpColor) {
+    basGrpColor.click();
+  }
+  e.preventDefault();
+}, false);
+basGrpColor.addEventListener("change", defBasGrpColor, false);
+function defBasGrpColor(e) {
+	document.getElementById("basGrpColor").value=this.value;
+	window.api.send("toMain", "grpBasColor;"+objId+";"+this.value)
+}
+function grpBasRadius(e) {
+	document.getElementById("basRadius").value=this.value;
+	window.api.send("toMain", "basRadius;"+objId+";"+this.value)
+}
+
+function grpParamsToGraph() {
+	document.getElementById("inpNom").value=objGraph.nom
+	document.getElementById("bkgGrpColor").value=objGraph.bkgColor
+	document.getElementById("bkgGrph").value=objGraph.bkgHeight
+	document.getElementById("ibkgGrp").value=objGraph.bkgImg
+	document.getElementById("bkgGrpOpacity").value=objGraph.bkgOpacity
+	document.getElementById("bkgGrpw").value=objGraph.bkgWidth
+	
+	document.getElementById("basGrpColor").value=objGraph.borderBc
+	document.getElementById("basRadius").value=objGraph.borderBr
+	document.getElementById("basType").value=objGraph.borderBs
+	document.getElementById("basWidth").value=objGraph.borderBw
+	
+	document.getElementById("droitGrpColor").value=objGraph.borderDc
+	document.getElementById("droitRadius").value=objGraph.borderDr
+	document.getElementById("droitGrpType").value=objGraph.borderDs
+	document.getElementById("droitWidth").value=objGraph.borderDw
+
+	document.getElementById("gaucheGrpColor").value=objGraph.borderGc
+	document.getElementById("gaucheRadius").value=objGraph.borderGr
+	document.getElementById("gaucheType").value=objGraph.borderGs
+	document.getElementById("gaucheWidth").value=objGraph.borderGw
+	document.getElementById("hautGrpColor").value=objGraph.borderHc
+	document.getElementById("hautRadius").value=objGraph.borderHr
+	document.getElementById("hautType").value=objGraph.borderHs
+	document.getElementById("hautWidth").value=objGraph.borderHw
+
+	if(objGraph.bkgTrp=="true"){
+		document.getElementById("bkgGrpTransparent").checked=true
+	}else{
+		document.getElementById("bkgGrpTransparent").checked=false
+	}
+	
+	console.log("grpParamsToGraph")
+}
+function grpGraphToString() {
+	var txt = document.getElementById('bkgColor').value+","+document.getElementById('bkgh').value+","+document.getElementById('objImg').style.backgroundImage+","+document.getElementById('bkgw').value+","+document.getElementById('basColor').value+","+document.getElementById('basRadius').value+","+document.getElementById('basType').value+","+document.getElementById('basWidth').value+","+document.getElementById('droitColor').value+","+document.getElementById('droitRadius').value+","+document.getElementById('droitType').value+","+document.getElementById('droitWidth').value+","+document.getElementById('gaucheColor').value+","+document.getElementById('gaucheRadius').value+","+document.getElementById('gaucheType').value+","+document.getElementById('gaucheWidth').value+","+document.getElementById('hautColor').value+","+document.getElementById('hautRadius').value+","+document.getElementById('hautType').value+","+document.getElementById('hautWidth').value
+		return txt
+}
+function grpStringToGraph(txt) {
+	var ntxt=txt.split(':')
+	objGraph = {
+	bkgColor:ntxt[0],
+	bkgHeight:parseFloat(ntxt[1]),
+	bkgImg:ntxt[2],
+	bkgOpacity:parseFloat(ntxt[3]),
+	bkgTrp:ntxt[4],
+	bkgWidth:parseFloat(ntxt[5]),
+	borderBc:ntxt[6],
+	borderBr:ntxt[7],
+	borderBs:ntxt[8],
+	borderBw:parseFloat(ntxt[9]),
+	borderDc:ntxt[10],
+	borderDr:ntxt[11],
+	borderDs:ntxt[12],
+	borderDw:parseFloat(ntxt[13]),
+	borderGc:ntxt[14],
+	borderGr:ntxt[15],
+	borderGs:ntxt[16],
+	borderGw:parseFloat(ntxt[17]),
+	borderHc:ntxt[18],
+	borderHr:ntxt[19],
+	borderHs:ntxt[20],
+	borderHw:parseFloat(ntxt[21]),
+	height:parseFloat(ntxt[22]),
+	nom:ntxt[23],
+	scaleX:parseFloat(ntxt[24]),
+	scaleY:parseFloat(ntxt[25]),
+	width:parseFloat(ntxt[26]),
+	}
+	console.log("grpStringToGraph",objGraph)
+}
+function symbGraphValid() {
+	window.api.send("toMain", "grpValid;"+objId)
+}
+function symbGraphAnnul() {
+	window.api.send("toMain", "grpAnnul;"+objId)
+}
+</script>
+</body>
+</html>
