@@ -1,0 +1,371 @@
+<!DOCTYPE HTML>
+<head>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-12-01T19:08:06+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spatialisation</title>
+</head>
+<body>
+<div id="Spacialisation" style="width:600px;height:710px;top:130px;">
+	<div id="spatialBlock" style="padding:0px;width:600px;height:600px;background-image:url('./images/png/spacial.png');">
+	<div id="spaceCur10" style="position:absolute;width:10px;height:10px;background-color:#f1b30a;top:143px;left:145px;"></div>
+	<div id="spaceCur20" style="position:absolute;width:10px;height:10px;background-color:#f1b30a;top:143px;left:448px;"></div>
+	<div id="spaceCur30" style="position:absolute;width:10px;height:10px;background-color:#f1b30a;top:445px;left:145px;"></div>
+	<div id="spaceCur4" style="position:absolute;width:10px;height:10px;background-color:#f1b30a;top:445px;left:445px;"></div>
+	</div>
+	<div style="width:400px;margin-top:20px;margin-left:10px;">X : <input id="curX" type="number" style="width:60px;" value="0"  min="-1" max="1" step="0.01" /> Y : <input id="curY" type="number" style="width:60px;" value="0" min="-1" max="1" step="0.01" /> Z : <input id="curZ"  type="number" style="width:60px;" value="0"  min="-1" max="1" step="0.01" /> D : <input id="curD" type="number" style="width:60px;" value="1"  min="0" max="1" step="0.01" /></div>
+	<span style="position:absolute;top:650px;left:50px;"><img id="studio3D" style="width: 35px; " alt="Studio 3D" title="Studio 3D" src="./images/png/sphereRot.png"  onclick='studio3D();'/><img id="pt3D" style="width: 35px;margin-left:8px;" alt="Points 3D"  src="./images/png/mpoints.png"  onclick='trajectoire();' /></span><span  style="position:absolute;top:655px;left:400px;"><button onclick='defautSpacialisation();'>Defaut</button><button style="margin-left:40px" onclick='annulSpacialisation();'>Annul</button> <button onclick='validSpacialisation();'>Ok</button></span>
+	</div>	
+</div>
+<script >
+let svSpatial=""
+let spatialId=""
+let vueStudio=0
+let winStudio3D=0
+let spT=[]
+let spX=[]
+let spY=[]
+let spZ=[]
+let spD=[]
+let gain=1
+dragElement3(document.getElementById("spaceCur10"));
+dragElement3(document.getElementById("spaceCur20"));
+dragElement3(document.getElementById("spaceCur30"));
+dragElement3(document.getElementById("spaceCur4"));
+
+window.api.receive("fromMain", (data) => {
+
+console.log(`objParam : `,data);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'defObjetSpatial':
+				spatialId=cmd[1]
+				gain=parseFloat(cmd[7])
+				defSpatial(cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
+				break
+			case 'createSpatialPoint':
+				//spatialId=cmd[1]
+				spT.push(cmd[3])
+				console.log("spT",cmd[3])
+				spD.push(1)
+				spX.push(0)
+				spY.push(0)
+				spZ.push(0)
+				defSpacialisation()
+				break
+			case 'spatialspT':
+				spatialspT(cmd[1],cmd[2])
+				break
+			case 'openStudio':
+				vueStudio=1
+				break
+			case 'openStudio3D':
+				winStudio3D=1
+				break
+			default :
+				
+				
+				break
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+function annulSpacialisation() {
+	window.api.send("toMain", "spatialAnnul;"+spatialId+";"+svSpatial)
+}
+function validSpacialisation() {
+	window.api.send("toMain", "spatialValid;"+spatialId+";"+svSpatial)
+}
+function defautSpacialisation() {
+	
+}
+function defSpatial(tt,tx,ty,tz,d,g) {
+	var tbt=tt.split(",")
+	for(let i=0;i<tbt.length;i++){
+		spT[i]=parseFloat(tbt[i])
+	}
+	for(let i=0;i<spT.length;i++){
+		spX[i]=0
+		spY[i]=0
+		spZ[i]=0
+		spD[i]=1
+	}
+	var tbx=tx.split(",")
+	spX=[].concat(tbx)
+	for(let i=0;i<tbx.length;i++){
+		spX[i]=parseFloat(tbx[i])
+	}
+	var tby=ty.split(",")
+	for(let i=0;i<tby.length;i++){
+		spY[i]=parseFloat(tby[i])
+	}
+	var tbz=tz.split(",")
+	for(let i=0;i<tbz.length;i++){
+		spZ[i]=parseFloat(tbz[i])
+	}
+	var tbd=d.split(",")
+	for(let i=0;i<tbd.length;i++){
+		spD[i]=parseFloat(tbd[i])
+	}
+	defSpacialisation()
+	console.log("spat param",spT,spX,spY,spZ,spD)
+}
+function trajectoire() {
+	window.api.send("toMain", "winTrajectoire;"+spatialId+";"+spT)
+}
+function dragElement3(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "Header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown3;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+	  	elmnt.onmousedown = dragMouseDown3;
+ 
+  }
+
+  function dragMouseDown3(e) {
+    e = e || window.event;
+    console.log("obj",elmnt.id,elmnt.id.substring(0,9));
+    e.preventDefault();
+    e.stopPropagation();
+    if(elmnt.id.substring(0,2)=="pt"){
+    	if(ptSpActif>0){
+	    	document.getElementById("pt"+ptSpActif).style.backgroundColor="#14fd02";
+	    	
+	    	document.getElementById("spaceCur1"+ptSpActif).style.backgroundColor="#14fd02";
+	    	document.getElementById("spaceCur2"+ptSpActif).style.backgroundColor="#14fd02";
+	    	document.getElementById("spaceCur3"+ptSpActif).style.backgroundColor="#14fd02";
+	    	
+	    	ptSpActif=parseInt(elmnt.id.substring(2));
+	    	document.getElementById("refPt").innerHTML="Pt : "+ptSpActif;
+    	}
+    }
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement3;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag3;
+  }
+	function elementDrag3(e) {
+  	 //elmnt.style.cursor="move";
+    e = e || window.event;
+    e.preventDefault();
+    e.stopPropagation();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    var dx=elmnt.offsetLeft - pos1;
+    var dy=elmnt.offsetTop - pos2;
+    
+    if(elmnt.id.substring(0,9)=="spaceCur1"){
+    	var dpt=elmnt.id.substring(9);
+    	
+    	if(dx<1){
+    		dx=1;
+    	}
+    	if(dx>295){
+    		dx=295;
+    	}
+    	if(dy<0){
+    		dy=0;
+    	}
+    	if(dy>296){
+    		dy=296;
+    	}
+    	console.log("winStudio3D",winStudio3D);
+    	var dvy=((dx-150)*0.0067);
+    	var dvx=((dy-150)*0.0068);
+    	document.getElementById("curX").value=dvx;
+    	document.getElementById("curZ").value=dvy;
+    	spX[dpt]=dvx
+    	spZ[dpt]=dvy
+    	window.api.send("toMain", "spatialspXZ;"+spatialId+";"+dpt+";"+dvx+";"+dvy)
+    	document.getElementById("spaceCur2"+dpt).style.left=(dx+300) + "px";
+    	document.getElementById("spaceCur3"+dpt).style.left=(dy-0) + "px";
+    	elmnt.style.left =dx + "px";
+		elmnt.style.top =dy + "px";
+		if(vueStudio==1){
+			window.api.send("toMain", "moveObjActif;"+spX+";"+spY+";"+spZ+";"+gain)
+		}
+		if(winStudio3D==1){
+			window.api.send("toMain", "move3dObj;"+spX+";"+spY+";"+spZ+";"+gain)
+		}
+    }
+    if(elmnt.id.substring(0,9)=="spaceCur2"){
+    	var dpt=elmnt.id.substring(9);
+    	if(dx<305){
+    		dx=305;
+    	}
+    	if(dx>595){
+    		dx=595;
+    	}
+    	if(dy<2){
+    		dy=2;
+    	}
+    	if(dy>296){
+    		dy=296;
+    	}
+    	var dvy=((dy-145)*0.0068);
+    	var dvx=((dx-450)*0.0068);
+    	spZ[dpt]=dvx
+    	spY[dpt]=dvy
+    	window.api.send("toMain", "spatialspZY;"+spatialId+";"+dpt+";"+dvx+";"+dvy)
+    	document.getElementById("curZ").value=dvx;
+    	document.getElementById("curY").value=dvy;
+    	document.getElementById("spaceCur1"+dpt).style.left=(dx-300) + "px";
+    	document.getElementById("spaceCur3"+dpt).style.top=(dy+300) + "px";
+    	elmnt.style.left =dx + "px";
+		elmnt.style.top =dy + "px";
+		if(vueStudio==1){
+			window.api.send("toMain", "moveObjActif;"+spX+";"+spY+";"+spZ+";"+gain)
+		}
+		if(winStudio3D==1){
+			window.api.send("toMain", "move3dObj;"+spX+";"+spY+";"+spZ+";"+gain)
+		}
+    }
+    if(elmnt.id.substring(0,9)=="spaceCur3"){
+    	var dpt=elmnt.id.substring(9);
+    	if(dx<1){
+    		dx=1;
+    	}
+    	if(dx>295){
+    		dx=295;
+    	}
+    	if(dy<300){
+    		dy=300;
+    	}
+    	if(dy>598){
+    		dy=598;
+    	}
+    	var dvy=((dy-477.5)*0.0067);
+    	var dvx=((dx-147)*0.0068);
+    	spX[dpt]=dvx
+    	spY[dpt]=dvy
+    	window.api.send("toMain", "spatialspXY;"+spatialId+";"+dpt+";"+dvx+";"+dvy)
+    	document.getElementById("curX").value=dvx;
+    	document.getElementById("curY").value=dvy;
+    	document.getElementById("spaceCur1"+dpt).style.top=(dx+0) + "px";
+    	document.getElementById("spaceCur2"+dpt).style.top=(dy-300) + "px";
+    	elmnt.style.left =dx + "px";
+		elmnt.style.top =dy + "px";
+		if(vueStudio==1){
+			window.api.send("toMain", "moveObjActif;"+spX+";"+spY+";"+spZ+";"+gain)
+		}
+		if(winStudio3D==1){
+			window.api.send("toMain", "move3dObj;"+spX+";"+spY+";"+spZ+";"+gain)
+		}	
+    }
+    if(elmnt.id.substring(0,9)=="spaceCur4"){
+    	var dpt=elmnt.id.substring(9);
+    	if(dx<300){
+    		dx=300;
+    	}
+    	if(dx>595){
+    		dx=595;
+    	}
+    	if(dy<300){
+    		dy=300;
+    	}
+    	if(dy>598){
+    		dy=598;
+    	}
+    	var dvy=((dy-445)*0.0067);
+    	var dvx=((dx-445)*0.0067);
+    	var dt=Math.sqrt((dvx*dvx)+(dvy*dvy));
+    	if(dt>1){
+    		dt=1;
+    	}
+    	if(dt<0.025){
+    		dt=0;
+    	}
+    	spD[dpt]=(1-dt);
+    	window.api.send("toMain", "spatialspD;"+spatialId+";"+dpt+";"+spD[dpt])
+    	document.getElementById("curD").value=spD[dpt];
+    	elmnt.style.left =dx + "px";
+		elmnt.style.top =dy + "px";
+    }
+  }
+
+  function closeDragElement3() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+    elmnt.style.cursor="default";
+  }
+}
+function defSpacialisation() {
+	dest=document.getElementById("spatialBlock");
+	dest.innerHTML="";
+
+	console.log(spT,spX,spY,spZ,spD)
+	for(let i=0;i<spT.length;i++){
+		var dx=(spX[i]*145);
+		var dy=(spY[i]*145);
+		var dz=(spZ[i]*145);
+		var dd=(spD[i]*145);
+
+		var dupnode1=document.createElement('div');
+		dupnode1.setAttribute("id","spaceCur1"+i);
+		dupnode1.setAttribute("style","position:absolute;top:"+(dx+150)+"px;left:"+(dz+145)+"px;width:10px;height:10px;background-color:#14fd02;");
+		dupnode1.setAttribute("title","Pt"+i);
+		dest.appendChild(dupnode1);
+		dragElement3(document.getElementById("spaceCur1"+i));
+		var dupnode2=document.createElement('div');
+		dupnode2.setAttribute("id","spaceCur2"+i);
+		dupnode2.setAttribute("style","position:absolute;top:"+(dy+150)+"px;left:"+(dz+455)+"px;width:10px;height:10px;background-color:#14fd02;");
+		dupnode2.setAttribute("title","Pt"+i);
+		dest.appendChild(dupnode2);
+		dragElement3(document.getElementById("spaceCur2"+i));
+		var dupnode3=document.createElement('div');
+		dupnode3.setAttribute("id","spaceCur3"+i);
+		dupnode3.setAttribute("style","position:absolute;top:"+(dy+450)+"px;left:"+(dx+145)+"px;width:10px;height:10px;background-color:#14fd02;");
+		dupnode3.setAttribute("title","Pt"+i);
+		dest.appendChild(dupnode3);
+		dragElement3(document.getElementById("spaceCur3"+i));
+		var dupnode4=document.createElement('div');
+		dupnode4.setAttribute("id","spaceCur4"+i);
+		dupnode4.setAttribute("style","position:absolute;top:"+(dd+300)+"px;left:"+(dd+300)+"px;width:10px;height:10px;background-color:#14fd02;");
+		dupnode4.setAttribute("title","D"+i);
+		dest.appendChild(dupnode4);
+		dragElement3(document.getElementById("spaceCur4"+i));
+	}
+	
+	var last=spT.length-1;
+	document.getElementById("curX").value=spX[last];
+	document.getElementById("curY").value=spY[last];
+	document.getElementById("curZ").value=spZ[last];
+	document.getElementById("curD").value=spD[last];
+	document.getElementById("spaceCur1"+last).style.backgroundColor="red";
+	document.getElementById("spaceCur2"+last).style.backgroundColor="red";
+	document.getElementById("spaceCur3"+last).style.backgroundColor="red";
+	document.getElementById("spaceCur4"+last).style.backgroundColor="red";
+	document.getElementById("spaceCur10").style.backgroundColor="#f1b30a";
+	document.getElementById("spaceCur20").style.backgroundColor="#f1b30a";
+	document.getElementById("spaceCur30").style.backgroundColor="#f1b30a";
+	document.getElementById("spaceCur40").style.backgroundColor="#f1b30a";
+	if(vueStudio==1){
+			window.api.send("toMain", "drawObjActif;"+spatialId+";"+spX+";"+spY+";"+spZ+";"+spD+";"+gain)
+	}
+}
+function spatialspT(pt,T) {
+	spT[pt]=parseFloat(T);
+}
+function studio3D() {
+	window.api.send("toMain", "openStudio3d;"+spX+";"+spY+";"+spZ+";"+gain)
+}
+</script>
+</body>
+</html>

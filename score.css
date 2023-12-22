@@ -1,0 +1,196 @@
+/* ==============================================
+   FEUILLE DE STYLES KANDISKYSCORE HTML/CSS --- 08
+   © D.Blanchemain
+   Ce fichier est sous licence GNU General Public License
+   ============================================== */
+
+
+body {
+	background-color: #f7f7f7;
+	padding:0px;
+	margin:0px;
+	font-family: Verdana, "Bitstream Vera Sans", "Lucida Grande", sans-serif;
+	font-size:.8em;
+}
+#global {
+	width: 100%;
+	margin: 0px;
+	padding:0px;
+}
+.draggable {
+  cursor: move;
+}
+
+
+#popupEdit {
+width:100%;
+background-color:#000000;
+z-index:7;
+}
+#popupEdit ul {
+padding: 4px; 
+margin:0px; 
+background-color: #000000;
+text-align:left;
+z-index:7;
+list-style: none;
+}
+#popupEdit li {
+background:#000000;
+}
+#popupEdit li:hover {
+background: #373f8a;
+}
+#popupEdit li.sousmenu:hover {
+background-color: #373f8a;
+}
+#popupEdit li span {
+text-decoration: none;
+padding: 4px 0 4px; 
+display:block;
+width:120px;
+height:18px;
+color:#ffffff;
+}
+
+#principal {
+	position:absolute;
+	top:0px;
+	left:0px;
+	width: 200px;
+	height:800px;
+	border: 1px solid #000000;
+	margin:0px;
+	z-index:0;
+	text-align:center;
+	background-color:#e2e2e2;
+}
+#secondaire {
+	position:absolute;
+	top:0px;
+	left: 200px;
+	width:1300px;
+	height:820px;
+	margin: 0px;
+	padding: 0px;
+	background-color: #f5f5f5;
+	border: 1px solid #000000;
+	overflow:hidden;
+}
+.palette {
+	padding:0px;
+	margin:0px;
+	border:1px solid black;
+}
+.pblock {
+	display:none;
+}
+#defArticulations td img{
+	width:80%;
+}
+#defBlockVerticaux  td img{
+	width:48px;
+}
+#defInscriptions td img{
+	width:80%;
+}
+#defpaletteLignes td img{
+	width:80%;
+}
+#defpaletteObjets td img{
+	width:80%;
+}
+#paramGlobal {
+	position:absolute;
+	top:0px;
+	left:0px;
+	padding:0px;
+	margin:0px;
+	width:1300px;
+	height:37px;
+}
+#paramFile button{
+	vertical-align:middle;
+	height:24px;
+	margin-top:4px;
+	padding-top:1px;
+	padding-left:8px;
+}
+#paramFile audio{
+   vertical-align:middle;
+	height:24px;
+	width:280px;
+	margin-top:4px;
+	margin-left:2px;
+}
+#renduFile audio{
+   vertical-align:middle;
+	height:24px;
+	width:280px;
+	margin-left:4px;
+}
+#renduFile button{
+	vertical-align:middle;
+	height:24px;
+}
+.slider-wrapper input {
+  margin: 0px;
+  width:100px;
+  transform-origin: 75px 75px;
+  transform: rotate(-90deg);
+}
+.slider{
+	margin:0px;
+   padding-top:0px;
+}
+.slider input {
+   margin:0px;
+	margin-left:32px;
+	width:200px;
+	height:8px;
+}
+.grille  {
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:1px;
+	height:0px;
+	background-color:black;
+	opacity:0.1;
+}
+.groupe{
+	border:0px solid black;
+}
+.selector{
+	border:1px dashed black;
+}
+.popupHeader{
+	margin:0px;
+	padding-top:4px;
+	width:100%;
+	height:24px;
+	background-color:#313237;
+	border-bottom:1px solid black;
+	text-align:center;
+	font-size:1.2em;
+}
+.popup{
+	position:absolute;
+	top:200px;
+	left:400px;
+	border:1px solid black;
+	display:none;
+	z-index:10;
+	overflow:hidden;
+	background-color:#f9f9fd;
+}
+.liste {
+	color:blue
+}
+.liste:hover {
+	color:red
+}
+.objet{
+}
+.space{
+}

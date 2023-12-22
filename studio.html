@@ -1,0 +1,249 @@
+<!DOCTYPE HTML>
+<title>D. Blanchemain</title>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-09-28T23:51:26+0200" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<style type="text/css">
+body {
+	background-color: #132535;
+	padding:0px;
+	margin:0px;
+}
+</style>
+<script>
+
+
+
+
+
+</script>
+
+</head>
+<body >
+<div id="studioDiv" style='margin-top:8px;margin-left:8px;width:804px;height:604px;text-align:center;'><img alt="studio" style="width:100%;height:100%;" src="./images/png/virtualStd.png" /><div id="studioDivb"></div><div style="position:absolute;top:800px;left:10px;color:white;" id="compteur" ></div></div>
+
+<script  type="text/javascript" >
+window.api.receive("fromMain", (data) => {
+console.log(`objParam : `,data);
+
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'moveObjActif':
+				defSpatial(cmd[1],cmd[2],cmd[3],cmd[4])
+				console.log("move studio1");
+				moveObjActif()
+				break
+			case 'drawObjActif':
+				defSpatial(cmd[1],cmd[2],cmd[3],cmd[4])
+				drawObjActif()
+				break
+			case 'createEvtAudio':
+				createEvtAudio(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
+				break
+			case 'delEvtAudio':
+				removeEvt(cmd[1])
+				break
+			default :
+				
+				
+				break
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+let studioWidth=864;
+let studioHeight=664;
+window.resizeTo(864,664)
+let studioCx=studioWidth/2
+let studioCy=studioHeight/2
+let studioCxl=studioWidth/3
+let studioCxr=(studioWidth-studioCxl-studioCxl)/2;
+//let studioCxr=studioCxl/2
+let studioCyl=studioHeight/3
+let studioCyr=(studioHeight-studioCyl-studioCyl)/2;
+//let studioCyr=studioCyl/2
+console.log("width",studioWidth,studioHeight,"cx",studioCx,"cl",studioCxl,"cr",studioCxr,"cyl",studioCyl,"cyr",studioCyr);
+let ngrp=[];
+upDateStudio()
+window.addEventListener("resize", upDateStudio);
+
+document.getElementById("studioDivb").innerHTML="";
+function synchroTime(id){
+	if(document.getElementById(id)){
+		removeEvt(id);
+	}
+}
+let spX=[]
+let spY=[]
+let spZ=[]
+let gain=1
+function defSpatial(tx,ty,tz,g) {
+	
+	for(let i=0;i<spX.length;i++){
+		spX[i]=0
+		spY[i]=0
+		spZ[i]=0
+	}
+	var tbx=tx.split(",")
+	spX=[].concat(tbx)
+	for(let i=0;i<tbx.length;i++){
+		spX[i]=parseFloat(tbx[i])
+	}
+	var tby=ty.split(",")
+	for(let i=0;i<tby.length;i++){
+		spY[i]=parseFloat(tby[i])/2
+	}
+	var tbz=tz.split(",")
+	for(let i=0;i<tbz.length;i++){
+		spZ[i]=parseFloat(tbz[i])
+	}
+	gain=parseFloat(g)
+	console.log("spat param",spX,spY,spZ,g)
+}
+function createEvtAudio(id,posX,posY,lscale,width,zindex,image) {
+	posX=parseFloat(posX)
+	posY=parseFloat(posY)
+	width=parseFloat(width)
+	zindex=parseFloat(zindex)
+	
+	var cX=studioCx+(studioCxl*posX*lscale)+(studioCxr*posX);
+	var cY=studioCy+(posY*studioCyl*lscale)+(studioCyr*posY);
+	
+	console.log("studio coord",posX,posY,cX,cY,lscale)
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",id);
+	dupnode.setAttribute("style","position:absolute;top:"+(cY-(width/2))+"px;left:"+(cX-(width/2))+"px;width:"+width+"px;height:"+width+"px;z-index:"+zindex+";)");
+	var dupnode2=document.createElement('img');
+	dupnode2.setAttribute("src",image);
+	dupnode2.setAttribute("style","width:100%;height:100%;");
+	dupnode.appendChild(dupnode2);
+	document.getElementById("studioDivb").appendChild(dupnode);
+}
+function createEvt(compteur) {
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",ngrp[compteur].id);
+	dupnode.setAttribute("style","position:absolute;top:"+(ngrp[compteur].posY-(ngrp[compteur].width/2))+"px;left:"+(ngrp[compteur].posX-(ngrp[compteur].width/2))+"px;width:"+ngrp[compteur].width+"px;height:"+ngrp[compteur].width+"px;z-index:"+ngrp[compteur].zindex+";)");
+	var dupnode2=document.createElement('img');
+	dupnode2.setAttribute("src",ngrp[compteur].image);
+	dupnode2.setAttribute("style","width:100%;height:100%;");
+	dupnode.appendChild(dupnode2);
+	document.getElementById("studioDivb").appendChild(dupnode);
+}
+function removeEvt(id) {
+	let obj=document.getElementById(id);
+	document.getElementById("studioDivb").removeChild(obj);
+}
+function upDateStudio(){
+	studioWidth=window.innerWidth-20;
+	studioHeight=window.innerHeight-24;
+	document.getElementById("studioDiv").style.width=studioWidth+"px";
+	document.getElementById("studioDiv").style.height=studioHeight+"px";
+	studioCx=studioWidth/2;
+	studioCy=studioHeight/2;
+	studioCxl=studioWidth/3;
+	studioCxr=(studioWidth-studioCxl-studioCxl)/2;
+	studioCyl=studioHeight/3;
+	studioCyr=(studioHeight-studioCyl-studioCyl)/2;
+	console.log("width",studioWidth,studioHeight,"cx",studioCx,"cl",studioCxl,"cr",studioCxr,"cyl",studioCyl,"cyr",studioCyr);
+
+}
+function drawObjActif(){
+	document.getElementById("studioDivb").innerHTML="";
+	for(let i=0;i<spX.length;i++){
+		var lscale=(1-spZ[i])/2;
+		var pX=studioCx+((studioCxl*spX[i]*lscale)+(studioCxr*spX[i]))+50;
+		var pY=studioCy+((spY[i]*studioCyl*lscale)+(studioCyr*spY[i]))+50;
+		lscale=lscale+0.8;
+		if (gain<0.30){
+			var ws=30*lscale;
+			var im="./images/png/path4484.png";
+		}
+		if (gain>=0.30 && gain<0.60){
+			var ws=35*lscale;
+			var im="./images/png/path4488.png";
+		} 
+		if (gain>=0.60 && gain<0.90){
+			var ws=40*lscale;
+			var im="./images/png/path4487.png";
+		}
+		if (gain>=0.90 && gain<1.10){
+			var ws=50*lscale;
+			var im="./images/png/path4486.png";
+		}
+		if (gain>=1.10 && gain<1.5){
+			var ws=60*lscale;
+			var im="./images/png/path4489.png";
+		}
+		if (gain>=1.5 && gain<2.0){
+			var ws=70*lscale;
+			var im="./images/png/path4490.png";
+		}
+		if (gain>=2.0){
+			var ws=80*lscale;
+			var im="./images/png/path4485.png";
+		}
+		
+		var dupnode=document.createElement('div');
+		dupnode.setAttribute("id","Pt"+i);
+		dupnode.setAttribute("title","Pt"+i);
+		dupnode.setAttribute("style","position:absolute;top:"+(pY-(ws/2))+"px;left:"+(pX-(ws/2))+"px;width:"+ws+"px;height:"+ws+"px;z-index:"+Math.round((lscale+1)*100)+";");
+		var dupnode2=document.createElement('img');
+		dupnode2.setAttribute("src",im);
+		dupnode2.setAttribute("style","width:100%;height:100%;");
+		dupnode.appendChild(dupnode2);
+		document.getElementById("studioDivb").appendChild(dupnode);
+	}
+	
+	
+}
+
+function moveObjActif(){
+
+	for(let i=0;i<spX.length;i++){
+		var lscale=(1-spZ[i])/2;
+		var pX=studioCx+((studioCxl*spX[i]*lscale)+(studioCxr*spX[i]))+50;
+		var pY=studioCy+((spY[i]*studioCyl*lscale)+(studioCyr*spY[i]))+50;
+		lscale=lscale+0.8;
+		if (gain<0.30){
+			var ws=30*lscale;
+		}
+		if (gain>=0.30 && gain<0.60){
+			var ws=35*lscale;
+		} 
+		if (gain>=0.60 && gain<0.90){
+			var ws=40*lscale;
+		}
+		if (gain>=0.90 && gain<1.10){
+			var ws=50*lscale;
+		}
+		if (gain>=1.10 && gain<1.5){
+			var ws=60*lscale;
+		}
+		if (gain>=1.5 && gain<2.0){
+			var ws=70*lscale;
+		}
+		if (gain>=2.0){
+			var ws=80*lscale;
+		}
+		document.getElementById("Pt"+i).style.left=(pX-(ws/2))+"px";
+		document.getElementById("Pt"+i).style.top=(pY-(ws/2))+"px";
+		document.getElementById("Pt"+i).style.width=ws+"px";
+		document.getElementById("Pt"+i).style.height=ws+"px";
+		document.getElementById("Pt"+i).style.zIndex=Math.round((lscale+1)*100);
+	}
+	
+}
+window.addEventListener('unload', function (e) { 
+        window.opener.studioClose();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+ <!-- Ce fichier appartient à l'application Kandiskyscore.
+	Ce logiciel est sous license GNU.: GPL-3.0-or-later
+	Auteur : D.Blanchemain
+	***************************************************** variables globales **************************
+	License
+	
+	This Architecture section is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+	
+	 You should have received a copy of the GNU General Public License along with this program; If not, see http://www.gnu.org/licenses.var 		-->
+<html>
+  <head>   
+		<meta name="generator" content="Bluefish 2.2.12" />
+		<meta name="author" content="dominique" />
+		<meta name="date" content="2023-09-22T19:13:14+0200" />
+		<meta name="copyright" content="D. Blanchemain"/>
+		<meta name="keywords" content=""/>
+		<meta name="description" content=""/>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+		<meta http-equiv="content-style-type" content="text/css"/>
+		<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+		<meta http-equiv="expires" content="0"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Trajectoire</title>
+  </head>
+  <body>
+	 
+  	<div id="points3D" style="width:580px;height:210px;top:130px;left:250px;">
+	<div id="addpt" style="position:absolute;top:60px;left:20px;width:28px;height:28px"><img id="addPoint" style="width: 18px; " alt="addpt"  src="./images/png/add.png"  /></div>
+	<div id="subpt" style="position:absolute;top:100px;left:20px;width:28px;height:28px"><img id="subPoint" style="width: 18px; " alt="addpt"  src="./images/png/sub.png"  /></div>
+	<div id="pointTmp" style="position:absolute;top:70px;left:60px;width:538px;height:36px;background-image:url('./images/png/regle.png');background-size:600px 36px;">
+	<div id="pt0" style="position:absolute;top:26px;left:8px;width:10px;height:10px;background-color:#f1b30a;"></div>
+	</div>
+	<div  style="position:absolute;top:50px;left:60px;width:400px;"><span id="defOrgT">T0 </span><span id="defOrgFT" style="position:absolute;top:0px;left:520px;width:50px;" >Dt : </span></div>
+	<div  style="position:absolute;top:140px;left:230px;width:150px;height:10px;"><span id="refPt">Pt : 0</span><input id="ptv" type="number" style="margin-left:20px;width:60px;" value="0"  min="-1" max="1" step="0.01" /></div>
+		<span  style="position:absolute;top:170px;left:400px;"><button onclick='defaut();'>Defaut</button><button style="margin-left:40px"  onclick="annulPointsSpacial();">Annul</button> <button onclick='validPointsSpacial();'>Ok</button></span>
+	</div>
+  
+<script type="text/javascript">
+let spatialId=0
+let ptSpActif=0
+let nbpoints=0
+let spT=[]
+let rspT=[]
+
+let objActif=0
+
+dragElement4(document.getElementById("pt0"));
+
+document.getElementById("addpt").addEventListener('click', addPointsSpacial,false);
+document.getElementById("subpt").addEventListener('click', delPointsSpacial,false);
+
+window.api.receive("fromMain", (data) => {
+
+console.log(`objParam : `,data);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'deftrajectoire':
+				spatialId=cmd[1]
+				trajectoire(cmd[2])
+				break
+			
+			default :
+				
+				
+				break
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+function trajectoire(tt) {
+	var tbt=tt.split(",")
+	for(let i=0;i<tbt.length;i++){
+		spT[i]=parseFloat(tbt[i])
+	}
+	rspT=[].concat(spT)
+	defSpacialisation()
+	console.log(spT)
+}
+function dragElement4(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "Header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown3;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+	  	elmnt.onmousedown = dragMouseDown4;
+ 
+  }
+
+  function dragMouseDown4(e) {
+    e = e || window.event;
+    console.log("obj",elmnt.id,elmnt.id.substring(0,9));
+    e.preventDefault();
+    e.stopPropagation();
+    if(elmnt.id.substring(0,2)=="pt"){
+    	if(ptSpActif>0){
+	    	document.getElementById("pt"+ptSpActif).style.backgroundColor="#14fd02";
+	    	
+	    	
+	    	
+	    	ptSpActif=parseInt(elmnt.id.substring(2));
+	    	document.getElementById("refPt").innerHTML="Pt : "+ptSpActif;
+    	}
+    }
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement4;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag4;
+  }
+	function elementDrag4(e) {
+  	 //elmnt.style.cursor="move";
+    e = e || window.event;
+    e.preventDefault();
+    e.stopPropagation();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    var dx=elmnt.offsetLeft - pos1;
+    var dy=elmnt.offsetTop - pos2;
+    if(elmnt.id.substring(0,2)=="pt"){
+    	if(parseInt(elmnt.id.substring(2))>0){
+	    	elmnt.style.backgroundColor="red";
+	    	var posPt=spT[ptSpActif-1]/0.001666;
+	    	if(dx<posPt+20){
+	    		dx=posPt+20;
+	    	}
+	    	var posPt=spT[ptSpActif+1]/0.001666;
+	    	if(dx>posPt-20){
+	    		dx=posPt-20;
+	    	}
+	    	if(dx>530){
+	    		dx=530;
+	    	}
+	    	elmnt.style.left=dx + "px";
+	    	spT[ptSpActif]=dx*0.001666;
+	    	var dtt=dx*0.001666
+	    	if(dtt>1){
+	    		dtt=1
+	    	}
+	    	document.getElementById("ptv").value=dtt.toFixed(2);
+	    	window.api.send("toMain", "spatialspT;"+spatialId+";"+ptSpActif+";"+dtt)
+    	}
+    }
+    
+  }
+
+  function closeDragElement4() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+    elmnt.style.cursor="default";
+  }
+}
+
+function addPointsSpacial() {
+	var dest=document.getElementById("pointTmp");
+	if(ptSpActif>0){
+		document.getElementById("pt"+ptSpActif).style.backgroundColor="#14fd02";
+	}
+	ptSpActif=spT.length;
+	tPosX=(spT[ptSpActif-1]/0.001666)+20;
+	spT.push(tPosX*0.001666);
+	console.log("new point",)
+	defSpacialisation();
+	window.api.send("toMain", "createSpatialPoint;"+spatialId+";"+ptSpActif+";"+(tPosX*0.001666))
+	console.log("new point",spT)
+}	
+function delPointsSpacial() {
+	var dest=document.getElementById("pointTmp");
+	dest.removeChild(document.getElementById("pt"+ptSpActif));
+	spT.splice(ptSpActif,1);
+	
+	defSpacialisation();
+}
+function defaut() {
+	for(let i=1;i<spT.length;i++){
+		var dest=document.getElementById("pointTmp");
+		dest.removeChild(document.getElementById("pt"+i));
+		
+	}
+	spT.splice(1,spT.length);
+	ptSpActif=0
+	console.log(spT)
+}
+function annulPointsSpacial(){
+	spT=[].concat(rspT)
+	window.api.send("toMain", "spatialAnnulPoints;"+spatialId)
+}
+function validPointsSpacial(){
+	window.api.send("toMain", "spatialAnnulPoints;"+spatialId)
+}
+function defSpacialisation() {
+	dest=document.getElementById("pointTmp");
+	dest.innerHTML="";
+
+	for(let i=0;i<spT.length;i++){
+		if(i==0){
+			var tPosX=8;
+		}else{
+			var tPosX=(spT[i]/0.001666)
+		}
+		var dupnode4=document.createElement('div');
+		dupnode4.setAttribute("id","pt"+i);
+		dupnode4.setAttribute("style","position:absolute;top:26px;left:"+tPosX+"px;width:10px;height:10px;background-color:#14fd02;");
+		dupnode4.setAttribute("title","Pt"+i);
+		dest.appendChild(dupnode4);
+		dragElement4(document.getElementById("pt"+i));
+	}
+	var last=spT.length-1;
+	document.getElementById("pt0").style.backgroundColor="#f1b30a";
+	if(last>0){
+		document.getElementById("pt"+last).style.backgroundColor="red";
+	}
+	ptSpActif=last;
+	
+}
+</script>
+  </body>
+</html>

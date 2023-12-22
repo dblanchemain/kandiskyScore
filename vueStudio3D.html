@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<title>D. Blanchemain</title>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2023-12-22T11:37:34+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<script type="module" src="./vueStudio3d.js" ></script>
+
+
+<style>
+	body { margin: 0; }
+</style>
+<script  >
+window.api.receive("fromMain", (data) => {
+console.log(`objParam : `,data);
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'moveObjActif':
+			console.log('modi',cmd[1])
+				defLstSpeakers(cmd[1])
+				break
+			case 'draw3dObj':
+				defLstSpeakers(cmd[1])
+				break
+	}  
+	 //console.log(`objParam :`,cmd[0]);      
+});
+
+let spX=[]
+let spY=[]
+let spZ=[]
+let drawEtat=0
+let tableSpeakers=[]
+function defLstSpeakers(txt){
+	tableSpeakers=[]
+	var lspeakers=txt.split("\n")
+	for(let i=0;i<lspeakers.length-1;i++){
+		var dspeakers=lspeakers[i].split(',')
+		var sp={
+			canal:parseInt(dspeakers[0]),
+			posX:parseFloat(dspeakers[1]),
+			posY:parseFloat(dspeakers[2]),
+			posZ:parseFloat(dspeakers[3])
+			}
+		tableSpeakers.push(sp)
+	}
+	drawEtat=1
+	console.log('tableSpeakers',tableSpeakers)
+}
+function defSpatial(tx,ty,tz,g) {
+	
+	for(let i=0;i<spX.length;i++){
+		spX[i]=0
+		spY[i]=0
+		spZ[i]=0
+	}
+	var tbx=tx.split(",")
+	spX=[].concat(tbx)
+	for(let i=0;i<tbx.length;i++){
+		spX[i]=parseFloat(tbx[i])
+	}
+	var tby=ty.split(",")
+	for(let i=0;i<tby.length;i++){
+		spY[i]=parseFloat(tby[i])
+	}
+	var tbz=tz.split(",")
+	for(let i=0;i<tbz.length;i++){
+		spZ[i]=parseFloat(tbz[i])
+	}
+	gain=parseFloat(g)
+	console.log("spat param",spX,spY,spZ,g)
+	
+}
+</script>
+
+
+</head>
+<body >
+
+
+
+</body>
+</html>
