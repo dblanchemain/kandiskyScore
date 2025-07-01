@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-08T11:24:01+0100" />
+<meta name="date" content="2025-04-24T10:00:47+0200" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -27,22 +27,26 @@
 	     <input id="selectDroitColor" type="color" style="display:none" value="#ffffff" />
 	     <input id="selectBasColor" type="color" style="display:none" value="#ffffff" />
 		</div>
-		<div  id="objDimXY" style="position:absolute;top:30px;left:130px;"><span>Dim XY : </span><input  id="objDim" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="10" step="0.1" />
+		<div  id="objDimXY" style="position:absolute;top:30px;left:130px;"><span>Dim XY : </span><input  id="objDim" style="width:64px;height:24px;" type="number"  value="1" min="0.01" max="50" step="0.001" />
 		</div>
 		<div  id="rotation" style="position:absolute;top:30px;left:130px;"><span>Rotate : </span><input  id="objRotate" style="width:44px;height:24px;" type="number"  value="0" min="-180" max="180" step="1" />
 		</div>
-		<div  id="objLong" style="position:absolute;top:30px;left:250px;"><span>Dim X : </span><input  id="objWidth" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="10" step="0.1" />
+		<div  id="objLong" style="position:absolute;top:30px;left:270px;"><span>Dim X : </span><input  id="objWidth" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="50" step="0.1" />
 		</div>
-		<div  id="objHauteur" style="position:absolute;top:30px;left:365px;"><span>Dim Y : </span><input  id="objHeight" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="10" step="0.1" />
+		<div  id="objHauteur" style="position:absolute;top:30px;left:385px;"><span>Dim Y : </span><input  id="objHeight" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="30" step="0.1" />
+		</div>
+		<div  id="objHauteur2" style="position:absolute;top:30px;left:385px;display:none;"><span>Dim Y : </span><input  id="objHeight2" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="30" step="0.1" />
+		</div>
+		<div  id="objHauteur3" style="position:absolute;top:30px;left:385px;display:none;"><span>Dim Y : </span><input  id="objHeight3" style="width:44px;height:24px;" type="number"  value="1" min="0.1" max="30" step="0.1" />
 		</div>
 </div>
-<div style="position:absolute;top:134px;left:10px;border:1px solid black;width:510px;height:76px;"> </div>
+<div style="position:absolute;top:134px;left:10px;border:1px solid black;width:550px;height:76px;"> </div>
 <div  style="position:absolute;top:90px;left:40px;" ><span id="bordure">Bordure : </span><input  id="epsBordure" style="width:44px;" type="number" step="1" value="0"  value="0" min="0" max="10"/><span id="bdcolor">  Couleur :</span> <input id="bordureColor" type="color" value="#ffffff"/>  &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<span id="opacity">Opacité : </span><input id="objOpacity" type="number" value="1" min="0" max="1" step="0.1" /></div>
 <div style="position:absolute;top:144px;left:30px;"><span id="bkg">Arrière-plan : </span><input id="ibkg" type="text" style="width:90px" value="" /></div>
 <div ><span id="transpa" style="position:absolute;top:146px;left:230px;"> Transparence : </span><span style="position:absolute;top:144px;left:330px;"><input id="bkgTransparent" type="checkbox" checked /> &nbsp;&nbsp;<span id="bkgOpac">Bkg Opacité : </span><input id="bkgOpacity" style="width:40px;"type="number" value="1" min="0" max="1" step="0.1" /></span></div>
 <div   style="position:absolute;top:175px;left:30px;" ><span id="lbwidth">Largeur :</span> <input id="bkgw" style="width:60px;" type="number" value="50" step="1" /><span id="lbheight">Hauteur : </span><input id="bkgh" type="number" style="width:60px;" step="1" value="50"/><span id="lbbkgcolor">  Couleur : </span><input id="bkgColor" type="color" value="transparent"/></div>
 
-<table style="position:absolute;top:220px;left:10px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
+<table style="position:absolute;top:220px;left:50px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
 	<tbody>
 		<tr><td id="lbcadre" colspan="6" style="text-align:center; "> Cadre </td></tr>
 		<tr><td style="border:0px;"></td><td id="tp" >Type</td><td id="ep" >Épais.</td><td id="rd" >Radius</td><td id="cl" >Couleur</td><td id="mg" >Marge</td></tr>
@@ -52,7 +56,7 @@
 		<tr><td id="lbbas">Bas</td><td><form action=""><select id="basType" size="1"><option value="none" id="pb4" >Pas de bordure</option><option value="dotted" id="pt4">Pointillés</option><option id="dh4" value="dashed">Tirets</option><option value="solid" id="plein4">Pleine</option><option value="double" id="double4">Double</option></select></form></td><td><input id="basWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="basRadius" style="width:84px;height:24px;" type="text"  /></td><td  style="border:none;" ><input id="basColor" type="color"  value="#ffffff" /></td><td style="border:none;" ></td></tr>
 	</tbody>
 </table>
-	<div style="position:absolute;top:500px;left:310px;" ><button id="lbannul" onclick='objGraphAnnul();'>Annuler</button> <button id="lbvalid" onclick='objGraphValid();'>Valider</button></div>
+	<div style="position:absolute;top:500px;left:450px;" > <button id="lbvalid" onclick='objGraphValid();'>Ok</button></div>
 
 <script>
 let objId=0;
@@ -127,7 +131,7 @@ document.getElementById('pt4').innerHTML=tableLang["objgPoint"]
 document.getElementById('dh4').innerHTML=tableLang["objgTir"]
 document.getElementById('plein4').innerHTML=tableLang["objgPlein"]
 document.getElementById('double4').innerHTML=tableLang["objgDouble"]
-document.getElementById('lbannul').innerHTML=tableLang["objgAnnul"]
+
 document.getElementById('lbvalid').firstChild.innerHTML=tableLang["objgValid"]
 }
 
@@ -142,6 +146,8 @@ document.getElementById("plHaut").addEventListener('input',defMargeHaut)
 document.getElementById("objDim").addEventListener('input',objDimXY)
 document.getElementById("objLong").addEventListener('input',objScaleX)
 document.getElementById("objHauteur").addEventListener('input',objScaleY)
+document.getElementById("objHauteur2").addEventListener('input',objScaleY2)
+document.getElementById("objHauteur3").addEventListener('input',objScaleY3)
 document.getElementById("objRotate").addEventListener('input',objRotate)
 
 document.getElementById("objOpacity").addEventListener('input',objetOpacity)
@@ -160,19 +166,16 @@ document.getElementById("basType").addEventListener('input',defBasType)
 document.getElementById("basWidth").addEventListener('input',defBasWidth)
 document.getElementById("basRadius").addEventListener('input',defBasRadius)
 
-document.getElementById("plGauche").addEventListener('input',defMargeGauche)
 
 var type=0
 window.api.receive("fromMain", (data) => {
 
-console.log(`defGraphObjet : `,data);
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
 			case 'defBkgImg':
 				var txt = cmd[2].split('/')
 				var txt2=txt[txt.length-1].split('.')
-				console.log(`graph:`,cmd[1],cmd[2],txt,txt2[0])
 				document.getElementById("ibkg").value=txt[txt.length-1]
 				objGraph.bkgImg=txt[txt.length-1]
 				document.getElementById("objImg").style.backgroundImage='url('+cmd[2]+')'
@@ -181,7 +184,6 @@ console.log(`defGraphObjet : `,data);
 				document.getElementById("objImg").style.backgroundSize=sw+"px "+sh+"px"
 				break
 			case 'defGraphObjet':
-				console.log(`graph:`,cmd[1])
 				lang=cmd[2]
 				importLang('./Local/'+lang+'/objGraph-'+lang+".txt")
 				objetStringToGraph(cmd[3])
@@ -265,8 +267,12 @@ console.log(`defGraphObjet : `,data);
 						document.getElementById("rotation").style.display='none'
 						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
 						document.getElementById("objLong").style.display='block'
-						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objLong").style.left="215px"
 						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("objHauteur").style.left="330px"
+						document.getElementById("objHauteur2").style.display='block'
+						document.getElementById("objHauteur2").style.left="445px"
+						document.getElementById("objHauteur2").firstChild.innerHTML="R : "
 						document.getElementById("plGauche").style.display='block'
 						document.getElementById("plHaut").style.display='block'
 						break
@@ -277,8 +283,12 @@ console.log(`defGraphObjet : `,data);
 						document.getElementById("rotation").style.display='none'
 						document.getElementById("objLong").firstChild.innerHTML="Dim X : "
 						document.getElementById("objLong").style.display='block'
-						document.getElementById("objHauteur").firstChild.innerHTML="Dim Y : "
+						document.getElementById("objLong").style.left="215px"
 						document.getElementById("objHauteur").style.display='block'
+						document.getElementById("objHauteur").style.left="330px"
+						document.getElementById("objHauteur3").style.display='block'
+						document.getElementById("objHauteur3").style.left="445px"
+						document.getElementById("objHauteur3").firstChild.innerHTML="H : "
 						document.getElementById("plGauche").style.display='block'
 						document.getElementById("plHaut").style.display='block'
 						break
@@ -462,10 +472,8 @@ console.log(`defGraphObjet : `,data);
 						document.getElementById("plHaut").style.display='none'
 						break
 				}
-				console.log(`graph:`,document.getElementById("objImg"))
 			
-	}  
-	 //console.log(`objParam :`,cmd[0]);      
+	}       
 });
 function objDimXY(e) {
 	switch(type) {
@@ -548,15 +556,52 @@ function objetRayon(e) {
 }
 function objScaleXY(e) {
 	var scaleXY=parseFloat(document.getElementById("objDim").value)
-	window.api.send("toMain", "objScaleXY;"+objId+";"+scaleXY)
+	document.getElementById("objWidth").value=scaleXY
+	document.getElementById("objHeight").value=scaleXY
+	document.getElementById("bkgw").value=parseFloat(objGraph.bkgWidth)*scaleXY
+	document.getElementById("bkgh").value=parseFloat(objGraph.bkgHeight)*scaleXY
+	defBkgWidth();
+	defBkgHeight();
+	if(!isNaN(scaleXY)){
+		window.api.send("toMain", "objScaleXY;"+objId+";"+scaleXY)
+	}
 }
 function objScaleX(e) {
 	var scaleX=parseFloat(document.getElementById("objWidth").value)
-	window.api.send("toMain", "objScaleX;"+objId+";"+scaleX)
+	var scaleY2=1
+	document.getElementById("bkgw").value=(20*scaleX)+(20*scaleY2)
+	defBkgWidth();
+	if(!isNaN(scaleX)){
+				window.api.send("toMain", "objScaleX;"+objId+";"+scaleX)
+			}
 }
 function objScaleY(e) {
 	var scaleY=parseFloat(document.getElementById("objHeight").value)
-	window.api.send("toMain", "objScaleY;"+objId+";"+scaleY)
+	document.getElementById("bkgh").value=parseFloat(objGraph.height)*scaleY
+	defBkgHeight();
+	if(!isNaN(scaleY)){
+		window.api.send("toMain", "objScaleY2;"+objId+";"+scaleY)
+	}
+}
+function objScaleY2(e) {
+	var scaleY=parseFloat(document.getElementById("objHeight2").value)
+	document.getElementById("bkgh").value=parseFloat(objGraph.height)*scaleY
+	document.getElementById("plHaut").value=parseFloat(document.getElementById("bkgh").value)/2
+	document.getElementById("plGauche").value=parseFloat(document.getElementById("bkgw").value)/2
+	defBkgHeight();
+	if(!isNaN(scaleY)){
+		window.api.send("toMain", "objScaleY;"+objId+";"+scaleY)
+	}
+}
+function objScaleY3(e) {
+	var scaleY=parseFloat(document.getElementById("objHeight3").value)
+	document.getElementById("bkgh").value=parseFloat(objGraph.height)*scaleY
+	document.getElementById("plHaut").value=0
+	document.getElementById("plGauche").value=0
+	defBkgHeight();
+	if(!isNaN(scaleY)){
+		window.api.send("toMain", "objScaleY;"+objId+";"+scaleY)
+	}
 }
 function objRotate(e) {
 	var rotate=document.getElementById("objRotate").value
@@ -602,7 +647,6 @@ inpColor.addEventListener("click", (e) => {
 objColor.addEventListener("change", defColor, false);
 
 function defColor(e) {
-console.log(this.value)
 	document.getElementById("objImg").firstChild.firstChild.setAttribute("fill",this.value)
 	document.getElementById("objImg").firstChild.firstChild.setAttribute("stroke",this.value)
 	window.api.send("toMain", "objColor;"+objId+";"+this.value)
@@ -793,23 +837,25 @@ function objetParamsToGraph() {
 	document.getElementById("epsBordure").value=objGraph.objBorderW
 	document.getElementById("objParamColor").setAttribute("fill",objGraph.objColor)
 	document.getElementById("objOpacity").value=objGraph.objOpacity
+	document.getElementById("objDim").value=objGraph.scaleX
 	document.getElementById("objWidth").value=objGraph.scaleX
 	document.getElementById("objHeight").value=objGraph.scaleY
+	document.getElementById("objHeight2").value=objGraph.scaleY2
 	document.getElementById("objImg").style.backgroundImage='url('+objGraph.bkgImg+')'
 	document.getElementById("objImg").style.backgroundSize=objGraph.bkgWidth+"px "+objGraph.bkgHeight+"px"
 	document.getElementById("objImg").style.backgroundColor=document.getElementById("bkgColor").value
 	document.getElementById("objParamColor").setAttribute("stroke",objGraph.objBorderC)
 	document.getElementById("objParamColor").setAttribute("stroke-width",objGraph.objBorderW)
 	
-	if(objGraph.bkgTrp=="true"){
+	if(objGraph.bkgTrp==true){
 		document.getElementById("bkgTransparent").checked=true
 	}else{
 		document.getElementById("bkgTransparent").checked=false
 	}
-	
-	console.log("objetParamsToGraph")
+	console.log(objGraph)
 }
 function objetGraphToString() {
+//console.log("bkg",document.getElementById('bkgColor').value)
 	var txt = document.getElementById('bkgColor').value+","+document.getElementById('bkgh').value+","+document.getElementById('objImg').style.backgroundImage+","+document.getElementById('bkgw').value+","+document.getElementById('basColor').value+","+document.getElementById('basRadius').value+","+document.getElementById('basType').value+","+document.getElementById('basWidth').value+","+document.getElementById('droitColor').value+","+document.getElementById('droitRadius').value+","+document.getElementById('droitType').value+","+document.getElementById('droitWidth').value+","+document.getElementById('gaucheColor').value+","+document.getElementById('gaucheRadius').value+","+document.getElementById('gaucheType').value+","+document.getElementById('gaucheWidth').value+","+document.getElementById('hautColor').value+","+document.getElementById('hautRadius').value+","+document.getElementById('hautType').value+","+document.getElementById('hautWidth').value+","+document.getElementById('plGauche').value+","+document.getElementById('plHaut').value+","+document.getElementById('bordureColor').value+","+document.getElementById('epsBordure').value+","+document.getElementById('objImg').firstChild.firstChild.getAttribute('fill')+","+document.getElementById('objOpacity').value+","+document.getElementById('rayon').value
 		return txt
 }
@@ -851,9 +897,9 @@ function objetStringToGraph(txt) {
 	rayon:ntxt[32],
 	scaleX:ntxt[33],
 	scaleY:ntxt[34],
-	width:ntxt[35]
+	scaleY2:ntxt[35],
+	width:ntxt[36]
 	}
-	console.log("objGraph",objGraph)
 }
 function objGraphValid() {
 	window.api.send("toMain", "objGraphValid;"+objId)

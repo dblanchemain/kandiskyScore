@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-14T17:50:15+0100" />
+<meta name="date" content="2025-01-27T22:57:28+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -15,7 +15,7 @@
 </head>
 <body>
 <div id="configuration" style="width:840px;height:650px;">
-	<div style="padding:10px;padding-bottom:2px;"><span id="ongletGen" style="background-color:#EAEAEA;width:60px;padding:4px;border:0px solid black;">Générale</span><span id="ongletSpacial" style="background-color:#B4B4B4;width:120px;padding:4px;border:0px solid black;">Spacialisation</span><span id="ongletInterface" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Interface</span><span id="ongletPalette" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Palette</span></div>
+	<div style="padding:10px;padding-bottom:2px;"><span id="ongletGen" style="background-color:#EAEAEA;width:60px;padding:4px;border:0px solid black;">Générale</span><span id="ongletSpacial" style="background-color:#B4B4B4;width:120px;padding:4px;border:0px solid black;">Spacialisation</span><span id="ongletInterface" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Interface</span><span id="ongletPalette" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Palette</span><span id="ongletExt" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Externes</span></div>
 	<div id="panGen" align="center" style="padding:10px;background-color:#f9f9fd;overflow:auto;height:520px;border:0px solid black;display:block">
 		<table id="tableTranscript" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
 		<tbody>
@@ -148,13 +148,45 @@
 		<div style="position:absolute;top:600px;left:150px;"><button onclick='paletteDefault();'>Defaut</button></div>
 	<div style="position:absolute;top:615px;left:450px;"><button style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button onclick='exportPalette();'>Valider</button> <button onclick='closeConfigPalette();'>Quitter</button></div>
 	</div>
+<div id="panExt"  style="padding:10px;background-color:#f9f9fd;overflow:auto;height:500px;border:0px solid black;display:none">
+	<table id="table3D" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
+		<tbody>
+			<tr ><td colspan="4"> <b>Éditeur</b> </td></tr>
+			<tr><td></td><td colspan="3"><input id='defEditor' type="texte" style="width:520px" value='' /></td></tr>
+			<tr ><td colspan="4">  </td></tr>
+			<tr ><td colspan="4"> <b>Séquenceur</b> </td></tr>
+			<tr ><td > </td><td >Reaper <input type="radio"  name='radioCmd' value="0"  id="cmd3D0" />Ardour <input type="radio"  name='radioCmd' value="1" id="cmd3D1" /></td></tr>
+			<tr ><td  id="labelCmd3D">Cmd 3d : </td><td colspan="3"><input id="param3D" type="texte" style="width:520px" value='' /></td></tr>
+			<tr ><td colspan="4">  </td></tr>
+			<tr ><td colspan="4"> <b>Éditeur Audio</b> </td></tr>
+			<tr><td></td><td colspan="3"><input id='audioEditor' type="texte" style="width:520px" value='' /></td></tr>
+			<tr ><td colspan="4">  </td></tr>
+			<tr ><td colspan="4"> <b>PDF</b> </td></tr>
+			<tr ><td >Page </td><td id="pagePdf"  ><div style="margin:20px;" ><select id="selectPage" size="1"  >
+			<option value="1" >A4</option>
+			<option value="2" >A3</option>
+			</select></div></td><td colspan="2">Lanscape<input id="landscapePdf" type="checkbox"  checked /></td></tr>
+			<td >Echelle </td><td colspan="3"><input id="scalePdf" type="number"  value='1' min="0.5" max="4" step="0.1" /></td></tr>
+			<tr ><td >Marge-top </td><td ><input id="pdfTop" type="number" value='0.2' min="0.1" max="10" step="0.1" /></td>
+			<td >Marge-bottom </td><td ><input id="pdfBot" type="number"  value='0.2' min="0.1" max="10" step="0.1" /></td></tr>
+			<tr><td >Marge-left </td><td ><input id="pdfLeft" type="number"  value='0.2' min="0.1" max="10" step="0.1" /></td>
+			<td >Marge-right </td><td ><input id="pdfRight" type="number"  value='0.2' min="0.1" max="10" step="0.1" /></td></tr>
+			<tr ><td >Imprimer bkg </td><td  colspan="3">Oui<input type="radio"  name="pdfBkg" checked  id="pdfBkg0" />Non<input type="radio"  name="pdfBkg"  id="pdfBkg1" /></td></tr>
+			<tr ><td >Ass. cmd </td><td  colspan="4"><input id="AssPdf"type="text" style="width:520px" value=' ' /></td></tr>
+			<tr ><td>App. pdf </td><td colspan="4"><input id="appPdf" type="text" style="width:520px" value=' ' /></td></tr>
+		</tbody>
+	</table>
+	<div style="position:absolute;top:615px;left:450px;"><button id="Annul3D" style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button id="validRead3D"  onclick='exportExterne();'>Valider2</button></div>
 </div>
-<script  type="text/javascript" src="./config.js" ></script>
+
+</div>
+
 
 <script >
 
 let paramProjet={}
 let paramSpace={}
+let paramExterne={}
 const tableLang=[]
 
 function importLang(name) {
@@ -186,6 +218,7 @@ document.getElementById('ongletGen').innerHTML=tableLang['cfGeneral']
 document.getElementById('ongletSpacial').innerHTML=tableLang['cfSpat']
 document.getElementById('ongletInterface').innerHTML=tableLang['cfInterf']
 document.getElementById('ongletPalette').innerHTML=tableLang['cfPalette']
+//document.getElementById('onglet3D').innerHTML=tableLang['cf3D']
 document.getElementById('name').innerHTML=tableLang['cfNomProjet']
 document.getElementById('debut').innerHTML=tableLang['cfDebut']
 document.getElementById('fin').innerHTML=tableLang['cfFin']
@@ -198,6 +231,9 @@ document.getElementById('workspace').innerHTML=tableLang['cfWorkspace']
 document.getElementById('regle').innerHTML=tableLang['cfRegle']
 document.getElementById('mesure').innerHTML=tableLang['cfMesure']
 document.getElementById('grille').innerHTML=tableLang['cfGrille']
+document.getElementById('width').innerHTML=tableLang['cfLargeur']
+document.getElementById('height').innerHTML=tableLang['cfHauteur']
+document.getElementById('zoom').innerHTML=tableLang['cfZoom']
 document.getElementById('svg').innerHTML=tableLang['cfSvg']
 document.getElementById('svgR').innerHTML=tableLang['cfRegle']
 document.getElementById('svgM').innerHTML=tableLang['cfMesure']
@@ -248,6 +284,7 @@ document.getElementById("ongletGen").addEventListener('click',defongletGen);
 document.getElementById("ongletSpacial").addEventListener('click',defongletSpacial);
 document.getElementById("ongletInterface").addEventListener('click',defongletInterface);
 document.getElementById("ongletPalette").addEventListener('click',defongletPalette);
+document.getElementById("ongletExt").addEventListener('click',defongletExt);
 
 let imgpart="<svg  width='12.791215mm'   height='12.978383mm'   viewBox='0 0 12.791215 12.978383'   >  <g     inkscape:label='Calque 1'     inkscape:groupmode='layer'     id='layer1'     transform='translate(-0.36629491,-1.5850514)'>    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1007.19 2835.47,1007.19'       id='polyline16'       transform='matrix(0.0047485,0,0,0.04115467,-0.30671944,-36.064026)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1032.19 2835.47,1032.19'       id='polyline18'       transform='matrix(0.0046537,0,0,0.04115467,-0.2932833,-36.04607)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1057.19 2835.47,1057.19'       id='polyline20'       transform='matrix(0.00464426,0,0,0.04115467,-0.29194454,-36.04607)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1082.19 2835.47,1082.19'       id='polyline22'       transform='matrix(0.00467749,0,0,0.04115467,-0.29665391,-36.014548)' />    <polyline       class='StaffLines'       fill='none'       stroke='#000000'       stroke-width='2'       stroke-linejoin='bevel'       points='141.732,1107.19 2835.47,1107.19'       id='polyline24'       transform='matrix(0.0046774,0,0,0.04115467,-0.29664174,-35.976276)' />    <path       class='Accidental'       stroke='#000000'       d='M 3.194572,5.4471365 3.1506956,2.8910588 c 0,-0.040264 0.026528,-0.060395 0.079667,-0.060395 0.053097,0 0.079634,0.020295 0.079634,0.060395 L 3.282905,4.2858335 c 0.061077,-0.072539 0.1135543,-0.1227224 0.1574291,-0.1507847 0.043909,-0.028119 0.103704,-0.042138 0.1793837,-0.042138 0.075673,0 0.1457063,0.041487 0.2100099,0.1244586 0.064304,0.082858 0.096458,0.1861335 0.096458,0.3095895 0,0.1847968 -0.1636726,0.4406906 -0.4909825,0.7677874 -0.1217746,0.1312073 -0.1850026,0.1967945 -0.189686,0.1967945 h -0.020044 c -0.020607,0 -0.030906,-0.014834 -0.030906,-0.04442 M 3.2796446,4.4144245 3.2693801,5.3269003 C 3.3394402,5.2488179 3.4106095,5.119404 3.4828912,4.9384787 3.5551338,4.7575615 3.591278,4.6028319 3.591278,4.4742167 c 0,-0.064226 -0.00902,-0.1232605 -0.027092,-0.176842 -0.018066,-0.053549 -0.046334,-0.080364 -0.084832,-0.080364 -0.038461,0 -0.072969,0.015975 -0.103497,0.048251 -0.030522,0.032195 -0.062597,0.081881 -0.096213,0.1491872'       id='path170-0'       style='stroke-width:0.0377808' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='341.873,541.732 389.787,541.732'       id='polyline172-2'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='341.873,516.732 389.787,516.732'       id='polyline174-3'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='341.873,491.732 389.787,491.732'       id='polyline176-7'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='431.609,541.732 479.523,541.732'       id='polyline178-5'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='521.346,541.732 569.26,541.732'       id='polyline180-9'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='LedgerLine'       fill='none'       stroke='#000000'       stroke-width='4'       stroke-linecap='square'       stroke-linejoin='bevel'       points='521.346,516.732 569.26,516.732'       id='polyline182-2'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='Stem'       fill='none'       stroke='#000000'       stroke-width='3.25'       stroke-linecap='round'       stroke-linejoin='bevel'       points='350.998,483.928 350.998,691.732'       id='polyline184-2'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='Stem'       fill='none'       stroke='#000000'       stroke-width='3.25'       stroke-linecap='round'       stroke-linejoin='bevel'       points='440.734,546.428 440.734,691.732'       id='polyline186-8'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <polyline       class='Stem'       fill='none'       stroke='#000000'       stroke-width='3.25'       stroke-linecap='round'       stroke-linejoin='bevel'       points='530.471,508.928 530.471,691.732'       id='polyline188-9'       transform='matrix(0.03468371,0,0,0.04115467,-10.938481,-17.571075)' />    <path       fill='#000000'       d='m 1.941034,3.6427899 c 0.1083872,0 0.1987034,0.032195 0.2709492,0.09647 0.072243,0.064226 0.1083873,0.15671 0.1083873,0.2771748 0,0.1847398 -0.080639,0.3575065 -0.2419542,0.5182999 C 1.9171026,4.6954872 1.7437538,4.7758595 1.558404,4.7758595 1.4500179,4.7758595 1.3586258,4.742442 1.2841947,4.6755835 1.214099,4.6032069 1.1790681,4.512035 1.1790681,4.4023127 1.1790681,4.222667 1.2592561,4.0512125 1.419669,3.887868 1.580081,3.7245395 1.7538809,3.6428795 1.941034,3.6428795'       id='path190-7'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 1.941034,1.5850595 c 0.1083872,0 0.1987034,0.032276 0.2709492,0.09647 0.072243,0.064226 0.1083873,0.1567183 0.1083873,0.277183 0,0.184748 -0.080639,0.3575064 -0.2419542,0.5183081 C 1.9171026,2.637757 1.7437538,2.7181373 1.558404,2.7181373 1.4500179,2.7181373 1.3586258,2.6847198 1.2841947,2.6177475 1.214099,2.545371 1.1790681,2.454199 1.1790681,2.3444767 c 0,-0.1796294 0.080188,-0.3510838 0.2406009,-0.5144284 0.160412,-0.163345 0.3342119,-0.2449969 0.521365,-0.2449969'       id='path192-3'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 5.0534119,4.1572346 c 0.108385,0 0.1987019,0.032195 0.2709836,0.096462 0.072242,0.064226 0.1083861,0.1567182 0.1083861,0.2771748 0,0.1847479 -0.080672,0.3575065 -0.2419877,0.5183082 -0.1613147,0.1607524 -0.3346291,0.2411246 -0.5199792,0.2411246 -0.1083861,0 -0.1998126,-0.033418 -0.2742089,-0.100276 -0.070095,-0.072376 -0.1051616,-0.1635565 -0.1051616,-0.2732707 0,-0.1796375 0.080222,-0.351092 0.2406359,-0.5144367 0.160412,-0.1633446 0.3341772,-0.2449885 0.5213316,-0.2449885'       id='path194-6'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 8.1657874,6.787425 c 0.1083873,0 0.1987381,0.032113 0.270984,0.09647 0.072243,0.064226 0.1083872,0.1567102 0.1083872,0.2771668 0,0.184748 -0.080672,0.3575227 -0.2419893,0.5183081 -0.1613141,0.1607366 -0.3346284,0.2411252 -0.5199778,0.2411252 -0.1083872,0 -0.1997782,-0.033418 -0.2742098,-0.100276 -0.070102,-0.072377 -0.1051255,-0.1635565 -0.1051255,-0.2732707 0,-0.1796457 0.080189,-0.351092 0.2406008,-0.5144367 C 7.804869,6.8691749 7.9786693,6.787523 8.1657869,6.787523'       id='path196-1'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 8.1657874,3.6427899 c 0.1083873,0 0.1987381,0.032195 0.270984,0.09647 0.072243,0.064226 0.1083872,0.15671 0.1083872,0.2771748 0,0.1847398 -0.080672,0.3575065 -0.2419893,0.5182999 -0.1613141,0.1607529 -0.3346284,0.2411252 -0.5199778,0.2411252 -0.1083872,0 -0.1997782,-0.033418 -0.2742098,-0.100276 C 7.4388793,4.6032069 7.4038562,4.512035 7.4038562,4.4023127 7.4038562,4.222667 7.4840453,4.0512125 7.644457,3.887868 7.8048695,3.7245395 7.9786698,3.6428795 8.1657874,3.6428795'       id='path200-9'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 8.1657874,2.6139247 c 0.1083873,0 0.1987381,0.032194 0.270984,0.09647 0.072243,0.064226 0.1083872,0.1567019 0.1083872,0.2771667 0,0.1847479 -0.080672,0.3575146 -0.2419893,0.5183082 C 8.1418552,3.6666139 7.9685409,3.7470025 7.7831915,3.7470025 7.6748043,3.7470025 7.5834133,3.713585 7.5089817,3.6466127 7.4388793,3.5742361 7.4038562,3.4830561 7.4038562,3.3733419 7.4038562,3.1936961 7.4840453,3.0222417 7.644457,2.858897 7.804869,2.6955687 7.9786693,2.6139005 8.1657869,2.6139005'       id='path202-3'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 5.0534119,7.2438299 c 0.108385,0 0.1987019,0.032195 0.2709836,0.096364 0.072242,0.064226 0.1083861,0.1567183 0.1083861,0.2771912 0,0.1847316 -0.080672,0.3574983 -0.2419877,0.5182919 C 5.0294795,8.2964297 4.856165,8.3767939 4.6708149,8.3767939 4.5624288,8.3767939 4.4710023,8.3433769 4.396606,8.2764041 4.326511,8.2040271 4.2914444,8.1128557 4.2914444,8.0031497 c 0,-0.1796458 0.080222,-0.351092 0.240636,-0.5144449 0.160412,-0.1633446 0.3341772,-0.2449802 0.5213315,-0.2449802'       id='path204-1'       style='stroke-width:0.0377808' />    <path       fill='#000000'       d='m 11.359498,7.4965206 c -0.144527,0.0617 -0.261307,0.09255 -0.350374,0.09255 -0.08907,0 -0.163569,-0.030075 -0.223537,-0.090372 -0.05997,-0.060232 -0.08997,-0.1352253 -0.08997,-0.2250685 0,-0.089827 0.02483,-0.1635485 0.0745,-0.2212134 0.0497,-0.057706 0.109045,-0.086452 0.178031,-0.086452 0.06902,0 0.118688,0.022251 0.149036,0.066508 0.03035,0.04442 0.0478,0.083943 0.05231,0.1186472 0.0045,0.034721 0.01526,0.079468 0.03225,0.1343695 0.01696,0.054853 0.04016,0.082312 0.0696,0.082312 0.02944,0 0.06785,-0.034069 0.115184,-0.1022399 0.04731,-0.068138 0.07776,-0.1176691 0.09132,-0.1485188 0.01353,-0.030809 0.03104,-0.045643 0.05255,-0.04442 0.02151,8.15e-4 0.03677,0.013937 0.04579,0.0379 l -0.619968,2.757361 c -0.02237,0.027142 -0.0539,0.040508 -0.09455,0.040508 -0.04065,0 -0.07236,-0.01353 -0.09511,-0.040508 l 0.348989,-1.3464911 c -0.151361,0.064226 -0.271055,0.096364 -0.359012,0.096364 -0.08799,0 -0.161974,-0.030075 -0.221942,-0.090373 -0.05997,-0.060314 -0.08997,-0.1352331 -0.08997,-0.2250763 0,-0.089827 0.02431,-0.1634262 0.0729,-0.2208793 0.04859,-0.05738 0.107312,-0.086126 0.176125,-0.086126 0.06885,0 0.119034,0.022088 0.150665,0.066345 0.03159,0.044176 0.05084,0.091677 0.05772,0.1427157 0.01807,0.1286153 0.05417,0.1929392 0.108387,0.1929392 0.02709,0 0.06558,-0.037574 0.115427,-0.1125179 0.05168,-0.069932 0.08327,-0.1249802 0.09482,-0.1652845 l 0.158817,-0.6231157'       id='path226-9'       style='stroke-width:0.0377808' />    <path       fill='#000000'         d='m 3.9325022,13.156595 c 0,0.03945 0.015894,0.07393 0.047691,0.103555 0.033235,0.03472 0.069367,0.06594 0.1083872,0.09386 0.046963,0.03301 0.083106,0.0701 0.1083872,0.111277 0.030351,0.04931 0.045501,0.101802 0.045501,0.15755 0,0.108888 -0.036771,0.196215 -0.1102589,0.262023 -0.073533,0.06577 -0.1608979,0.09864 -0.2620359,0.09864 -0.070822,0 -0.1325955,-0.01932 -0.1853493,-0.05795 -0.052746,-0.03855 -0.07912,-0.09168 -0.07912,-0.15948 0,-0.04287 0.00902,-0.07988 0.027092,-0.111232 0.019528,-0.02958 0.043452,-0.04433 0.071793,-0.04433 0.028366,0 0.052305,0.01198 0.071835,0.03594 0.019488,0.02396 0.02924,0.05314 0.02924,0.08744 0,0.01679 -0.0119,0.03407 -0.035758,0.05208 -0.022028,0.02144 -0.033055,0.03855 -0.033055,0.05143 0,0.03138 0.013174,0.05355 0.039572,0.06683 0.026357,0.01328 0.055467,0.01989 0.087235,0.01989 0.047339,0 0.091772,-0.01727 0.1333241,-0.05217 0.038674,-0.03945 0.05799,-0.08559 0.05799,-0.13825 0,-0.04931 -0.016604,-0.09713 -0.04988,-0.143416 -0.02349,-0.03081 -0.059411,-0.06455 -0.1078312,-0.100932 -0.043003,-0.02958 -0.077698,-0.0617 -0.1040507,-0.09647 -0.033609,-0.03945 -0.050394,-0.0821 -0.050394,-0.127986 0,-0.105407 0.033398,-0.194423 0.1002701,-0.266849 0.062499,-0.07075 0.1421688,-0.106042 0.2389714,-0.106042 0.080565,0 0.1374855,0.02208 0.170713,0.06635 0.04047,0.04801 0.060693,0.10072 0.060693,0.158193 0,0.04793 -0.00902,0.08427 -0.027092,0.108665 -0.019528,0.02657 -0.043811,0.03986 -0.072904,0.03986 -0.029068,0 -0.053726,-0.0074 -0.073982,-0.02242 -0.020215,-0.015 -0.030351,-0.03301 -0.030351,-0.05404 0,-0.0057 0.00752,-0.02502 0.022788,-0.05974 0.014073,-0.03138 0.021121,-0.06259 0.021121,-0.09365 0,-0.03106 -0.0049,-0.05323 -0.014636,-0.06651 -0.013738,-0.01793 -0.028889,-0.02787 -0.045501,-0.02958 -0.047347,0 -0.08591,0.02225 -0.115704,0.06651 -0.029828,0.04442 -0.044709,0.09462 -0.044709,0.150834 m 1.0979473,-0.217367 -0.1663776,0.63662 c -0.062499,0.237051 -0.1589549,0.458509 -0.2894007,0.664269 -0.1372788,0.215622 -0.277262,0.323437 -0.4199861,0.323437 -0.075158,0 -0.1411626,-0.02307 -0.1980787,-0.06912 -0.056912,-0.04605 -0.085361,-0.105943 -0.085361,-0.179718 0,-0.08406 0.015363,-0.154951 0.046065,-0.212867 0.031813,-0.0591 0.073354,-0.08874 0.1246534,-0.08874 0.04047,0 0.074154,0.01727 0.1010681,0.05175 0.026921,0.03448 0.040365,0.07401 0.040365,0.118647 0,0.04279 -0.019325,0.07995 -0.05799,0.111243 -0.042978,0.03431 -0.064483,0.06879 -0.064483,0.103543 0,0.02657 0.029803,0.03994 0.089419,0.03994 0.062499,0 0.1103636,-0.03073 0.1436259,-0.09201 0.036101,-0.06569 0.06521,-0.159261 0.087233,-0.281006 0.00539,-0.03301 0.0096,-0.05535 0.012489,-0.06683 L 4.6163865,12.939163 H 4.443523 c -0.015159,0 -0.026921,-0.0065 -0.035244,-0.01989 -0.00833,-0.0163 -0.012448,-0.03187 -0.012448,-0.04695 0,-0.01973 0.00424,-0.03448 0.012448,-0.04434 0.01121,-0.01337 0.022959,-0.01996 0.035244,-0.01996 h 0.204322 c 0.053824,-0.194211 0.1466772,-0.367834 0.2785442,-0.520851 0.1289895,-0.149636 0.2677239,-0.22445 0.4162054,-0.22445 0.076236,0 0.1421679,0.02388 0.1978008,0.07139 0.05563,0.0476 0.083998,0.106813 0.085076,0.177453 0,0.07931 -0.014432,0.14939 -0.043354,0.210308 -0.03468,0.05909 -0.076407,0.08873 -0.1251728,0.08873 -0.040095,0 -0.074089,-0.01679 -0.1019021,-0.05053 -0.027819,-0.03367 -0.04172,-0.0727 -0.04172,-0.117344 0,-0.03945 0.020493,-0.07433 0.061526,-0.104848 0.040993,-0.03049 0.061494,-0.06717 0.061494,-0.109971 0,-0.02958 -0.031249,-0.04442 -0.093752,-0.04442 -0.033234,0 -0.067219,0.01386 -0.101901,0.04181 -0.022028,0.01793 -0.046963,0.05599 -0.074774,0.113789 -0.018066,0.03602 -0.033397,0.08037 -0.046065,0.133139 -0.00253,0.01157 -0.012105,0.07067 -0.028709,0.177453 -0.0097,0.0626 -0.020215,0.115314 -0.031429,0.15821 h 0.1869462 c 0.015535,0 0.028824,0.0065 0.039849,0.01858 0.010985,0.01239 0.016506,0.02763 0.016506,0.04564 0,0.0181 -0.00547,0.03367 -0.016506,0.04694 -0.01103,0.01329 -0.024307,0.01996 -0.039849,0.01996 H 5.0304405'       id='path294-4'       style='stroke-width:0.0377808' />    <path       fill='#000000'       fill-rule='evenodd'       d='M 1.1790679,10.639705 H 7.516578 v 0.514437 H 1.1790679 v -0.514437'       id='path296-7'       style='stroke-width:0.0377808' />    <path       fill='#000000'       fill-rule='evenodd'       d='M 1.1790679,9.868054 H 7.516578 v 0.514437 H 1.1790679 V 9.868054'       id='path298-8'       style='stroke-width:0.0377808' />  </g></svg>"
 document.getElementById("Image").innerHTML=imgpart
@@ -267,10 +304,12 @@ console.log(`Received ${data} from renderer process`);
 				importSpace(cmd[3])
 				importInterface(cmd[4])
 				importPalette(cmd[5])
+				importExterne(cmd[6])
 				configProjet()
 				configSpace()
 				configInterface()
 				configPalette()
+				configExterne()
 				break
 			default :
 				console.log(`Received ${data} from renderer process`);
@@ -302,6 +341,7 @@ function defInterface() {
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("clongletActifBkg").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("panGen").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("panInterface").style.backgroundColor=popupOngletActifBkg;
@@ -315,40 +355,60 @@ function defongletGen(e) {
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panGen").style.display="block";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panSpacial").style.display="none";
 	document.getElementById("panPalette").style.display="none";
+	document.getElementById("panExt").style.display="none";
 }
 function defongletSpacial(e) {
 	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panSpacial").style.display="block";
 	document.getElementById("panGen").style.display="none";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="none";
+	document.getElementById("panExt").style.display="none";
 }
 function defongletInterface(e) {
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panGen").style.display="none";
 	document.getElementById("panSpacial").style.display="none";
 	document.getElementById("panInterface").style.display="block";
 	document.getElementById("panPalette").style.display="none";
+	document.getElementById("panExt").style.display="none";
 }
 function defongletPalette(e) {
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panGen").style.display="none";
 	document.getElementById("panSpacial").style.display="none";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="block";
+	document.getElementById("panExt").style.display="none";
+}
+function defongletExt(e) {
+	document.getElementById("ongletExt").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	document.getElementById("panGen").style.display="none";
+	document.getElementById("panSpacial").style.display="none";
+	document.getElementById("panInterface").style.display="none";
+	document.getElementById("panPalette").style.display="none";
+	document.getElementById("panExt").style.display="block";
 }
 function closeConfigProjet() {
 	exportProjet()
@@ -716,9 +776,9 @@ function configSpace(){
 	document.getElementById("listenerUpX").value=paramSpace.lUpX
 	document.getElementById("listenerUpY").value=paramSpace.lUpY
 	document.getElementById("listenerUpZ").value=paramSpace.lUpZ
-	document.getElementById("listenerPositionX").value=paramSpace.lposX
-	document.getElementById("listenerPositionY").value=paramSpace.lposY
-	document.getElementById("listenerPositionZ").value=paramSpace.lposZ
+	document.getElementById("listenerPositionX").value=paramSpace.lPosX
+	document.getElementById("listenerPositionY").value=paramSpace.lPosY
+	document.getElementById("listenerPositionZ").value=paramSpace.lPosZ
 	document.getElementById("selectPanningModel").value=paramSpace.PModel
 	document.getElementById("selectDistanceModel").value=paramSpace.DModel
 	document.getElementById("refDistance").value=paramSpace.refD
@@ -738,9 +798,9 @@ function defSpace(){
 	paramSpace.lUpX=document.getElementById("listenerUpX").value
 	paramSpace.lUpY=document.getElementById("listenerUpY").value
 	paramSpace.lUpZ=document.getElementById("listenerUpZ").value
-	paramSpace.lposX=document.getElementById("listenerPositionX").value
-	paramSpace.lposY=document.getElementById("listenerPositionY").value
-	paramSpace.lposZ=document.getElementById("listenerPositionZ").value
+	paramSpace.lPosX=document.getElementById("listenerPositionX").value
+	paramSpace.lPosY=document.getElementById("listenerPositionY").value
+	paramSpace.lPosZ=document.getElementById("listenerPositionZ").value
 	paramSpace.PModel=document.getElementById("selectPanningModel").value
 	paramSpace.DModel=document.getElementById("selectDistanceModel").value
 	paramSpace.refD=document.getElementById("refDistance").value
@@ -762,8 +822,8 @@ window.api.send("toMain", 'exportProjet;'+txt)
 }
 function exportSpace() {
 defSpace()
-console.log(paramSpace,txt)
 var txt=paramSpace.lForwardX+","+paramSpace.lForwardY+","+paramSpace.lForwardZ+","+paramSpace.lUpX+","+paramSpace.lUpY+","+paramSpace.lUpZ+","+paramSpace.lPosX+","+paramSpace.lPosY+","+paramSpace.lPosZ+","+paramSpace.PModel+","+paramSpace.DModel+","+paramSpace.refD+","+paramSpace.maxD+","+paramSpace.rolF+","+paramSpace.coneIA+","+paramSpace.coneOA+","+paramSpace.coneOG+","+paramSpace.orX+","+paramSpace.orY+","+paramSpace.orZ
+console.log(paramSpace,txt)
 window.api.send("toMain", 'exportSpace;'+txt)
 }
 function exportInterface() {
@@ -771,7 +831,12 @@ defInterface()
 var txt=paletteBkg+":"+ fontPalette+":"+ fontPaletteSize+":"+ separateurPalette+":"+ fontSizeMenu+":"+ bkgInfo+":"+ fontInfoSize+":"+ fontInfoColor+":"+ regleBackground+":"+ regleFontSize+":"+ regleFontColor+":"+ intervalBackground+":"+ intervalFontSize+":"+ fontIntervalColor+":"+ workSpaceBkg+":"+ spaceGrilleOpacity+":"+ colorGrille+":"+ suiveurBkg+":"+ popupTitreBkg+":"+ popupHeaderFontSize+":"+ popupFontTitreColor+":"+ popupFontColor+":"+ popupBkgColor+":"+ popupFontSize+":"+ popupOngletFontColor+":"+ popupFontOngletSize+":"+ popupOngletBkg+":"+ popupOngletActifBkg+":"+lang+":"+ vueSvgBackground+":"+vueSvgFontSize+":"+vueSvgFontColor
 window.api.send("toMain", 'exportInterface;'+txt)
 }
-
+function exportExterne() {
+defExterne()
+var txt=paramExterne.editor+','+paramExterne.daw+','+paramExterne.cmdDaw+','+paramExterne.pdfPage+','+paramExterne.pdfLandscape+','+paramExterne.pdfScale+','+paramExterne.pdfMgTop+','+paramExterne.pdfMgBot+','+paramExterne.pdfMgLeft+','+paramExterne.pdfMgRight+','+paramExterne.pdfBkg+','+paramExterne.pdfAssCmd+','+paramExterne.pdfAppCmd+','+paramExterne.editAudioCmd
+console.log('exportExterne',txt)
+window.api.send("toMain", 'exportExterne;'+btoa(txt))
+}
 /* ************************************************* interface *************************************** */
 
 const paletteColor = document.getElementById("paletteBkg");
@@ -1051,6 +1116,122 @@ function selectLang(e) {
 	console.log("lang",lang)
 	window.api.send("toMain", 'copyDefautMenu;'+lang)
 }
+
+
+function validRead3D() {
+	var rd;
+	const radios = document.getElementsByName('radioCmd');
+	for (var i = 0; i < radios.length; i++) {
+	  	if (radios[i].checked==true) {
+	  	rd=radios[i].value
+	    break;
+	  	}
+  	
+	}
+window.api.send("toMain", 'export3D;'+rd)
+}
+/* ************************************************* externe *************************************** */
+function externeDefault() {
+	externeRestore()
+	configExterne()
+}
+function externeRestore() {
+	paramExterne={}
+	paramExterne={
+	daw:0,
+	cmdDaw:'',
+	pdfPage:0,
+	pdfLandscape:1,
+	pdfScale:1,
+	pdfMgTop:0.2,
+	pdfMgBot:0.2,
+	pdfMgLeft:0.2,
+	pdfMgRight:0.2,
+	pdfBkg:0,
+	pdfAssCmd:'pdfunite',
+	pdfAppCmd:'atril',
+	editAudioCmd:'audacity'
+	}
+}
+function importExterne(txt){
+	var exterf=txt.split(',')
+	console.log('importExterne',exterf)
+	paramExterne={}
+	paramExterne={
+	editor:exterf[0],
+	daw:exterf[1],
+	cmdDaw:exterf[2],
+	pdfPage:exterf[3],
+	pdfLandscape:exterf[4],
+	pdfScale:exterf[5],
+	pdfMgTop:exterf[6],
+	pdfMgBot:exterf[7],
+	pdfMgLeft:exterf[8],
+	pdfMgRight:exterf[9],
+	pdfBkg:exterf[10],
+	pdfAssCmd:exterf[11],
+	pdfAppCmd:exterf[12],
+	editAudioCmd:exterf[13]
+	}
+}
+function configExterne(txt) {
+	document.getElementById("defEditor").value=paramExterne.editor
+	if(paramExterne.daw=='reaper'){
+		document.getElementById("cmd3D0").checked=true
+	}else{
+		document.getElementById("cmd3D1").checked=true
+	}
+	document.getElementById("param3D").value=paramExterne.cmdDaw
+	document.getElementById("audioEditor").value=paramExterne.editAudioCmd
+	document.getElementById("selectPage").value=paramExterne.pdfPage
+	if(paramExterne.pdfLandscape==1){
+		document.getElementById("landscapePdf").checked=true
+	}else{
+		document.getElementById("landscapePdf").checked=false
+	}
+	document.getElementById("scalePdf").value=paramExterne.pdfScale
+	document.getElementById("pdfTop").value=paramExterne.pdfMgTop
+	document.getElementById("pdfBot").value=paramExterne.pdfMgBot
+	document.getElementById("pdfLeft").value=paramExterne.pdfMgLeft
+	document.getElementById("pdfRight").value=paramExterne.pdfMgRight
+	if(paramExterne.pdfBkg==0){
+		document.getElementById("pdfBkg0").checked=true
+	}else{
+		document.getElementById("pdfBkg1").checked=true
+	}
+	document.getElementById("AssPdf").value=paramExterne.pdfAssCmd
+	document.getElementById("appPdf").value=paramExterne.pdfAppCmd
+}
+function defExterne(txt) {
+	paramExterne.editor=document.getElementById("defEditor").value;
+	if(document.getElementById("cmd3D0").checked==true){
+		paramExterne.daw='reaper';
+	}else{
+		paramExterne.daw='ardour';
+	}
+	paramExterne.editAudio=document.getElementById("audioEditor").value;
+	paramExterne.cmdDaw=document.getElementById("param3D").value;
+	paramExterne.pdfPage=document.getElementById("selectPage").value;
+	if(document.getElementById("landscapePdf").checked==true){
+		paramExterne.pdfLandscape=1
+	}else{
+		paramExterne.pdfLandscape=0
+	}
+	paramExterne.pdfScale=document.getElementById("scalePdf").value;
+	paramExterne.pdfMgTop=document.getElementById("pdfTop").value;
+	paramExterne.pdfMgBot=document.getElementById("pdfBot").value;
+	paramExterne.pdfMgLeft=document.getElementById("pdfLeft").value;
+	paramExterne.pdfMgRight=document.getElementById("pdfRight").value;
+	if(document.getElementById("pdfBkg0").checked==true){
+		paramExterne.pdfBkg=0;
+	}else{
+		paramExterne.pdfBkg=1;
+	}
+	paramExterne.pdfAssCmd=document.getElementById("AssPdf").value;
+	paramExterne.pdfAppCmd=document.getElementById("appPdf").value;
+	paramExterne.editAudioCmd=document.getElementById("audioEditor").value;
+}
+
 /* ************************************************* palette *************************************** */
 
 function paletteDefault() {
@@ -1217,7 +1398,7 @@ ongletTriangle.addEventListener("click", (e) => {
 refTriangle.addEventListener("change", defTriangle, false);
 function defTriangle(e) {
 	document.getElementById("Triangle").firstChild.firstChild.setAttribute('fill',this.value)
-	paletteCarre=this.value;
+	paletteTriangle=this.value;
 }
 const refEllipse = document.getElementById("inpEllipse");
 const ongletEllipse = document.getElementById("Ellipse");
@@ -1564,6 +1745,9 @@ function defLecteur(e) {
 	document.getElementById("Lecteur").firstChild.firstChild.setAttribute('fill',this.value)
 	paletteLecteur=this.value;
 }
+
+
+
 </script>
 </body>
 </html>

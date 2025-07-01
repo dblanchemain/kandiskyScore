@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-08T11:02:15+0100" />
+<meta name="date" content="2024-01-04T14:58:35+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -36,7 +36,7 @@
 <div ><span id="transpa" style="position:absolute;top:146px;left:230px;"> Transparence : </span><span style="position:absolute;top:144px;left:330px;"><input id="bkgGrpTransparent" type="checkbox" checked /> &nbsp;&nbsp;<span id="bkgOpac">Bkg Opacité : </span><input id="bkgGrpOpacity" style="width:40px;"type="number" value="1" min="0" max="1" step="0.1" /></span></div>
 <div  style="position:absolute;top:175px;left:30px;" ><span id="lbwidth">Largeur : </span><input id="bkgGrpw" style="width:60px;" type="number" value="20" step="1" /><span id="lbheight"> Hauteur : </span><input id="bkgGrph" type="number" style="width:60px;" step="1" value="50"/><span id="lbbkgcolor">  Couleur : </span><input id="bkgGrpColor" type="color" value="transparent"/></div>
 
-<table style="position:absolute;top:220px;left:10px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
+<table style="position:absolute;top:220px;left:50px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
 	<tbody>
 		<tr><td  id="lbcadre" colspan="6" style="text-align:center; "> Cadre </td></tr>
 		<tr><td style="border:0px;"></td><td id="tp" >Type</td><td id="ep" >Épais.</td><td id="rd" >Radius</td><td id="cl" >Couleur</td><td id="mg" >Marge</td></tr>
@@ -46,7 +46,7 @@
 		<tr><td id="lbbas">Bas</td><td><form action=""><select id="basType" size="1"><option value="none" id="pb4">Pas de bordure</option><option value="dotted"  id="pt4">Pointillés</option><option value="dashed"  id="dh4">Tirets</option><option value="solid"  id="plein4">Pleine</option><option value="double"  id="double4">Double</option></select></form></td><td><input id="basWidth" style="width:44px;height:24px;" type="number"  value="0" min="0" max="10" step="1" /></td><td><input  id="basRadius" style="width:84px;height:24px;" type="text"  /></td><td  style="border:none;" ><input id="basGrpColor" type="color"  value="#ffffff" /></td><td style="border:none;" ></td></tr>
 	</tbody>
 </table>
-	<div style="position:absolute;top:500px;left:310px;" ><button  id="lbannul" onclick='symbGraphAnnul();'>Annuler</button> <button  id="lbvalid"  onclick='symbGraphValid();'>Valider</button></div>
+	<div style="position:absolute;top:500px;left:420px;" > <button  id="lbvalid"  onclick='symbGraphValid();'>Valider</button></div>
 
 <script>
 let objId=0;
@@ -115,6 +115,15 @@ document.getElementById('lbwidth').innerHTML=tableLang["objgWidth"]
 document.getElementById('lbheight').innerHTML=tableLang["objgHeight"]
 document.getElementById('lbbkgcolor').innerHTML=tableLang["objgColor"]
 document.getElementById('lbcadre').innerHTML=tableLang["objgCadre"]
+document.getElementById('tp').innerHTML=tableLang["objgBorderT"]
+document.getElementById('ep').innerHTML=tableLang["objgBorderE"]
+document.getElementById('rd').innerHTML=tableLang["objgBorderR"]
+document.getElementById('cl').innerHTML=tableLang["objgColor"]
+document.getElementById('mg').innerHTML=tableLang["objgBorderM"]
+document.getElementById('lbgauche').innerHTML=tableLang["objgBorderG"]
+document.getElementById('lbhaut').innerHTML=tableLang["objgBorderH"]
+document.getElementById('lbdroit').innerHTML=tableLang["objgBorderD"]
+document.getElementById('lbbas').innerHTML=tableLang["objgBorderB"]
 document.getElementById('pb1').innerHTML=tableLang["objgPb"]
 document.getElementById('pt1').innerHTML=tableLang["objgPoint"]
 document.getElementById('dh1').innerHTML=tableLang["objgTir"]
@@ -136,23 +145,16 @@ document.getElementById('dh4').innerHTML=tableLang["objgTir"]
 document.getElementById('plein4').innerHTML=tableLang["objgPlein"]
 document.getElementById('double4').innerHTML=tableLang["objgDouble"]
 
-document.getElementById('lbgauche').innerHTML=tableLang["objgBorderG"]
-document.getElementById('lbhaut').innerHTML=tableLang["objgBorderH"]
-document.getElementById('lbdroit').innerHTML=tableLang["objgBorderD"]
-document.getElementById('lbbas').innerHTML=tableLang["objgBorderB"]
-document.getElementById('lbannul').innerHTML=tableLang["objgAnnul"]
 document.getElementById('lbvalid').innerHTML=tableLang["objgValid"]
 }
 window.api.receive("fromMain", (data) => {
 
-console.log(`defGraphObjet : `,data);
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
 			case 'defSymbBkgImg':
 				var txt = cmd[2].split('/')
 				var txt2=txt[txt.length-1].split('.')
-				console.log(`graph:`,cmd[1],cmd[2],txt,txt2[0])
 				document.getElementById("ibkg").value=txt[txt.length-1]
 				objGraph.bkgImg=txt[txt.length-1]
 				document.getElementById("objImg").style.backgroundImage='url('+cmd[2]+')'
@@ -162,8 +164,7 @@ console.log(`defGraphObjet : `,data);
 				break
 			case 'defGrp':
 				lang=cmd[2]
-				importLang('./Local/'+lang+'/grpParam-'+lang+".txt")
-				console.log(`importLang:`,tableLang)
+				importLang('./Local/'+lang+'/objGraph-'+lang+".txt")
 				grpStringToGraph(cmd[3])
 				grpParamsToGraph()
 				objId=cmd[1]
@@ -173,8 +174,7 @@ console.log(`defGraphObjet : `,data);
 				document.getElementById("ibkgGrp").value=cmd[2]
 				break
 			
-	}  
-	 //console.log(`objParam :`,cmd[0]);      
+	}       
 });
 function objDimXY(e) {
 	switch(type) {
@@ -402,8 +402,7 @@ function grpParamsToGraph() {
 	}else{
 		document.getElementById("bkgGrpTransparent").checked=false
 	}
-	
-	console.log("grpParamsToGraph")
+
 }
 function grpGraphToString() {
 	var txt = document.getElementById('bkgColor').value+","+document.getElementById('bkgh').value+","+document.getElementById('objImg').style.backgroundImage+","+document.getElementById('bkgw').value+","+document.getElementById('basColor').value+","+document.getElementById('basRadius').value+","+document.getElementById('basType').value+","+document.getElementById('basWidth').value+","+document.getElementById('droitColor').value+","+document.getElementById('droitRadius').value+","+document.getElementById('droitType').value+","+document.getElementById('droitWidth').value+","+document.getElementById('gaucheColor').value+","+document.getElementById('gaucheRadius').value+","+document.getElementById('gaucheType').value+","+document.getElementById('gaucheWidth').value+","+document.getElementById('hautColor').value+","+document.getElementById('hautRadius').value+","+document.getElementById('hautType').value+","+document.getElementById('hautWidth').value
@@ -440,7 +439,6 @@ function grpStringToGraph(txt) {
 	scaleY:parseFloat(ntxt[25]),
 	width:parseFloat(ntxt[26]),
 	}
-	console.log("grpStringToGraph",objGraph)
 }
 function symbGraphValid() {
 	window.api.send("toMain", "grpValid;"+objId)
