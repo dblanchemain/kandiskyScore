@@ -17,10 +17,95 @@
 const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer } = require('electron')
 const url = require('url');
 const path = require('path')
-const fs = require("fs")
-//const Buffer = require("buffer")
+const fs = require("fs-extra")
+//const fsx = require("fs-extra")
 
-const Mn = require('./menuDefaut')
+let localFilePath='';
+//const Buffer = require("buffer")
+var copyFileOutsideOfElectronAsar = function (sourceInAsarArchive, destOutsideAsarArchive) {
+    if (fs.existsSync(app.getAppPath() + "/" + sourceInAsarArchive)) {
+
+        // file will be copied
+        if (fs.statSync(app.getAppPath() + "/" + sourceInAsarArchive).isFile()) {
+
+            let file = destOutsideAsarArchive 
+            let dir = path.dirname(file);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+
+            fs.writeFileSync(file, fs.readFileSync(app.getAppPath() + "/" + sourceInAsarArchive));
+
+        }
+
+        // dir is browsed
+        else if (fs.statSync(app.getAppPath() + "/" + sourceInAsarArchive).isDirectory()) {
+
+            fs.readdirSync(app.getAppPath() + "/" + sourceInAsarArchive).forEach(function (fileOrFolderName) {
+
+                copyFileOutsideOfElectronAsar(sourceInAsarArchive + "/" + fileOrFolderName, destOutsideAsarArchive + "/" + fileOrFolderName);
+            });
+        }
+    }
+
+}
+if (fs.existsSync(app.getPath('appData')+'/kandiskyscore')) {
+  console.log('The directory exists');
+} else {
+  console.log('The directory does NOT exist');
+  fs.mkdir(app.getPath('appData')+'/kandiskyscore', (err) => { 
+    if (err) { 
+        return console.error(err); 
+    } 
+    console.log('Directory created successfully!'); 
+	}); 
+}
+if (fs.existsSync(app.getPath('home')+'/kandiskyscore')) {
+  console.log('The directory exists');
+    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts')
+} else {
+  console.log('The directory does NOT exist');
+  fs.mkdir(app.getPath('home')+'/kandiskyscore', (err) => { 
+    if (err) { 
+        return console.error(err); 
+    } 
+    console.log('Directory '+app.getPath('home')+'/kandiskyscore created successfully!'); 
+    copyFileOutsideOfElectronAsar('./Pdf', app.getPath('home')+'/kandiskyscore/Pdf')
+    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts')
+    copyFileOutsideOfElectronAsar('./Dsp', app.getPath('home')+'/kandiskyscore/Dsp')
+	}); 
+}
+
+
+fs.access(app.getPath('appData')+'/kandiskyscore/config.js', (err) => {
+	   if (err) {
+	      console.log('does not exist')
+			copyFileOutsideOfElectronAsar('./config.js', app.getPath('appData')+'/kandiskyscore/config.js')
+	    } else {
+	      console.log('exists')
+	    }
+   })
+
+copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
+const Mn = require(app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
+console.log('copy menuDefaut')
+fs.access(app.getPath('appData')+'/kandiskyscore/Dsp', (err) => {
+	   if (err) {
+	      console.log('does not exist')
+			copyFileOutsideOfElectronAsar('./Dsp', app.getPath('appData')+'/kandiskyscore/Dsp')
+	    } else {
+	      console.log('exists')
+	    }
+   })
+fs.access(app.getPath('appData')+'/kandiskyscore/Pdf', (err) => {
+	   if (err) {
+	      console.log('does not exist')
+			copyFileOutsideOfElectronAsar('./Pdf', app.getPath('appData')+'/kandiskyscore/Pdf')
+	    } else {
+	      console.log('exists')
+	    }
+   })
+
 const { exec } = require("child_process");
 
 const isMac = process.platform === 'darwin'
@@ -40,8 +125,30 @@ let winPreDefEtat=0
 let winAideEtat=0
 let newStudioEtat=0
 let winVueStudio3DEtat=0
+let winDocEtat=0
+let winSpectroEtat=0
+let winSvgEtat=0
 
-let currentProjet=""
+let projetName=''
+let projetPath=app.getPath('home')+'/kandiskyscore/projets'
+let audioPath=app.getPath('home')+'/kandiskyscore/projets'
+let imgPath=app.getPath('home')+'/kandiskyscore/projets'
+let editor='libreoffice --draw'
+let editAudioCmd='audacity'
+let daw=0
+let cmdDaw=app.getPath('home')+'/Reaper/reaper_linux_x86_64/REAPER/reaper'
+let pdfPage=1
+let pdfLandscape=1
+let pdfScale=1
+let pdfMgTop=0.2
+let pdfMgBot=0.2
+let pdfMgLeft=0.2
+let pdfMgRight=0.2
+let pdfBkg=0
+let pdfAssCmd='pdfunite'
+let pdfAppCmd='atril'
+
+let currentProjet=app.getPath('home')+'/kandiskyscore/Projets'
 app.disableHardwareAcceleration()
 const createWindow = () => {
   // Création de la fenêtre de navigateur.
@@ -61,6 +168,7 @@ const createWindow = () => {
   // et chargement de l'index.html de l'application.
   mainWindow.loadFile('index.html')
   ipcMain.handle('ping', () =>  mainWindow.getSize())
+  
   // Ouvrir les outils de développement.
   mainWindow.webContents.openDevTools()
   
@@ -89,6 +197,8 @@ const createWindow = () => {
 app.whenReady().then(() => {
 	
   createWindow()
+  
+  
 
   app.on('activate', () => {
     // Sur macOS il est commun de re-créer une fenêtre  lors 
@@ -104,13 +214,15 @@ const template = [
     submenu: [
     	{ label: Mnew, click: nouveauProjet, accelerator:'CommandOrControl+N'},
     	{ label: Mouvrir, click: openProjet, accelerator:'CommandOrControl+O' },
-    	{ label: Mnewspace,
-				click: () => nouvelEspace() },
     	{ type: 'separator' },
     	{ label: Msave,
 				click: () => saveDefProjet(), accelerator:'CommandOrControl+S' },
 		{ label: MsaveAs,
 				click: () => saveDefProjetAs(), accelerator:'CommandOrControl+P' },
+		{ label: Mrename,
+				click: () => renameProjetAs(), accelerator:'CommandOrControl+R' },
+		{ label: Mdel,
+				click: () => delProjet(), accelerator:'CommandOrControl+D' },
     	{ type: 'separator' },
     	{ label: Msavegrp,
 				click: () => saveDefGrp() },
@@ -128,7 +240,9 @@ const template = [
       		{ label: MexportInterv,
 					click: () => exportIntv()  },
       		{ label: MexportPart,
-					click: () => exportPart()  }
+					click: () => exportPart()  },
+				{ label: "ADM",
+					click: () => exportAdm()  }	
   				]
   		 },
     	{ type: 'separator' },
@@ -246,7 +360,8 @@ const template = [
       { label: Mtempo,
 				click: () => tempoAudio() },
 		{ type: 'separator' },
-		,
+		{ label: "Actions",
+				click: () => interp() },
       { label: Mstudio,
 				click: () => createStudio() }
     ]
@@ -266,6 +381,8 @@ const template = [
       { type: 'separator' },
       { label: Mwaveform,
       		click: () => waveForm() },
+       { label: 'Spectrogram',
+      		click: async () => spectrogram() },
       { type: 'separator' },
       { label: Mobjetwav,
       		click: () => renduObjet() },
@@ -274,7 +391,7 @@ const template = [
       { label: Mintervwav,
       		click: () => renduIntervalle() },
       { label: Mpartwav,
-      		click: () => renduPart() }
+      		click: () => renduPart() },
     ]
   },
    // { role: 'Outils' }
@@ -295,13 +412,47 @@ const template = [
     submenu: [
       {
         label: Mdoc,
-        click: async () => {
-          const { shell } = require('electron')
-          await shell.openExternal('http://blanchemain.info/Documents/Programmation/index.php?page=kandiskyScore')
-        }
-      }
+        click: async () => openDoc() }
     ]
   }
+]
+/*
+const template2 = [
+  
+  // Menu principal 
+  {
+    label: Mfichier,
+    submenu: [
+    	{ label: Mnew, click: stdSelect, accelerator:'CommandOrControl+N'},
+    	{ label: Mouvrir, click: stdSelect, accelerator:'CommandOrControl+O' },
+    	{ type: 'separator' },
+    	{ label: Mouvrir, click: saveDsp, accelerator:'CommandOrControl+O' },
+    	{ type: 'separator' },
+    	{ label: Mouvrir, click: ide, accelerator:'CommandOrControl+O' },
+    	{ type: 'separator' },
+      isMac ? { role: 'close' } : { role: 'quit' }
+    ]
+  }
+]
+*/
+const template2 = [
+  
+  // Menu principal 
+  {
+    label: Mfichier,
+    submenu: [
+    	{ label: Mstudio, click: newDefStudio, accelerator:'CommandOrControl+N'},
+    	{ label: MStdLoad, click: stdSelect, accelerator:'CommandOrControl+O' },
+    	{ type: 'separator' },
+    	{ label: MStdSave,
+				click: () => defStudio(), accelerator:'CommandOrControl+S' },
+		{ type: 'separator' },
+		{ label: MIde,
+				click: () => ide(), accelerator:'CommandOrControl+P' },
+    	{ type: 'separator' },
+      isMac ? { role: 'close' } : { role: 'quit' }
+    ]
+   }
 ]
 // ****************************************************************************************************************
 //																	Popup Menu
@@ -356,20 +507,24 @@ function autoFileSave(event,filePath,audioData) {
 	const buffer = Buffer.from(audioData)
 	fs.writeFile(filePath, buffer, (err) => {
 				       if (err) throw err;
-		    console.log('Saved!')
+		    console.log('Saved! '+filePath)
 				    });
 }
 ipcMain.on ("saveAudio", (event, ...args) => {									// Affichage du menu popup
 	console.log(`Save`+ args[1] +` from param`)
     autoFileSave(event,args[1],args[2])
 });
+
+
 // ****************************************************************************************************************
 //																	Menu principal
 // ****************************************************************************************************************
-
+function newDefStudio() {
+	newStudio.webContents.send("fromMain", 'newStudio');
+}
 function createStudio() {
 	if(newStudioEtat==0){
-		newStudio= new BrowserWindow({width:1110,height:950,alwaysOnTop:true,
+		newStudio= new BrowserWindow({width:1110,height:950,
 		webPreferences: {
 	            nodeIntegration: true,
 	            contextIsolation: true,
@@ -378,7 +533,7 @@ function createStudio() {
 	        }
 		})
 		newStudio.loadFile('studioCreate.html')
-		newStudio.removeMenu();
+		newStudio.setMenu(menu2);
 		newStudio.webContents.openDevTools()
 		newStudioEtat=1
 		
@@ -388,6 +543,10 @@ function createStudio() {
 	   
 	  newStudio.destroy()
 	  newStudioEtat=0
+	  if(winVueStudio3DEtat==1){
+		 winVueStudio3D.destroy()
+  		 winVueStudio3DEtat=0
+	  }
 	}) 
 	
 	}else{
@@ -408,10 +567,10 @@ function createStudio() {
 }
 
 function copyDefautMenu(lang) {
-	fs.copyFile('./Local/'+lang+'/menu-'+lang+'.js', './menuDefaut.js', (err) => {
+	fs.copyFile(app.getPath('appData')+'/kandiskyscore'+'/Local/'+lang+'/menu-'+lang+'.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js', (err) => {
     if (err) 
         throw err;
-    console.log('./Local/'+lang+'/menu-'+lang+'.js was copied to ./menuDefaut.js');
+   // console.log('./Local/'+lang+'/menu-'+lang+'.js was copied to ./menuDefaut.js');
     mainWindow.webContents.send("fromMain", 'configSave;'+lang)
 });
 }
@@ -423,8 +582,8 @@ mainWindow.on('resize', function () {
     var size   = mainWindow.getSize();
     var width  = size[0];
     var height = size[1];
-    console.log("width: " + width);
-    console.log("height: " + height);
+    //console.log("width: " + width);
+    //console.log("height: " + height);
     mainWindow.webContents.send("fromMain", 'winSize;'+width+','+height);
 });
 
@@ -459,15 +618,15 @@ function openProjet() {
 	      var testfile = dialog.showOpenDialog({
 			properties: [
 		    'openFile'],
-		     defaultPath: '../',
+		     defaultPath: app.getPath('home'),
 			filters: [
 		    { name: 'kandiskyscore', extensions: ['xml'] },
 		    { name: 'All Files', extensions: ['*'] }
 		  ]
 		   }).then(result => {
 		   	console.log(result.canceled)
-		  		console.log(result.filePaths)
 		  		if(!result.canceled){
+		  			currentProjet=result.filePaths[0]
 		  			mainWindow.webContents.send("fromMain", 'loadProjet;'+result.filePaths)
 		  		}
 			})
@@ -478,7 +637,7 @@ function openGrp() {
 var testfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-     defaultPath: '../',
+     defaultPath: app.getPath('home'),
 	filters: [
     { name: 'kandiskyscore', extensions: ['xml'] },
     { name: 'All Files', extensions: ['*'] }
@@ -491,6 +650,60 @@ var testfile = dialog.showOpenDialog({
   		}
 	})
 	
+}
+function renameProjetAs() {
+	dialog.showSaveDialog({
+        title: 'Select the File Path to save',
+        defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
+        buttonLabel: 'Save',
+        // Restricting the user to only Text Files.
+        filters: [
+            {name: 'Kandiskyscore',extensions: ['xml']},
+             {name: 'All Files',extensions: ['*']},
+             ],
+        properties: []
+    }).then(file => {
+        // Stating whether dialog operation was cancelled or not.
+        console.log(file.canceled);
+        if (!file.canceled) {
+            var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName)
+            // Creating and Writing to the sample.txt file
+            
+            if (fs.lstatSync(base).isDirectory()) {
+			      fs.copySync(base, file.filePath.toString());
+			      fs.rmSync(base, { recursive: true });
+			    }
+            currentProjet=file.filePath.toString();
+            var nm=currentProjet.split('/');
+            projetName=nm[nm.length-1];
+            mainWindow.webContents.send("fromMain", "renameProjet;"+projetName);
+        }
+    }).catch(err => {
+        console.log(err)
+    });
+}
+function delProjet() {
+	dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Annul, 'Ok'],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qalerte,
+	    detail: Qcontinu
+	  }).then(({ response, checkboxChecked }) => {
+	    console.log(`response: ${response}`)
+	    if (response) {
+	    	var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName)
+	    	if (fs.lstatSync(base).isDirectory()) {
+			      fs.rmSync(base, { recursive: true });
+			      mainWindow.webContents.send("fromMain", 'newProject;');
+			    }
+	    }
+	  })
+}
+function defStudio() {
+	console.log("saveStudio")
+	newStudio.webContents.send("fromMain", 'saveStudio;');
 }
 // ******************************************************************************************************
 async function ide() {
@@ -595,7 +808,7 @@ console.log("blob",buf.size)
 }
 // **************************************************************************************************************
 function saveConfig(txt) {
-	var path="./config.js"
+	var path=app.getPath('appData')+'/kandiskyscore/config.js'
 	fs.writeFile(path, 
                    atob(txt), function (err) {
           if (err) throw err;
@@ -606,8 +819,9 @@ function saveModifProjet(txt) {
 	if(currentProjet==""){
 		saveModifProjetAs(txt)
 	}else{
-		fs.writeFile(currentProjet, 
-                   txt, function (err) {
+		var dest=currentProjet
+		fs.writeFile(dest, 
+                   aenu(txt), function (err) {
           if (err) throw err;
           console.log('Saved at',currentProjet);
       });
@@ -616,8 +830,7 @@ function saveModifProjet(txt) {
 function saveModifProjetAs(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join(__dirname, '../'),
-        // defaultPath: path.join(__dirname, '../assets/'),
+        defaultPath: path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
         filters: [
@@ -630,10 +843,12 @@ function saveModifProjetAs(txt) {
         console.log(file.canceled);
         if (!file.canceled) {
             console.log(file.filePath.toString());
+            
+            console.log(file.filePath.toString());
             currentProjet=file.filePath.toString()
             // Creating and Writing to the sample.txt file
             fs.writeFile(file.filePath.toString(), 
-                         txt, function (err) {
+                         aenu(txt), function (err) {
                 if (err) throw err;
                 console.log('Saved!');
             });
@@ -647,8 +862,9 @@ function stdSelect() {
 	var themeFile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: './Dsp',
+   defaultPath: app.getPath('appData')+"/kandiskyscore/Dsp",
 	filters: [
+	 { name: 'Studio', extensions: ['std'] },
     { name: 'All Files', extensions: ['*'] }
    ]
    }).then(result => {
@@ -663,14 +879,18 @@ function dspSave(txtHtml,txt,dsp) {
 	console.log("maindsp",txt)
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join(__dirname, './Dsp'),
-        // defaultPath: path.join(__dirname, '../assets/'),
+        defaultPath: path.join( app.getPath('appData'), '/kandiskyscore/Dsp/',projetName),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
         filters: [
              {name: 'All Files',extensions: ['*']},
              ],
-        properties: []
+       properties: [
+    'saveFile'],
+	filters: [
+	 { name: 'Studio', extensions: ['std'] },
+    { name: 'All Files', extensions: ['*'] }
+   ]
     }).then(file => {
         // Stating whether dialog operation was cancelled or not.
         console.log(file.canceled);
@@ -740,7 +960,7 @@ function saveTheme(txt) {
 function saveSvgAs(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join(__dirname, '../'),
+       defaultPath: path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName,'/Images'),
         // defaultPath: path.join(__dirname, '../assets/'),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
@@ -758,6 +978,10 @@ function saveSvgAs(txt) {
                          atob(txt), function (err) {
                 if (err) throw err;
                 console.log('Saved!');
+                if(winSvgEtat==1){
+						winSvg.destroy()
+	  					winSvgEtat=0
+	  				}
             });
         }
     }).catch(err => {
@@ -798,7 +1022,7 @@ function saveModifGrp(txt) {
     });
 }
 function nouvelEspace() {
-	exec("npm start ", (error, stdout, stderr) => {
+	exec(app.getAppPath()+"/out/kandiskyscore-linux-x64/kandiskyscore", (error, stdout, stderr) => {
     if (error) {
         console.log(`error: ${error.message}`);
         return;
@@ -906,13 +1130,13 @@ function exportObjetActif(){
 function renduObjSvg(){
 	mainWindow.webContents.send("fromMain", 'renduObjSvg');
 }
+
 function renduGrpSvg(){
 	mainWindow.webContents.send("fromMain", 'renduGrpSvg');
 }
 function renduPartSvg(){
 	mainWindow.webContents.send("fromMain", 'renduPartSvg');
 }
-
 function dimWin(zx,zy) {
 	mainWindow.setSize(zx,zy)
 	mainWindow.webContents.send("fromMain", 'winSize;'+zx+','+zy)
@@ -955,7 +1179,42 @@ function exportBlock(block) {
         console.log(err)
     });
 }
-function configuration(lang,cmd2,cmd3,cmd4,cmd5) {
+function defExportFile(dir,cmd) {
+	dialog.showSaveDialog({
+        title: 'Select the File Path to save',
+        defaultPath: dir,
+        // defaultPath: path.join(__dirname, '../assets/'),
+        buttonLabel: 'Save',
+        // Restricting the user to only Text Files.
+        filters: [
+             {name: 'All Files',extensions: ['*']}
+             ],
+        properties: []
+    }).then(file => {
+        // Stating whether dialog operation was cancelled or not.
+        console.log(file.canceled);
+        if (!file.canceled) {
+            console.log(cmd,file.filePath.toString());
+            fs.renameSync(cmd, file.filePath.toString());
+        }
+    }).catch(err => {
+        console.log(err)
+    });
+}
+function exportSelect(block) {
+	console.log("block",block)
+  // Stating whether dialog operation was cancelled or not.
+  	file=app.getPath('home')+'/kandiskyscore/Projets/autoInsert.txt'
+   // Creating and Writing to the sample.txt file
+   fs.writeFile(file, 
+                atob(block), function (err) {
+       if (err) throw err;
+       console.log('Saved autoInsert!');
+       mainRead3D()
+   });
+}
+
+function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
 	if(winProjetEtat==0){
 		winProjet = new BrowserWindow({width:840,height:650,
 		webPreferences: {
@@ -967,10 +1226,10 @@ function configuration(lang,cmd2,cmd3,cmd4,cmd5) {
 		})
 		winProjet.loadFile('configuration.html')
 		winProjet.removeMenu();
-		winProjet.webContents.openDevTools()
+		//winProjet.webContents.openDevTools()
 		winProjetEtat=1
 		winProjet.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winProjet.webContents.send("fromMain", "defProjet;"+lang+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5);
+    		winProjet.webContents.send("fromMain", "defProjet;"+lang+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6);
   		});
 		winProjet.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
 	   e.preventDefault()
@@ -1005,9 +1264,9 @@ function configClose() {
 	winProjetEtat=0
 }
 
-function winObjetParam(objId,lang,obj,c) {
+function winObjetParam(objId,lang,obj,c,t) {
 	if(winConfigEtat==0){
-		winConfig = new BrowserWindow({width:400,height:620,alwaysOnTop:true,
+		winConfig = new BrowserWindow({width:400,height:640,alwaysOnTop:true,
 		webPreferences: {
 	            nodeIntegration: true,
 	            contextIsolation: true,
@@ -1017,10 +1276,10 @@ function winObjetParam(objId,lang,obj,c) {
 		})
 		winConfig.loadFile('objetParam.html')
 		winConfig.removeMenu();
-		winConfig.webContents.openDevTools()
+		//winConfig.webContents.openDevTools()
 		winConfigEtat=1
 		winConfig.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winConfig.webContents.send("fromMain", "defObjet;"+objId+";"+lang+";"+obj+";"+c);
+    		winConfig.webContents.send("fromMain", "defObjet;"+objId+";"+lang+";"+obj+";"+c+";"+t);
   		});
 
 		winConfig.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -1046,9 +1305,40 @@ function winObjetParam(objId,lang,obj,c) {
 		console.log('')
 	}
 }
+const menu2 = Menu.buildFromTemplate(template2)
+function winDefSvg(obj,mode) {
+	if(winSvgEtat==1){
+		winSvg.destroy()
+  			winSvgEtat=0
+	}
+	winSvg = new BrowserWindow({width:800,height:640,alwaysOnTop:false,
+	webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: true,
+            enableRemoteModule: false, // turn off remote
+            preload: path.join(__dirname, 'preload.js')
+        }
+	})
+	winSvg.loadFile('winSvg.html')
+	winSvg.removeMenu();
+	//winSvg.setMenu(menu2)
+	winSvg.webContents.openDevTools()
+	winSvgEtat=1
+	winSvg.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+ 		winSvg.webContents.send("fromMain", "defSvg;"+obj+";"+mode);
+  		});
+
+	winSvg.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+   e.preventDefault()
+   
+  winSvg.destroy()
+  winSvgEtat=0
+  }) 
+}
+
 function createPreDef(objId,lang,obj) {
 	if(winPreDefEtat==0){
-		winPreDef = new BrowserWindow({width:940,height:620,
+		winPreDef = new BrowserWindow({width:980,height:620,
 		webPreferences: {
 	            nodeIntegration: true,
 	            contextIsolation: true,
@@ -1058,7 +1348,7 @@ function createPreDef(objId,lang,obj) {
 		})
 		winPreDef.loadFile('preDefGrp.html')
 		winPreDef.removeMenu();
-		winPreDef.webContents.openDevTools()
+		//winPreDef.webContents.openDevTools()
 		winPreDefEtat=1
 		winPreDef.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winPreDef.webContents.send("fromMain", "defPreDef;"+objId+";"+lang+";"+obj);
@@ -1095,7 +1385,7 @@ function createPreDef(objId,lang,obj) {
 }
 function createWinGraph(id,lang,param,type) {
 	if(winGraphObjEtat==0){
-		winGraphObj = new BrowserWindow({width:535,height:544,alwaysOnTop:true,
+		winGraphObj = new BrowserWindow({width:575,height:544,alwaysOnTop:true,
 		webPreferences: {
 	            nodeIntegration: true,
 	            contextIsolation: true,
@@ -1105,7 +1395,7 @@ function createWinGraph(id,lang,param,type) {
 		})
 		winGraphObj.loadFile('defgraphObj.html')
 		winGraphObj.removeMenu();
-		winGraphObj.webContents.openDevTools()
+		//winGraphObj.webContents.openDevTools()
 		winGraphObjEtat=1
 		winGraphObj.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphObj.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
@@ -1138,7 +1428,7 @@ function createWinSymb(id,lang,param,type) {
 		})
 		winGraphSymb.loadFile('defSymbObj.html')
 		winGraphSymb.removeMenu();
-		winGraphSymb.webContents.openDevTools()
+		//winGraphSymb.webContents.openDevTools()
 		winGraphSymbEtat=1
 		winGraphSymb.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphSymb.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
@@ -1173,7 +1463,7 @@ function createWinSymb(id,lang,param,type) {
 }
 function createWinGrp(id,lang,param) {
 	if(winGraphGrpEtat==0){
-		winGraphGrp = new BrowserWindow({width:535,height:544,
+		winGraphGrp = new BrowserWindow({width:575,height:544,
 		webPreferences: {
 	            nodeIntegration: true,
 	            contextIsolation: true,
@@ -1183,7 +1473,7 @@ function createWinGrp(id,lang,param) {
 		})
 		winGraphGrp.loadFile('defGrp.html')
 		winGraphGrp.removeMenu();
-		winGraphGrp.webContents.openDevTools()
+		//winGraphGrp.webContents.openDevTools()
 		winGraphGrpEtat=1
 		winGraphGrp.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphGrp.webContents.send("fromMain", "defGrp;"+id+";"+lang+";"+param);
@@ -1228,7 +1518,7 @@ function createTrajectoire(id,cmd2) {
 		})
 		winTrajectoire.loadFile('trajectoire.html')
 		winTrajectoire.removeMenu();
-		winTrajectoire.webContents.openDevTools()
+		//winTrajectoire.webContents.openDevTools()
 		winTrajectoireEtat=1
 		winTrajectoire.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winTrajectoire.webContents.send("fromMain", "deftrajectoire;"+id+";"+cmd2);
@@ -1261,7 +1551,7 @@ function openStudio(X,Y,Z,gain) {
 		})
 		winStudio.loadFile('studio.html')
 		winStudio.removeMenu();
-		winStudio.webContents.openDevTools()
+		//winStudio.webContents.openDevTools()
 		winStudioEtat=1
 		winStudio.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winStudio.webContents.send("fromMain", "drawObjActif;"+X+";"+Y+"+;"+Z+";"+gain);
@@ -1294,7 +1584,7 @@ function open3dStudio(X,Y,Z,gain) {
 		})
 		winStudio3D.loadFile('studio3D.html')
 		winStudio3D.removeMenu();
-		winStudio3D.webContents.openDevTools()
+		//winStudio3D.webContents.openDevTools()
 		winStudio3DEtat=1
 		winStudio3D.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winStudio3D.webContents.send("fromMain", "draw3dObj;"+X+";"+Y+"+;"+Z+";"+gain);
@@ -1327,7 +1617,7 @@ function vueStudio3D(lst) {
 		})
 		winVueStudio3D.loadFile('vueStudio3D.html')
 		winVueStudio3D.removeMenu();
-		winVueStudio3D.webContents.openDevTools()
+		//winVueStudio3D.webContents.openDevTools()
 		winVueStudio3DEtat=1
 		winVueStudio3D.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winVueStudio3D.webContents.send("fromMain", "draw3dObj;"+lst);
@@ -1361,7 +1651,7 @@ function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
 		})
 		winSpatial.loadFile('spatialisation.html')
 		winSpatial.removeMenu();
-		winSpatial.webContents.openDevTools()
+		//winSpatial.webContents.openDevTools()
 		winSpatialEtat=1
 		winSpatial.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpatial.webContents.send("fromMain", "defObjetSpatial;"+objId+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6+";"+cmd7);
@@ -1397,6 +1687,28 @@ function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
 	}
 	
 }
+function openDoc() {
+	if(winDocEtat==0){
+		winDoc = new BrowserWindow({width:940,height:900,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winDoc.loadURL('http://blanchemain.info/Documents/Programmation/index.php?page=kandiskyScore')
+		winDoc.removeMenu();
+		//winDoc.webContents.openDevTools()
+		winDocEtat=1
+  		winDoc.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+		   e.preventDefault()
+		   winDoc.destroy()
+		   winDocEtat=0
+	   })
+	}
+}
+
 function tempoAudio() {
 	mainWindow.webContents.send("fromMain", "tempoAudio")
 }
@@ -1406,25 +1718,44 @@ function exportObj(){
 function exportGrp(){
 	mainWindow.webContents.send("fromMain", "exportGrp")
 }
+
 function exportIntv(){
 	mainWindow.webContents.send("fromMain", "exportIntv")
 }
 function exportPart(){
 	mainWindow.webContents.send("fromMain", "exportPart")
 }
+function exportAdm(){
+	mainWindow.webContents.send("fromMain", "exportAdm")
+}
 function pdfSettings() {
     var paperSizeArray = ["A4", "A5"];
     var option = {
-        landscape: true,
-     	  top : 0.2,
-     	  bottom: 0.2,
-     	  left : 0.2,
-     	  right : 0.2,
-        printBackground: true,
-        printSelectionOnly: false,
-        pageSize: 'A4',
+     	  top : pdfMgTop,
+     	  bottom: pdfMgBot,
+     	  left : pdfMgLeft,
+     	  right : pdfMgRight,
+     	  printSelectionOnly: false,
         pageRanges: '1-2'
     };
+    console.log(option)
+    if(pdfLandscape==1){
+        option.landscape = true
+    }else{
+        option.landscape = false
+    }
+    if(pdfBkg==0){
+         option.printBackground=true
+        }else{
+        	option.printBackground=false
+        }
+        
+     if(pdfPage==1){
+     		option.pageSize= "A4"
+     }else{
+     		option.pageSize= "A3"
+     }
+     console.log(option)
   return option;
 }
 
@@ -1450,17 +1781,48 @@ function svgToPdf(txt) {
 	nwin[8]=win8
 	nwin[9]=win9
 	nwin[10]=win10
-
+   var nbw=0
 	for(let i=1;i<11;i++){
-	nwin[i].loadFile('./pdf/p'+i+'.html')
+	nwin[i].loadFile(app.getPath('appData')+'/kandiskyscore/pdf/p'+i+'.html')
 	nwin[i].webContents.on('did-finish-load', function() { 
 	
 	   nwin[i].webContents.printToPDF(pdfSettings()).then(data => {
-		   fs.writeFile("./pdf/p"+i+".pdf", data, function (err) {
+		   fs.writeFile(app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf", data, function (err) {
 			   if (err) {
 			       console.log(err);
 			   } else {
-			       console.log('PDF Generated Successfully');
+			       console.log('PDF Generated Successfully',app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf");
+			       nbw++
+			       if(nbw>9){
+					   var listPdf=''
+					   for(let i=1;i<11;i++){
+					   	listPdf=listPdf+app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf "
+					   }
+					   console.log("listepdf",listPdf)
+					   exec(pdfAssCmd+" " +listPdf+app.getPath('appData')+"/kandiskyscore/merged.pdf", (error, stdout, stderr) => {
+					    if (error) {
+					        console.log(`error: ${error.message}`);
+					        return;
+					    }
+					    if (stderr) {
+					        console.log(`stderr: ${stderr}`);
+					        return;
+					    }
+					    console.log(`stdout: ${stdout}`);
+					});
+					
+					   exec(pdfAppCmd+" " +app.getPath('appData')+"/kandiskyscore/merged.pdf", (error, stdout, stderr) => {
+					    if (error) {
+					        console.log(`error: ${error.message}`);
+					        return;
+					    }
+					    if (stderr) {
+					        console.log(`stderr: ${stderr}`);
+					        return;
+					    }
+					    console.log(`stdout: ${stdout}`);
+					});
+					}
 			   }
 			 });
 		 	}).catch(error => {
@@ -1468,15 +1830,125 @@ function svgToPdf(txt) {
 		 	});
 	 });
    }
+   
 }
 function createPdf(txt) {
 	mainWindow.webContents.send("fromMain", "createPdf")
 }
+function spectrogram() {
+	mainWindow.webContents.send("fromMain", "spectrogram")
+}
+
+function soxSpectrogram(npath) {
+	var txt="";
+	if(winSpectroEtat==0){
+		exec("sox "+npath+"  -n remix 1  spectrogram -x 2000 -o "+app.getPath('home')+'/kandiskyscore/Projets/spectrogram.png', (error, stdout, stderr) => {
+		    if (error) {
+		        console.log(`error: ${error.message}`);
+		        return;
+		    }
+		    if (stderr) {
+		        //console.log(`stderr: ${stderr}`);
+		        //return;
+		    }
+		setTimeout(function(){    
+		exec("sox  "+npath+" -n stats ", (error, stdout, stderr) => {
+		    if (error) {
+		        //console.log(`error: ${error.message}`);
+		        return;
+		    }
+		    if (stderr) {
+		        //console.log(`stderr: ${stderr}`);
+		        //return;
+		       //var ntxt=stderr.split(' ').join(' ')
+		       var ttxt=stderr.split("\n");
+			    
+			    var ntxt=''
+			    var sr=-1
+			    for(i=0;i<ttxt.length;i++){
+			    	sr=ttxt[i].indexOf("sox");
+			    	if(sr==-1){
+			    		ntxt=ntxt+"    \n"+ttxt[i]
+			    	}
+			    	sr=-1
+			    }
+			    txt="<pre><code>"+ntxt+"</code></pre>"
+			    winSpectro = new BrowserWindow({width:920,height:544,
+				webPreferences: {
+			            nodeIntegration: true,
+			            contextIsolation: true,
+			            enableRemoteModule: false, // turn off remote
+			            preload: path.join(__dirname, 'preload.js')
+			        }
+				})
+				winSpectro.loadFile('spectrogram.html')
+				winSpectro.removeMenu();
+				winSpectro.webContents.openDevTools()
+				winSpectroEtat=1
+				winSpectro.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+		    		winSpectro.webContents.send("fromMain", "defSpectro;"+app.getPath('home')+'/kandiskyscore/Projets;'+uena(txt)+";"+npath);
+		  		});
+				winSpectro.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+			   e.preventDefault()
+			   winSpectro.destroy()
+			   winSpectroEtat=0
+			    });
+			}
+	 	  }) 
+	 	  }, 400)
+	   });
+	}else{
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+
+	}
+}
+function saveSpectro(npath) {
+	dialog.showSaveDialog({
+        title: 'Select the File Path to save',
+        //defaultPath: path.join(__dirname, imgPath),
+        defaultPath: path.join(imgPath),
+        // defaultPath: path.join(__dirname, '../assets/'),
+        buttonLabel: 'Save',
+        // Restricting the user to only Text Files.
+        filters: [
+             {name: 'All Files',extensions: ['*']},
+             ],
+        properties: []
+    }).then(file => {
+        // Stating whether dialog operation was cancelled or not.
+        console.log(file.canceled);
+        exec("sox "+npath+"  -n remix 1  spectrogram -x 2000 -o "+file.filePath.toString(), (error, stdout, stderr) => {
+		    if (error) {
+		        console.log(`error: ${error.message}`);
+		        return;
+		    }
+		    if (stderr) {
+		        //console.log(`stderr: ${stderr}`);
+		        //return;
+		    }
+		    })
+    }).catch(err => {
+        console.log(err)
+    });
+}
+function uena(chn) {
+  return btoa(unescape(encodeURIComponent(chn)));
+}
 function aenu(chn) {
   return decodeURIComponent(escape(atob(chn)));
 }
-function spaceToSvg(txt) {
-	fs.writeFile('./pdf/tmpsvg.svg', aenu(txt), function (err) {
+function spaceToSvg(path,txt) {
+	var ntxt=aenu(txt);
+	ntxt=ntxt.replaceAll("&nbsp;", "");
+	console.log(ntxt)
+	fs.writeFile(app.getPath('appData')+'/kandiskyscore/pdf/tmpsvg.svg', ntxt, function (err) {
             if (err) {
                 console.log(err);
             } else {
@@ -1486,23 +1958,32 @@ function spaceToSvg(txt) {
         });
         
 }
-
+function audioEditor(obj) {
+	var cm=editAudioCmd+" "+app.getPath('home')+'/kandiskyscore/Projets/'+projetName+'/Audios/'+obj
+	console.log('cm',cm)
+	exec(cm)
+}
 // ****************************************************************************************************************
 //const ipc = require('electron').ipcRenderer;
 
 ipcMain.on ("toMain", (event, args) => {
 	let cmd=args.split(';')
 	switch(cmd[0]) {
+		case 'basePath':
+			mainWindow.webContents.send("fromMain", "dconfig;"+app.getPath('appData')+'/kandiskyscore/')
+			break
 		case 'defPdf':
 			divToPdf(cmd[1])
 			break
 		case 'spaceToSvg':
-			spaceToSvg(cmd[1])
+			spaceToSvg(cmd[1],cmd[2])
 			break
 		case 'openObjetParam':
-			winObjetParam(cmd[1],cmd[2],cmd[3],cmd[4])
+		//console.log(`openObjetParam ${args} from param`);
+			winObjetParam(cmd[1],cmd[2],cmd[3],cmd[4],cmd[6])
 			break
 		case 'openSymbParam':
+			console.log(`openSymbParam ${args} from param`);
 			createWinSymb(cmd[1],cmd[2],cmd[3],cmd[4])
 			break
 		case 'openGrpParam':
@@ -1510,7 +1991,7 @@ ipcMain.on ("toMain", (event, args) => {
 			createWinGrp(cmd[1],cmd[2],cmd[3])
 			break
 		case 'openPreDef':
-			console.log(`openGrpParam ${args} from param`);
+			//console.log(`openGrpParam ${args} from param`);
 			createPreDef(cmd[1],cmd[2],cmd[3])
 			break
 		case 'objParamAnnul':
@@ -1543,6 +2024,14 @@ ipcMain.on ("toMain", (event, args) => {
 			if(winGraphObjEtat==1){
 				winGraphObj.destroy()
 				winGraphObjEtat=0
+			}
+			if(winSpatialEtat==1){
+				winSpatial.destroy()
+				winSpatialEtat=0
+			}
+			if(winTrajectoireEtat==1){
+				winTrajectoire.destroy()
+				winTrajectoireEtat=0
 			}
 			winConfig.destroy()
 			winConfigEtat=0
@@ -1625,14 +2114,18 @@ ipcMain.on ("toMain", (event, args) => {
 				winStudioEtat=0
 				winStudio.destroy()
 			}
+			if(winTrajectoireEtat==1){
+				winTrajectoire.destroy()
+				winTrajectoireEtat=0
+			}
 			if(winStudio3DEtat==1){
 				winStudio3D.destroy()
 	     	   winStudio3DEtat=0
 	      }
 			break	
 		case 'winSpatial':
-			spatialOpen(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
 			console.log('winSpatial',cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
+			spatialOpen(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
 			break
 		case 'winTrajectoire':
 			createTrajectoire(cmd[1],cmd[2])
@@ -1656,6 +2149,9 @@ ipcMain.on ("toMain", (event, args) => {
 			break
 		case 'replaceAudio':
 			replaceAudio(cmd[1],cmd[2])
+			break
+		case 'saveFxAudio':
+			saveFxAudio(cmd[1],cmd[2])
 			break
 		case 'audioPreDef':
 			console.log("id1",cmd[1])
@@ -1708,6 +2204,9 @@ ipcMain.on ("toMain", (event, args) => {
 			if(winConfigEtat==1){
 				winConfig.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2])
 			}
+			if(winPreDefEtat==1){
+				winPreDef.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2])
+			}
 			break
 		case 'detune':
 			if(winConfigEtat==1){
@@ -1732,6 +2231,9 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'position':
 			if(winConfigEtat==1){
 				winConfig.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
+			}
+			if(winPreDefEtat==1){
+				winPreDef.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
 			}
 			break
 		case 'nom':
@@ -1758,30 +2260,26 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'env':
 			mainWindow.webContents.send("fromMain", "audioEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
 			break
-		case 'envm':
-			mainWindow.webContents.send("fromMain", "audioEnv2;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			break
 		case 'preDefEnv':
 			mainWindow.webContents.send("fromMain", "preDefEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
 			break
 		case 'objRayon':
-			console.log(`rayon ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "objetRayon;"+cmd[1]+";"+cmd[2])
 			break
 		case 'objScaleX':
-			console.log(`scaleX ${args} from renderer process`);
+			//console.log(`scaleX ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "objetScaleX;"+cmd[1]+";"+cmd[2])
 			break
 		case 'objScaleY':
-			console.log(`scaleY ${args} from renderer process`);
+			mainWindow.webContents.send("fromMain", "objetScaleY2;"+cmd[1]+";"+cmd[2])
+			break
+		case 'objScaleY2':
 			mainWindow.webContents.send("fromMain", "objetScaleY;"+cmd[1]+";"+cmd[2])
 			break
 		case 'objScaleGrpXY':
-			console.log(`scaleXY ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "objetScaleGrpXY;"+cmd[1]+";"+cmd[2])
 			break
 		case 'objScaleXY':
-			console.log(`scaleXY ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "objetScaleXY;"+cmd[1]+";"+cmd[2])
 			break
 		case 'objOpacity':
@@ -1798,6 +2296,7 @@ ipcMain.on ("toMain", (event, args) => {
 			winConfig.webContents.send("fromMain", "bkgTransparent;"+cmd[1])
 			break
 		case 'symbBkgTransparent':
+			console.log(`symbBkgTransparent ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "bkgTransparent;"+cmd[1])
 			break
 		case 'grpBkgTransparent':
@@ -1815,7 +2314,7 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'objColor':
 			console.log(`defGraphObj ${args} from renderer process`);
 			winConfig.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2])
-			mainWindow.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2])
+			mainWindow.webContents.send("fromMain", "objNColor;"+cmd[1]+";"+cmd[2])
 			break
 		case 'bkgGrpColor':
 			console.log(`defGraphObj ${args} from renderer process`);
@@ -1826,8 +2325,8 @@ ipcMain.on ("toMain", (event, args) => {
 			mainWindow.webContents.send("fromMain", "symbColor;"+cmd[1]+";"+cmd[2])
 			break
 		case 'symbBkgColor':
-			console.log(`defGraphObj ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "bkgColor;"+cmd[1]+";"+cmd[2])
+			console.log(`symbBkgColor ${args} from renderer process`);
+			mainWindow.webContents.send("fromMain", "bkgNColor;"+cmd[1]+";"+cmd[2])
 			break
 		case 'symbRotate':
 			console.log(`defGraphObj ${args} from renderer process`);
@@ -1863,9 +2362,8 @@ ipcMain.on ("toMain", (event, args) => {
 			mainWindow.webContents.send("fromMain", "symbBkgHeight;"+cmd[1]+";"+cmd[2])
 			break
 		case 'bkgColor':
-			console.log(`defbkgObj ${args} from renderer process`);
 			winConfig.webContents.send("fromMain", "defBkgColor;"+cmd[1]+";"+cmd[2])
-			mainWindow.webContents.send("fromMain", "bkgColor;"+cmd[1]+";"+cmd[2])
+			mainWindow.webContents.send("fromMain", "bkgNColor;"+cmd[1]+";"+cmd[2])
 			break
 		case 'defBkgImg':
 			defBkgImg(cmd[1])
@@ -2017,13 +2515,14 @@ ipcMain.on ("toMain", (event, args) => {
 			saveModifProjet(cmd[1])
 			break
 		case 'saveModifProjetAs':
+			
 			saveModifProjetAs(cmd[1])
 			break
 		case 'saveModifGrp':
 			saveModifGrp(cmd[1])
 			break	
 		case 'configProjet':
-			configuration(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5])
+			configuration(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6])
 			break
 		case 'configClose':
 			configClose()
@@ -2034,6 +2533,10 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'exportBlock':
 			exportBlock(cmd[1])
 			break
+		case 'defExportFile':
+		console.log(`deffile ${args} from renderer process`);
+			defExportFile(cmd[1],cmd[2])
+			break;
 		case 'exportProjet':
 			mainWindow.webContents.send("fromMain", "exportProjet;"+cmd[1])
 			break
@@ -2100,6 +2603,11 @@ ipcMain.on ("toMain", (event, args) => {
 				winStudio.webContents.send("fromMain", "delEvtAudio;"+cmd[1])
 			}
 			break
+		case 'endEvtAudio':
+			if(winStudioEtat==1){
+				winStudio.webContents.send("fromMain", "endEvtAudio;")
+			}
+			break
 		case 'openStudio3d':
 			open3dStudio(cmd[1],cmd[2],cmd[3],cmd[4])
 			winSpatial.webContents.send("fromMain", "openStudio3D")
@@ -2113,7 +2621,24 @@ ipcMain.on ("toMain", (event, args) => {
 			selectImg()
 			break
 		case 'saveSvg':
+			//console.log(`savd1Svg ${args} from renderer save`);
+			winDefSvg(cmd[1],cmd[2])
+			break
+		case 'saveVueSvg':
+			//console.log(`savdSvg ${args} from renderer process`);
 			saveSvgAs(cmd[1])
+			break
+		case 'vueSvgValid':
+			if(winSvgEtat==1){
+				winSvg.destroy()
+	  			winSvgEtat=0
+	  		}
+			break
+		case 'spectroAnnul':
+			if(winSpectroEtat==1){
+				winSpectro.destroy()
+	  			winSpectroEtat=0
+	  		}
 			break
 		case 'saveAudioObjet':
 			saveAudioObjet(cmd[1],cmd[2])
@@ -2150,6 +2675,10 @@ ipcMain.on ("toMain", (event, args) => {
 			ide()
 			break
 		case 'defStudioOk':
+			if(winVueStudio3DEtat==1){
+				winVueStudio3D.destroy()
+	  			winVueStudio3DEtat=0
+	  		}
 			newStudio.destroy()
 	  		newStudioEtat=0
 			break 
@@ -2165,6 +2694,32 @@ ipcMain.on ("toMain", (event, args) => {
 	  			winVueStudio3DEtat=0
 	  		}
 			break
+		case 'read3D':
+			mainRead3D()
+			break
+		case 'exportExterne':
+		console.log(`externe ${args} from renderer process`);
+			mainExternes(cmd[1])
+			mainWindow.webContents.send("fromMain", "exportExterne;"+cmd[1])
+			break
+		case 'defExterne':
+			mainExternes2(cmd[1])
+			break
+		case 'exportSelect':
+			exportSelect(cmd[1])
+			break
+		case 'vueSpectrogram':
+			//console.log(`spectro ${args} from renderer process`);
+			soxSpectrogram(cmd[1])
+			break
+		case 'saveSpectro':
+			//console.log(`save spectro ${args} from renderer process`);
+			saveSpectro(cmd[1])
+			break
+		case 'audioEditor':
+			console.log(`save spectro ${args} from renderer process`);
+			audioEditor(cmd[1])
+			break
 	}
          
 });
@@ -2173,6 +2728,68 @@ ipcMain.on ("toMain", (event, args) => {
 })
 
 // ****************************************************************************************************************
+function mainExternes(txt) {
+	var defc=atob(txt).split(',')
+	console.log('importExterne',txt,defc)
+	editor=defc[0]
+	daw=defc[1]
+	cmdDaw=defc[2]
+	pdfPage=parseInt(defc[3])
+	pdfLandscape=defc[4]
+	pdfScale=parseFloat(defc[5])
+	pdfMgTop=parseFloat(defc[6])
+	pdfMgBot=parseFloat(defc[7])
+	pdfMgLeft=parseFloat(defc[8])
+	pdfMgRight=parseFloat(defc[9])
+	pdfBkg=parseInt(defc[10])
+	pdfAssCmd=defc[11]
+	pdfAppCmd=defc[12]
+	editAudioCmd=defc[13]
+}
+function mainExternes2(txt) {
+	var defc=atob(txt).split(',')
+	console.log('importExterne',txt,defc)
+	projetName=defc[0]
+	projetPath=defc[1]
+	audioPath=defc[2]
+	imgPath=defc[3]
+	editor=defc[4]
+	daw=defc[5]
+	cmdDaw=defc[6]
+	pdfPage=defc[7]
+	pdfLandscape=defc[8]
+	pdfScale=defc[9]
+	pdfMgTop=defc[10]
+	pdfMgBot=defc[11]
+	pdfMgLeft=defc[12]
+	pdfMgRight=defc[13]
+	pdfBkg=defc[14]
+	pdfAssCmd=defc[15]
+	pdfAppCmd=defc[16]
+	editAudioCmd=defc[17]
+}
+function mainRead3D() {
+	if(daw=='reaper'){
+		//cmdDaw='/home/dominique/Reaper/reaper_linux_x86_64/REAPER/reaper'
+		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/tmp.rpp'+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/insertKandiskyScore2.lua' 
+	}else{
+		cmdDaw='ardour'
+		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Ardour/tmp/tmp.ardour'
+
+	}
+	exec(cmd, (error, stdout, stderr) => {
+    if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+    }
+    if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+    }
+    console.log(`stdout: ${stdout}`);
+});
+}
+
 function defProjet(){
 	mainWindow.webContents.send("fromMain", "configProjet")
 }
@@ -2185,14 +2802,14 @@ function objetAudio(id,num) {
 	var audiofile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: '/home/dominique/public_html/kandiskyscore2/Projets/decouverte/Audios',
+   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
 	filters: [
     { name: 'Audios', extensions: ['wav', 'flac', 'ogg', 'aiff'] },
     { name: 'All Files', extensions: ['*'] }
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		console.log("result.filePaths",result.filePaths[0],id)
+   		console.log("result.filePaths",result.filePaths[0],id,num)
    		rt=result.filePaths[0]
    	}
   		winConfig.webContents.send("fromMain", "defAudioObj;"+id+";"+rt+";"+num);
@@ -2201,7 +2818,10 @@ function objetAudio(id,num) {
 }
 function replaceAudio(id,rt) {
 	winConfig.webContents.send("fromMain", "defAudioObj;"+id+";"+rt+";1");
-  	mainWindow.webContents.send("fromMain", "audioImport;"+id+";"+rt+";1");
+  	mainWindow.webContents.send("fromMain", "audioImport;"+id+";"+rt+";1;0");
+}
+function saveFxAudio(id,rt) {
+  	mainWindow.webContents.send("fromMain", "audioImport;"+id+";"+rt+";1;1");
 }
 function preDefAudio(id) {
 	console.log("id2",id)
@@ -2209,7 +2829,7 @@ function preDefAudio(id) {
 	var audiofile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: '/home/dominique/public_html/kandiskyscore2/Projets/decouverte/Audios',
+   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
 	filters: [
     { name: 'Audios', extensions: ['wav', 'flac', 'ogg', 'aiff'] },
     { name: 'All Files', extensions: ['*'] }
@@ -2229,7 +2849,7 @@ function defBkgImg(id) {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: '/home/dominique/public_html/kandiskyscore2/Projets/decouverte',
+   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/'+projetName,
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -2252,7 +2872,7 @@ function defBkgGrpImg(id) {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: '/home/dominique/public_html/kandiskyscore2/Projets/decouverte',
+   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -2277,7 +2897,7 @@ function defSymbBkgImg(id) {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: '/home/dominique/public_html/kandiskyscore2/Projets/decouverte',
+   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -2299,7 +2919,7 @@ function selectImg() {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: '/home/dominique/public_html/kandiskyscore2/Projets/decouverte',
+   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/'+projetName,
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -2326,6 +2946,24 @@ function selectTheme() {
    	}
   		mainWindow.webContents.send("fromMain", "selectTheme;"+result.filePaths[0]);
 	})
+}
+function interp() {
+	var rt=""
+	var themeFile = dialog.showOpenDialog({
+	properties: [
+    'openFile'],
+   defaultPath: app.getPath('home')+'/kandiskyscore/Actions',
+	filters: [
+    { name: 'Js', extensions: ['js'] }
+  ]
+   }).then(result => {
+   	if(result.canceled==false){
+   		rt=result.filePaths[0]
+   	}
+  		//mainWindow.webContents.send("fromMain", "selectTheme;"+result.filePaths[0]);
+  		mainWindow.webContents.send("fromMain", "interpreteur;"+rt);
+	})
+	
 }
 // ****************************************************************************************************************
 

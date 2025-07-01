@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2024-01-02T15:36:45+0100" />
+<meta name="date" content="2025-04-08T11:34:15+0200" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -21,8 +21,8 @@
 	<input type="file" id="fileLoad" style="display:none"/>
 	<input type="file" id="fileGrpLoad" style="display:none"/>
 	<input type="file" id="imgParam" style="display:none"/>
-	<div id="paramFile"><button id="paramFileSelect" style="width:70px;margin-left:10px" onclick='openFileAudio();'>Audio : </button><span   id="lbmute" style="position:absolute;top:8px;left:99px;">Mute :</span> <span  style="position:absolute;top:6px;left:140px;"><input  type="checkbox" id="objMute" name="mute" /></span><span id="lbfichier" style="position:absolute;top:8px;left:170px;">File : </span><span id="paramLabel" style="position:absolute;top:8px;left:226px;"></span></div>
-	<div id="lbduree" style="position:absolute;top:44px;left:99px;">Durée :</div><div id="paramDr" style="position:absolute;top:44px;left:153px;">test</div>
+	<div id="paramFile"><button id="paramFileSelect" style="width:70px;margin-left:10px" onclick='openFileAudio();'>Audio : </button><span   id="lbmute" style="position:absolute;top:8px;left:99px;">Mute :</span> <span  style="position:absolute;top:6px;left:154px;"><input  type="checkbox" id="objMute" name="mute" /></span><span id="lbfichier" style="position:absolute;top:8px;left:180px;">File : </span><span id="paramLabel" style="position:absolute;top:8px;left:226px;"></span></div>
+	<div id="lbduree" style="position:absolute;top:44px;left:99px;">Durée :</div><div id="paramDr" style="position:absolute;top:44px;left:180px;"></div>
 			<div id="lbcanaux" style="position:absolute;top:44px;left:270px;">canaux :</div> <div id="paramCanaux"  style="position:absolute;top:44px;left:340px;"></div>
 	<div style="margin:0px;padding:0px;width:50px;height:50px;" >
 		<span  id="dobjColor" style="position:absolute;top:66px;left:28px;width:50px;height:50px;border:1px solid black;" onclick='defGraphObj(event)'>
@@ -32,7 +32,7 @@
 	   <input id="selectColor" type="color" style="display:none" value="" />
 	    <input id="selectStrokeColor" type="color" style="display:none" value="" />
 		</span>
-		<div id="dureeReelle" style="position:absolute;top:87px;left:100px;"><button onclick='defDureeReelle();'> Durée Réelle</button> Reverse : <input id="nreverse" style="position:absolute;top:2px;left:158px;"type="checkbox" /> </div>
+		<div id="dureeReelle" style="position:absolute;top:87px;left:100px;"><button onclick='defDureeReelle();'> Durée Réelle</button> Reverse : <input id="nreverse" style="position:absolute;top:2px;left:190px;"type="checkbox" /> </div>
 		
    </div>
    <div id="nspacialisation" onclick='openSpatialisation();' style="position:absolute;top:75px;left:340px;width:32px;height:32px;"><img src="./images/png/f3D.png" alt "3D" /></div>
@@ -57,34 +57,27 @@
 		<div id="env5"  style="position:absolute;top:25px;left:150px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
 		<div id="env6"  style="position:absolute;top:60px;left:174px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
 		<div id="env7"  style="position:absolute;top:94px;left:196px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		<div id="panEnv2" style="display:none;">
-		<div id="envm1"  style="position:absolute;top:94px;left:0px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
-		<div id="envm2"  style="position:absolute;top:70px;left:10px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
-		<div id="envm3"  style="position:absolute;top:20px;left:50px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
-		<div id="envm4"  style="position:absolute;top:15px;left:100px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
-		<div id="envm5"  style="position:absolute;top:30px;left:150px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
-		<div id="envm6"  style="position:absolute;top:80px;left:160px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
-		<div id="envm7"  style="position:absolute;top:94px;left:196px;width:4px;height:4px;border:1px solid black;background-color:green;"></div>
-		</div>
+		
 	</div>
 
 	<div id="listeFiltre" style="position:absolute;top:140px;left:80px;"><img alt="fx" src="./images/png/metafx.png"  /></div><div id="substituer" style="position:absolute;top:147px;left:125px;"><img alt="sub" src="./images/refresh.svg "  style="width:18px;height:18px;" /></div>
-	<div id="lbgain"  style="position:absolute;top:190px;left:38px;">Gain : <input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
-	<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span id="lbrate" style="position:absolute;top:300px;left:60px;"  >Vitesse de lecture : <input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.01" max="4.0" step="0.01" /></span> </p>
+	<div id="lbgain"  style="position:absolute;top:190px;left:38px;"><span>Gain : </span><input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
+	<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span id="lbrate" style="position:absolute;top:300px;left:60px;"  >Vitesse de lecture :</span> <span style="position:absolute;top:297px;left:206px;" ><input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.01" max="4.0" step="0.01" /></span> </p>
 	</div>
-	<div id="position" style="position:absolute;top:334px;left:80px;">Position : <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
+	<div id="position" style="position:absolute;top:334px;left:80px;"><span>Position : </span> <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
 	<div id="lbdetune" style="position:absolute;top:384px;left:14px;">Detune : </div> <span id="etir" style="margin:0px;padding:0px;position:absolute;top:375px;left:88px;" ><input id="ndetune" style="width:80px;height:24px;" type="number"  value="0" min="-1199" max="1199" step="1" /></span><div class="slider"  style="position:absolute;top:383px;left:184px;"><input  style="margin-left:14px;width:180px;" id="detune" type="range" value="1" min="-1199" max="1199" step="1" /></div>
-	<div id="lblimites" style="position:absolute;top:436px;left:10px;">Limites :<img  src="./images/png/fondSlider.png" style="margin-left:30px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:88px;height:20px;" /><span style="position:absolute;top:20px;left:88px;" id="bgauchet"></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:346px;height:20px;"/><span style="position:absolute;top:20px;left:88px;" id="bdroitt"></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
+	<div id="lblimites" style="position:absolute;top:416px;left:10px;"><span>Limites :</span><img  src="./images/png/fondSlider.png" style="margin-left:30px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:88px;height:20px;" /><span style="position:absolute;top:30px;left:68px;"   >% <input id="inpgauchet" style="width:50px;" type="number"  value="0.001" min="0.000" max="1.000" step="0.001" /></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:306px;height:20px;"/><span style="position:absolute;top:30px;left:276px;" >% <input id="inpdroitt" style="width:50px;" type="number"  value="1.000" min="0.001" max="1.000" step="0.001" /></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
 	</div>
-	<div id="lbnom" style="position:absolute;top:495px;left:10px;">Nom : <input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
-	<div id="lbinstrument" style="position:absolute;top:537px;left:10px;">Instrument : <input id="inpCanal" style="width:50px;" type="number"  value="0" min="0" max="64" step="1" /></div>
-	<div  style="position:absolute;top:480px;left:290px;"><img alt="Reverb. Convolution impulse reponse" title="Reverb. Convolution impulse reponse" src="./images/png/convol2.png" style="width:48px;"  onclick="fxAddPlugin();" /> </div>
-	<div  style="position:absolute;top:537px;left:260px;">
+	<div style="position:absolute;top:485px;left:10px;" >Durée relative : <input id="inprelatif" style="width:50px;" type="text"  value="0.001" min="0.001" max="1.000" step="0.001" /> s.</div>
+	<div id="lbnom" style="position:absolute;top:525px;left:10px;"><span>Nom : </span><input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
+	<div id="lbinstrument" style="position:absolute;top:577px;left:10px;"><span>Instrument :</span> <input id="inpCanal" style="width:50px;" type="number"  value="0" min="0" max="64" step="1" /></div>
+	<div  style="position:absolute;top:520px;left:290px;"><img alt="Reverb. Convolution impulse reponse" title="Reverb. Convolution impulse reponse" src="./images/png/convol2.png" style="width:48px;"  onclick="fxAddPlugin();" /> </div>
+	<div  style="position:absolute;top:577px;left:260px;">
 		<select id="selecReverb" size="1"  value="0" onchange="convol(value);">
 			<option value="0"></option>
 		</select>
 		</div>
-	<div style="position:absolute;top:575px;left:250px;" ><button id="lbannul" onclick='objAnnul();'>Annuler</button> <button  id="lbvalid" onclick='objValid();'>Valider</button></div>
+	<div style="position:absolute;top:605px;left:300px;" ><button  id="lbvalid" onclick='objValid();'></button></div>
 </div>
 <script  src="impulseReponse.js"></script>
 <script >
@@ -92,11 +85,12 @@ var selectObj={}
 var selectId=''
 var svobj=""
 const tableLang=[]
+let tempo=60;
 
 dragElement2(document.getElementById("bgauche"));
 dragElement2(document.getElementById("bdroit"));
-dragElement2(document.getElementById("bgauchet"));
-dragElement2(document.getElementById("bdroitt"));
+//dragElement2(document.getElementById("bgauchet"));
+//dragElement2(document.getElementById("bdroitt"));
 dragElement2(document.getElementById("env1"));
 dragElement2(document.getElementById("env2"));
 dragElement2(document.getElementById("env3"));
@@ -104,13 +98,7 @@ dragElement2(document.getElementById("env4"));
 dragElement2(document.getElementById("env5"));
 dragElement2(document.getElementById("env6"));
 dragElement2(document.getElementById("env7"));
-dragElement2(document.getElementById("envm1"));
-dragElement2(document.getElementById("envm2"));
-dragElement2(document.getElementById("envm3"));
-dragElement2(document.getElementById("envm4"));
-dragElement2(document.getElementById("envm5"));
-dragElement2(document.getElementById("envm6"));
-dragElement2(document.getElementById("envm7"));
+
 
 document.getElementById("listeFiltre").addEventListener('click',listeFx)
 document.getElementById("substituer").addEventListener('click',substituerFx)
@@ -126,7 +114,8 @@ document.getElementById("transposition").addEventListener('input',transpoToPosY)
 
 document.getElementById("ndetune").addEventListener('input',detune)
 document.getElementById("detune").addEventListener('input',sdetune)
-
+document.getElementById("inpgauchet").addEventListener('input',defDebut)
+document.getElementById("inpdroitt").addEventListener('input',defFin)
 document.getElementById("inpNom").addEventListener('input',nom)
 document.getElementById("inpCanal").addEventListener('input',piste)
 var txt="<option value=''></option>";
@@ -168,20 +157,20 @@ document.getElementById('lbmute').innerHTML=tableLang["objpMute"]
 document.getElementById('lbfichier').innerHTML=tableLang["objpFile"]
 document.getElementById('lbduree').innerHTML=tableLang["objpDuree"]
 document.getElementById('lbcanaux').innerHTML=tableLang["objpCanaux"]
-document.getElementById('dureeReelle').firstChild.firstChild.innerHTML=tableLang["objpDreel"]
+document.getElementById('dureeReelle').firstChild.innerHTML=tableLang["objDreel"]
 document.getElementById('tpenv').innerHTML=tableLang["objpTpEnv"]
 document.getElementById('lbtpenv1').innerHTML=tableLang["objpTpEnv1"]
 document.getElementById('lbtpenv2').innerHTML=tableLang["objpTpEnv2"]
 document.getElementById('lbtpenv3').innerHTML=tableLang["objpTpEnv3"]
 document.getElementById('ongEnv').innerHTML=tableLang["objpEnv"]
-document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain "]
-document.getElementById('lbrate').firstChild.innerHTML=tableLang["objpRate"]
+document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain"]
+document.getElementById('lbrate').innerHTML=tableLang["objpRate"]
 document.getElementById('position').firstChild.innerHTML=tableLang["objpPos"]
-document.getElementById('lbdetune').firstChild.innerHTML=tableLang["objpDetune"]
-document.getElementById('lblimites').firstChild.innerHTML=tableLang["objpLimites"]
+document.getElementById('lbdetune').firstChild.innerHTML=tableLang["objDetune"]
+document.getElementById('lblimites').firstChild.innerHTML=tableLang["objLimites"]
 document.getElementById('lbnom').firstChild.innerHTML=tableLang["objpNom"]
 document.getElementById('lbinstrument').firstChild.innerHTML=tableLang["objpInstrument"]
-document.getElementById('lbannul').innerHTML=tableLang["objpAnnul"]
+
 document.getElementById('lbvalid').innerHTML=tableLang["objpValid"]
 }
 
@@ -300,14 +289,13 @@ function objetStringDef(txt,c) {
 	selectObj.y1=tbtxt[69]
 	selectObj.y2=tbtxt[70]
 	selectObj.width=parseFloat(tbtxt[71])
-	selectObj.reverse=JSON.parse(tbtxt[72])
+	selectObj.reverse=tbtxt[72]
 	
 	if(selectObj.bkgTrp==true){
 		document.getElementById("dobjColor").style.backgroundColor='transparent'
 	}else{
 		document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
 	}
-	console.log("type",selectObj.type)
 	switch(selectObj.type){
 					case "1":
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><circle id='circle' cx='50' cy='50' r='30' fill='"+selectObj.objColor+"' /></svg>"
@@ -436,12 +424,9 @@ function objetStringDef(txt,c) {
 	document.getElementById("detune").value=selectObj.detune
 	document.getElementById("ndetune").value=selectObj.detune
 	document.getElementById("bgauche").style.left=posLimite(selectObj.debut)+"px"
-	document.getElementById("bgauchet").style.left=(posLimite(selectObj.debut)-20) + "px";
-	document.getElementById("bgauchet").innerHTML=selectObj.debut;
+	document.getElementById("inpgauchet").value=selectObj.debut
 	document.getElementById("limFond").style.left=document.getElementById("bgauche").style.left
 	document.getElementById("bdroit").style.left=(posLimite(selectObj.fin)-8)+"px"
-	document.getElementById("bdroitt").style.left=(posLimite(selectObj.fin)-28) + "px";
-	document.getElementById("bdroitt").innerHTML=selectObj.fin;	
 	document.getElementById("limFond").style.width=(262-(262*(selectObj.debut+(1-selectObj.fin))))+"px"
 	
 	document.getElementById("inpNom").value=selectObj.nom
@@ -463,6 +448,10 @@ function objetStringDef(txt,c) {
 	document.getElementById("env7").style.left=(200*selectObj.envX[6])+"px"
 	document.getElementById("env7").style.top=(128-(128*selectObj.envY[6]))+"px"
 	
+	var rw=parseInt(document.getElementById("bdroit").style.left)-parseInt(document.getElementById("bgauche").style.left);
+	var nduree=selectObj.duree/selectObj.transposition
+	var relative=nduree*((rw+4)/262)
+	document.getElementById("inprelatif").value=relative.toFixed(3)
 }
 function defDureeReelle(){
 	window.api.send("toMain", "dureeReelle;"+selectId)
@@ -471,26 +460,27 @@ function objetGraphToString() {
 var txt=selectObj.bkgColor+":"+selectObj.bkgHeight+":"+selectObj.bkgImg+":"+selectObj.bkgTrp+":"+selectObj.bkgWidth+":"+selectObj.borderBc+":"+selectObj.borderBr+":"+selectObj.borderBs+":"+selectObj.borderBw+":"+selectObj.borderDc+":"+selectObj.borderDr+":"+selectObj.borderDs+":"+selectObj.borderDw+":"+selectObj.borderGc+":"+selectObj.borderGr+":"+selectObj.borderGs+":"+selectObj.borderGw+":"+selectObj.borderHc+":"+selectObj.borderHr+":"+selectObj.borderHs+":"+selectObj.borderHw+":"+selectObj.height+":"+selectObj.margeG+":"+selectObj.margeH+":"+selectObj.objBorderC+":"+selectObj.objBorderW+":"+selectObj.objColor+":"+selectObj.objOpacity+":"+selectObj.r+":"+selectObj.width
 	return txt
 }
-var lang="Fr"
+function aenu(chn) {
+  return decodeURIComponent(escape(atob(chn)));
+}
 window.api.receive("fromMain", (data) => {
-
-console.log(`objParam1 : `,data);
+console.log(`objparam ${data} from renderer process`);
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
 			case 'defObjetSpatial':
-				console.log(`spatialisation :`,cmd[1])
+				
 				break
 			case 'defObjet':
 				if(cmd[2]!=""){
 					selectId=cmd[1]
 					lang=cmd[2]
+					tempo=cmd[5]
 					importLang('./Local/'+lang+'/objParam-'+lang+".txt")
 					objetStringDef(cmd[3],cmd[4])
 				}else{
 				console.log('alerte')
 				}
-				//console.log(`objParam2 :`,cmd[2],selectObj,selectId)
 				break
 			case 'defAudioObj':
 				defAudioFile(cmd[1],cmd[2],parseInt(cmd[3]))
@@ -521,6 +511,9 @@ console.log(`objParam1 : `,data);
 				break
 			case 'transposition':
 				document.getElementById("transposition").value=parseFloat(cmd[2]).toFixed(2)
+				var nduree=selectObj.duree/parseFloat(cmd[2]).toFixed(2)
+				var relative=nduree*(parseFloat(document.getElementById("limFond").style.width)/261.8)
+				document.getElementById("inprelatif").value=relative.toFixed(3)
 				break
 			case 'position':
 				document.getElementById("mnt").value=cmd[1];
@@ -550,17 +543,20 @@ console.log(`objParam1 : `,data);
 				
 				break
 	}  
-	 //console.log(`objParam :`,cmd[0]);      
+     
 });
 function openFileAudio(){
 	var cmd="audioFileObj;"+selectId
-	console.log("cmd",cmd,selectObj);
 	window.api.send("toMain", cmd)
 }
 
 function paramFileAudio(d,c){
 		document.getElementById("paramDr").textContent=parseFloat(d).toFixed(2)
 		document.getElementById("paramCanaux").textContent=c
+		selectObj.duree=parseFloat(d).toFixed(2)
+		var nduree=selectObj.duree/parseFloat(document.getElementById("transposition").value)
+		var relative=nduree
+		document.getElementById("inprelatif").value=relative.toFixed(3)
 }
 
 function defGraphObj(e){
@@ -597,7 +593,6 @@ function objAnnul() {
 }
 function objValid() {
 	var cmd="objParamValid;"+selectId
-	console.log("cmd",cmd);
 	window.api.send("toMain",cmd )
 	
 }
@@ -619,7 +614,6 @@ function mute() {
 	}else{
 		selectObj.mute=0
 	}
-	console.log("mute",selectObj.mute)
 	window.api.send("toMain", "mute;"+selectId+";"+selectObj.mute);
 }
 function gain() {
@@ -636,7 +630,6 @@ function reverse() {
 }
 function envType() {
 	selectObj.envType=document.getElementById("selecType").value
-	console.log("type",selectObj.envType)
 	window.api.send("toMain", "envType;"+selectId+";"+selectObj.envType);
 }
 function flagTranspo() {
@@ -645,15 +638,15 @@ function flagTranspo() {
 	}else{
 		selectObj.flagTranspo=0
 	}
-	console.log("flagTranspo",selectObj.flagTranspo)
 	window.api.send("toMain", "flagTranspo;"+selectId+";"+selectObj.flagTranspo);
 }
 function defPosition(){
 	var ratioT=(720/12960);
+	var tempo=parseFloat(document.getElementById("tempo").value)/60
 	var mn=parseInt(document.getElementById("mnt").value);
 	var s=parseInt(document.getElementById("mns").value);
 	var ml=parseInt(document.getElementById("mnl").value);
-	var tmp=(((mn*60)+s)+(ml/1000))/ratioT;
+	var tmp=((((mn*60)+s)+(ml/1000))/ratioT)*tempo;
 	selectObj.posX=tmp;
 	window.api.send("toMain", "defPosition;"+selectId+";"+tmp);
 }
@@ -667,25 +660,41 @@ function sdetune() {
 	document.getElementById("ndetune").value=selectObj.detune
 	window.api.send("toMain", "detune;"+selectId+";"+selectObj.detune);
 }
-
+function defDebut() {
+	selectObj.debut=document.getElementById("inpgauchet").value
+	document.getElementById("bgauche").style.left=posLimite(selectObj.debut)+"px"
+	document.getElementById("limFond").style.left=document.getElementById("bgauche").style.left
+	document.getElementById("limFond").style.width=(262-(262*(selectObj.debut+(1-selectObj.fin))))+"px"
+	var nduree=selectObj.duree/selectObj.transposition
+	var relative=nduree*(parseFloat(document.getElementById("limFond").style.width)/261.8)
+	document.getElementById("inprelatif").value=relative.toFixed(3)
+	window.api.send("toMain", "debut;"+selectId+";"+selectObj.debut);
+}
+function defFin() {
+	selectObj.fin=document.getElementById("inpdroitt").value
+	document.getElementById("bdroit").style.left=posLimite(selectObj.fin)+"px"
+	var rw=parseInt(document.getElementById("bdroit").style.left)-parseInt(document.getElementById("bgauche").style.left);
+	document.getElementById("limFond").style.width=(rw+4)+"px";
+   var nduree=selectObj.duree/selectObj.transposition
+	var relative=nduree*(parseFloat(document.getElementById("limFond").style.width)/268.8)
+	document.getElementById("inprelatif").value=relative.toFixed(3)
+	window.api.send("toMain", "fin;"+selectId+";"+selectObj.fin);
+}
 function nom() {
 	selectObj.nom=document.getElementById("inpNom").value
-	console.log("nom",selectObj.nom)
 	window.api.send("toMain", "nom;"+selectId+";"+selectObj.nom);
 }
 function piste() {
 	selectObj.piste=document.getElementById("inpCanal").value
-	console.log("piste",selectObj.piste)
 	window.api.send("toMain", "piste;"+selectId+";"+selectObj.piste);
 }
 function convol(c) {
 	selectObj.convolver=c
-	console.log("selecReverb",selectObj.convolver)
 	window.api.send("toMain", "convolver;"+selectId+";"+selectObj.convolver);
 }
 function dragElement2(elmnt) {
-console.log("obj",elmnt)
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  console.log(elmnt)
   if (document.getElementById(elmnt.id + "Header")) {
     /* if present, the header is where you move the DIV from:*/
     document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown2;
@@ -697,7 +706,6 @@ console.log("obj",elmnt)
 
   function dragMouseDown2(e) {
     e = e || window.event;
-    console.log("obj",elmnt.id);
     e.preventDefault();
     e.stopPropagation();
     // get the mouse cursor position at startup:
@@ -738,10 +746,13 @@ console.log("obj",elmnt)
 	 	document.getElementById("limFond").style.left=elmnt.style.left;
 	 	var lw=parseInt(document.getElementById("bdroit").style.left)-parseInt(elmnt.style.left);
 	 	document.getElementById("limFond").style.width=(lw+4)+"px";
-	 	selectObj.debut=((parseFloat(elmnt.style.left)-84)/262).toFixed(2);
+	 	selectObj.debut=((parseFloat(elmnt.style.left)-84)/262).toFixed(3);
 	 	window.api.send("toMain", "debut;"+selectId+";"+selectObj.debut);
-	 	document.getElementById("bgauchet").style.left=(elmnt.offsetLeft - pos1-30) + "px";
-	   document.getElementById("bgauchet").innerHTML=selectObj.debut;
+	 	document.getElementById("inpgauchet").value=selectObj.debut;
+	 	var nduree=selectObj.duree/selectObj.transposition
+		var relative=nduree*((lw+4)/262)
+		document.getElementById("inprelatif").value=relative.toFixed(3)
+	   console.log(selectObj.debut)
 	 }
 	 if (elmnt.id=="bdroit" ) {
 	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
@@ -753,25 +764,24 @@ console.log("obj",elmnt)
 	 	}
 	 	var rw=parseInt(elmnt.style.left)-parseInt(document.getElementById("bgauche").style.left);
 	 	document.getElementById("limFond").style.width=(rw+4)+"px";
-	 	selectObj.fin=((parseFloat(elmnt.style.left)-84)/262).toFixed(2);
+	 	selectObj.fin=((parseFloat(elmnt.style.left)-84)/262).toFixed(3);
 	 	if(selectObj.fin>1){
 	 		selectObj.fin=1;
 	 	}
 	 	window.api.send("toMain", "fin;"+selectId+";"+selectObj.fin);
-		document.getElementById("bdroitt").style.left=(elmnt.offsetLeft - pos1-30) + "px";
-	 	document.getElementById("bdroitt").innerHTML=selectObj.fin;
+		//document.getElementById("bdroitt").style.left=(elmnt.offsetLeft - pos1-30) + "px";
+	 	//document.getElementById("bdroitt").innerHTML=selectObj.fin;
+	 	document.getElementById("inpdroitt").value=selectObj.fin;
+	 	var nduree=selectObj.duree/selectObj.transposition
+		var relative=nduree*((rw+4)/262)
+		document.getElementById("inprelatif").value=relative.toFixed(3)
 	 }
 	 if(elmnt.id=="env1" || elmnt.id=="env2" || elmnt.id=="env3" || elmnt.id=="env4" || elmnt.id=="env5" || elmnt.id=="env6" || elmnt.id=="env7"){
 	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
 	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 	 	envDef(elmnt);
 	 }
-	 if(elmnt.id=="envm1" || elmnt.id=="envm2" || elmnt.id=="envm3" || elmnt.id=="envm4" || elmnt.id=="envm5" || elmnt.id=="envm6" || elmnt.id=="envm7"){
-	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-	 	envDef2(elmnt);
-	 	console.log("env2",elmnt.id);
-	 }
+	 
 	if(elmnt.id=="envT1" || elmnt.id=="envT2" || elmnt.id=="envT3" || elmnt.id=="envT4" || elmnt.id=="envT5" || elmnt.id=="envT6" || elmnt.id=="envT7"){
 	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
 	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
@@ -784,7 +794,6 @@ console.log("obj",elmnt)
     document.onmouseup = null;
     document.onmousemove = null;
     elmnt.style.cursor="default";
-    //console.log("limite b",selectObj.debut,selectObj.fin)
     var nex=[]
     for(let i=0;i<7;i++){
     	nex[i]={
@@ -823,27 +832,6 @@ function envDef(elmnt){
 	 	selectObj.envX[nid]=(parseFloat(elmnt.style.left)/199).toFixed(2);
 	   selectObj.envY[nid]=(1-(parseFloat(elmnt.style.top)/128)).toFixed(2);
 	   window.api.send("toMain", "env;"+selectId+";"+nid+";"+selectObj.envX[nid]+";"+selectObj.envY[nid]);
-	 	console.log(elmnt.id,nid,selectObj.envX[nid],selectObj.envY[nid]);
-}
-function envDef2(elmnt){
-		var nid=parseInt(elmnt.id.substring(4,elmnt.id.length))-1;
-	 	if(parseInt(elmnt.style.top)<0){
-	 		elmnt.style.top="0px";
-	 	}
-	 	if(parseInt(elmnt.style.top)>parseInt(elmnt.parentNode.style.height)-2){
-	 		elmnt.style.top=(parseInt(elmnt.style.top)-4)+"px";
-	 	}
-	 	if(parseInt(elmnt.style.left)<0){
-	 		elmnt.style.left="0px";
-	 	}
-	 	if(parseInt(elmnt.style.left)>(parseInt(elmnt.parentNode.style.width)-2)){
-	 		elmnt.style.left=(parseInt(elmnt.parentNode.style.width)-4)+"px";
-	 	}
-	 	var nid=parseInt(elmnt.id.substring(4))-1;
-	 	selectObj.envmX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
-	   selectObj.envmY[nid]=(1-(parseInt(elmnt.style.top)/128)).toFixed(2);
-	   window.api.send("toMain", "envm;"+selectId+";"+nid+";"+selectObj.envmX[nid]+";"+selectObj.envmY[nid]);
-	 	console.log(elmnt.id,nid,selectObj.envmX[nid],selectObj.envmY[nid]);
 }
 
 function envTDef(elmnt){
@@ -863,22 +851,22 @@ function envTDef(elmnt){
 	 	var nid=parseInt(elmnt.id.substring(4))-1;
 	 	selectObj.envX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
 	   selectObj.envY[nid]=(1-(parseInt(elmnt.style.top)/180));
-	   
-	 	//console.log(elmnt.id,nid,selectObj,"destY",tableObjet,selectObj.envX[nid],selectObj.envY[nid]);
 }
 function invTransposition(y){
 	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
  	let invT=(refViewBoxHeight-y )/(refViewBoxHeight/2);
- 	console.log("refViewBoxHeight",refViewBoxHeight);
    return invT;
 }
 function transpoToPosY(){
 	var transpo=parseFloat(document.getElementById("transposition").value)
+	var nduree=selectObj.duree/transpo
+	var relative=nduree*(parseFloat(document.getElementById("limFond").style.width)/261.8)
+	document.getElementById("inprelatif").value=relative.toFixed(3)
 	window.api.send("toMain", "transpoToPosY;"+selectId+";"+transpo);
 }
 function position(x){
 	var ratioT=(720/12960);
-	var tmp=x*ratioT;
+	var tmp=(x*ratioT)*(60/tempo)
 	var mn=Math.floor(tmp/60);
 	var s=Math.floor(tmp%60);
 	var ml=tmp-((mn*60)+s);
@@ -897,7 +885,6 @@ function listeFx() {
 	window.api.send("toMain", "openListeFx");
 }
 function substituerFx() {
-	console.log("substituer")
 	window.api.send("toMain", "substituerFx");
 }
 /* ******************************************************** param spatialisation *********************************** */
@@ -906,13 +893,11 @@ function openSpatialisation() {
 		selectObj.spT[0]=0
 	}
 	var cmd="winSpatial;"+selectId+";"+selectObj.spT+";"+selectObj.spX+";"+selectObj.spY+";"+selectObj.spZ+";"+selectObj.spD+";"+selectObj.gain
-console.log("open spatialisation","spX",selectObj.spX,"cmd",cmd)
 	window.api.send("toMain", cmd)
 }
 function spatialspXZ(pt,X,Z) {
 	selectObj.spX[pt]=parseFloat(X);
    selectObj.spZ[pt]=parseFloat(Z);
-   console.log("spat XZ",pt,selectObj.spX,selectObj.spY,selectObj.spZ)
 }
 function spatialspZY(pt,Z,Y) {
 	selectObj.spZ[pt]=parseFloat(Z);

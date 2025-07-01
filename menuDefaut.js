@@ -3,7 +3,9 @@
  Qnew='Nouveau projet ?'
  Qok='Quitter'
  Qcont='Continuer'
+ Qcontinu='Voulez-vous continuer?'
  Qwarning='Attention'
+ Qalerte='Vous allez supprimer un projet et ses fichiers'
  AlertWinOpen='Vous devez fermer la fenêtre déjà ouverte'
  Annul='Annuler'
  NewProject='Nouveau projet'
@@ -14,6 +16,8 @@
  Mnewspace='Nouvel espace',
  Msave='Sauvegarder',
  MsaveAs='Sauvegarder sous',
+ Mrename='Renommer',
+ Mdel='Supprimer',
  Msavegrp='Sauvegarder Groupe',
  Mimportgrp='Importer groupe',
  Mquit='Quiter'
@@ -79,5 +83,8 @@
  Mexport="Exporter"
  Mprefs="Préférences"
  Mwaveform="Forme d'onde"
- Mstudio="Nouveau studio"
+ Mstudio="Nouveau"
+ MStdLoad="Ouvrir"
+ MStdSave="Sauvegarder"
+ MIde="IDE Faust"
  }
