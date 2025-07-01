@@ -35,6 +35,7 @@ function drawSvgWaveform (audioBuffer, canvas, pos = 0.5, zoom=1) {
     txt=txt+"<rect x='"+x+"' y='"+(height/3 - positive * height)+"' width='1' height='"+(Math.max(1, chunkAmp * height))+"' fill='"+fillStyle+"' />"
   }
  
-  document.getElementById("canvas").firstChild.nextSibling.firstChild.innerHTML=txt
-  document.getElementById("canvas").firstChild.nextSibling.firstChild.setAttribute("width",600*zoom)
+  document.getElementById("dfWave").firstChild.firstChild.innerHTML=txt
+  //console.log(document.getElementById("dfWave").firstChild.firstChild)
+  document.getElementById("dfWave").firstChild.setAttribute("width",600*zoom)
 }
