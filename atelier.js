@@ -11,6 +11,7 @@
 // You should have received a copy of the GNU General Public License along with this program; If not, see http://www.gnu.org/licenses.var contextAudio=new AudioContext();
 function createGrp(nom,grp) {
 	lsgrp=[].concat(grp)
+	console.log(lsgrp,tableObjet,lsgrp[0],tableObjet[lsgrp[0]])
 	if(lsgrp.length>1){
 
 	    	var minl=tableObjet[lsgrp[0]].posX;
@@ -37,8 +38,6 @@ function createGrp(nom,grp) {
 
 			mint=mint-16
 			nheight=maxt-mint+16
-			
-			//console.log("nsgrp-w",nsgrp,mint,tableObjet[nsgrp[nsgrp.length-1]].height,tableObjet[nsgrp[nsgrp.length-1]].posY,nheight)
 			
 	    	if(lsgrp.length>0){
 	    		var dupnode=document.createElement('div');
@@ -94,7 +93,6 @@ function createGrp(nom,grp) {
 			document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
 			preservSelect=[].concat(lsgrp);
     	}
-    	console.log("table objet",tableObjet);
     nbObjets++;
 }
 function augmDim() {
@@ -124,14 +122,13 @@ function validAugmDim() {
 			});
 	var resActif=objActif;
 	var resObj=nbObjets;
-	console.log("copySelect",copySelect);
 	collerA(baseX,baseY);
 	if(document.getElementById("aleatoire").checked==false){
 		var dLine=parseFloat(document.getElementById("variaLineaire").value);
 		var dVertic=parseFloat(document.getElementById("variaVertic").value)/2;
 		for(let i=1;i<copySelect.length;i++){
 			copyX=parseFloat(document.getElementById(tableObjet[i+resObj].id).style.left);
-			copyX=copyX+(dLine*i);
+			copyX=copyX+((dLine*18*zoomScale)*i);
 			copyY=parseFloat(document.getElementById(tableObjet[i+resObj].id).style.top);
 			if(tableObjet[i+resObj].posY>tableObjet[i+resObj-1].posY){
 				copyY=copyY+dVertic;
@@ -160,9 +157,9 @@ function validAugmDim() {
 	}
 	lsgrp=[];
 	for(let i=0;i<copySelect.length;i++){
-		lsgrp.push(copySelect[i]+resObj);
+		lsgrp.push(i+resObj);
 	}
-	console.log("lsgrp",lsgrp,copySelect.length);
+	console.log(copySelect)
 	createGrp("Augm/Dim",lsgrp);
 	tableObjet[objActif].width=tableObjet[objActif].width+((lsgrp.length-1)*dLine)
 	tableObjet[objActif].height=tableObjet[objActif].height+((lsgrp.length-1)*dVertic)
@@ -199,10 +196,8 @@ function permutLineaire() {
 	
 	
 	var nobj=nbObjets-1;
-	console.log("permut",copySelect,tableObjet,copySelect[copySelect.length-1],nobj);
 	tableObjet[nobj].posX=tableObjet[nbObjets-2].posX+delta;
 	document.getElementById(tableObjet[nobj].id).style.left=tableObjet[nobj].posX+"px";
-	console.log("permut",copySelect,tableObjet,copySelect[copySelect.length-1],nobj);
 	
 	lsgrp=[];
 	for(let i=0;i<copySelect.length;i++){
@@ -318,7 +313,6 @@ function validInclusion() {
 			nls.push(i);
 		}
 		lsgrp=[].concat(nls);
-		console.log(nls,lsgrp,"copySelect",copySelect,tableObjet);
 		createGrp("Inclusion",lsgrp);
 	}
 }
@@ -356,17 +350,14 @@ function renversement() {
 	}
 }
 function retrograde() {
-	console.log("retrograde",preservSelect);
 	preservSelect=[];
 	preservSelect=[].concat(lsgrp);
 	preservSelect.reverse();
-	console.log("retrograde rv",preservSelect);
 	lsgrp=[];
 	let copyX=0;
 	let copyY=0;
 	let refId=objActif;
 	copySelect=[].concat(preservSelect);
-	console.log("rcopySelect",copySelect);
 	var clientX=tableObjet[copySelect[0]].posX+218;
 	var clientY=tableObjet[copySelect[0]].posX+144;
 	lsgrp.push(nbObjets);
@@ -395,19 +386,15 @@ function retrograde() {
 	}
 }
 function renvRetro() {
-	console.log("renversement du retrograde");
-	console.log("retrograde",preservSelect);
 	preservSelect=[];
 	preservSelect=[].concat(lsgrp);
 	preservSelect.reverse();
-	console.log("retrograde rv",preservSelect);
 	lsgrp=[];
 	let copyX=0;
 	let copyY=0;
 	let refId=objActif;
 	copySelect=[];
 	copySelect=[].concat(preservSelect);
-	console.log("rcopySelect",copySelect);
 	var clientX=tableObjet[copySelect[0]].posX+218;
 	var clientY=tableObjet[copySelect[0]].posX+144;
 	lsgrp.push(nbObjets);																																																	
