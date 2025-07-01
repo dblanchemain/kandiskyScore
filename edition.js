@@ -20,7 +20,6 @@ function copier(){
     	if(preservSelect.length>0){
     		copySelect=[];
     		copySelect=[].concat(preservSelect);
-    		console.log("copier",copySelect,tableObjet);
     	}
     	document.getElementById("space").removeChild(document.getElementById("grpSelect"));
     	grpSelect=0;
@@ -29,7 +28,6 @@ function copier(){
    	if(tableObjet[objActif].class==1 || tableObjet[objActif].class==3){
    		copySelect=[];
    		copySelect.push(objActif);
-   		console.log("coller objet",copySelect[0],tableObjet[copySelect[0]].id,tableObjet);
    	}
    	if(tableObjet[objActif].class==2){
    		copySelect=[];
@@ -37,29 +35,24 @@ function copier(){
    		for(let i=0;i<tableObjet[objActif].liste.length;i++){
    			copySelect.push(tableObjet[objActif].liste[i])
     		}
-    		console.log("copier2",copySelect,tableObjet,"liste",tableObjet[objActif].liste);
    	}
    	if(tableObjet[objActif].class==4 ){
    		copySelect=[];
    		copySelect=[].concat(tableObjet[objActif].liste);
     		copySelect.push(parseInt(objActif));
-    		console.log("copier4",copySelect,tableObjet,"liste",tableObjet[objActif].liste);
    	}
    	
    }
 }
 function coller(){
 	collerA(coordClientX,coordClientY)
-console.log("coller select",copySelect)
 }
 function collerA(clientX,clientY){
-console.log("coller xy",clientX,clientY)
 lsgrp=[]
 let copyX=0
 let copyY=0
 let refId=copySelect[0]
 let refObjet=nbObjets
-console.log("nbOjets",nbObjets,refId,copySelect)
 	for(let i=0;i<copySelect.length;i++){
 		copyX=tableObjet[refId].posX-tableObjet[copySelect[i]].posX
 		copyY=tableObjet[refId].posY-tableObjet[copySelect[i]].posY
@@ -68,7 +61,6 @@ console.log("nbOjets",nbObjets,refId,copySelect)
 				case 1:
 					var x=clientX-copyX
 					var y=clientY-copyY
-					console.log("objet",clientX,clientY,copySelect[i],x,y,tableObjet[copySelect[i]].type)
 					pasteObjet(copySelect[i],x,y)
 					nbObjets++
 					break;
@@ -82,7 +74,6 @@ console.log("nbOjets",nbObjets,refId,copySelect)
 					for(let j=0;j<tableObjet[copySelect[i]].liste.length;j++){
 						var ob=nbObjets+j+1
 						tableObjet[nbObjets].liste.push(ob);
-						console.log("ob",ob,refObjet,nbObjets,refObjet+ob,tableObjet[nbObjets].liste)
 					}
 					
 					nbObjets++
@@ -106,6 +97,11 @@ console.log("nbOjets",nbObjets,refId,copySelect)
 			 }
 		}
 	}
+	if(tableObjet[copySelect[0]].class==2){
+		for(i=0;i<tableObjet[refObjet].liste.length;i++){
+			tableObjet[tableObjet[refObjet].liste[i]].groupe=refObjet
+		}
+	}
 }
 function couper(){
 	if(grpSelect==1){
@@ -114,21 +110,19 @@ function couper(){
     			document.getElementById("space").removeChild(document.getElementById(tableObjet[preservSelect[i]].id));
     			tableObjet[preservSelect[i]].etat=0;
     		}
-    		//copySelect=[];
-    		//copySelect=preservSelect;
-    		//console.log("couper",copySelect,tableObjet);
+
     	}
     	document.getElementById("space").removeChild(document.getElementById("grpSelect"));
     	grpSelect=0;
    }else{
    
-   	if(tableObjet[objActif].class==1 || tableObjet[objActif].class==2){
+   	if(tableObjet[objActif].class==1 || tableObjet[objActif].class==3){
    		document.getElementById("space").removeChild(document.getElementById(tableObjet[objActif].id));
    		tableObjet[objActif].etat=0;
    		//copySelect=[];
    		//copySelect.push(objActif);
    	}
-   	if(tableObjet[objActif].class==3 || tableObjet[objActif].class==4){
+   	if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
    		for(i=0;i<tableObjet[objActif].liste.length;i++){
    			document.getElementById("space").removeChild(document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id));
    			tableObjet[tableObjet[objActif].liste[i]].etat=0;
@@ -140,17 +134,18 @@ function couper(){
     		//copySelect=tableObjet[objActif].liste;
     		//copySelect.push(objActif);
    	}
-   	console.log("couper",tableObjet);
    }
 }
 function grouper() {
 	selectGrp()
 }
 function deGrouper(){
-	if(tableObjet[objActif].etat==1 && ( tableObjet[objActif].class==2 || tableObjet[objActif].class==4) ){
+	if(tableObjet[objActif].etat==1 && tableObjet[objActif].class==2){
 		document.getElementById("space").removeChild(document.getElementById(tableObjet[objActif].id));
 		tableObjet[objActif].etat=0;
 	   grpSelect=0;
+   }else if(tableObjet[objActif].etat==1 && tableObjet[objActif].class==4 ){
+   	toutDegrouper()
    }
 }
 function reGrouper(e){
@@ -158,8 +153,7 @@ function reGrouper(e){
 		if(tableObjet[objActif].class==1 || tableObjet[objActif].class==2 ||tableObjet[tableObjet[objActif].groupe].class==4 ){
 			let sgrp=[]
 			objActif=tableObjet[objActif].groupe
-	
-			console.log("actif",objActif);
+	console.log(tableObjet[objActif])
 			for(let i=0;i<tableObjet.length;i++){
 				if(tableObjet[i].etat==1 && tableObjet[i].groupe==objActif){
 					sgrp.push(i);
@@ -187,60 +181,70 @@ function reGrouper(e){
 		 			}
 		    	}
 		    	
-	    	minl=minl-8;
+	    	minl=minl-10;
 	    	maxl=maxl+2;
 	    	mint=mint+2;
-	    	maxt=maxt+8;
+	    	maxt=maxt+4;
 			tableObjet[objActif].etat=1;
 			selectObj=tableObjet[objActif].id
 			tableObjet[objActif].posX=minl;
 			tableObjet[objActif].posY=mint;
 			tableObjet[objActif].width=maxl-minl;
 			tableObjet[objActif].height=maxt-mint;
+			tableObjet[objActif].bkgWidth=maxl-minl;
+			tableObjet[objActif].bkgHeight=maxt-mint;
+			tableObjet[objActif].bkgTrp=true
+			//tableObjet[objActif].bkgOpacity=1;
+			var st=defCadre(objActif)
+			
 			var dupnode=document.createElement('div')
 			dupnode.setAttribute("id",selectObj)
 			dupnode.setAttribute("title",selectObj)
-			dupnode.setAttribute("style","position:absolute;top:"+tableObjet[objActif].posY+"px;left:"+tableObjet[objActif].posX+"px;width:"+tableObjet[objActif].width+"px;height:"+tableObjet[objActif].height+"px;transform-origin: 0 0;border:1px solid black;");
+			dupnode.setAttribute("style",st)		
 			document.getElementById("space").appendChild(dupnode)
-			console.log(objActif,selectObj,sgrp,minl,maxl,mint,maxt);
 			dragElement(document.getElementById(selectObj))
 			document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj)
+			document.getElementById(selectObj).style.zIndex=0;
+			for(i=0;i<tableObjet[objActif].liste.length;i++){
+				document.getElementById("objet"+tableObjet[objActif].liste[i]).style.zIndex=10;
+			}
 			
 			}
 		}
 	}
 }
 function toutDegrouper(){
-	for(let i=0;i<tableObjet[objActif].liste.length;i++){
-		if(tableObjet[tableObjet[objActif].liste[i]].etat==1 && tableObjet[tableObjet[objActif].liste[i]].class==2 ){
-			var orig=tableObjet[tableObjet[objActif].liste[i]].id.substring(3)
-			for(let j=0;j<tableObjet[orig].liste.length;j++){
-				tableObjet[tableObjet[orig].liste[j]].groupe=orig
+	if(tableObjet[objActif].class==4){
+		for(let i=0;i<tableObjet[objActif].liste.length;i++){
+			if(tableObjet[tableObjet[objActif].liste[i]].etat==1 && tableObjet[tableObjet[objActif].liste[i]].class==2 ){
+				var orig=tableObjet[tableObjet[objActif].liste[i]].id.substring(3)
+				for(let j=0;j<tableObjet[orig].liste.length;j++){
+					tableObjet[tableObjet[orig].liste[j]].groupe=orig
+				}
+			}
+			
+		}
+		for(let i=0;i<tableObjet[objActif].liste.length;i++){
+			if(tableObjet[tableObjet[objActif].liste[i]].etat==1  && tableObjet[tableObjet[tableObjet[objActif].liste[i]].groupe].class!=2){
+				tableObjet[tableObjet[objActif].liste[i]].groupe=16777216
 			}
 		}
-		
-	}
-	for(let i=0;i<tableObjet[objActif].liste.length;i++){
-		if(tableObjet[tableObjet[objActif].liste[i]].etat==1  && tableObjet[tableObjet[tableObjet[objActif].liste[i]].groupe].class!=2){
-			tableObjet[tableObjet[objActif].liste[i]].groupe=16777216
+		for(let i=0;i<tableObjet[objActif].liste.length;i++){
+			if(tableObjet[tableObjet[objActif].liste[i]].etat==1 && tableObjet[tableObjet[objActif].liste[i]].class==4 ){
+				document.getElementById("space").removeChild(document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id));
+				tableObjet[tableObjet[objActif].liste[i]].etat=0;
+		   }
 		}
-	}
-	for(let i=0;i<tableObjet[objActif].liste.length;i++){
-		if(tableObjet[tableObjet[objActif].liste[i]].etat==1 && tableObjet[tableObjet[objActif].liste[i]].class==4 ){
-			document.getElementById("space").removeChild(document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id));
-			tableObjet[tableObjet[objActif].liste[i]].etat=0;
-		   console.log(document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id)); 
-	   }
-	}
-	document.getElementById("space").removeChild(document.getElementById(tableObjet[objActif].id));
-	tableObjet[objActif].etat=0;
-	document.getElementById("selector").style.display="none";
-	if(grpSelect==1){
-		document.getElementById("space").removeChild(document.getElementById("grpSelect"))
-	}
-   elmnt=document.getElementById("space");
-   nselector=0;
-   grpSelect=0;	
+		document.getElementById("space").removeChild(document.getElementById(tableObjet[objActif].id));
+		tableObjet[objActif].etat=0;
+		document.getElementById("selector").style.display="none";
+		if(grpSelect==1){
+			document.getElementById("space").removeChild(document.getElementById("grpSelect"))
+		}
+	   elmnt=document.getElementById("space");
+	   nselector=0;
+	   grpSelect=0;	
+   }
 }
 
 function defGrpColor(){
@@ -253,17 +257,13 @@ function defColorMenu(e) {
 	if(grpSelect==1){
 		lsgrp=[];
 		lsgrp=[].concat(preservSelect);
-		console.log("lsgrp1",preservSelect);
 		for(let i=0;i<lsgrp.length;i++){
 			objActif=lsgrp[i];
 			selectObj="objet"+objActif;
-			//console.log(selectObj,"lsgrp",lsgrp,"tableObjet",tableObjet,this.value);
-			//;
 			defColorM(document.getElementById("menuColorGrp").value);
 		}
 		var dc=document.getElementById("grpSelect");
 		document.getElementById("space").removeChild(dc);
-		console.log("color",document.getElementById("menuColorGrp").value)
 		grpSelect=0;
 	}else	if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
 			lsgrp=[];
@@ -344,29 +344,25 @@ function defColorM(color) {
 			tableObjet[objActif].objColor=color;
 			break;
 		case 13:
-			var dest=document.querySelector("#"+selectObj).firstChild.firstChild;
-			console.log(dest);
+			var dest=document.querySelector("#"+selectObj).firstChild.firstChild;;
 			dest.setAttribute("fill",color);
 			tableObjet[objActif].objColor=color;
 			document.querySelector("#objColor").firstChild.setAttribute("fill",color);
 			break;
 		case 14:
 			var dest=document.querySelector("#"+selectObj).firstChild.firstChild;
-			console.log(dest);
 			dest.setAttribute("fill",color);
 			tableObjet[objActif].objColor=color;
 			document.querySelector("#objColor").firstChild.setAttribute("fill",color);
 			break;
 		case 15:
 			var dest=document.querySelector("#"+selectObj).firstChild.firstChild;
-			console.log(dest);
 			dest.setAttribute("fill",color);
 			tableObjet[objActif].objColor=color;
 			document.querySelector("#objColor").firstChild.setAttribute("fill",color);
 			break;
 		case 16:
 			var dest=document.querySelector("#"+selectObj).firstChild.firstChild;
-			console.log(dest);
 			dest.setAttribute("fill",color);
 			tableObjet[objActif].objColor=color;
 			document.querySelector("#objColor").firstChild.setAttribute("fill",color);
@@ -417,10 +413,9 @@ function defGrpForme() {
 	document.getElementById("fenetreFlot").style.display="block";
 }
 function retObjetPaletteA(id,f) {
-	if(tableObjet[id].class==1){
+	if(tableObjet[id].class==1 || tableObjet[id].class==2 || tableObjet[id].class==4){
 			//document.getElementById("space").removeChild(document.getElementById(tableObjet[id].id))
 			tableObjet[id].type=f;
-			console.log(selectObj,"forme",f);
 			switch(parseInt(f)) {
 				case 1:
 					tableObjet[id].cx=tableObjet[id].posX;
@@ -430,6 +425,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].bkgHeight=tableObjet[id].width;
 					tableObjet[id].width=10;
 					tableObjet[id].height=tableObjet[id].width;
+					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphCircle(id)
@@ -441,6 +437,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].width=10
 					tableObjet[id].height=tableObjet[id].width;
 					var obj=document.getElementById("objet"+id);
+					tableObjet[id].bkgTrp=false;
 					document.getElementById("space").removeChild(obj);
 					graphCarre(id)
 					break;
@@ -449,6 +446,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].bkgHeight=30;
 					tableObjet[id].width=30;
 					tableObjet[id].height=30;
+					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphTriangle(id)
@@ -460,6 +458,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].ry=5
 					tableObjet[id].width=30
 					tableObjet[id].height=20
+					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphEllipse(id)
@@ -469,6 +468,8 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].bkgHeight=10;
 					tableObjet[id].width=20
 					tableObjet[id].height=10
+					tableObjet[id].bkgTrp=false;
+					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphRectangle(id);
@@ -478,24 +479,34 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].bkgHeight=10;
 					tableObjet[id].width=50
 					tableObjet[id].height=10
+					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphTriangleLong(id)
 					break;
 				case 7:
-					tableObjet[id].bkgWidth=50;
-					tableObjet[id].bkgHeight=20;
-					tableObjet[id].width=50;
+					tableObjet[id].width=30
 					tableObjet[id].height=20
+					tableObjet[id].bkgWidth=30
+					tableObjet[id].bkgHeight=20
+					tableObjet[id].r=10
+					tableObjet[id].bkgTrp=false;
+					if(!tableObjet[id].scaleY2){
+						tableObjet[id].scaleY2=1
+					}
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphRondLong(id)
 					break;	
 				case 8:
-					tableObjet[id].bkgWidth=50;
-					tableObjet[id].bkgHeight=20;
-					tableObjet[id].width=50;
+					tableObjet[id].width=30
 					tableObjet[id].height=20
+					tableObjet[id].bkgWidth=30
+					tableObjet[id].bkgHeight=20
+					tableObjet[id].bkgTrp=false;
+					if(!tableObjet[id].scaleY2){
+						tableObjet[id].scaleY2=1
+					}
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphCarreLong(id)	
@@ -505,6 +516,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].bkgHeight=6;
 					tableObjet[id].width=40;
 					tableObjet[id].height=6
+					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
 					document.getElementById("space").removeChild(obj);
 					graphLigne(id);
@@ -523,7 +535,7 @@ function retObjetPalette(f) {
 		}	
 	}else{
 		if(tableObjet[objActif].class==1) {
-			retObjetPaletteA(f);
+			retObjetPaletteA(objActif,f);
 		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
 				let lsgrp=[];
 				lsgrp=[].concat(tableObjet[objActif].liste);
@@ -533,12 +545,15 @@ function retObjetPalette(f) {
 					tableObjet[lsgrp[i]].type=f;
 					objActif=lsgrp[i];
 					selectObj="objet"+objActif;
-					retObjetPaletteA(f);
+					retObjetPaletteA(lsgrp[i],f);
+					document.getElementById("objet"+lsgrp[i]).style.top=(tableObjet[lsgrp[i]].posY)+"px"
+					document.getElementById("objet"+lsgrp[i]).style.left=(tableObjet[lsgrp[i]].posX)+"px"
 				}
 				objActif=savobjActif;
 				selectObj=savselectObj;
 				}
 		}
+		console.log(tableObjet)
 }
 
 function topAlign(){
@@ -609,7 +624,6 @@ function bottomAlign(){
 	lsgrp=[];
 }
 function rightAlign(){
-	console.log('right align')
 	var ydiff=0;
 	if(grpSelect==1){
 		for(let i=0;i<lsgrp.length;i++){
@@ -689,287 +703,273 @@ function scaleGrpValid(){
 	}else{
 		lsgrp=[].concat(tableObjet[objActif].liste);
 	}
-	var cl=0
-	for(let i=0;i<lsgrp.length;i++){
-		if(tableObjet[lsgrp[i]].class==2 ){
-			cl=2
-			break
-		}
-	}
-	if (cl==0){
-		var posX=tableObjet[lsgrp[0]].posX
-		var posY=tableObjet[lsgrp[0]].posY
+	if(lsgrp.length>1){
+		var cl=0
 		for(let i=0;i<lsgrp.length;i++){
-			var id=lsgrp[i]
-			if(tableObjet[id].groupe=="16777216"){
-				cl=0
-			}else{
-				cl=tableObjet[tableObjet[id].groupe].class
+			if(tableObjet[lsgrp[i]].class==2 ){
+				cl=2
+				break
 			}
-			if(tableObjet[id].class==1 && cl!=2){
-				switch(parseInt(tableObjet[id].type)) {
-					case 1:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-							
+		}
+		if (cl==0){
+			var posX=tableObjet[lsgrp[0]].posX
+			var posY=tableObjet[lsgrp[0]].posY
+			for(let i=0;i<lsgrp.length;i++){
+				var id=lsgrp[i]
+				if(tableObjet[id].groupe=="16777216"){
+					cl=0
+				}else{
+					cl=tableObjet[tableObjet[id].groupe].class
+				}
+				if(tableObjet[id].class==1 && cl!=2){
+					switch(parseInt(tableObjet[id].type)) {
+						case 1:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+								
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphCircle(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 2:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphCarre(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 3:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphTriangle(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 4:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphEllipse(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 5:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphRectangle(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 6:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphTriangleLong(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 7:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphRondLong(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;	
+						case 8:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphCarreLong(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 9:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphCrescr(id)
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)	
+							break;
+						case 10:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphLigne(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 12:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphBlock(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 13:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphDecresc(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 14:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphDecrescb(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 15:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphCresc(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 16:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphCrescb(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+						case 21:
+							tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
+							tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
+							tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
+							if(document.getElementById('scaleGrpPreserve').checked==false){
+								tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
+								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
+							}
+							var obj=document.getElementById("objet"+id);
+							document.getElementById("space").removeChild(obj);
+							graphNuage(id);
+							dragElement(document.getElementById(tableObjet[id].id))
+							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
+							break;
+					
 						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphCircle(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 2:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphCarre(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 3:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphTriangle(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 4:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphEllipse(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 5:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphRectangle(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 6:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphTriangleLong(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 7:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphRondLong(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;	
-					case 8:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphCarreLong(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 9:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphCrescr(id)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)	
-						break;
-					case 10:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphLigne(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 12:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphBlock(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 13:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphDecresc(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 14:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphDecrescb(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 15:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphCresc(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 16:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphCrescb(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-					case 21:
-						tableObjet[id].scaleX=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=tableObjet[id].bkgWidth*tableObjet[id].scaleX
-						tableObjet[id].bkgHeight=tableObjet[id].bkgHeight*tableObjet[id].scaleY
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*tableObjet[id].scaleX)+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY
-						}
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						graphNuage(id);
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
-						break;
-				
-			}
-		}else if(tableObjet[id].class==3){
-						tableObjet[id].scaleX=tableObjet[id].scaleX*parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].scaleY=tableObjet[id].scaleY*parseFloat(document.getElementById("scaleGrpValue").value)
-						tableObjet[id].bkgWidth=(tableObjet[id].bkgWidth*tableObjet[id].scaleX).toFixed(2)
-						tableObjet[id].bkgHeight=(tableObjet[id].bkgHeight*tableObjet[id].scaleY).toFixed(2)
-						if(document.getElementById('scaleGrpPreserve').checked==false){
-							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*parseFloat(document.getElementById("scaleGrpValue").value))+posX
-							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*parseFloat(document.getElementById("scaleGrpValue").value))+posY
-						}
-						
-						var obj=document.getElementById("objet"+id);
-						document.getElementById("space").removeChild(obj);
-						objActif=tableObjet[id].id.substring(5)
-						createSymbole(tableObjet[id].type)
-						dragElement(document.getElementById(tableObjet[id].id))
-						document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj)
 					}
+				}
 			}
-	}
+		}
 }
 function scaleGrpAnnul(){
 	document.getElementById("popupScaleGrpObjets").style.display="none"

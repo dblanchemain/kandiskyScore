@@ -64,7 +64,7 @@ function defObjGrp(id,nbobjets,cla) {
 		<groupe value='"+id.groupe+"'></groupe>\n\
 		<height value='"+id.height+"'></height>\n"
 		if(parseInt(id.type)==23){
-			txt=txt+"		<img value='"+id.img+"'></img>\n";
+			txt=txt+"		<imag value='"+id.img+"'></imag>\n";
 		}
 		if(cla==2){
 			txt=txt+"		<liste value='"+id.liste+"'></liste>\n";
@@ -95,26 +95,34 @@ function defObjGrp(id,nbobjets,cla) {
 		<ry value='"+id.ry+"'></ry>\n";
 		}
 		txt=txt+"		<scalex value='"+id.scaleX+"'></scalex>\n\
-		<scaley value='"+id.scaleY+"'></scaley>\n\
-		<spd value='"+id.spD+"'></spd>\n\
+		<scaley value='"+id.scaleY+"'></scaley>\n"
+		if(id.scaleY2){
+			txt=txt+"<scaley2 value='"+id.scaleY2+"'></scaley2>\n"
+		}
+		txt=txt+"<spd value='"+id.spD+"'></spd>\n\
 		<spt value='"+id.spT+"'></spt>\n\
 		<spx value='"+id.spX+"'></spx>\n\
 		<spy value='"+id.spY+"'></spy>\n\
 		<spz value='"+id.spZ+"'></spz>\n"
 		txt=txt+"		<tablefx value='";
+		console.log(id)
 			for(let j=0;j<7;j++){
 				txt=txt+id.tableFx[j]+",";
 			}
 			var newStr = txt.substring(0, txt.length - 1);
 			txt=newStr+"'></tablefx>\n";
 			txt=txt+"		<tablefxparam value='";
+			var txt2=""
 			for(let j=0;j<7;j++){
-				txt=txt+id.tableFxParam[j]+",";
+				txt2=txt2+id.tableFxParam[j]+",";
+				console.log("neewstr",id.tableFxParam[j]+",")
 			}
-			var newStr = txt.substring(0, txt.length - 1);
-			txt=newStr+"'></tablefxparam>\n\
+			newStr = txt2.substring(0, txt2.length - 1);
+			console.log("neewstr",newStr)
+			
+			txt=txt+newStr+"'></tablefxparam>\n\
 		<type value='"+id.type+"'></type>\n"
-		if(parseInt(id.type)==11 || id.type==13){
+		if(parseInt(id.type)==11){
 			txt=txt+"<x1 value='"+id.x1+"'></x1>\n\
 			<y1 value='"+id.y1+"'></y1>\n\
 			<x2 value='"+id.x2+"'></x2>\n\
@@ -158,6 +166,7 @@ function defSymbGrp(id,nbobjets) {
 		<height value='"+id.height+"'></height>\n\
 		<margeg value='"+id.margeG+"'></margeg>\n\
 		<margeh value='"+id.margeH+"'></margeh>\n\
+		<nom value=\""+id.nom+"\"></nom>\n\
 		<objborderc  value='"+id.objBorderC+"'></objborderc>\n\
 		<objborderw  value='"+id.objBorderW+"'></objborderw>\n\
 		<objcolor value='"+id.objColor+"'></objcolor>\n\
@@ -166,8 +175,15 @@ function defSymbGrp(id,nbobjets) {
 		<posy value='"+id.posY+"'></posy>\n\
 		<rotate value='"+id.rotate+"'></rotate>\n\
 		<scalex value='"+id.scaleX+"'></scalex>\n\
-		<scaley value='"+id.scaleY+"'></scaley>\n\
-		<type value='"+id.type+"'></type>\n\
+		<scaley value='"+id.scaleY+"'></scaley>\n"
+		if(id.scaleY2){
+			txt=txt+"		<scaley2 value='"+id.scaleY2+"'></scaley2>\n"
+		}
+		txt=txt+"		<type value='"+id.type+"'></type>\n\
+		<x1 value='"+id.x1+"'></x1>\n\
+			<y1 value='"+id.y1+"'></y1>\n\
+			<x2 value='"+id.x2+"'></x2>\n\
+			<y2 value='"+id.y2+"'></y2>\n\
 		<width value='"+id.width+"'></width>\n"	
 	}
 	return txt
@@ -212,14 +228,13 @@ function defGrpGrp(id,nbobjets,i) {
 	<posy value='"+id.posY+"'></posy>\n\
 	<width value='"+id.width+"'></width>\n\
 	</objet>\n";
-	
-	console.log("liste",id.liste,tableObjet[i].liste)
+
 	return txt
 
 }
 function defProjetConf(txt) {
 	txt=txt+"<general>\n\
-	<name value='"+paramProjet.name+"'>\n\
+	<name value='"+paramProjet.name+"'></name>\n\
 	<start value='"+paramProjet.start+"'></start>\n\
 	<end value='"+paramProjet.end+"'></end>\n\
 	<comment value='"+paramProjet.comment+"'></comment>\n\
@@ -267,7 +282,6 @@ function defProjetConf(txt) {
  	<fontpalette value='"+fontPalette+"'></fontpalette>\n\
  	<fontpalettesize value='"+fontPaletteSize+"'></fontpalettesize>\n\
  	<separateurpalette value='"+separateurPalette+"'></separateurpalette>\n\
- 	<fontsizemenu value='"+fontSizeMenu+"'></fontsizemenu>\n\
  	<bkginfo value='"+bkgInfo+"'></bkginfo>\n\
  	<fontinfosize value='"+fontInfoSize+"'></fontinfosize>\n\
  	<fontinfocolor value='"+fontInfoColor+"'></fontinfocolor>\n\
@@ -306,7 +320,6 @@ function defProjetConf(txt) {
 	<paletteligne value='"+paletteLigne+"'></paletteligne>\n\
 	<paletteglissando value='"+paletteGlissando+"'></paletteglissando>\n\
 	<paletteblock value='"+paletteBlock+"'></paletteblock>\n\
-	<paletteFusion value='"+paletteFusion+"'></paletteFusion>\n\
 	<palettedecresc value='"+paletteDecresc+"'></palettedecresc>\n\
 	<palettedecrescb value='"+paletteDecrescb+"'></palettedecrescb>\n\
 	<palettecresc value='"+paletteCresc+"'></palettecresc>\n\
@@ -323,7 +336,22 @@ function defProjetConf(txt) {
 	<palettemarque2 value='"+paletteMarque2+"'></palettemarque2>\n\
 	<palettelecteur value='"+paletteLecteur+"'></palettelecteur>\n\
 	</palette>\n"
-	
+	txt=txt+"<externe>\n\
+	<externeeditor value='"+editor+"'></externeeditor>\n\
+	<externedaw value='"+daw+"'></externedaw>\n\
+	<externecmddaw value='"+cmdDaw+"'></externecmddaw>\n\
+	<externepdfpage value='"+pdfPage+"'></externepdfpage>\n\
+	<externepdflandscape value='"+pdfLandscape+"'></externepdflandscape>\n\
+	<externepdfscale value='"+pdfScale+"'></externepdfscale>\n\
+	<externepdftop value='"+pdfMgTop+"'></externepdftop>\n\
+	<externepdfbot value='"+pdfMgBot+"'></externepdfbot>\n\
+	<externepdfleft value='"+pdfMgLeft+"'></externepdfleft>\n\
+	<externepdfright value='"+pdfMgRight+"'></externepdfright>\n\
+	<externepdfbkg value='"+pdfBkg+"'></externepdfbkg>\n\
+	<externepdfass value='"+pdfAssCmd+"'></externepdfass>\n\
+	<externepdfapp value='"+pdfAppCmd+"'></externepdfapp>\n\
+	<externeaudioedit value='"+editAudioCmd+"'></externeaudioedit>\n\
+	</externe>\n"
 	return txt
 }
 function saveProjet(t){
@@ -346,15 +374,18 @@ function saveProjetA(t,offset,tabgrp){
 	}
 	var ntable=[]
 	ntable=structuredClone(tabgrp)
-	console.log("ntable",ntable,lsgrp)
 	
 	txt=txt+"<audioliste value='"
 	for(let i=0;i<ntable.length;i++){
 		if(ntable[i].class==1){
-			txt=txt+tableBuffer[ntable[i].bufferId].name+","
+			if(ntable[i].file!=""){
+				txt=txt+tableBuffer[ntable[i].bufferId].name+","
+			}
 		}
 	}
-	txt = txt.substring(0, txt.length - 1);
+	if(txt.substring(txt.length - 1)==","){
+		txt = txt.substring(0, txt.length - 1);
+	}
 	txt=txt+"'></audioliste>\n"
 	
 	for(let i=0;i<ntable.length;i++){
@@ -366,7 +397,6 @@ function saveProjetA(t,offset,tabgrp){
 			for(let j=0;j<lst.length;j++){
 				if(ntable[i].etat==1){
 					k.push(parseInt(lsgrp[lst[j]])-offset)
-					console.log(k)
 				}
 			}
 			ntable[i].liste=[].concat(k)
@@ -374,7 +404,6 @@ function saveProjetA(t,offset,tabgrp){
 	}
 	for(let i=0;i<ntable.length;i++){
 		if(ntable[i].etat==1){
-			console.log(ntable[i].class)
 			switch (ntable[i].class){
 				case 1:
 					txt=txt+defObjGrp(ntable[i],lsgrp[i],ntable[i].class)
@@ -395,15 +424,14 @@ function saveProjetA(t,offset,tabgrp){
 	}
 	txt=txt+"<nbobjets value='"+j+"' ></nbobjets>\n";
 	txt=txt+"</kandiskyscore>";
-	document.getElementById("fichierSave").innerHTML=txt;
-		
-	var new_window = window.open(URL.createObjectURL(new Blob([obj.innerHTML], { type: "text/xml" })),'Partition')
+	document.getElementById("fichierSave").innerHTML=txt;	
+	//var new_window = window.open(URL.createObjectURL(new Blob([obj.innerHTML], { type: "text/xml" })),'Partition')
 	switch(t){
 		case "0":
-			window.api.send("toMain", "saveModifProjet;"+txt)
+			window.api.send("toMain", "saveModifProjet;"+uena(txt))
 			break
 		case "1":
-			window.api.send("toMain", "saveModifProjetAs;"+txt)
+			window.api.send("toMain", "saveModifProjetAs;"+uena(txt))
 			break
 		case "2":
 			window.api.send("toMain", "saveModifGrp;"+txt)
@@ -416,7 +444,6 @@ function saveGrp() {
 		defgrp[i]=tableObjet[tableObjet[objActif].liste[i]]
 	}
 	defgrp.push(tableObjet[objActif])
-	console.log("defgrp",tableObjet[objActif].liste[0])
 	saveProjetA("2",tableObjet[objActif].liste[0],defgrp)
 	
 }
@@ -432,21 +459,20 @@ function loadGrp(path){
 			initTableGrp(0,tmpbuffer,coordClientX,coordClientY)
 		}
 	};
-	console.log("file projet",path);
 	xhttp.open("GET", path, true);
 	xhttp.send();
 }
 function loadProjet(path) {
+	initProject()
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var txt=xhttp.responseText;
-			document.getElementById("fichierSave").innerHTML = txt.replace("\n","");
+			document.getElementById("fichierSave").innerHTML = txt;//.replace("\n","");
 			fileXmlToScore(0,0,0) 
 			//var new_window = window.open(URL.createObjectURL(new Blob([document.getElementById("fichierSave").innerHTML], { type: "text/xml" })),'Partition')
 		}
 	};
-	console.log("file projet",path);
 	xhttp.open("GET", path, true);
 	xhttp.send();
 }
@@ -507,7 +533,7 @@ function objXmlToScore(id,i) {
 		posY:parseFloat(org.getElementsByTagName("posY")[0].getAttribute("value")),
 		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value")),
 		scaleY:parseFloat(org.getElementsByTagName("scaleY")[0].getAttribute("value")),
-		spD:org.getElementsByTagName("spd")[0].getAttribute("value"),
+		spD:org.getElementsByTagName("spd")[0].getAttribute("value").split(','),
 		spT:org.getElementsByTagName("spt")[0].getAttribute("value").split(','),
 		spX:org.getElementsByTagName("spx")[0].getAttribute("value").split(','),
 		spY:org.getElementsByTagName("spy")[0].getAttribute("value").split(','),
@@ -517,6 +543,27 @@ function objXmlToScore(id,i) {
 		type:parseInt(org.getElementsByTagName("type")[0].getAttribute("value")),
 		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
 		}
+		
+		//console.log(tableObjet[id])
+		var np=tableObjet[id].tableFxParam[0].split("&")
+		var vp=np[0].split(",")
+		
+		if(vp.length<2){
+			for(k=0;k<7;k++){
+				if(tableObjet[id].tableFxParam[k]=='' || tableObjet[id].tableFxParam[k]=='undefined'  || tableObjet[id].tableFxParam[k]=='0' ){
+					tableObjet[id].tableFxParam[k]="0?0"
+				}else{
+					var np=tableObjet[id].tableFxParam[k].split('/')
+					var txt=""
+					for(m=0;m<np.length;m++){
+						txt=txt+np[m]+"/"
+					}
+					txt=txt.substring(0,txt.length-1)
+					tableObjet[id].tableFxParam[k]=txt
+				}
+			}
+		}
+		
 		if(tableObjet[id].flagTranspo==1){
 			tableObjet[id].transposition=invTransposition(tableObjet[id].posY)
 		}else{
@@ -541,23 +588,10 @@ function objXmlToScore(id,i) {
 			tableObjet[id].reverse=false
 		}
 		if(tableObjet[id].type==23){
-			tableObjet[id].img=org.getElementsByTagName("img")[0].getAttribute("value")
+			tableObjet[id].img=org.getElementsByTagName("imag")[0].getAttribute("value")
 			tableObjet[id].rotate=org.getElementsByTagName("rotation")[0].getAttribute("value")
 		}
-		/*
-		var sp=[];
-   	sp=obj.getElementsByTagName("objet")[i].getElementsByTagName("envx")[0].getAttribute("value").split(",");	
-   	for(let j=0;j<sp.length;j++){
-   		sp[j]=parseFloat(sp[j]);	
-		}
-   	tableObjet[i].envX=[].concat(sp);
-   	sp=[]
-   	sp=obj.getElementsByTagName("objet")[i].getElementsByTagName("envy")[0].getAttribute("value").split(",");	
-   	for(let j=0;j<sp.length;j++){
-   		sp[j]=parseFloat(sp[j]);	
-		}
-		tableObjet[i].envY=[].concat(sp);
-		*/
+		
 		if(parseInt(org.getElementsByTagName("class")[0].getAttribute("value"))==2){
 			sp=[]
    		sp=obj.getElementsByTagName("objet")[i].getElementsByTagName("liste")[0].getAttribute("value").split(",")
@@ -576,11 +610,21 @@ function objXmlToScore(id,i) {
 		if(tableObjet[i].class==2){
 			var ln=org.getElementsByTagName("liste")[0].getAttribute("value")
 			var nl=ln.split(',')
-			console.log(ln,nl)
 			tableObjet[id].liste=[]
 			for(let i=0;i<nl.length;i++){
 				tableObjet[id].liste[i]=parseInt(nl[i])
 			}
+		}
+		if(org.getElementsByTagName("type")[0].getAttribute("value")==7 || org.getElementsByTagName("type")[0].getAttribute("value")==8){
+			if(org.getElementsByTagName("scaleY2")[0]){
+				tableObjet[id].scaleY2=parseFloat(org.getElementsByTagName("scaleY2")[0].getAttribute("value"))
+			}
+		}
+		if(org.getElementsByTagName("type")[0].getAttribute("value")==11){
+			tableObjet[id].x1=parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value"))
+			tableObjet[id].y1=parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value"))
+			tableObjet[id].x2=parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value"))
+			tableObjet[id].y2=parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value"))
 		}
 }
 function symbXmlToScore(id,i) {
@@ -616,16 +660,23 @@ function symbXmlToScore(id,i) {
 		id:"objet"+nbObjets,
 		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
 		margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
+		nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
 		objColor:org.getElementsByTagName("objcolor")[0].getAttribute("value"),
 		objOpacity:parseFloat(org.getElementsByTagName("objopacity")[0].getAttribute("value")),
 		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
 		posY:parseFloat(org.getElementsByTagName("posY")[0].getAttribute("value")),
 		rotate:parseFloat(org.getElementsByTagName("rotate")[0].getAttribute("value")),
 		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value")),
-		scaleY:parseFloat(org.getElementsByTagName("scaleY")[0].getAttribute("value")),
+		scaleY:parseFloat(org.getElementsByTagName("scaley")[0].getAttribute("value")),
+		scaleY2:parseFloat(org.getElementsByTagName("scaley2")[0].getAttribute("value")),
 		type:parseInt(org.getElementsByTagName("type")[0].getAttribute("value")),
+		x1:parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value")),
+		y1:parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value")),
+		x2:parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value")),
+		y2:parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value")),
 		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
 		}
+		
 		var trp=org.getElementsByTagName("bkgTrp")[0].getAttribute("value")
 		if(trp=="true"){
 			tableObjet[id].bkgTrp=true
@@ -679,12 +730,11 @@ function grpXmlToScore(id,i,offset) {
 		}
 	var ln=org.getElementsByTagName("liste")[0].getAttribute("value")
 	var nl=ln.split(',')
-	console.log(ln,nl)
+
 	tableObjet[id].liste=[]
 	for(let i=0;i<nl.length;i++){
 		tableObjet[id].liste[i]=parseInt(nl[i])+offset
 	}
-	console.log(id,tableObjet[id].posY)
 }
 function syncDelay(milliseconds) {
   var start = new Date().getTime();
@@ -693,24 +743,9 @@ function syncDelay(milliseconds) {
     end = new Date().getTime();
   }
 }
-function initTableBuffer(i,liste,dx,dy) {
-	var request = new XMLHttpRequest();
-    request.open('GET', paramProjet.audioPath+liste[i], true);
-    request.responseType = 'arraybuffer';
-    request.onload = function() {
-    contextAudio.decodeAudioData(request.response, function(buffer) {
-    	var url=paramProjet.audioPath+liste[i]
-    	var pathnom=url.split('/')
-     	var file=pathnom[pathnom.length-1]
-    	tableBuffer.push({name:file,buffer:buffer});
-    	i++
-    	if(i<liste.length){
-    		initTableBuffer(i,liste,dx,dy)
-    	}else{
-    		console.log('tablebuffer',tableBuffer,tableBuffer.length)
-			var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+function defObjets(i,liste,dx,dy){
+	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 			var nb=obj.getElementsByTagName("objet").length
-			console.log("nb",nb)
 			for(let i=0;i<nb;i++){
 				var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"))
 				
@@ -727,7 +762,6 @@ function initTableBuffer(i,liste,dx,dy) {
 								break
 							}
 						}
-						console.log("objet"+nbObjets,tableObjet[nbObjets])
 						nbObjets++
 						break
 					case 2:
@@ -744,9 +778,9 @@ function initTableBuffer(i,liste,dx,dy) {
 						tableObjet[nbObjets].posX=tableObjet[nbObjets].posX+dx
 						tableObjet[nbObjets].posY=tableObjet[nbObjets].posY+dy
 						objActif=nbObjets
-						createSymbole(tableObjet[nbObjets].type)
-						dragElement(document.getElementById(tableObjet[nbObjets].id))
-						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj)
+						createSymbole2(tableObjet[objActif].type)
+						dragElement(document.getElementById(tableObjet[objActif].id))
+						document.getElementById(tableObjet[objActif].id).addEventListener('mouseup',selectBkgObj)
 						nbObjets++
 						break
 					case 4:
@@ -760,11 +794,32 @@ function initTableBuffer(i,liste,dx,dy) {
 						break
 				}
 			}
-			console.log(tableObjet)
+			var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd+","+editAudioCmd
+			window.api.send("toMain", 'defExterne;'+btoa(txt))
+}
+function initTableBuffer(i,liste,dx,dy) {
+	var request = new XMLHttpRequest();
+    request.open('GET', paramProjet.audioPath+liste[i], true);
+    request.responseType = 'arraybuffer';
+    
+    request.onload = function() {
+    contextAudio.decodeAudioData(request.response, function(buffer) {
+    	var url=paramProjet.audioPath+liste[i]
+    	var pathnom=url.split('/')
+     	var file=pathnom[pathnom.length-1]
+    	tableBuffer.push({name:file,buffer:buffer});
+    	
+    	i++
+    
+    	if(i<liste.length){
+    		initTableBuffer(i,liste,dx,dy)
+    	}else{
+			defObjets(i,liste,dx,dy)
 		}
     });
-    }
+ 	}
     request.send();
+
 }
 function initTableGrp(i,liste,dx,dy) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
@@ -784,7 +839,6 @@ function initTableGrp(i,liste,dx,dy) {
     	if(i<liste.length){
     		initTableGrp(i,liste,dx,dy)
     	}else{	
-			console.log("nb",nb,i,liste)
 			for(let i=0;i<nb;i++){
 				var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"))
 				switch(cl){
@@ -807,7 +861,6 @@ function initTableGrp(i,liste,dx,dy) {
 								break
 							}
 						}
-						console.log("objet"+nbObjets,tableObjet)
 						nbObjets++
 						break
 					case 2:
@@ -828,6 +881,7 @@ function initTableGrp(i,liste,dx,dy) {
 						break
 					case 3:
 						symbXmlToScore(nbObjets,i)
+						objActif=nbObjets
 						if(nbObjets==offset){
 							var offsetX=tableObjet[nbObjets].posX
 							var offsetY=tableObjet[nbObjets].posY
@@ -837,7 +891,7 @@ function initTableGrp(i,liste,dx,dy) {
 							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
 							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
 						}
-						createSymbole(tableObjet[nbObjets].type)
+						createSymbole2(tableObjet[nbObjets].type)
 						dragElement(document.getElementById(tableObjet[nbObjets].id))
 						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj)
 						nbObjets++
@@ -867,26 +921,29 @@ function initTableGrp(i,liste,dx,dy) {
 }
 function fileXmlToScore(offset,dx,dy) {
 	nbObjets=offset
-	console.log(tableObjet)
 	if(offset==0){
 		defProjetConfig()
 		defSpaceConfig()
 		defInterfaceConfig()
 		defPaletteConfig()
 		configPalette()
+		defExterneConfig()
 		upDateWorkSpace(1)
 	}
 	var tmpbuffer=[]
 	if(offset==0){
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("audioliste")[0]
 	var tmpv=obj.getAttribute("value")
-	tmpbuffer=tmpv.split(',')
-	initTableBuffer(0,tmpbuffer,dx,dy)
+		if(tmpv!=""){
+			tmpbuffer=tmpv.split(',')
+			initTableBuffer(0,tmpbuffer,dx,dy)
+		}else{
+			defObjets(0,tmpbuffer,dx,dy)
+		}
 	}
 }
 function drawObj(id) {
 	var obj=""
-	console.log(tableObjet[id].type)
 	switch(tableObjet[id].type){
 		case 1:
 			graphCircle(id)
@@ -920,6 +977,7 @@ function drawObj(id) {
 			break
 		case 11:
 			graphGlissando(id)
+			dragElement(document.getElementById('gliss'+id));
 			break
 		case 12:
 			graphBlock(id)
@@ -1027,7 +1085,6 @@ function defInterfaceConfig() {
 	fontPalette = obj.getElementsByTagName("fontpalette")[0].getAttribute("value")
 	fontPaletteSize = obj.getElementsByTagName("fontpalettesize")[0].getAttribute("value")
 	separateurPalette = obj.getElementsByTagName("separateurpalette")[0].getAttribute("value")
-	fontSizeMenu = obj.getElementsByTagName("fontsizemenu")[0].getAttribute("value")
 	bkgInfo = obj.getElementsByTagName("bkginfo")[0].getAttribute("value")
 	fontInfoSize = obj.getElementsByTagName("fontinfosize")[0].getAttribute("value")
 	fontInfoColor = obj.getElementsByTagName("fontinfocolor")[0].getAttribute("value")
@@ -1062,13 +1119,12 @@ function defPaletteConfig() {
 	paletteEllipse = obj.getElementsByTagName("paletteellipse")[0].getAttribute("value")
 	paletteRectangle = obj.getElementsByTagName("paletterectangle")[0].getAttribute("value")
 	paletteTrianglelong = obj.getElementsByTagName("palettetrianglelong")[0].getAttribute("value")
-	paletteRondlong = obj.getElementsByTagName("paletteRondlong")[0].getAttribute("value")
+	paletteRondlong = obj.getElementsByTagName("paletterondlong")[0].getAttribute("value")
 	paletteCarrelong = obj.getElementsByTagName("palettecarrelong")[0].getAttribute("value")
 	paletteCrescendo = obj.getElementsByTagName("palettecrescendo")[0].getAttribute("value")
 	paletteLigne = obj.getElementsByTagName("paletteligne")[0].getAttribute("value")
 	paletteGlissando = obj.getElementsByTagName("paletteglissando")[0].getAttribute("value")
 	paletteBlock = obj.getElementsByTagName("paletteblock")[0].getAttribute("value")
-	paletteFusion = obj.getElementsByTagName("palettefusion")[0].getAttribute("value")
 	paletteDecresc = obj.getElementsByTagName("palettedecresc")[0].getAttribute("value")
 	paletteDecrescb = obj.getElementsByTagName("palettedecrescb")[0].getAttribute("value")
 	paletteCresc = obj.getElementsByTagName("palettecresc")[0].getAttribute("value")
@@ -1085,7 +1141,30 @@ function defPaletteConfig() {
 	paletteMarque2 = obj.getElementsByTagName("palettemarque2")[0].getAttribute("value")
 	paletteLecteur = obj.getElementsByTagName("palettelecteur")[0].getAttribute("value")
 }
-
+function defExterneConfig() {
+	if(document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("externe")[0]){
+		var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("externe")[0]
+		editor = obj.getElementsByTagName("externeeditor")[0].getAttribute("value")
+		daw = obj.getElementsByTagName("externedaw")[0].getAttribute("value")
+		cmdDaw = obj.getElementsByTagName("externecmddaw")[0].getAttribute("value")
+		pdfPage = obj.getElementsByTagName("externepdfpage")[0].getAttribute("value")
+		pdfLandscape = obj.getElementsByTagName("externepdflandscape")[0].getAttribute("value")
+		pdfScale = parseFloat(obj.getElementsByTagName("externepdfscale")[0].getAttribute("value"))
+		pdfMgTop = parseFloat(obj.getElementsByTagName("externepdftop")[0].getAttribute("value"))
+		pdfMgBot = parseFloat(obj.getElementsByTagName("externepdfbot")[0].getAttribute("value"))
+		pdfMgLeft = parseFloat(obj.getElementsByTagName("externepdfleft")[0].getAttribute("value"))
+		pdfMgRight = parseFloat(obj.getElementsByTagName("externepdfright")[0].getAttribute("value"))
+		pdfBkg = obj.getElementsByTagName("externepdfbkg")[0].getAttribute("value")
+		pdfAssCmd = obj.getElementsByTagName("externepdfass")[0].getAttribute("value")
+		pdfAppCmd = obj.getElementsByTagName("externepdfapp")[0].getAttribute("value")
+		editAudioCmd = obj.getElementsByTagName("externeaudioedit")[0].getAttribute("value")
+		if(daw=='reaper'){
+			document.getElementById("read3d").src="./images/png/reaper.png"
+		}else{
+			document.getElementById("read3d").src="./images/png/Ardour-icon.png"
+		}
+	}
+}
 let tableBufferIR=[]
 function importReverbImpulseResponse(name) {
         // Load impulse response asynchronously
@@ -1155,114 +1234,124 @@ function selectListeAudios(def) {
 	listObjSelect=def
 }
 function configSave(lg) {
-txt="let lang='"+lg+"'\n\
-let setTimeRegle="+setTimeRegle+"\n\
-let setSignRegle="+setSignRegle+"\n\
-let setGrille="+setGrille+"\n\
-let spaceSeconde="+spaceSeconde+"\n\
-let zoomScale ="+zoomScale+"\n\
-let baseSpaceHeight="+baseSpaceHeight+"\n\
-let baseSpaceWidth="+baseSpaceWidth+"\n\
-let ratioSpaceHeight="+ratioSpaceHeight+"\n\
-let listenerForwardX="+listenerForwardX+"\n\
-let listenerForwardY="+listenerForwardY+"\n\
-let listenerForwardZ="+listenerForwardZ+"\n\
-let listenerUpX="+listenerUpX+"\n\
-let listenerUpY="+listenerUpY+"\n\
-let listenerUpZ="+listenerUpZ+"\n\
-let listenerPositionX="+listenerPositionX+"\n\
-let listenerPositionY="+listenerPositionY+"\n\
-let listenerPositionZ="+listenerPositionZ+"\n\
-let pannerPanningModel = '"+pannerPanningModel+"'\n\
-let pannerDistanceModel = '"+pannerDistanceModel+"'\n\
-let pannerRefDistance = "+pannerRefDistance+"\n\
-let pannerMaxDistance = "+pannerMaxDistance+"\n\
-let pannerRolloffFactor = "+pannerRolloffFactor+"\n\
-let pannerConeInnerAngle = "+pannerConeInnerAngle+"\n\
-let pannerConeOuterAngle = "+pannerConeOuterAngle+"\n\
-let pannerConeOuterGain = "+pannerConeOuterGain+"\n\
-let pannerOrientationX="+pannerOrientationX+"\n\
-let pannerOrientationY="+pannerOrientationY+"\n\
-let pannerOrientationZ="+pannerOrientationZ+"\n\
-let baseFontSize="+baseFontSize+"\n\
-let paletteBkg='"+paletteBkg+"'\n\
-let fontPalette='"+fontPalette+"'\n\
-let fontPaletteSize='"+fontPaletteSize+"'\n\
-let separateurPalette='"+separateurPalette+"'\n\
-let bkgInfo='"+bkgInfo+"'\n\
-let fontInfoSize='"+fontInfoSize+"'\n\
-let fontInfoColor='"+fontInfoColor+"'\n\
-let regleBackground='"+regleBackground+"'\n\
-let regleFontSize='"+regleFontSize+"'\n\
-let regleFontColor='"+regleFontColor+"'\n\
-let intervalBackground='"+intervalBackground+"'\n\
-let intervalFontSize='"+intervalFontSize+"'\n\
-let fontIntervalColor='"+fontIntervalColor+"'\n\
-let workSpaceBkg='"+workSpaceBkg+"'\n\
-let spaceGrilleOpacity="+spaceGrilleOpacity+"\n\
-let colorGrille='"+colorGrille+"'\n\
-let suiveurBkg='"+suiveurBkg+"'\n\
-let popupTitreBkg='"+popupTitreBkg+"'\n\
-let popupHeaderFontSize='"+popupHeaderFontSize+"'\n\
-let popupFontTitreColor='"+popupFontTitreColor+"'\n\
-let popupFontColor='"+popupFontColor+"'\n\
-let popupBkgColor='"+popupBkgColor+"'\n\
-let popupFontSize='"+popupFontSize+"'\n\
-let popupOngletFontColor='"+popupOngletFontColor+"'\n\
-let popupFontOngletSize='"+popupFontOngletSize+"'\n\
-let popupOngletBkg='"+popupOngletBkg+"'\n\
-let popupOngletActifBkg='"+popupOngletActifBkg+"'\n\
-let windowOuterWidth="+windowOuterWidth+"\n\
-let windowOuterHeight="+windowOuterHeight+"\n\
-let path='"+path+"'\n\
-let imgDirectory='"+imgDirectory+"'\n\
-let audioDirectory='"+audioDirectory+"'\n\
-let spat3D='"+spat3D+"'\n\
-let spat3DCanaux="+spat3DCanaux+"\n\
-let editor='"+editor+"'\n\
-let paletteDisque='"+paletteDisque+"'\n\
-let paletteCarre='"+paletteCarre+"'\n\
-let paletteTriangle='"+paletteTriangle+"'\n\
-let paletteEllipse='"+paletteEllipse+"'\n\
-let paletteRectangle='"+paletteRectangle+"'\n\
-let paletteTrianglelong='"+paletteTrianglelong+"'\n\
-let paletteRondlong='"+paletteRondlong+"'\n\
-let paletteCarrelong='"+paletteCarrelong+"'\n\
-let paletteCrescendo='"+paletteCrescendo+"'\n\
-let paletteLigne='"+paletteLigne+"'\n\
-let paletteGlissando='"+paletteGlissando+"'\n\
-let paletteBlock='"+paletteBlock+"'\n\
-let paletteDecresc='"+paletteDecresc+"'\n\
-let paletteDecrescb='"+paletteDecrescb+"'\n\
-let paletteCresc='"+paletteCresc+"'\n\
-let paletteCrescb='"+paletteCrescb+"'\n\
-let paletteAgregat='"+paletteAgregat+"'\n\
-let paletteArpege='"+paletteArpege+"'\n\
-let paletteMultilignes='"+ paletteMultilignes+"'\n\
-let paletteNuage='"+paletteNuage+"'\n\
-let paletteTexture='"+paletteTexture+"'\n\
-let paletteImage='"+paletteImage+"'\n\
-let paletteSymb='"+paletteSymb+"'\n\
-let paletteFleche='"+paletteFleche+"'\n\
-let paletteMarque1='"+paletteMarque1+"'\n\
-let paletteMarque2='"+paletteMarque2+"'\n\
-let paletteLecteur='"+paletteLecteur+"'\n\
-let regleSvgFontSize="+regleSvgFontSize+"\n\
-let regleSvgFontColor='"+regleSvgFontColor+"'\n\
-let vueSvgGrille="+vueSvgGrille+"\n\
-let vueSvgGrilleColor='"+vueSvgGrilleColor+"'\n\
-let vueSvgGrilleOpacity="+vueSvgGrilleOpacity+"\n\
-let vueSvgBackground='"+vueSvgBackground+"'\n\
-let vueSvgFontSize="+vueSvgFontSize+"\n\
-let vueSvgFontColor='"+vueSvgFontColor+"'\n\
-let vueSvgRegle="+vueSvgRegle+"\n\
-let vueSvgMesure="+vueSvgMesure+"\n\
-let svgSeconde="+svgSeconde+"\n\
-let setTimeRegleSvg="+setTimeRegleSvg+"\n\
-let setSignRegleSvg="+setSignRegleSvg+"\n\
-let winWidth="+winWidth+"\n\
-let winHeight="+winHeight+"\n"
-console.log("config",txt)
+var txt=lg+"\n"
++setTimeRegle+"\n"
++setSignRegle+"\n"
++setGrille+"\n"
++spaceSeconde+"\n"
++zoomScale+"\n"
++baseSpaceHeight+"\n"
++baseSpaceWidth+"\n"
++ratioSpaceHeight+"\n"
++listenerForwardX+"\n"
++listenerForwardY+"\n"
++listenerForwardZ+"\n"
++listenerUpX+"\n"
++listenerUpY+"\n"
++listenerUpZ+"\n"
++listenerPositionX+"\n"
++listenerPositionY+"\n"
++listenerPositionZ+"\n"
++pannerPanningModel+"\n"
++pannerDistanceModel+"\n"
++pannerRefDistance+"\n"
++pannerMaxDistance+"\n"
++pannerRolloffFactor+"\n"
++pannerConeInnerAngle+"\n"
++pannerConeOuterAngle+"\n"
++pannerConeOuterGain+"\n"
++pannerOrientationX+"\n"
++pannerOrientationY+"\n"
++pannerOrientationZ+"\n"
++baseFontSize+"\n"
++paletteBkg+"\n"
++fontPalette+"\n"
++fontPaletteSize+"\n"
++separateurPalette+"\n"
++bkgInfo+"\n"
++fontInfoSize+"\n"
++fontInfoColor+"\n"
++regleBackground+"\n"
++regleFontSize+"\n"
++regleFontColor+"\n"
++intervalBackground+"\n"
++intervalFontSize+"\n"
++fontIntervalColor+"\n"
++workSpaceBkg+"\n"
++spaceGrilleOpacity+"\n"
++colorGrille+"\n"
++suiveurBkg+"\n"
++popupTitreBkg+"\n"
++popupHeaderFontSize+"\n"
++popupFontTitreColor+"\n"
++popupFontColor+"\n"
++popupBkgColor+"\n"
++popupFontSize+"\n"
++popupOngletFontColor+"\n"
++popupFontOngletSize+"\n"
++popupOngletBkg+"\n"
++popupOngletActifBkg+"\n"
++windowOuterWidth+"\n"
++windowOuterHeight+"\n"
++path+"\n"
++imgDirectory+"\n"
++audioDirectory+"\n"
++spat3D+"\n"
++spat3DCanaux+"\n"
++editor+"\n"
++paletteDisque+"\n"
++paletteCarre+"\n"
++paletteTriangle+"\n"
++paletteEllipse+"\n"
++paletteRectangle+"\n"
++paletteTrianglelong+"\n"
++paletteRondlong+"\n"
++paletteCarrelong+"\n"
++paletteCrescendo+"\n"
++paletteLigne+"\n"
++paletteGlissando+"\n"
++paletteBlock+"\n"
++paletteDecresc+"\n"
++paletteDecrescb+"\n"
++paletteCresc+"\n"
++paletteCrescb+"\n"
++paletteAgregat+"\n"
++paletteArpege+"\n"
++paletteMultilignes+"\n"
++paletteNuage+"\n"
++paletteTexture+"\n"
++paletteImage+"\n"
++paletteSymb+"\n"
++paletteFleche+"\n"
++paletteMarque1+"\n"
++paletteMarque2+"\n"
++paletteLecteur+"\n"
++regleSvgFontSize+"\n"
++regleSvgFontColor+"\n"
++vueSvgGrille+"\n"
++vueSvgGrilleColor+"\n"
++vueSvgGrilleOpacity+"\n"
++vueSvgBackground+"\n"
++vueSvgFontSize+"\n"
++vueSvgFontColor+"\n"
++vueSvgRegle+"\n"
++vueSvgMesure+"\n"
++svgSeconde+"\n"
++setTimeRegleSvg+"\n"
++setSignRegleSvg+"\n"
++winWidth+"\n"
++winHeight+"\n"
++daw+"\n"
++cmdDaw+"\n"
++pdfPage+"\n"
++pdfScale+"\n"
++pdfMgTop+"\n"
++pdfMgBot+"\n"
++pdfMgLeft+"\n"
++pdfMgRight+"\n"
++pdfBkg+"\n"
++pdfAssCmd+"\n"
++pdfAppCmd+"\n"
 window.api.send("toMain", 'saveConfig;'+btoa(txt))
 }
 function defTheme() {
@@ -1273,11 +1362,11 @@ txt=txt+popupFontSize+";"+popupOngletFontColor+";"+popupFontOngletSize+";"+popup
 txt=txt+paletteDisque+";"+paletteCarre+";"+paletteTriangle+";"+paletteEllipse+";"+paletteRectangle+";"+paletteTrianglelong+";"+paletteRondlong+";"+paletteCarrelong+";"+paletteCrescendo+";"
 txt=txt+paletteLigne+";"+paletteGlissando+";"+paletteBlock+";"+paletteDecresc+";"+paletteDecrescb+";"+paletteCresc+";"+paletteCrescb+";"+paletteAgregat+";"+paletteArpege+";"+paletteMultilignes
 txt=txt+";"+paletteNuage+";"+paletteTexture+";"+paletteImage+";"+paletteSymb+";"+paletteFleche+";"+paletteMarque1+";"+paletteMarque2+";"+paletteLecteur
-console.log("theme",txt.split(";"))
+
 window.api.send("toMain", 'saveTheme;'+btoa(txt))
 }
 function selectTheme(txt) {
-console.log("file",txt)
+
    // Load lang
    var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function() {
@@ -1292,7 +1381,7 @@ console.log("file",txt)
 }
 function loadTheme(file) {
 var theme=file.split(";")
-console.log("theme",theme)
+
 baseFontSize=theme[0]
 paletteBkg=theme[1]
 fontPalette=theme[2]
@@ -1326,6 +1415,6 @@ popupOngletFontColor=theme[29]
 popupFontOngletSize=theme[30]
 popupOngletBkg=theme[31]
 popupOngletActifBkg=theme[32]
-console.log("theme renderer",theme)
+
 defInterface()
 }
