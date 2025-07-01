@@ -1,0 +1,149 @@
+{
+    "name": "chorus",
+    "filename": "chorus.dsp",
+    "version": "2.75.3",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/usr/share/faust/stdfaust.lib",
+        "/usr/share/faust/signals.lib",
+        "/usr/share/faust/maths.lib",
+        "/usr/share/faust/delays.lib",
+        "/usr/share/faust/platform.lib",
+        "/usr/share/faust/basics.lib"
+    ],
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 1310780,
+    "code": "kD7Y",
+    "inputs": 2,
+    "outputs": 2,
+    "meta": [
+        {
+            "basics.lib/name": "Faust Basic Element Library"
+        },
+        {
+            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics.lib/version": "1.19.1"
+        },
+        {
+            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "delays.lib/name": "Faust Delay Library"
+        },
+        {
+            "delays.lib/version": "1.1.0"
+        },
+        {
+            "filename": "chorus.dsp"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.8.0"
+        },
+        {
+            "name": "chorus"
+        },
+        {
+            "platform.lib/name": "Generic Platform Library"
+        },
+        {
+            "platform.lib/version": "1.3.0"
+        },
+        {
+            "signals.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "signals.lib/version": "1.6.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "hgroup",
+            "label": "Chorus",
+            "items": [
+                {
+                    "type": "vslider",
+                    "label": "delay",
+                    "shortname": "delay",
+                    "address": "/Chorus/delay",
+                    "index": 786452,
+                    "meta": [
+                        {
+                            "name": "Delay"
+                        }
+                    ],
+                    "init": 0.02,
+                    "min": 0,
+                    "max": 0.2,
+                    "step": 0.01
+                },
+                {
+                    "type": "vslider",
+                    "label": "depth",
+                    "shortname": "depth",
+                    "address": "/Chorus/depth",
+                    "index": 786464,
+                    "meta": [
+                        {
+                            "name": "Depth"
+                        }
+                    ],
+                    "init": 0.02,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "vslider",
+                    "label": "freq",
+                    "shortname": "freq",
+                    "address": "/Chorus/freq",
+                    "index": 786472,
+                    "meta": [
+                        {
+                            "name": "Freq"
+                        }
+                    ],
+                    "init": 3,
+                    "min": 0,
+                    "max": 10,
+                    "step": 0.01
+                },
+                {
+                    "type": "vslider",
+                    "label": "level",
+                    "shortname": "level",
+                    "address": "/Chorus/level",
+                    "index": 786436,
+                    "meta": [
+                        {
+                            "name": "Level"
+                        }
+                    ],
+                    "init": 0.5,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                }
+            ]
+        }
+    ]
+}

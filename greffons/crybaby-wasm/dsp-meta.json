@@ -1,0 +1,186 @@
+{
+    "name": "crybaby",
+    "filename": "crybaby.dsp",
+    "version": "2.75.3",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/usr/share/faust/stdfaust.lib",
+        "/usr/share/faust/demos.lib",
+        "/usr/share/faust/basics.lib",
+        "/usr/share/faust/vaeffects.lib",
+        "/usr/share/faust/signals.lib",
+        "/usr/share/faust/filters.lib",
+        "/usr/share/faust/maths.lib",
+        "/usr/share/faust/platform.lib"
+    ],
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 72,
+    "code": "OJPz",
+    "inputs": 2,
+    "outputs": 2,
+    "meta": [
+        {
+            "author": "JOS, revised by RM"
+        },
+        {
+            "basics.lib/bypass1:author": "Julius Smith"
+        },
+        {
+            "basics.lib/name": "Faust Basic Element Library"
+        },
+        {
+            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics.lib/version": "1.19.1"
+        },
+        {
+            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "demos.lib/crybaby_demo:author": "Julius O. Smith III"
+        },
+        {
+            "demos.lib/crybaby_demo:licence": "MIT"
+        },
+        {
+            "demos.lib/name": "Faust Demos Library"
+        },
+        {
+            "demos.lib/version": "1.2.0"
+        },
+        {
+            "description": "Crybaby demo application"
+        },
+        {
+            "filename": "crybaby.dsp"
+        },
+        {
+            "filters.lib/fir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/fir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/fir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/iir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/iir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/iir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/lowpass0_highpass1": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/name": "Faust Filters Library"
+        },
+        {
+            "filters.lib/tf2:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf2:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf2:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/version": "1.3.0"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.8.0"
+        },
+        {
+            "name": "crybaby"
+        },
+        {
+            "platform.lib/name": "Generic Platform Library"
+        },
+        {
+            "platform.lib/version": "1.3.0"
+        },
+        {
+            "signals.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "signals.lib/version": "1.6.0"
+        },
+        {
+            "vaeffects.lib/name": "Faust Virtual Analog Filter Effect Library"
+        },
+        {
+            "vaeffects.lib/version": "1.2.1"
+        },
+        {
+            "version": "0.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "hgroup",
+            "label": "CRYBABY",
+            "meta": [
+                {
+                    "tooltip": "Reference:         https://ccrma.stanford.edu/~jos/pasp/vegf.html"
+                }
+            ],
+            "items": [
+                {
+                    "type": "checkbox",
+                    "label": "Bypass",
+                    "shortname": "Bypass",
+                    "address": "/CRYBABY/Bypass",
+                    "index": 0,
+                    "meta": [
+                        {
+                            "0": ""
+                        },
+                        {
+                            "tooltip": "When this is checked, the wah         pedal has no effect"
+                        }
+                    ]
+                },
+                {
+                    "type": "hslider",
+                    "label": "Wah parameter",
+                    "shortname": "Wah_parameter",
+                    "address": "/CRYBABY/Wah_parameter",
+                    "index": 4,
+                    "meta": [
+                        {
+                            "1": ""
+                        },
+                        {
+                            "tooltip": "wah pedal angle between         0 (rocked back) and 1 (rocked forward)"
+                        }
+                    ],
+                    "init": 0.8,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                }
+            ]
+        }
+    ]
+}

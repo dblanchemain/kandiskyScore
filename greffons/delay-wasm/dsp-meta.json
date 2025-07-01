@@ -1,0 +1,176 @@
+{
+    "name": "delay",
+    "filename": "delay.dsp",
+    "version": "2.75.3",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/usr/share/faust/stdfaust.lib",
+        "/usr/share/faust/basics.lib",
+        "/usr/share/faust/delays.lib",
+        "/usr/share/faust/maths.lib",
+        "/usr/share/faust/platform.lib",
+        "/usr/share/faust/signals.lib"
+    ],
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 4194380,
+    "code": "wEbR",
+    "inputs": 1,
+    "outputs": 1,
+    "meta": [
+        {
+            "basics.lib/bypass1:author": "Julius Smith"
+        },
+        {
+            "basics.lib/name": "Faust Basic Element Library"
+        },
+        {
+            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics.lib/version": "1.19.1"
+        },
+        {
+            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "delays.lib/name": "Faust Delay Library"
+        },
+        {
+            "delays.lib/version": "1.1.0"
+        },
+        {
+            "filename": "delay.dsp"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.8.0"
+        },
+        {
+            "name": "delay"
+        },
+        {
+            "platform.lib/name": "Generic Platform Library"
+        },
+        {
+            "platform.lib/version": "1.3.0"
+        },
+        {
+            "signals.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "signals.lib/version": "1.6.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "DELAY",
+            "items": [
+                {
+                    "type": "vgroup",
+                    "label": "0x00",
+                    "meta": [
+                        {
+                            "0": ""
+                        }
+                    ],
+                    "items": [
+                        {
+                            "type": "checkbox",
+                            "label": "Bypass",
+                            "shortname": "Bypass",
+                            "address": "/DELAY/0x00/Bypass",
+                            "index": 0,
+                            "meta": [
+                                {
+                                    "tooltip": "When this is checked, Delay   has no effect"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "vgroup",
+                    "label": "0x00",
+                    "meta": [
+                        {
+                            "1": ""
+                        }
+                    ],
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "delay",
+                            "shortname": "delay",
+                            "address": "/DELAY/0x00/delay",
+                            "index": 4194328,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                },
+                                {
+                                    "unit": "ms"
+                                }
+                            ],
+                            "init": 0,
+                            "min": 0,
+                            "max": 5000,
+                            "step": 0.1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "feedback",
+                            "shortname": "feedback",
+                            "address": "/DELAY/0x00/feedback",
+                            "index": 4,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0,
+                            "min": 0,
+                            "max": 100,
+                            "step": 0.1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "interpolation",
+                            "shortname": "interpolation",
+                            "address": "/DELAY/0x00/interpolation",
+                            "index": 4194336,
+                            "meta": [
+                                {
+                                    "style": "knob"
+                                },
+                                {
+                                    "unit": "ms"
+                                }
+                            ],
+                            "init": 10,
+                            "min": 1,
+                            "max": 100,
+                            "step": 0.1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
