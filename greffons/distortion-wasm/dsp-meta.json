@@ -1,0 +1,176 @@
+{
+    "name": "distortion",
+    "filename": "distortion.dsp",
+    "version": "2.75.3",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/usr/share/faust/stdfaust.lib",
+        "/usr/share/faust/misceffects.lib",
+        "/usr/share/faust/signals.lib",
+        "/usr/share/faust/maths.lib",
+        "/usr/share/faust/platform.lib",
+        "/usr/share/faust/filters.lib"
+    ],
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 68,
+    "code": "ONjT",
+    "inputs": 2,
+    "outputs": 2,
+    "meta": [
+        {
+            "author": "JOS, revised by RM"
+        },
+        {
+            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "description": "Distortion demo application."
+        },
+        {
+            "filename": "distortion.dsp"
+        },
+        {
+            "filters.lib/dcblocker:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/dcblocker:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/dcblocker:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/lowpass0_highpass1": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/name": "Faust Filters Library"
+        },
+        {
+            "filters.lib/pole:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/pole:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/pole:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/version": "1.3.0"
+        },
+        {
+            "filters.lib/zero:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/zero:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/zero:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.8.0"
+        },
+        {
+            "misceffects.lib/cubicnl:author": "Julius O. Smith III"
+        },
+        {
+            "misceffects.lib/cubicnl:license": "STK-4.3"
+        },
+        {
+            "misceffects.lib/cubicnl_nodc:author": "Julius O. Smith III"
+        },
+        {
+            "misceffects.lib/cubicnl_nodc:license": "STK-4.3"
+        },
+        {
+            "misceffects.lib/name": "Misc Effects Library"
+        },
+        {
+            "misceffects.lib/version": "2.5.0"
+        },
+        {
+            "name": "distortion"
+        },
+        {
+            "platform.lib/name": "Generic Platform Library"
+        },
+        {
+            "platform.lib/version": "1.3.0"
+        },
+        {
+            "signals.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "signals.lib/version": "1.6.0"
+        },
+        {
+            "version": "0.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "CUBIC NONLINEARITY cubicnl",
+            "meta": [
+                {
+                    "tooltip": "Reference:         https://ccrma.stanford.edu/~jos/pasp/Cubic_Soft_Clipper.html"
+                }
+            ],
+            "items": [
+                {
+                    "type": "hslider",
+                    "label": "Drive",
+                    "shortname": "Drive",
+                    "address": "/CUBIC_NONLINEARITY_cubicnl/Drive",
+                    "index": 24,
+                    "meta": [
+                        {
+                            "1": ""
+                        },
+                        {
+                            "tooltip": "Amount of distortion"
+                        }
+                    ],
+                    "init": 0,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                {
+                    "type": "hslider",
+                    "label": "Offset",
+                    "shortname": "Offset",
+                    "address": "/CUBIC_NONLINEARITY_cubicnl/Offset",
+                    "index": 8,
+                    "meta": [
+                        {
+                            "2": ""
+                        },
+                        {
+                            "tooltip": "Brings in even harmonics"
+                        }
+                    ],
+                    "init": 0,
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                }
+            ]
+        }
+    ]
+}
