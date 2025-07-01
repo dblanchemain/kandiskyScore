@@ -1,107 +1,118 @@
-let lang='Fr'
-let setTimeRegle=true
-let setSignRegle=true
-let setGrille=true
-let spaceSeconde=true
-let zoomScale =1
-let baseSpaceHeight=724
-let baseSpaceWidth=12960
-let ratioSpaceHeight=1.0966850828729282
-let listenerForwardX=0
-let listenerForwardY=0
-let listenerForwardZ=-1
-let listenerUpX=0
-let listenerUpY=1
-let listenerUpZ=0
-let listenerPositionX=0
-let listenerPositionY=0
-let listenerPositionZ=0
-let pannerPanningModel = 'equalpower'
-let pannerDistanceModel = 'inverse'
-let pannerRefDistance = 1
-let pannerMaxDistance = 10000
-let pannerRolloffFactor = 1
-let pannerConeInnerAngle = 360
-let pannerConeOuterAngle = 0
-let pannerConeOuterGain = 0
-let pannerOrientationX=1
-let pannerOrientationY=0
-let pannerOrientationZ=0
-let baseFontSize=0
-let paletteBkg='rgb(226, 226, 226)'
-let fontPalette='rgb(0, 0, 0)'
-let fontPaletteSize='1'
-let separateurPalette='rgb(0, 0, 0)'
-let bkgInfo='rgb(44, 44, 44)'
-let fontInfoSize='1'
-let fontInfoColor='rgb(255, 255, 255)'
-let regleBackground='rgb(60, 60, 60)'
-let regleFontSize='0.9'
-let regleFontColor='rgb(255, 255, 255)'
-let intervalBackground='rgb(87, 229, 201)'
-let intervalFontSize='0.68'
-let fontIntervalColor='rgb(0, 0, 0)'
-let workSpaceBkg='rgb(245, 245, 245)'
-let spaceGrilleOpacity=0.2
-let colorGrille='rgb(149, 149, 149)'
-let suiveurBkg='red'
-let popupTitreBkg='rgb(49, 50, 55)'
-let popupHeaderFontSize='1'
-let popupFontTitreColor='rgb(255, 251, 251)'
-let popupFontColor='rgb(0, 0, 0)'
-let popupBkgColor='rgb(249, 249, 253)'
-let popupFontSize='1'
-let popupOngletFontColor='rgb(0, 0, 0)'
-let popupFontOngletSize='NaN'
-let popupOngletBkg='rgb(180, 180, 180)'
-let popupOngletActifBkg='rgb(234, 234, 234)'
-let windowOuterWidth=1492
-let windowOuterHeight=850
-let path=''
-let imgDirectory=''
-let audioDirectory=''
-let spat3D='objMatrixDominium'
-let spat3DCanaux=18
-let editor='libreoffice --draw'
-let paletteDisque='green'
-let paletteCarre='blue'
-let paletteTriangle='red'
-let paletteEllipse='#ba21e0'
-let paletteRectangle='#21e033'
-let paletteTrianglelong='red'
-let paletteRondlong='#008000'
-let paletteCarrelong='blue'
-let paletteCrescendo='#ff0000'
-let paletteLigne='#000000'
-let paletteGlissando='#23a7f0'
-let paletteBlock='#9b8d11'
-let paletteDecresc='#800080'
-let paletteDecrescb='#800080'
-let paletteCresc='#e7a016'
-let paletteCrescb='#e7a016'
-let paletteAgregat='blue'
-let paletteArpege='blue'
-let paletteMultilignes='#000000'
-let paletteNuage='#deea1a'
-let paletteTexture='green'
-let paletteImage='#000000'
-let paletteSymb='#000000'
-let paletteFleche='#f26e07'
-let paletteMarque1='#000000'
-let paletteMarque2='#23a7f0'
-let paletteLecteur='#2373b2'
-let regleSvgFontSize=1
-let regleSvgFontColor='#000000'
-let vueSvgGrille=0
-let vueSvgGrilleColor='#000000'
-let vueSvgGrilleOpacity=0.2
-let vueSvgBackground='rgb(0, 0, 0)'
-let vueSvgFontSize=1
-let vueSvgFontColor='rgb(255, 255, 255)'
-let vueSvgRegle=false
-let vueSvgMesure=false
-let svgSeconde=false
-let setTimeRegleSvg=false
-let setSignRegleSvg=false
-let winWidth=1510
-let winHeight=870
+Fr
+true
+true
+true
+true
+1
+724
+12960
+1.0966850828729282
+0
+0
+-1
+0
+1
+0
+0
+0
+0
+equalpower
+linear
+1
+10000
+1
+360
+0
+0
+1
+0
+0
+0
+rgb(226, 226, 226)
+rgb(0, 0, 0)
+1
+rgb(0, 0, 0)
+rgb(44, 44, 44)
+1
+rgb(255, 255, 255)
+rgb(60, 60, 60)
+0.9
+rgb(255, 255, 255)
+rgb(87, 229, 201)
+0.68
+rgb(0, 0, 0)
+rgb(245, 245, 245)
+0.2
+rgb(149, 149, 149)
+red
+rgb(49, 50, 55)
+1
+rgb(255, 251, 251)
+rgb(0, 0, 0)
+rgb(249, 249, 253)
+1
+rgb(0, 0, 0)
+rgb(0, 0, 0)
+rgb(180, 180, 180)
+rgb(234, 234, 234)
+1492
+850
+undefined
+
+
+
+18
+libreoffice --draw
+green
+red
+blue
+#ba21e0
+#21e033
+red
+#808000
+blue
+#ff0000
+#000000
+#23a7f0
+#9b8d11
+#800080
+#800080
+#e7a016
+#e7a016
+blue
+blue
+#000000
+#deea1a
+green
+#ff0000
+#000000
+#f26e07
+#cd1818
+#10e04e
+#ff0000
+1
+#000000
+false
+#000000
+0.2
+rgb(0, 0, 0)
+1
+rgb(255, 255, 255)
+false
+false
+false
+false
+false
+1510
+870
+reaper
+
+1
+1
+0
+0
+0
+0
+0
+
+atril
