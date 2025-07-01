@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-01T19:08:06+0100" />
+<meta name="date" content="2024-01-01T17:55:24+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -221,10 +221,10 @@ function dragElement3(elmnt) {
     	var dvy=((dy-145)*0.0068);
     	var dvx=((dx-450)*0.0068);
     	spZ[dpt]=dvx
-    	spY[dpt]=dvy
-    	window.api.send("toMain", "spatialspZY;"+spatialId+";"+dpt+";"+dvx+";"+dvy)
+    	spY[dpt]=-dvy
+    	window.api.send("toMain", "spatialspZY;"+spatialId+";"+dpt+";"+dvx+";"+spY[dpt])
     	document.getElementById("curZ").value=dvx;
-    	document.getElementById("curY").value=dvy;
+    	document.getElementById("curY").value=-dvy;
     	document.getElementById("spaceCur1"+dpt).style.left=(dx-300) + "px";
     	document.getElementById("spaceCur3"+dpt).style.top=(dy+300) + "px";
     	elmnt.style.left =dx + "px";
@@ -253,10 +253,10 @@ function dragElement3(elmnt) {
     	var dvy=((dy-477.5)*0.0067);
     	var dvx=((dx-147)*0.0068);
     	spX[dpt]=dvx
-    	spY[dpt]=dvy
-    	window.api.send("toMain", "spatialspXY;"+spatialId+";"+dpt+";"+dvx+";"+dvy)
+    	spY[dpt]=-dvy
+    	window.api.send("toMain", "spatialspXY;"+spatialId+";"+dpt+";"+dvx+";"+spY[dpt])
     	document.getElementById("curX").value=dvx;
-    	document.getElementById("curY").value=dvy;
+    	document.getElementById("curY").value=-dvy;
     	document.getElementById("spaceCur1"+dpt).style.top=(dx+0) + "px";
     	document.getElementById("spaceCur2"+dpt).style.top=(dy-300) + "px";
     	elmnt.style.left =dx + "px";
@@ -313,7 +313,7 @@ function defSpacialisation() {
 	console.log(spT,spX,spY,spZ,spD)
 	for(let i=0;i<spT.length;i++){
 		var dx=(spX[i]*145);
-		var dy=(spY[i]*145);
+		var dy=-(spY[i]*145);
 		var dz=(spZ[i]*145);
 		var dd=(spD[i]*145);
 

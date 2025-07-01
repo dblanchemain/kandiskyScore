@@ -391,8 +391,215 @@ function copySliceBuffer(source,len,offset) {
 	}	
 	return buffer2	
 }
-
+let outputMode=51
 function readSimpleAudioA(mode){
+	var audioRate=tableBuffer[0].buffer.sampleRate;
+	if(tableObjet[objActif].class==1){
+			if (tableObjet[objActif].file) {
+				if(tableObjet[objActif].mute==0){
+					var source2=contextAudio.createBufferSource();
+					if(tableObjet[objActif].convolver!="" && tableBufferIR[tableObjet[objActif].convolver].duration>tableBuffer[tableObjet[objActif].bufferId].buffer.duration*tableObjet[objActif].fin){					
+						source2.buffer=copySliceBuffer(tableBuffer[tableObjet[objActif].bufferId].buffer,tableBufferIR[tableObjet[objActif].convolver].length,0)
+					}else{
+						source2.buffer =tableBuffer[tableObjet[objActif].bufferId].buffer;
+					}
+					var source=contextAudio.createBufferSource();
+					if(tableObjet[objActif].reverse==true){
+						var buf1= new Float32Array()
+						var buf2= new Float32Array()
+						buf1=source2.buffer.getChannelData(0)
+        				buf2=source2.buffer.getChannelData(1);
+        				var myArrayBuffer = contextAudio.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
+        				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
+        				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
+        				source.buffer=myArrayBuffer
+        			}else{
+        				source=source2
+        			}
+					source.onended = () => {
+						if(mode==1){
+							recorder.addEventListener('dataavailable',function(e){
+				  				e.data.arrayBuffer().then(arrayBuffer => {
+				  					console.log('recorder mode',mode)
+								   contextAudio.decodeAudioData(arrayBuffer, (audioBuffer) => {
+			      				var rwav=convertAudioBufferToBlob(audioBuffer);
+								   document.getElementById("renduWav").src=URL.createObjectURL(rwav);
+								   document.getElementById("renderAudio").style.display="block";
+			    				});
+							});
+				  			recorder=false;
+	    					recordingstream=false;
+	    					
+	  						});
+	    					recorder.stop();
+						}
+			  			sourceStat=0;
+			  			console.log("source end");
+			  			clearTimeout(timer);
+	  					playerStat=0;
+					};
+					const gainNode = contextAudio.createGain();
+					let panner = contextAudio.createPanner();
+					let convolver = contextAudio.createConvolver();
+					var now=contextAudio.currentTime;
+					var rt=readSourceAudio(contextAudio,source,objActif,gainNode,now,panner,convolver);
+					
+					if(outputMode==51){
+						var buf1= new Float32Array()
+						var buf2= new Float32Array()
+						
+						buf1=source.buffer.getChannelData(0)
+        				buf2=source.buffer.getChannelData(1);
+        				var buf3= new Float32Array(buf1.length)
+        				for(let i=0;i< buf1.length;i++){
+        					buf3[i]=(buf1[i]+buf2[i])*0.5
+        				}
+
+        				var defPanner=[]
+						defPanner=panner51(objActif,tableObjet[objActif].spX,tableObjet[objActif].spY,tableObjet[objActif].spZ)
+						multiSources(objActif,buf3,defPanner,convolver)
+						
+					}else{
+						panner=positionPanner(objActif,panner,now);
+						if(tableObjet[objActif].convolver==""){
+							rt.gain.connect(panner);
+						}else{
+							convolver.buffer=tableBufferIR[tableObjet[objActif].convolver];
+							rt.gain.connect(convolver);
+							convolver.connect(panner);
+						}
+						panner.connect(contextAudio.destination);
+					
+
+					if(mode==1){
+						recordingstream=contextAudio.createMediaStreamDestination();
+	  					recorder=new MediaRecorder(recordingstream.stream);
+	  					panner.connect(recordingstream);
+					}
+					rt.src.start(0,rt.ndeb,rt.nfin);
+					console.log("source",source.buffer.duration, rt.ndeb, rt.nfin);
+					if(mode==1){
+						recorder.start();
+					}
+					document.getElementById("barVerticale").style.left=(tableObjet[objActif].posX-4)+"px";
+	  				playerStat=1;
+	  				defTime("barVerticale");
+	  				foo();
+					sourceStat=1;
+					
+				}
+
+			}
+		}
+	}
+	
+}
+function multiSources(obj,mono,spgain,convolver) {
+	var sources=[]
+	var gainNode=[]
+	var myArrayBuffer =[]
+	var audioRate=tableBuffer[0].buffer.sampleRate
+	console.log("mono",mono.length,spgain)
+	const offlineCtx = new OfflineAudioContext(6,mono.length,audioRate);
+	
+	
+	for(let i=0;i<5;i++){
+		sources[i]=offlineCtx.createBufferSource()
+
+		gainNode[i] = offlineCtx.createGain()
+		console.log("gain",i,spgain[i])
+		gainNode[i].gain.value=tableObjet[obj].gain*spgain[i]
+		
+		myArrayBuffer[i] = contextAudio.createBuffer(6, mono.length, contextAudio.sampleRate)
+		myArrayBuffer[i].copyToChannel(mono,i, 0)
+		
+		sources[i].buffer=myArrayBuffer[i]
+		if(tableObjet[obj].convolver!=""){
+			convolver.buffer=tableBufferIR[tableObjet[objActif].convolver];
+			sources[i].connect(convolver)	
+		}
+		sources[i].connect(gainNode[i])
+		gainNode[i].connect(offlineCtx.destination)
+
+	}
+	
+	offlineCtx.oncomplete = function(e) {
+  		var renderedBuffer = e.renderedBuffer;
+  		// do something with the rendered buffer
+  		console.log('Rendering is completed',renderedBuffer.duration,renderedBuffer.numberOfChannels);
+  		const song = contextAudio.createBufferSource();
+  		song.buffer = renderedBuffer
+  		song.channelCount = 6;
+  		song.channelCountMode = "explicit";
+  		song.channelInterpretation = "discrete";
+  		//var newBuffer = removeFirstNSeconds(offlineCtx,renderedBuffer,audioRate,4);
+      
+	  console.log("numberOfChannels",song.buffer.numberOfChannels)
+	  song.connect(contextAudio.destination);
+	  var rwav=convertAudioBufferToBlob(song.buffer);
+	
+
+	  //document.getElementById("renduWav").src=URL.createObjectURL(rwav);
+	  //document.getElementById("renderAudio").style.display="block";
+	  song.start(0)
+	};	
+	
+	for(let i=0;i<5;i++){
+		sources[i].start(0);
+   }
+
+	offlineCtx.startRendering().then(function(renderedBuffer) {
+   	console.log('Rendering completed successfully');
+	}).catch((err) => {
+	    console.error(`Rendering failed: ${err}`);
+	    // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
+	});
+	
+}
+function positionPanner(id,panner,now) {
+		  var xPos=parseFloat(tableObjet[id].spX[0]);
+		  var yPos=parseFloat(tableObjet[id].spY[0]);
+		  var zPos=parseFloat(tableObjet[id].spZ[0]);
+			  
+	     panner.positionX.setValueAtTime(xPos, now);
+	     panner.positionY.setValueAtTime(yPos, now);
+	     panner.positionZ.setValueAtTime(zPos, now);
+			  
+		  for(i=1;i<tableObjet[id].spT.length;i++){
+		  	var xPos=parseFloat(tableObjet[id].spX[i]);
+		   var yPos=parseFloat(tableObjet[id].spY[i]);
+		   var zPos=parseFloat(tableObjet[id].spZ[i]);
+		   var posT=parseFloat(tableObjet[id].spT[i])*nduree;
+		  	panner.positionX.linearRampToValueAtTime(xPos, now+posT);
+		   panner.positionY.linearRampToValueAtTime(yPos, now+posT);
+		   panner.positionZ.linearRampToValueAtTime(zPos, now+posT);
+		  }
+	return panner
+}
+function panner51(id,X,Y,Z) {
+	var spgain=[]
+	var xPos=parseFloat(tableObjet[id].spX[id]);
+	var yPos=parseFloat(tableObjet[0].spY[id]);
+	var zPos=parseFloat(tableObjet[id].spZ[id]);
+	
+	var tableSpeakers=[
+		{x:-0.5,y:0,z:1,d:1.12},
+		{x:0.5,y:0,z:1,d:1.12},
+		{x:0.0,y:0,z:1,d:1.0},
+		{x:-1.0,y:0,z:-0.5,d:1.12},
+		{x:1.0,y:0,z:-0.5,d:1.12}
+		]
+
+	for(let i in tableSpeakers){
+		var dtencGen=Math.sqrt(Math.pow(tableSpeakers[i].x-xPos,2)+Math.pow(tableSpeakers[i].y+yPos,2)+Math.pow(tableSpeakers[i].z-zPos,2))
+		var hspot=-10/tableSpeakers[i].d
+		spgain[i]=Math.pow(10.0, (hspot*dtencGen)/20.0)
+		console.log("dtencGen",i,dtencGen,hspot,spgain[i],Math.pow(10.0, (hspot*dtencGen)/20.0))
+	}
+	
+	return spgain
+}
+function readSimpleAudioA2(mode){
 	var audioRate=tableBuffer[0].buffer.sampleRate;
 	if(tableObjet[objActif].class==1){
 		if (tableObjet[objActif].type<24) {
@@ -465,6 +672,28 @@ function readSimpleAudioA(mode){
 			}
 		}
 	}
+	function panner51() {
+			var xPos=-0.7//parseFloat(tableObjet[id].spX[0]);
+			var yPos=parseFloat(tableObjet[id].spY[0]);
+			var zPos=-0.7//parseFloat(tableObjet[id].spZ[0]);
+			
+			var tableSpeakers=[
+				{x:-0.5,y:0,z:1,d:1.12},
+				{x:0.5,y:0,z:1,d:1.12},
+				{x:0.0,y:0,z:1,d:1.0},
+				{x:-1.0,y:0,z:-0.5,d:1.12},
+				{x:1.0,y:0,z:-0.5,d:1.12}
+				]
+		
+			for(let i in tableSpeakers){
+				var dtencGen=Math.sqrt(Math.pow(tableSpeakers[i].x-xPos,2)+Math.pow(tableSpeakers[i].y+yPos,2)+Math.pow(tableSpeakers[i].z-zPos,2))
+				var hspot=-10/tableSpeakers[i].d
+				spgain[i]=Math.pow(10.0, (hspot*dtencGen)/20.0)
+				console.log("dtencGen",i,dtencGen,hspot,spgain[i],Math.pow(10.0, spgain[i]/20.0))
+			}
+			
+			console.log("tableSpeakers",tableSpeakers,xPos,spgain)
+		}
 }
 function renderAllFxAudio(){
 	for(let i=0;i<tableObjet.length;i++){
@@ -1320,8 +1549,190 @@ function defSourceEnveloppe(id,nduree,gainNode,dtime){
    }
    return gainNode;
 }
-
 function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
+	console.log("id resource",id)
+	var spgain=[]
+	if(tableObjet[id].class==1){
+		var tableGreffons=[];
+		var nduree=nsource.buffer.duration/tableObjet[id].transposition;
+		console.log("nduree",id,nduree,tableObjet[id].transposition)
+	   gainNode=defSourceEnveloppe(id,nduree,gainNode,now);
+		nsource.detune.value=tableObjet[id].detune;
+		nsource.playbackRate.value=tableObjet[id].transposition;
+		
+		switch(tableObjet[id].type) {
+		case 11:
+			var defEndRate=invTransposition(tableObjet[id].y2);
+			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
+			var ratioT=(720/12960);
+			var ntime=((tableObjet[id].x2-tableObjet[id].x1)*ratioT)/zoomScale;
+			console.log("defEndRate11",tableObjet[id].y1,tableObjet[id].y2,ntime,defEndRate);
+			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + ntime);
+			break;
+		case 13:
+			var defEndRate=invTransposition(tableObjet[id].posY-tableObjet[id].bkgHeight);
+			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
+			console.log("readSourceAudio",tableObjet[id].transposition,defEndRate,"debut",now,"fin",now+nduree);
+			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
+			break;
+		case 14:
+			var defEndRate=invTransposition(tableObjet[id].posY+tableObjet[id].bkgHeight);
+			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
+			console.log("defEndRate15",defEndRate);
+			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
+			break;
+		case 15:
+			var defEndRate=invTransposition(tableObjet[id].posY-tableObjet[id].bkgHeight);
+			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
+			console.log("defEndRate16",defEndRate);
+			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
+			break;
+		case 16:
+			var defEndRate=invTransposition(tableObjet[id].posY+tableObjet[id].bkgHeight);
+			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
+			console.log("defEndRate17",defEndRate);
+			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
+			break;
+	}
+		
+		var ndeb=nduree*tableObjet[id].debut;
+		if(tableObjet[id].convolver!="" && tableBufferIR[tableObjet[id].convolver].duration>nduree*tableObjet[id].fin){
+			nfin=tableBufferIR[tableObjet[id].convolver].duration
+		}else{
+			var nfin=(nduree*tableObjet[id].fin)
+		}
+	
+		panner.panningModel = pannerPanningModel;
+		panner.distanceModel = pannerDistanceModel;
+		panner.refDistance = pannerRefDistance;
+		panner.maxDistance = pannerMaxDistance;
+		panner.rolloffFactor =pannerRolloffFactor;
+		panner.coneInnerAngle =pannerConeInnerAngle;
+		panner.coneOuterAngle =pannerConeOuterAngle;
+		panner.coneOuterGain = pannerConeOuterGain;
+		
+		if (panner.orientationX) {
+		  panner.orientationX.setValueAtTime(pannerOrientationX, audioContext.currentTime);
+		  panner.orientationY.setValueAtTime(pannerOrientationY, audioContext.currentTime);
+		  panner.orientationZ.setValueAtTime(pannerOrientationZ, audioContext.currentTime);
+		} else {
+		  panner.setOrientation(pannerOrientationX, pannerOrientationY, pannerOrientationZ);
+		}
+		var j=0;
+		for(let i=0;i<7;i++){
+			if(tableObjet[id].tableFx[i]!=""  && tableObjet[id].tableFx[i]!=0 ){
+				j++;
+			}
+		}
+		var nbg=j;
+		console.log("nbfx",nbg)
+		tableGreffons[0]=nsource;
+		console.log("convolver",tableObjet[id])
+
+		if(nbg==0){
+
+			tableGreffons[0].connect(gainNode);
+			/*
+			if(tableObjet[id].convolver!=""){
+				convolver.buffer=tableBufferIR[tableObjet[id].convolver];
+				gainNode.connect(convolver);
+				convolver.connect(panner);
+			}
+			panner.connect(audioContext.destination);
+			console.log("nsource an",nsource.buffer.duration)
+			*/
+		}else{
+			var j=1;
+			for(let i=0;i<7;i++){
+				if(tableObjet[id].tableFx[i]!="" && tableObjet[id].tableFx[i]!=0 ){
+					var pluginURL = "./greffons";
+					var greffon=eval("Faust"+listeFx[tableObjet[id].tableFx[i]].greffon)
+					var plugin = new greffon(audioContext, pluginURL);
+					plugin.load().then(node => {
+						tableGreffons[j]=node;
+						var localParam=tableObjet[id].tableFxParam[i].split("/");
+						var offset=listeFx[tableObjet[id].tableFx[i]].offset
+						for(let k=0;k<localParam.length;k++){	
+							tableGreffons[j].setParamValue(tableGreffons[j].inputs_items[k+offset], parseFloat(localParam[k]));
+						}
+						console.log('greffon',tableObjet[id],tableGreffons[j])
+						tableGreffons[j-1].connect(tableGreffons[j]);
+						j++;
+						if (j>nbg) {
+							tableGreffons[j-1].connect(gainNode);
+							positionPanner();
+							if(tableObjet[id].convolver==""){
+								gainNode.connect(panner);
+							}else{
+								convolver.buffer=tableBufferIR[tableObjet[id].convolver];
+								gainNode.connect(convolver);
+								convolver.connect(panner);
+							}
+							panner.connect(audioContext.destination);
+							
+						}
+						
+					});
+				}
+			}
+			
+		}
+	
+		function positionPanner() {
+		  var xPos=parseFloat(tableObjet[id].spX[0]);
+		  var yPos=parseFloat(tableObjet[id].spY[0]);
+		  var zPos=parseFloat(tableObjet[id].spZ[0]);
+			  
+	     panner.positionX.setValueAtTime(xPos, now);
+	     panner.positionY.setValueAtTime(yPos, now);
+	     panner.positionZ.setValueAtTime(zPos, now);
+			  
+		  for(i=1;i<tableObjet[id].spT.length;i++){
+		  	var xPos=parseFloat(tableObjet[id].spX[i]);
+		   var yPos=parseFloat(tableObjet[id].spY[i]);
+		   var zPos=parseFloat(tableObjet[id].spZ[i]);
+		   var posT=parseFloat(tableObjet[id].spT[i])*nduree;
+		  	panner.positionX.linearRampToValueAtTime(xPos, now+posT);
+		   panner.positionY.linearRampToValueAtTime(yPos, now+posT);
+		   panner.positionZ.linearRampToValueAtTime(zPos, now+posT);
+		  }
+		  panner51()
+		}
+		function panner51() {
+			var xPos=-0.7//parseFloat(tableObjet[id].spX[0]);
+			var yPos=parseFloat(tableObjet[id].spY[0]);
+			var zPos=-0.7//parseFloat(tableObjet[id].spZ[0]);
+			
+			var tableSpeakers=[
+				{x:-0.5,y:0,z:1,d:1.12},
+				{x:0.5,y:0,z:1,d:1.12},
+				{x:0.0,y:0,z:1,d:1.0},
+				{x:-1.0,y:0,z:-0.5,d:1.12},
+				{x:1.0,y:0,z:-0.5,d:1.12}
+				]
+		
+			for(let i in tableSpeakers){
+				var dtencGen=Math.sqrt(Math.pow(tableSpeakers[i].x-xPos,2)+Math.pow(tableSpeakers[i].y+yPos,2)+Math.pow(tableSpeakers[i].z-zPos,2))
+				var hspot=-10/tableSpeakers[i].d
+				spgain[i]=Math.pow(10.0, (hspot*dtencGen)/20.0)
+				console.log("dtencGen",i,dtencGen,hspot,spgain[i],Math.pow(10.0, spgain[i]/20.0))
+			}
+			
+			console.log("tableSpeakers",tableSpeakers,xPos,spgain)
+		}
+		
+		//console.log("nduree",nduree,tableBufferIR[tableObjet[id].convolver]);
+
+		return param = {
+				src:nsource,
+				ndeb: ndeb,
+				gain: gainNode,
+				spgain:spgain,
+				nfin: nfin}
+	}
+	
+}
+function readSourceAudio2(audioContext,nsource,id,gainNode,now,panner,convolver){
 	console.log("id resource",id)
 	var spgain=[]
 	if(tableObjet[id].class==1){
@@ -1454,7 +1865,7 @@ function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
 	
 		function positionPanner() {
 		  var xPos=parseFloat(tableObjet[id].spX[0]);
-		  var yPos=-parseFloat(tableObjet[id].spY[0]);
+		  var yPos=parseFloat(tableObjet[id].spY[0]);
 		  var zPos=parseFloat(tableObjet[id].spZ[0]);
 			  
 	     panner.positionX.setValueAtTime(xPos, now);
@@ -1463,21 +1874,45 @@ function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
 			  
 		  for(i=1;i<tableObjet[id].spT.length;i++){
 		  	var xPos=parseFloat(tableObjet[id].spX[i]);
-		   var yPos=-parseFloat(tableObjet[id].spY[i]);
+		   var yPos=parseFloat(tableObjet[id].spY[i]);
 		   var zPos=parseFloat(tableObjet[id].spZ[i]);
 		   var posT=parseFloat(tableObjet[id].spT[i])*nduree;
 		  	panner.positionX.linearRampToValueAtTime(xPos, now+posT);
 		   panner.positionY.linearRampToValueAtTime(yPos, now+posT);
 		   panner.positionZ.linearRampToValueAtTime(zPos, now+posT);
 		  }
+		  panner51()
 		}
+		function panner51() {
+			var xPos=-0.7//parseFloat(tableObjet[id].spX[0]);
+			var yPos=parseFloat(tableObjet[id].spY[0]);
+			var zPos=-0.7//parseFloat(tableObjet[id].spZ[0]);
+			
+			var tableSpeakers=[
+				{x:-0.5,y:0,z:1,d:1.12},
+				{x:0.5,y:0,z:1,d:1.12},
+				{x:0.0,y:0,z:1,d:1.0},
+				{x:-1.0,y:0,z:-0.5,d:1.12},
+				{x:1.0,y:0,z:-0.5,d:1.12}
+				]
 		
+			for(let i in tableSpeakers){
+				var dtencGen=Math.sqrt(Math.pow(tableSpeakers[i].x-xPos,2)+Math.pow(tableSpeakers[i].y+yPos,2)+Math.pow(tableSpeakers[i].z-zPos,2))
+				var hspot=-10/tableSpeakers[i].d
+				spgain[i]=Math.pow(10.0, (hspot*dtencGen)/20.0)
+				console.log("dtencGen",i,dtencGen,hspot,spgain[i],Math.pow(10.0, spgain[i]/20.0))
+			}
+			
+			console.log("tableSpeakers",tableSpeakers,xPos,spgain)
+		}
 		
 		//console.log("nduree",nduree,tableBufferIR[tableObjet[id].convolver]);
 
 		return param = {
 				src:nsource,
 				ndeb: ndeb,
+				gain: gainNode,
+				spgain:spgain,
 				nfin: nfin}
 	}
 	

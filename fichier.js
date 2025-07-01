@@ -83,6 +83,7 @@ function defObjGrp(id,nbobjets,cla) {
 		if(parseInt(id.type)==1){
 			txt=txt+"		<r value='"+id.r+"'></r>\n";
 		}
+		txt=txt+"<reverse value='"+id.reverse+"' ></reverse>\n"
 		if(parseInt(id.type)==23){
 		txt=txt+"		   	        <rotation value='"+id.rotate+"'></rotation>\n";
 		}
@@ -321,13 +322,8 @@ function defProjetConf(txt) {
 	<palettemarque1 value='"+paletteMarque1+"'></palettemarque1>\n\
 	<palettemarque2 value='"+paletteMarque2+"'></palettemarque2>\n\
 	<palettelecteur value='"+paletteLecteur+"'></palettelecteur>\n\
-	</palette>\n\
-	<audioliste value='"
-	for(let i=0;i<tableBuffer.length;i++){
-	txt=txt+tableBuffer[i].name+","
-	}
-	txt = txt.substring(0, txt.length - 1);
-	txt=txt+"'></audioliste>\n"
+	</palette>\n"
+	
 	return txt
 }
 function saveProjet(t){
@@ -339,6 +335,7 @@ function saveProjetA(t,offset,tabgrp){
 	if(t!=2){
 		txt=defProjetConf(txt)
 	}
+	
 	var lsgrp=[]
 	let j=0
 	for(let i=0;i<tabgrp.length;i++){
@@ -350,6 +347,15 @@ function saveProjetA(t,offset,tabgrp){
 	var ntable=[]
 	ntable=structuredClone(tabgrp)
 	console.log("ntable",ntable,lsgrp)
+	
+	txt=txt+"<audioliste value='"
+	for(let i=0;i<ntable.length;i++){
+		if(ntable[i].class==1){
+			txt=txt+tableBuffer[ntable[i].bufferId].name+","
+		}
+	}
+	txt = txt.substring(0, txt.length - 1);
+	txt=txt+"'></audioliste>\n"
 	
 	for(let i=0;i<ntable.length;i++){
 		
@@ -420,8 +426,10 @@ function loadGrp(path){
 		if (this.readyState == 4 && this.status == 200) {
 			var txt=xhttp.responseText;
 			document.getElementById("fichierSave").innerHTML = txt
-			initTableGrp(coordClientX,coordClientY) 
-			//var new_window = window.open(URL.createObjectURL(new Blob([document.getElementById("fichierSave").innerHTML], { type: "text/xml" })),'Partition')
+			var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("audioliste")[0]
+			var tmpv=obj.getAttribute("value")
+			tmpbuffer=tmpv.split(',')
+			initTableGrp(0,tmpbuffer,coordClientX,coordClientY)
 		}
 	};
 	console.log("file projet",path);
@@ -525,6 +533,12 @@ function objXmlToScore(id,i) {
 			tableObjet[id].bkgTrp=true
 		}else{
 			tableObjet[id].bkgTrp=false
+		}
+		var rv=org.getElementsByTagName("reverse")[0].getAttribute("value")
+		if(rv=="true"){
+			tableObjet[id].reverse=true
+		}else{
+			tableObjet[id].reverse=false
 		}
 		if(tableObjet[id].type==23){
 			tableObjet[id].img=org.getElementsByTagName("img")[0].getAttribute("value")
@@ -709,6 +723,7 @@ function initTableBuffer(i,liste,dx,dy) {
 						for(let j=0;j<tableBuffer.length;j++){
 							if(tableObjet[nbObjets].file==tableBuffer[j].name){
 								tableObjet[nbObjets].bufferId=j
+								tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration
 								break
 							}
 						}
@@ -751,86 +766,104 @@ function initTableBuffer(i,liste,dx,dy) {
     }
     request.send();
 }
-function initTableGrp(dx,dy) {
+function initTableGrp(i,liste,dx,dy) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 	var offset=nbObjets
 	var nb=obj.getElementsByTagName("objet").length
-	console.log("nb",nb)
-	for(let i=0;i<nb;i++){
-		var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"))
-		switch(cl){
-			case 1:
-				objXmlToScore(nbObjets,i)
-				if(nbObjets==offset){
-					var offsetX=tableObjet[nbObjets].posX
-					var offsetY=tableObjet[nbObjets].posY
-					tableObjet[nbObjets].posX=dx
-					tableObjet[nbObjets].posY=dy
-				}else{
-					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
-					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
-				}
-				drawObj(nbObjets)
-				for(let j=0;j<tableBuffer.length;j++){
-					if(tableObjet[nbObjets].file==tableBuffer[j].name){
-						tableObjet[nbObjets].bufferId=j
+
+	var request = new XMLHttpRequest();
+    request.open('GET', paramProjet.audioPath+liste[i], true);
+    request.responseType = 'arraybuffer';
+    request.onload = function() {
+    contextAudio.decodeAudioData(request.response, function(buffer) {
+    	var url=paramProjet.audioPath+liste[i]
+    	var pathnom=url.split('/')
+     	var file=pathnom[pathnom.length-1]
+    	tableBuffer.push({name:file,buffer:buffer});
+    	i++
+    	if(i<liste.length){
+    		initTableGrp(i,liste,dx,dy)
+    	}else{	
+			console.log("nb",nb,i,liste)
+			for(let i=0;i<nb;i++){
+				var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"))
+				switch(cl){
+					case 1:
+						objXmlToScore(nbObjets,i)
+						if(nbObjets==offset){
+							var offsetX=tableObjet[nbObjets].posX
+							var offsetY=tableObjet[nbObjets].posY
+							tableObjet[nbObjets].posX=dx
+							tableObjet[nbObjets].posY=dy
+						}else{
+							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
+							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
+						}
+						drawObj(nbObjets)
+						for(let j=0;j<tableBuffer.length;j++){
+							if(tableObjet[nbObjets].file==tableBuffer[j].name){
+								tableObjet[nbObjets].bufferId=j
+								tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration
+								break
+							}
+						}
+						console.log("objet"+nbObjets,tableObjet)
+						nbObjets++
 						break
-					}
+					case 2:
+						objXmlToScore(nbObjets,i)
+						if(nbObjets==offset){
+							var offsetX=tableObjet[nbObjets].posX
+							var offsetY=tableObjet[nbObjets].posY
+							tableObjet[nbObjets].posX=dx
+							tableObjet[nbObjets].posY=dy
+						}else{
+							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
+							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
+						}
+						drawObj(nbObjets)
+						document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets
+						tableObjet[nbObjets].id="grp"+nbObjets
+						nbObjets++
+						break
+					case 3:
+						symbXmlToScore(nbObjets,i)
+						if(nbObjets==offset){
+							var offsetX=tableObjet[nbObjets].posX
+							var offsetY=tableObjet[nbObjets].posY
+							tableObjet[nbObjets].posX=dx
+							tableObjet[nbObjets].posY=dy
+						}else{
+							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
+							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
+						}
+						createSymbole(tableObjet[nbObjets].type)
+						dragElement(document.getElementById(tableObjet[nbObjets].id))
+						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj)
+						nbObjets++
+						break
+					case 4:
+						grpXmlToScore(nbObjets,i,offset)
+						if(nbObjets==offset){
+							var offsetX=tableObjet[nbObjets].posX
+							var offsetY=tableObjet[nbObjets].posY
+							tableObjet[nbObjets].posX=dx
+							tableObjet[nbObjets].posY=dy
+						}else{
+							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
+							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
+						}
+						graphGrp(nbObjets)
+						dragElement(document.getElementById(tableObjet[nbObjets].id))
+						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj)
+						nbObjets++
+						break
 				}
-				console.log("objet"+nbObjets,tableObjet)
-				nbObjets++
-				break
-			case 2:
-				objXmlToScore(nbObjets,i)
-				if(nbObjets==offset){
-					var offsetX=tableObjet[nbObjets].posX
-					var offsetY=tableObjet[nbObjets].posY
-					tableObjet[nbObjets].posX=dx
-					tableObjet[nbObjets].posY=dy
-				}else{
-					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
-					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
-				}
-				drawObj(nbObjets)
-				document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets
-				tableObjet[nbObjets].id="grp"+nbObjets
-				nbObjets++
-				break
-			case 3:
-				symbXmlToScore(nbObjets,i)
-				if(nbObjets==offset){
-					var offsetX=tableObjet[nbObjets].posX
-					var offsetY=tableObjet[nbObjets].posY
-					tableObjet[nbObjets].posX=dx
-					tableObjet[nbObjets].posY=dy
-				}else{
-					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
-					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
-				}
-				createSymbole(tableObjet[nbObjets].type)
-				dragElement(document.getElementById(tableObjet[nbObjets].id))
-				document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj)
-				nbObjets++
-				break
-			case 4:
-				grpXmlToScore(nbObjets,i,offset)
-				if(nbObjets==offset){
-					var offsetX=tableObjet[nbObjets].posX
-					var offsetY=tableObjet[nbObjets].posY
-					tableObjet[nbObjets].posX=dx
-					tableObjet[nbObjets].posY=dy
-				}else{
-					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx
-					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy
-				}
-				graphGrp(nbObjets)
-				dragElement(document.getElementById(tableObjet[nbObjets].id))
-				document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj)
-				nbObjets++
-				break
+			}
 		}
-	}
-	console.log(tableObjet)
+	});
+    }
+	 request.send();
 }
 function fileXmlToScore(offset,dx,dy) {
 	nbObjets=offset

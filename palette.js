@@ -519,6 +519,7 @@ function selectobjet(objType,bkgc){
 			piste:0,
 			posX:(scrollDemo.scrollLeft/zoomScale)+100.0,
 			posY:(scrollDemo.scrollTop/zoomScale)+100.0,
+			reverse:false,
 			rotate:0,
 			rx:20,
 			ry:10,

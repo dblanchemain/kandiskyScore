@@ -1126,7 +1126,7 @@ function createWinGraph(id,lang,param,type) {
 	  })
 	}
 }
-function createWinSymb(id,param,type) {
+function createWinSymb(id,lang,param,type) {
 	if(winGraphSymbEtat==0){
 		winGraphSymb = new BrowserWindow({width:535,height:544,
 		webPreferences: {
@@ -1141,7 +1141,7 @@ function createWinSymb(id,param,type) {
 		winGraphSymb.webContents.openDevTools()
 		winGraphSymbEtat=1
 		winGraphSymb.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winGraphSymb.webContents.send("fromMain", "defGraphObjet;"+id+";"+param+";"+type);
+    		winGraphSymb.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
   		});
 		winGraphSymb.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
 	   e.preventDefault()
@@ -1503,7 +1503,7 @@ ipcMain.on ("toMain", (event, args) => {
 			winObjetParam(cmd[1],cmd[2],cmd[3],cmd[4])
 			break
 		case 'openSymbParam':
-			createWinSymb(cmd[1],cmd[2],cmd[3])
+			createWinSymb(cmd[1],cmd[2],cmd[3],cmd[4])
 			break
 		case 'openGrpParam':
 			console.log(`openGrpParam ${args} from param`);
@@ -1681,6 +1681,9 @@ ipcMain.on ("toMain", (event, args) => {
 			if(winConfigEtat==1){
 				mainWindow.webContents.send("fromMain", "audioGain;"+cmd[1]+";"+cmd[2])
 			}
+			break
+		case 'reverse':
+				mainWindow.webContents.send("fromMain", "defReverse;"+cmd[1]+";"+cmd[2])
 			break
 		case 'preDefGain':
 			mainWindow.webContents.send("fromMain", "preDefGain;"+cmd[1]+";"+cmd[2])

@@ -148,7 +148,7 @@ function exportToSeq(refGrp){
 	var ratioT=(720/12960);
 	var offsetPiste=0;
 	nfilesave=[].concat(refGrp);
-	nfilesave.sort((a, b) => a.nom - b.nom);
+	nfilesave.sort((a, b) => a.piste - b.piste);
 	
 	for(let i=0;i<nfilesave.length;i++){
 		if(nfilesave[i].etat==1 && nfilesave[i].file && nfilesave[i].class==1 && nfilesave[i].type<24){

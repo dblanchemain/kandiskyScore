@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-10T11:17:08+0100" />
+<meta name="date" content="2024-01-02T15:36:45+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -32,7 +32,7 @@
 	   <input id="selectColor" type="color" style="display:none" value="" />
 	    <input id="selectStrokeColor" type="color" style="display:none" value="" />
 		</span>
-		<div id="dureeReelle" style="position:absolute;top:87px;left:124px;"><button onclick='defDureeReelle();'> Durée Réelle</button> </div>
+		<div id="dureeReelle" style="position:absolute;top:87px;left:100px;"><button onclick='defDureeReelle();'> Durée Réelle</button> Reverse : <input id="nreverse" style="position:absolute;top:2px;left:158px;"type="checkbox" /> </div>
 		
    </div>
    <div id="nspacialisation" onclick='openSpatialisation();' style="position:absolute;top:75px;left:340px;width:32px;height:32px;"><img src="./images/png/f3D.png" alt "3D" /></div>
@@ -116,6 +116,7 @@ document.getElementById("listeFiltre").addEventListener('click',listeFx)
 document.getElementById("substituer").addEventListener('click',substituerFx)
 document.getElementById("objMute").addEventListener('click',mute)
 document.getElementById("ngain").addEventListener('input',gain)
+document.getElementById("nreverse").addEventListener('click',reverse)
 document.getElementById("selecType").addEventListener('click',envType)
 document.getElementById("objFlagTranspo").addEventListener('click',flagTranspo)
 document.getElementById("mnt").addEventListener('input',defPosition)
@@ -299,6 +300,7 @@ function objetStringDef(txt,c) {
 	selectObj.y1=tbtxt[69]
 	selectObj.y2=tbtxt[70]
 	selectObj.width=parseFloat(tbtxt[71])
+	selectObj.reverse=JSON.parse(tbtxt[72])
 	
 	if(selectObj.bkgTrp==true){
 		document.getElementById("dobjColor").style.backgroundColor='transparent'
@@ -415,6 +417,11 @@ function objetStringDef(txt,c) {
 		document.getElementById("objMute").checked=true
 	}else{
 		document.getElementById("objMute").checked=false
+	}
+	if(selectObj.reverse==true){
+		document.getElementById("nreverse").checked=true
+	}else{
+		document.getElementById("nreverse").checked=false
 	}
 	document.getElementById("ngain").value=selectObj.gain
 	document.getElementById("selecType").value=selectObj.envType
@@ -618,6 +625,14 @@ function mute() {
 function gain() {
 	selectObj.gain=document.getElementById("ngain").value
 	window.api.send("toMain", "gain;"+selectId+";"+selectObj.gain);
+}
+function reverse() {
+	if(document.getElementById("nreverse").checked==true){
+		selectObj.reverse=true
+	}else{
+		selectObj.reverse=false
+	}
+	window.api.send("toMain", "reverse;"+selectId+";"+selectObj.reverse);
 }
 function envType() {
 	selectObj.envType=document.getElementById("selecType").value

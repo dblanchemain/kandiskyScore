@@ -182,12 +182,13 @@ console.log(`defGraphObjet : `,data);
 				document.getElementById("objImg").style.backgroundSize=sw+"px "+sh+"px"
 				break
 			case 'defGraphObjet':
+			console.log("dim",cmd.length,cmd[0],cmd[1],cmd[2],cmd[3],cmd[4])
 				console.log(`graph:`,cmd[1])
-				objetStringToGraph(cmd[2])
+				objetStringToGraph(cmd[3])
 				objetParamsToGraph()
-				type=cmd[3]
+				type=cmd[4]
 				objId=cmd[1]
-				switch(cmd[3]){
+				switch(cmd[4]){
 					case "1":
 						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >"
 	txt=txt+"<g transform='translate(20 2) scale(1.4 0.7)' fill='#000000' stroke='#000000'>"+glyphArpege+"</g></svg>"
