@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2024-01-01T17:55:24+0100" />
+<meta name="date" content="2024-08-20T17:17:39+0200" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -22,7 +22,7 @@
 	<div id="spaceCur4" style="position:absolute;width:10px;height:10px;background-color:#f1b30a;top:445px;left:445px;"></div>
 	</div>
 	<div style="width:400px;margin-top:20px;margin-left:10px;">X : <input id="curX" type="number" style="width:60px;" value="0"  min="-1" max="1" step="0.01" /> Y : <input id="curY" type="number" style="width:60px;" value="0" min="-1" max="1" step="0.01" /> Z : <input id="curZ"  type="number" style="width:60px;" value="0"  min="-1" max="1" step="0.01" /> D : <input id="curD" type="number" style="width:60px;" value="1"  min="0" max="1" step="0.01" /></div>
-	<span style="position:absolute;top:650px;left:50px;"><img id="studio3D" style="width: 35px; " alt="Studio 3D" title="Studio 3D" src="./images/png/sphereRot.png"  onclick='studio3D();'/><img id="pt3D" style="width: 35px;margin-left:8px;" alt="Points 3D"  src="./images/png/mpoints.png"  onclick='trajectoire();' /></span><span  style="position:absolute;top:655px;left:400px;"><button onclick='defautSpacialisation();'>Defaut</button><button style="margin-left:40px" onclick='annulSpacialisation();'>Annul</button> <button onclick='validSpacialisation();'>Ok</button></span>
+	<span style="position:absolute;top:650px;left:50px;"><img id="studio3D" style="width: 35px; " alt="Studio 3D" title="Studio 3D" src="./images/png/sphereRot.png"  onclick='studio3D();'/><img id="pt3D" style="width: 35px;margin-left:8px;" alt="Points 3D"  src="./images/png/mpoints.png"  onclick='trajectoire();' /></span><span  style="position:absolute;top:655px;left:400px;"><button onclick='defautSpacialisation();'>Defaut</button> <button  style="margin-left:40px" onclick='validSpacialisation();'>Ok</button></span>
 	</div>	
 </div>
 <script >
@@ -43,7 +43,6 @@ dragElement3(document.getElementById("spaceCur4"));
 
 window.api.receive("fromMain", (data) => {
 
-console.log(`objParam : `,data);
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
@@ -55,7 +54,6 @@ console.log(`objParam : `,data);
 			case 'createSpatialPoint':
 				//spatialId=cmd[1]
 				spT.push(cmd[3])
-				console.log("spT",cmd[3])
 				spD.push(1)
 				spX.push(0)
 				spY.push(0)
@@ -76,7 +74,7 @@ console.log(`objParam : `,data);
 				
 				break
 	}  
-	 //console.log(`objParam :`,cmd[0]);      
+    
 });
 function annulSpacialisation() {
 	window.api.send("toMain", "spatialAnnul;"+spatialId+";"+svSpatial)
@@ -116,7 +114,6 @@ function defSpatial(tt,tx,ty,tz,d,g) {
 		spD[i]=parseFloat(tbd[i])
 	}
 	defSpacialisation()
-	console.log("spat param",spT,spX,spY,spZ,spD)
 }
 function trajectoire() {
 	window.api.send("toMain", "winTrajectoire;"+spatialId+";"+spT)
@@ -134,7 +131,6 @@ function dragElement3(elmnt) {
 
   function dragMouseDown3(e) {
     e = e || window.event;
-    console.log("obj",elmnt.id,elmnt.id.substring(0,9));
     e.preventDefault();
     e.stopPropagation();
     if(elmnt.id.substring(0,2)=="pt"){
@@ -185,9 +181,20 @@ function dragElement3(elmnt) {
     	if(dy>296){
     		dy=296;
     	}
-    	console.log("winStudio3D",winStudio3D);
     	var dvy=((dx-150)*0.0067);
     	var dvx=((dy-150)*0.0068);
+    	if(dvx<-1){
+    		dvx=-1
+    	}
+    	if(dvx>0.99){
+    		dvx=1
+    	}
+    	if(dvy<-0.99){
+    		dvy=-1
+    	}
+    	if(dvy>0.97){
+    		dvy=1
+    	}
     	document.getElementById("curX").value=dvx;
     	document.getElementById("curZ").value=dvy;
     	spX[dpt]=dvx
@@ -222,9 +229,21 @@ function dragElement3(elmnt) {
     	var dvx=((dx-450)*0.0068);
     	spZ[dpt]=dvx
     	spY[dpt]=-dvy
-    	window.api.send("toMain", "spatialspZY;"+spatialId+";"+dpt+";"+dvx+";"+spY[dpt])
-    	document.getElementById("curZ").value=dvx;
-    	document.getElementById("curY").value=-dvy;
+    	if(dvx<-0.98){
+    		dvx=-1
+    	}
+    	if(dvx>0.95){
+    		dvx=1
+    	}
+    	if(spY[dpt]<-0.99){
+    		spY[dpt]=-1
+    	}
+    	if(spY[dpt]>0.97){
+    		spY[dpt]=1
+    	}
+    	window.api.send("toMain", "spatialspZY;"+spatialId+";"+dpt+";"+spZ[dpt]+";"+spY[dpt])
+    	document.getElementById("curZ").value=spZ[dpt];
+    	document.getElementById("curY").value=spY[dpt];
     	document.getElementById("spaceCur1"+dpt).style.left=(dx-300) + "px";
     	document.getElementById("spaceCur3"+dpt).style.top=(dy+300) + "px";
     	elmnt.style.left =dx + "px";
@@ -250,13 +269,25 @@ function dragElement3(elmnt) {
     	if(dy>598){
     		dy=598;
     	}
-    	var dvy=((dy-477.5)*0.0067);
+    	var dvy=((dy-454)*0.0066);
     	var dvx=((dx-147)*0.0068);
     	spX[dpt]=dvx
     	spY[dpt]=-dvy
-    	window.api.send("toMain", "spatialspXY;"+spatialId+";"+dpt+";"+dvx+";"+spY[dpt])
-    	document.getElementById("curX").value=dvx;
-    	document.getElementById("curY").value=-dvy;
+    	if(spX[dpt]<-0.99){
+    		spX[dpt]=-1
+    	}
+    	if(spX[dpt]>1){
+    		spX[dpt]=1
+    	}
+    	if(spY[dpt]<-0.95){
+    		spY[dpt]=-1
+    	}
+    	if(spY[dpt]>0.99){
+    		spY[dpt]=1
+    	}
+    	window.api.send("toMain", "spatialspXY;"+spatialId+";"+dpt+";"+spX[dpt]+";"+spY[dpt])
+    	document.getElementById("curX").value=spX[dpt];
+    	document.getElementById("curY").value=spY[dpt];
     	document.getElementById("spaceCur1"+dpt).style.top=(dx+0) + "px";
     	document.getElementById("spaceCur2"+dpt).style.top=(dy-300) + "px";
     	elmnt.style.left =dx + "px";
@@ -309,8 +340,7 @@ function dragElement3(elmnt) {
 function defSpacialisation() {
 	dest=document.getElementById("spatialBlock");
 	dest.innerHTML="";
-
-	console.log(spT,spX,spY,spZ,spD)
+	console.log(spD)
 	for(let i=0;i<spT.length;i++){
 		var dx=(spX[i]*145);
 		var dy=-(spY[i]*145);

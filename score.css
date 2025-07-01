@@ -134,11 +134,25 @@ color:#ffffff;
 	height:24px;
 }
 .slider-wrapper input {
-  margin: 0px;
-  width:100px;
-  transform-origin: 75px 75px;
+	-webkit-appearance: none;
+	background-color: #434343;
+   margin: 0px;
+   width:100px;
+   height:6px;
+   border-radius: 5px; 
+  transform-origin: 50px 0px;
   transform: rotate(-90deg);
 }
+.slider-wrapper::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 14px; /* Set a specific slider handle width */
+  height: 14px; /* Slider handle height */
+  border-radius: 50%;
+  background: #00ffff ;  /*url('/home/dominique/path834.png') */
+  cursor: pointer; /* Cursor on hover */
+}
+
 .slider{
 	margin:0px;
    padding-top:0px;

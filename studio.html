@@ -2,7 +2,7 @@
 <title>D. Blanchemain</title>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-09-28T23:51:26+0200" />
+<meta name="date" content="2025-02-18T18:25:55+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -51,6 +51,9 @@ console.log(`objParam : `,data);
 				break
 			case 'delEvtAudio':
 				removeEvt(cmd[1])
+				break
+			case 'endEvtAudio':
+				endEvt()
 				break
 			default :
 				
@@ -138,8 +141,14 @@ function createEvt(compteur) {
 	document.getElementById("studioDivb").appendChild(dupnode);
 }
 function removeEvt(id) {
+console.log("id",id,document.getElementById("studioDivb"))
 	let obj=document.getElementById(id);
-	document.getElementById("studioDivb").removeChild(obj);
+	console.log("id",id,obj)
+	document.getElementById(id).style.display='none';
+}
+function endEvt() {
+console.log("endEvt")
+	document.getElementById("studioDivb").innerHTML=""
 }
 function upDateStudio(){
 	studioWidth=window.innerWidth-20;
