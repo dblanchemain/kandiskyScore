@@ -2,7 +2,7 @@
 <title>D. Blanchemain</title>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-22T11:37:34+0100" />
+<meta name="date" content="2024-01-09T15:50:28+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -19,19 +19,17 @@
 </style>
 <script  >
 window.api.receive("fromMain", (data) => {
-console.log(`objParam : `,data);
+//console.log(`Restore ${data} from param`);
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
 			case 'moveObjActif':
-			console.log('modi',cmd[1])
 				defLstSpeakers(cmd[1])
 				break
 			case 'draw3dObj':
 				defLstSpeakers(cmd[1])
 				break
-	}  
-	 //console.log(`objParam :`,cmd[0]);      
+	}    
 });
 
 let spX=[]
@@ -53,7 +51,6 @@ function defLstSpeakers(txt){
 		tableSpeakers.push(sp)
 	}
 	drawEtat=1
-	console.log('tableSpeakers',tableSpeakers)
 }
 function defSpatial(tx,ty,tz,g) {
 	
@@ -76,7 +73,7 @@ function defSpatial(tx,ty,tz,g) {
 		spZ[i]=parseFloat(tbz[i])
 	}
 	gain=parseFloat(g)
-	console.log("spat param",spX,spY,spZ,g)
+
 	
 }
 </script>

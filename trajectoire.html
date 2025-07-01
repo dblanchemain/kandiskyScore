@@ -14,7 +14,7 @@
   <head>   
 		<meta name="generator" content="Bluefish 2.2.12" />
 		<meta name="author" content="dominique" />
-		<meta name="date" content="2023-09-22T19:13:14+0200" />
+		<meta name="date" content="2024-01-02T17:06:17+0100" />
 		<meta name="copyright" content="D. Blanchemain"/>
 		<meta name="keywords" content=""/>
 		<meta name="description" content=""/>
@@ -35,7 +35,7 @@
 	</div>
 	<div  style="position:absolute;top:50px;left:60px;width:400px;"><span id="defOrgT">T0 </span><span id="defOrgFT" style="position:absolute;top:0px;left:520px;width:50px;" >Dt : </span></div>
 	<div  style="position:absolute;top:140px;left:230px;width:150px;height:10px;"><span id="refPt">Pt : 0</span><input id="ptv" type="number" style="margin-left:20px;width:60px;" value="0"  min="-1" max="1" step="0.01" /></div>
-		<span  style="position:absolute;top:170px;left:400px;"><button onclick='defaut();'>Defaut</button><button style="margin-left:40px"  onclick="annulPointsSpacial();">Annul</button> <button onclick='validPointsSpacial();'>Ok</button></span>
+		<span  style="position:absolute;top:170px;left:470px;"><button onclick='defaut();'>Defaut</button> <button style="margin-left:40px;" onclick='validPointsSpacial();'>Ok</button></span>
 	</div>
   
 <script type="text/javascript">
@@ -54,7 +54,6 @@ document.getElementById("subpt").addEventListener('click', delPointsSpacial,fals
 
 window.api.receive("fromMain", (data) => {
 
-console.log(`objParam : `,data);
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
@@ -68,7 +67,7 @@ console.log(`objParam : `,data);
 				
 				break
 	}  
-	 //console.log(`objParam :`,cmd[0]);      
+     
 });
 function trajectoire(tt) {
 	var tbt=tt.split(",")
@@ -77,7 +76,6 @@ function trajectoire(tt) {
 	}
 	rspT=[].concat(spT)
 	defSpacialisation()
-	console.log(spT)
 }
 function dragElement4(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -92,7 +90,6 @@ function dragElement4(elmnt) {
 
   function dragMouseDown4(e) {
     e = e || window.event;
-    console.log("obj",elmnt.id,elmnt.id.substring(0,9));
     e.preventDefault();
     e.stopPropagation();
     if(elmnt.id.substring(0,2)=="pt"){
@@ -168,10 +165,8 @@ function addPointsSpacial() {
 	ptSpActif=spT.length;
 	tPosX=(spT[ptSpActif-1]/0.001666)+20;
 	spT.push(tPosX*0.001666);
-	console.log("new point",)
 	defSpacialisation();
 	window.api.send("toMain", "createSpatialPoint;"+spatialId+";"+ptSpActif+";"+(tPosX*0.001666))
-	console.log("new point",spT)
 }	
 function delPointsSpacial() {
 	var dest=document.getElementById("pointTmp");
@@ -188,7 +183,6 @@ function defaut() {
 	}
 	spT.splice(1,spT.length);
 	ptSpActif=0
-	console.log(spT)
 }
 function annulPointsSpacial(){
 	spT=[].concat(rspT)
