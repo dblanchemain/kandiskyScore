@@ -1,0 +1,113 @@
+{
+    "name": "pitchShifter",
+    "filename": "pitchShifter.dsp",
+    "version": "2.75.3",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/usr/share/faust/stdfaust.lib",
+        "/usr/share/faust/misceffects.lib",
+        "/usr/share/faust/delays.lib",
+        "/usr/share/faust/maths.lib"
+    ],
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 524316,
+    "code": "gM++",
+    "inputs": 1,
+    "outputs": 1,
+    "meta": [
+        {
+            "author": "Grame"
+        },
+        {
+            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "copyright": "(c)GRAME 2006"
+        },
+        {
+            "delays.lib/name": "Faust Delay Library"
+        },
+        {
+            "delays.lib/version": "1.1.0"
+        },
+        {
+            "filename": "pitchShifter.dsp"
+        },
+        {
+            "license": "BSD"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.8.0"
+        },
+        {
+            "misceffects.lib/name": "Misc Effects Library"
+        },
+        {
+            "misceffects.lib/version": "2.5.0"
+        },
+        {
+            "name": "pitchShifter"
+        },
+        {
+            "version": "1.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "Pitch Shifter",
+            "items": [
+                {
+                    "type": "hslider",
+                    "label": "shift (semitones)",
+                    "shortname": "shift_semitones",
+                    "address": "/Pitch_Shifter/shift__semitones_",
+                    "index": 524296,
+                    "init": 0,
+                    "min": -12,
+                    "max": 12,
+                    "step": 0.1
+                },
+                {
+                    "type": "hslider",
+                    "label": "window (samples)",
+                    "shortname": "window_samples",
+                    "address": "/Pitch_Shifter/window__samples_",
+                    "index": 524292,
+                    "init": 1000,
+                    "min": 50,
+                    "max": 10000,
+                    "step": 1
+                },
+                {
+                    "type": "hslider",
+                    "label": "xfade (samples)",
+                    "shortname": "xfade_samples",
+                    "address": "/Pitch_Shifter/xfade__samples_",
+                    "index": 524308,
+                    "init": 10,
+                    "min": 1,
+                    "max": 10000,
+                    "step": 1
+                }
+            ]
+        }
+    ]
+}

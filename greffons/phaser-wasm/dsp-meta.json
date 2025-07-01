@@ -1,0 +1,421 @@
+{
+    "name": "phaser",
+    "filename": "phaser.dsp",
+    "version": "2.75.3",
+    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "library_list": [
+        "/usr/share/faust/stdfaust.lib",
+        "/usr/share/faust/demos.lib",
+        "/usr/share/faust/basics.lib",
+        "/usr/share/faust/phaflangers.lib",
+        "/usr/share/faust/maths.lib",
+        "/usr/share/faust/platform.lib",
+        "/usr/share/faust/oscillators.lib",
+        "/usr/share/faust/filters.lib",
+        "/usr/share/faust/routes.lib"
+    ],
+    "include_pathnames": [
+        "/share/faust",
+        "/usr/local/share/faust",
+        "/usr/share/faust",
+        "."
+    ],
+    "size": 200,
+    "code": "kAc6AWQjHw==",
+    "inputs": 2,
+    "outputs": 2,
+    "meta": [
+        {
+            "author": "JOS, revised by RM"
+        },
+        {
+            "basics.lib/bypass2:author": "Julius Smith"
+        },
+        {
+            "basics.lib/name": "Faust Basic Element Library"
+        },
+        {
+            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+        },
+        {
+            "basics.lib/version": "1.19.1"
+        },
+        {
+            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+        },
+        {
+            "demos.lib/name": "Faust Demos Library"
+        },
+        {
+            "demos.lib/phaser2_demo:author": "Julius O. Smith III"
+        },
+        {
+            "demos.lib/phaser2_demo:licence": "MIT"
+        },
+        {
+            "demos.lib/version": "1.2.0"
+        },
+        {
+            "description": "Phaser demo application."
+        },
+        {
+            "filename": "phaser.dsp"
+        },
+        {
+            "filters.lib/fir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/fir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/fir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/iir:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/iir:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/iir:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/lowpass0_highpass1": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/name": "Faust Filters Library"
+        },
+        {
+            "filters.lib/nlf2:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/nlf2:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/nlf2:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/tf2:author": "Julius O. Smith III"
+        },
+        {
+            "filters.lib/tf2:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+        },
+        {
+            "filters.lib/tf2:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "filters.lib/version": "1.3.0"
+        },
+        {
+            "maths.lib/author": "GRAME"
+        },
+        {
+            "maths.lib/copyright": "GRAME"
+        },
+        {
+            "maths.lib/license": "LGPL with exception"
+        },
+        {
+            "maths.lib/name": "Faust Math Library"
+        },
+        {
+            "maths.lib/version": "2.8.0"
+        },
+        {
+            "name": "phaser"
+        },
+        {
+            "oscillators.lib/name": "Faust Oscillator Library"
+        },
+        {
+            "oscillators.lib/version": "1.5.1"
+        },
+        {
+            "phaflangers.lib/name": "Faust Phaser and Flanger Library"
+        },
+        {
+            "phaflangers.lib/version": "1.1.0"
+        },
+        {
+            "platform.lib/name": "Generic Platform Library"
+        },
+        {
+            "platform.lib/version": "1.3.0"
+        },
+        {
+            "routes.lib/name": "Faust Signal Routing Library"
+        },
+        {
+            "routes.lib/version": "1.2.0"
+        },
+        {
+            "version": "0.0"
+        }
+    ],
+    "ui": [
+        {
+            "type": "vgroup",
+            "label": "PHASER2",
+            "meta": [
+                {
+                    "tooltip": "Reference:         https://ccrma.stanford.edu/~jos/pasp/Flanging.html"
+                }
+            ],
+            "items": [
+                {
+                    "type": "hgroup",
+                    "label": "0x00",
+                    "meta": [
+                        {
+                            "0": ""
+                        }
+                    ],
+                    "items": [
+                        {
+                            "type": "checkbox",
+                            "label": "Bypass",
+                            "shortname": "Bypass",
+                            "address": "/PHASER2/0x00/Bypass",
+                            "index": 0,
+                            "meta": [
+                                {
+                                    "0": ""
+                                },
+                                {
+                                    "tooltip": "When this is checked, the phaser         has no effect"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Invert Internal Phaser Sum",
+                            "shortname": "Invert_Internal_Phaser_Sum",
+                            "address": "/PHASER2/0x00/Invert_Internal_Phaser_Sum",
+                            "index": 140,
+                            "meta": [
+                                {
+                                    "1": ""
+                                }
+                            ]
+                        },
+                        {
+                            "type": "checkbox",
+                            "label": "Vibrato Mode",
+                            "shortname": "Vibrato_Mode",
+                            "address": "/PHASER2/0x00/Vibrato_Mode",
+                            "index": 8,
+                            "meta": [
+                                {
+                                    "2": ""
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "0x00",
+                    "meta": [
+                        {
+                            "1": ""
+                        }
+                    ],
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "Speed",
+                            "shortname": "Speed",
+                            "address": "/PHASER2/0x00/Speed",
+                            "index": 64,
+                            "meta": [
+                                {
+                                    "1": ""
+                                },
+                                {
+                                    "style": "knob"
+                                },
+                                {
+                                    "unit": "Hz"
+                                }
+                            ],
+                            "init": 0.5,
+                            "min": 0,
+                            "max": 10,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Notch Depth (Intensity)",
+                            "shortname": "Notch_Depth_Intensity",
+                            "address": "/PHASER2/0x00/Notch_Depth__Intensity_",
+                            "index": 12,
+                            "meta": [
+                                {
+                                    "2": ""
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1,
+                            "min": 0,
+                            "max": 1,
+                            "step": 0.001
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Feedback Gain",
+                            "shortname": "Feedback_Gain",
+                            "address": "/PHASER2/0x00/Feedback_Gain",
+                            "index": 16,
+                            "meta": [
+                                {
+                                    "3": ""
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 0,
+                            "min": -0.999,
+                            "max": 0.999,
+                            "step": 0.001
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "0x00",
+                    "meta": [
+                        {
+                            "2": ""
+                        }
+                    ],
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "Notch width",
+                            "shortname": "Notch_width",
+                            "address": "/PHASER2/0x00/Notch_width",
+                            "index": 40,
+                            "meta": [
+                                {
+                                    "1": ""
+                                },
+                                {
+                                    "scale": "log"
+                                },
+                                {
+                                    "style": "knob"
+                                },
+                                {
+                                    "unit": "Hz"
+                                }
+                            ],
+                            "init": 1000,
+                            "min": 10,
+                            "max": 5000,
+                            "step": 1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Min Notch1 Freq",
+                            "shortname": "Min_Notch1_Freq",
+                            "address": "/PHASER2/0x00/Min_Notch1_Freq",
+                            "index": 52,
+                            "meta": [
+                                {
+                                    "2": ""
+                                },
+                                {
+                                    "scale": "log"
+                                },
+                                {
+                                    "style": "knob"
+                                },
+                                {
+                                    "unit": "Hz"
+                                }
+                            ],
+                            "init": 100,
+                            "min": 20,
+                            "max": 5000,
+                            "step": 1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Max Notch1 Freq",
+                            "shortname": "Max_Notch1_Freq",
+                            "address": "/PHASER2/0x00/Max_Notch1_Freq",
+                            "index": 56,
+                            "meta": [
+                                {
+                                    "3": ""
+                                },
+                                {
+                                    "scale": "log"
+                                },
+                                {
+                                    "style": "knob"
+                                },
+                                {
+                                    "unit": "Hz"
+                                }
+                            ],
+                            "init": 800,
+                            "min": 20,
+                            "max": 10000,
+                            "step": 1
+                        },
+                        {
+                            "type": "hslider",
+                            "label": "Notch Freq Ratio: NotchFreq(n+1)/NotchFreq(n)",
+                            "shortname": "NotchFreq_n",
+                            "address": "/PHASER2/0x00/Notch_Freq_Ratio:_NotchFreq_n+1_/NotchFreq_n_",
+                            "index": 48,
+                            "meta": [
+                                {
+                                    "4": ""
+                                },
+                                {
+                                    "style": "knob"
+                                }
+                            ],
+                            "init": 1.5,
+                            "min": 1.1,
+                            "max": 4,
+                            "step": 0.001
+                        }
+                    ]
+                },
+                {
+                    "type": "hgroup",
+                    "label": "0x00",
+                    "meta": [
+                        {
+                            "3": ""
+                        }
+                    ],
+                    "items": [
+                        {
+                            "type": "hslider",
+                            "label": "Phaser Output Level",
+                            "shortname": "Phaser_Output_Level",
+                            "address": "/PHASER2/0x00/Phaser_Output_Level",
+                            "index": 4,
+                            "meta": [
+                                {
+                                    "unit": "dB"
+                                }
+                            ],
+                            "init": 0,
+                            "min": -60,
+                            "max": 10,
+                            "step": 0.1
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
