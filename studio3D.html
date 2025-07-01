@@ -2,7 +2,7 @@
 <title>D. Blanchemain</title>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-05T14:52:58+0100" />
+<meta name="date" content="2024-01-08T17:00:41+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -51,7 +51,7 @@ function defSpatial(tx,ty,tz,g) {
 	}
 	var tby=ty.split(",")
 	for(let i=0;i<tby.length;i++){
-		spY[i]=parseFloat(tby[i])
+		spY[i]=-parseFloat(tby[i])
 	}
 	var tbz=tz.split(",")
 	for(let i=0;i<tbz.length;i++){

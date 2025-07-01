@@ -15,7 +15,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-04-04T19:12:04+0200" />
+<meta name="date" content="2025-04-01T19:03:32+0200" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -100,7 +100,6 @@ function delSpeaker(key) {
 var type=0
 const tableLang=[]
 
-
 function importLang(name) {
    // Load lang
    var xhttp = new XMLHttpRequest()
@@ -173,20 +172,12 @@ document.getElementById("curseurs").addEventListener('mouseup',selectPlan)
 
 
 window.api.receive("fromMain", (data) => {
-console.log(`objparam ${data} from renderer process`);
+
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
 			case 'loadStudio':
 				loadStudio(cmd[1])
-				break
-			case 'saveStudio':
-			console.log("saveStudio")
-				saveStudio()
-				break
-			case 'newStudio':
-			console.log("redefStudio")
-				newStudio()
 				break
 	}  
     
@@ -267,9 +258,6 @@ function dragElement(elmnt) {
     }
    
     if(elmnt.id.substring(0,2)=="sp"){
-	    if(lastBorder<1024){
-	    	document.getElementById("sp"+lastBorder).style.border="0px solid red"
-	    }
     	elmnt.style.border="1px solid red"
     	for(let i in tableSpeakers){
     		if (i==elmnt.id.substring(2)){
@@ -340,10 +328,9 @@ function defPlan(e) {
 	document.getElementById('planSelect').style.top=(parseFloat(document.getElementById("plan"+planActif).style.top)-4)+"px"
 	selectSpeakersPlan()
 	console.log("speaker",speaker)
-	for(i=0;i<tableSpeakers.length;i++){
-		document.getElementById("obj"+i).style.backgroundColor='#132535'
+	if(speaker!=1024){
+		document.getElementById("obj"+speaker).style.backgroundColor='#132535'
 	}
-	
 }
 function fixePlanY(el,y) {
 console.log("el",el,y,parseFloat((1-(y*0.0046)).toFixed(2)))
@@ -445,7 +432,6 @@ function newPlan(np) {
 		*/
 		unSelectSpeakersPlan()
 		planActif=nbPlan
-		tablePlan.push(parseFloat(document.getElementById("inp"+nbPlan).value))
 		lastPlan=planActif
 		document.getElementById("Y").value=(1-(tpos*0.0046)).toFixed(2)
 		nbPlan++;
@@ -466,30 +452,13 @@ function logMouse(e) {
   e.stopPropagation();
 
 }
-function newStudio() {
-	for(i=0;i<tablePlan.length;i++){
-		document.getElementById('curseurs').removeChild(document.getElementById('plan'+i))
-		document.getElementById('plan3D').firstChild.removeChild(document.getElementById('lna'+i))
-		document.getElementById('plan3D').firstChild.removeChild(document.getElementById('lnb'+i))
-		document.getElementById('plan3D').firstChild.removeChild(document.getElementById('lnc'+i))
-	}
-	tableSpeakers=[]
-	nbSpeakers=0
-	tablePlan=[]
-	nbPlan=0
-	document.getElementById('speakers').innerHTML=""
-	//document.getElementById('plan3D').innerHTML=""
-	document.getElementById('2Dplan').innerHTML=""
-	document.getElementById('planSelect').style="position:absolute;top:426px;left:646px;"
-	readTableSpeaker(nbSpeakers)
-}
 function newSpeaker(e){
 	if(planActif<1024){
 	console.log("coord",e.clientX,e.clientY)
 		var dupnode=document.createElement('div');
 		dupnode.setAttribute("id","sp"+nbSpeakers)
 		dupnode.setAttribute("style","position:absolute;top:"+(coordY-12)+"px;left:"+(coordX+12)+"px");
-		dupnode.setAttribute("title","sp"+(nbSpeakers));
+		dupnode.setAttribute("title","sp"+(nbSpeakers+1));
 		var dupnode1=document.createElement('img');
 		dupnode1.setAttribute("src","./images/png/speakers.png")
 		dupnode1.setAttribute("style","width:24px;")
@@ -521,39 +490,48 @@ function defAllSpeakers() {
 	for(let i in tableSpeakers){
 		var posX=Math.floor((tableSpeakers[i].posZ/0.00485)+230)
 		var posY=Math.floor((tableSpeakers[i].posX/0.00485)+206)
-			txt=txt+"<div id='sp"+i+"' style='position:absolute;top:"+posY+"px;left:"+posX+"px;display: block;' title='sp"+(parseInt(i)+1)+"' ><img src='./images/png/speakers.png' style='width:24px;' /></div>"
+			txt=txt+"<div id='sp"+i+"' style='position:absolute;top:"+posY+"px;left:"+posX+"px"
+			if(tableSpeakers[i].posY==planActif){
+				txt=txt+";display:block'"
+			}else {
+				txt=txt+";display:none'"
+			}
+			txt=txt+" title='sp"+(parseInt(i)+1)+"' ><img src='./images/png/speakers.png' style='width:24px;' /></div>"
 	}
 	document.getElementById('2Dplan').innerHTML=txt
 	for(let i in tableSpeakers){
 		dragElement(document.getElementById("sp"+i));
 	}
-	console.log(document.getElementById('2Dplan'))
+
 }
 function plan(e) {
 	var tpos=parseFloat(e.target.parentElement.style.top)
 	document.getElementById('planSelect').style.top=(tpos-4)+"px"
 }
 let lastRead=1024
-
 function readTableSpeaker(id) {
+/*
+	tableSpeakers.sort(function (a, b) {
+  		return a.plan - b.plan;
+	});
+	*/
 	console.log("tableSpeakers",tableSpeakers)
 	document.getElementById("tbSpeakers").innerHTML=""
-	var txt="<tr style='color:#ffffff;font-weight:bold;text-align:center;'><td rowspan='2' style='border-right: 0px none #132535;' >C </td><td style='width:10px;border-bottom:0px none #132535;'  ><img src='./images/png/marcatob.png' style='width:10px;'  onclick='renumCp(speaker)' /></td><td rowspan='2'>X</td><td rowspan='2' style='border-right: 0px none #132535;'>Y </td><td style='width:10px;border-bottom:0px none #132535;' ><img src='./images/png/marcatob.png' style='width:10px;' onclick='triSpeaker(1,1)'/></td><td rowspan='2'>Z</td></tr>"
-	txt=txt+"<tr><td style='width:10px;'  ></td><td style='width:10px;' ><img src='./images/png/marcatoc.png' style='width:10px;' onclick='triSpeaker(1,0)'/></td></tr>"
+	var txt="<tr style='color:#ffffff;font-weight:bold;text-align:center;'><td rowspan='2' style='border-right: 0px none #132535;' onclick='renumCp()' >C </td><td style='width:10px;border-bottom:0px none #132535;'  ><img src='./images/png/marcatob.png' style='width:10px;' onclick='triSpeaker(0,0)'/></td><td rowspan='2'>X</td><td rowspan='2' style='border-right: 0px none #132535;'>Y </td><td style='width:10px;border-bottom:0px none #132535;' ><img src='./images/png/marcatob.png' style='width:10px;' onclick='triSpeaker(1,1)'/></td><td rowspan='2'>Z</td></tr>"
+	txt=txt+"<tr><td style='width:10px;'  ><img src='./images/png/marcatoc.png' style='width:10px;' onclick='triSpeaker(0,1)'/></td><td style='width:10px;' ><img src='./images/png/marcatoc.png' style='width:10px;' onclick='triSpeaker(1,0)'/></td></tr>"
 	
 	for(let i in tableSpeakers){
 			txt=txt+"<tr id='obj"+i+"' >"
-			txt=txt+"<td colspan='2'><input id='spc"+i+"'type='number' style='width:30px;' min='0' max='256' step='1' value='"+tableSpeakers[i].canal+"'  onInput='inpCanal("+tableSpeakers[i].id+","+i+")'   onclick='inpClick("+tableSpeakers[i].id+")' title="+tableSpeakers[i].id+" /></td>"
-			txt=txt+"<td><input  id='spX"+i+"' onInput='inpX("+tableSpeakers[i].id+","+i+")' type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posX+"'/></td>"
+			txt=txt+"<td colspan='2'><input id='spc"+i+"'type='number' style='width:30px;' min='0' max='256' step='1' value='"+tableSpeakers[i].canal+"'  onInput='inpCanal("+i+","+tableSpeakers[i].canal+")' title="+tableSpeakers[i].id+" /></td>"
+			txt=txt+"<td><input type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posX+"'/></td>"
 			txt=txt+"<td  colspan='2'><input id='Y"+i+"' type='txt' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posY+"'   onchange='defY("+i+","+tableSpeakers[i].canal+")'/></td>"
-			txt=txt+"<td><input  id='spZ"+i+"' onInput='inpZ("+tableSpeakers[i].id+","+i+")' type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posZ+"'/></td>"
+			txt=txt+"<td><input type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posZ+"'/></td>"
 			txt=txt+"</tr>"
 	}
 	document.getElementById("tbSpeakers").innerHTML=txt
 	if(document.getElementById("obj"+id) && id<1024){
 		document.getElementById("obj"+id).style.backgroundColor='#8080ff'
 	}
-	console.log(document.getElementById("tbSpeakers"))
 }
 function unSelectSpeakersPlan() {
 	for(let i in tableSpeakers){
@@ -575,58 +553,30 @@ function selectSpeakersPlan() {
 	studioDraw()
 }
 let lastBorder=1024
-function inpClick(id) {
-	for(i=0;i<tableSpeakers.length;i++){
-		document.getElementById("obj"+i).style.backgroundColor='#132535'
-		document.getElementById("sp"+i).style.border="0px solid red"
+function inpClick(canal) {
+	var obj = tableSpeakers.findIndex(e => e.canal === canal);
+	if(obj!== -1) {
+		if(lastBorder<1024 && lastBorder!=obj){
+			document.getElementById("sp"+lastBorder).style.border="0px solid red"
+		}
+		lastBorder=obj
+		document.getElementById("sp"+obj).style.border="1px solid red"
 	}
-	var nid=id.id.substring(2)
-	planActif=tableSpeakers[nid].plan
+	readTableSpeaker(obj)
 	
-	document.getElementById("Y").value=parseFloat(document.getElementById("inp"+planActif).value)
-	document.getElementById('planSelect').style.top=(parseFloat(document.getElementById("plan"+planActif).style.top)-4)+"px"
-	selectSpeakersPlan()
-	var nsp=1024;
-	if (test.length<1) {
-		for(i=0;i<tableSpeakers.length;i++){
-			if(tableSpeakers[i].id=="sp"+nid){
-				nsp=i;
-				break;
-			}
-		}
-	}else{
-		for(i=0;i<test.length;i++){
-			if(test[i].id=="sp"+nid){
-				nsp=i;
-				break;
-			}
-		}
-	}
-	lastBorder=nid
-
-	if(nsp<1024){
-		document.getElementById("sp"+nid).style.border="1px solid red"
-		document.getElementById("obj"+nsp).style.backgroundColor='#8080ff'
-		speaker=nsp
-	}
+}
+function inpCanal(i,canal) {
+if(lastBorder<1024){
+	document.getElementById("sp"+lastBorder).style.border="0px solid red"
+}	
+	var obj = tableSpeakers.findIndex(e => e.canal === canal);
+	document.getElementById("sp"+i).style.border="1px solid red"
+	speaker=canal
+	tableSpeakers[obj].canal=parseInt(document.getElementById("spc"+i).value)
+	document.getElementById("sp"+obj).setAttribute("title","sp"+tableSpeakers[obj].canal)
+	lastBorder=1024
 	//readTableSpeaker(obj)
-}
-function inpCanal(id,n) {
-	speaker=id.id.substring(2)
-	document.getElementById("sp"+speaker).style.border="1px solid red"
-	tableSpeakers[speaker].canal=parseInt(document.getElementById("spc"+n).value)
-}
-function inpX(id,n) {
-	speaker=id.id.substring(2)
-	document.getElementById("sp"+speaker).style.border="1px solid red"
-	tableSpeakers[speaker].posX=parseFloat(document.getElementById("spX"+n).value).toFixed(2)
-	console.log("ied",id,n,speaker,tableSpeakers[speaker].posX,document.getElementById("spX"+n).value)
-}
-function inpZ(id,n) {
-	speaker=id.id.substring(2)
-	document.getElementById("sp"+speaker).style.border="1px solid red"
-	tableSpeakers[speaker].posZ=parseFloat(document.getElementById("spZ"+n).value).toFixed(2)
-	console.log(tableSpeakers[speaker])
+	//defAllSpeakers()
 }
 function defY(id,py) {
 	var tpos=parseFloat(document.getElementById("Y"+id).value)
@@ -673,37 +623,34 @@ function triPlan(mode) {
 	document.getElementById("tbSpeakers").innerHTML=txt
 	*/
 }
-function renumCp(deb) {
-	readTableSpeaker(planActif)
-	var cn=tableSpeakers[deb].canal
-	for (i=1;i<tableSpeakers.length;i++) {
-		tableSpeakers[deb+i].canal=cn+i
+function renumCp() {
+	for(let i=0;i<tableSpeakers.length;i++){
+  		tableSpeakers[i].canal=i+1
 	}
-	readTableSpeaker(planActif)
+	readTableSpeaker(1024)
+	defAllSpeakers()
+	studioDraw()
 }
-var test=[]
 function triSpeaker(type,mode) {
-   test=[]
 	if(type==0){
 		if(mode==0){
-			test=[...tableSpeakers].sort((a, b) => (a.canal - b.canal))
+			var test=[...tableSpeakers].sort((a, b) => (a.canal - b.canal))
 		}else{
-			test=[...tableSpeakers].sort((a, b) => (b.canal - a.canal))
+			var test=[...tableSpeakers].sort((a, b) => (b.canal - a.canal))
 		}
 	}else{
 		if(mode==0){
-			test=[...tableSpeakers].sort((a, b) => (b.posY - a.posY))
+			var test=[...tableSpeakers].sort((a, b) => (b.posY - a.posY))
 		}else{
-			test=[...tableSpeakers].sort((a, b) => (a.posY - b.posY))
+			var test=[...tableSpeakers].sort((a, b) => (a.posY - b.posY))
 		}
 	}
-	/*
 	var obj={}
 	tableSpeakers.splice(0,tableSpeakers.length)
 	for(let i=0;i<test.length;i++){
 		obj={}
 		obj={
-			id:test[i].id,
+			id:"sp"+(test[i].id.substring(2)),
 			canal:test[i].canal,
 			plan:test[i].plan,
 			posX:test[i].posX,
@@ -713,17 +660,16 @@ function triSpeaker(type,mode) {
 		tableSpeakers[i]=obj
 	
    }
-   */
-   //console.log("tableSpeakers tri",tableSpeakers,test)
+   console.log("tableSpeakers tri",tableSpeakers)
 	document.getElementById("tbSpeakers").innerHTML=""
-	var txt="<tr style='color:#ffffff;font-weight:bold;text-align:center;'><td rowspan='2' style='border-right: 0px none #132535;'  >C </td><td style='width:10px;border-bottom:0px none #132535;'  ><img src='./images/png/marcatob.png' style='width:10px;'   onclick='renumCp(speaker)' /></td><td rowspan='2'>X</td><td rowspan='2' style='border-right: 0px none #132535;'>Y </td><td style='width:10px;border-bottom:0px none #132535;' ><img src='./images/png/marcatob.png' style='width:10px;' onclick='triSpeaker(1,1)'/></td><td rowspan='2'>Z</td></tr>"
-	txt=txt+"<tr><td style='width:10px;'  ></td><td style='width:10px;' ><img src='./images/png/marcatoc.png' style='width:10px;' onclick='triSpeaker(1,0)'/></td></tr>"
-	for(let i in test){
+	var txt="<tr style='color:#ffffff;font-weight:bold;text-align:center;'><td rowspan='2' style='border-right: 0px none #132535;' onclick='renumCp()' >C </td><td style='width:10px;border-bottom:0px none #132535;'  ><img src='./images/png/marcatob.png' style='width:10px;' onclick='triSpeaker(0,0)'/></td><td rowspan='2'>X</td><td rowspan='2' style='border-right: 0px none #132535;'>Y </td><td style='width:10px;border-bottom:0px none #132535;' ><img src='./images/png/marcatob.png' style='width:10px;' onclick='triSpeaker(1,1)'/></td><td rowspan='2'>Z</td></tr>"
+	txt=txt+"<tr><td style='width:10px;'  ><img src='./images/png/marcatoc.png' style='width:10px;' onclick='triSpeaker(0,1)'/></td><td style='width:10px;' ><img src='./images/png/marcatoc.png' style='width:10px;' onclick='triSpeaker(1,0)'/></td></tr>"
+	for(let i in tableSpeakers){
 			txt=txt+"<tr id='obj"+i+"' >"
-			txt=txt+"<td colspan='2'><input id='spc"+i+"' type='number' style='width:30px;' min='1' max='256' step='1' value='"+test[i].canal+"'   onclick='inpClick("+test[i].id+")'  onInput='inpCanal("+test[i].id+","+i+")' title="+test[i].id+" /></td>"
-			txt=txt+"<td><input id='spX"+i+"' type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+test[i].posX+"'/></td>"
-			txt=txt+"<td  colspan='2'><input type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+test[i].posY+"'/></td>"
-			txt=txt+"<td><input  id='spZ"+i+"' type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+test[i].posZ+"'/></td>"
+			txt=txt+"<td colspan='2'><input id='spc"+i+"'type='number' style='width:30px;' min='1' max='256' step='1' value='"+tableSpeakers[i].canal+"'   onclick='inpClick("+tableSpeakers[i].canal+")'  title="+tableSpeakers[i].id+" /></td>"
+			txt=txt+"<td><input type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posX+"'/></td>"
+			txt=txt+"<td  colspan='2'><input type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posY+"'/></td>"
+			txt=txt+"<td><input type='number' style='width:50px;' min='-1' max='1' step='0.01' value='"+tableSpeakers[i].posZ+"'/></td>"
 			txt=txt+"</tr>"
 	}
 	document.getElementById("tbSpeakers").innerHTML=txt
@@ -763,26 +709,24 @@ function studioDraw(){
 	document.getElementById("speakers").innerHTML=txt
 }
 function saveHtml() {
-	test=[...tableSpeakers].sort((a, b) => (a.canal - b.canal))
 	var txt=""
 	txt="<html><head>	<meta charset='UTF-8'>    <title> Speakers</title>  </head>\n\  <body>  <table border='1' style='width:100%;' cellpadding='4' cellspacing='0' >  </tbody><tr style='color:#ffffff;font-weight:bold;text-align:center;background-color:#132535;'><td >S</td><td >C</td><td >X</td><td >Y </td><td >Z</td></tr>"
 	for (i in tableSpeakers){
-		txt=txt+"<tr style='text-align:right;'><td >"+test[i].plan+"</td><td >"+test[i].canal+"</td><td >"+test[i].posX+"</td><td >"+test[i].posY+" </td><td >"+test[i].posZ+"</td></tr>"
+		txt=txt+"<tr style='text-align:right;'><td >"+tableSpeakers[i].canal+"</td><td >"+tableSpeakers[i].posX+"</td><td >"+tableSpeakers[i].posY+" </td><td >"+tableSpeakers[i].posZ+"</td></tr>"
 	}
 	txt=txt+"</tbody></table></body></html>"
 	var new_window = window.open(URL.createObjectURL(new Blob([txt], { type: "text/html" })),'Partition')
 	return txt	
 }
 function saveTxt() {
-	test=[...tableSpeakers].sort((a, b) => (a.canal - b.canal))
 	var txt=""
 	for (i in tableSpeakers){
-		txt=txt+test[i].plan+","+test[i].canal+","+test[i].posX+","+test[i].posY+","+test[i].posZ+",\n"
+		txt=txt+tableSpeakers[i].canal+","+tableSpeakers[i].posX+","+tableSpeakers[i].posY+","+tableSpeakers[i].posZ+",\n"
 	}
 	return txt
 }
 function saveDsp() {
-	test=[...tableSpeakers].sort((a, b) => (a.canal - b.canal))
+	//var dsp ="declare name        \"ksDominium\";\n\
 	var dsp="declare version     \"1.0\";\n\
 declare author      \"D.Blanchemain\";\n\
 declare license     \"BSD\";\n\
@@ -790,11 +734,11 @@ declare copyright   \"(c)D.Blanchemain 2023\";\n\
 import(\"stdfaust.lib\");\n\
 Matrix(N,M) =_*cdistance<: par(out, M, *(Fader(1,out): si.smoo)) :> par(out, M, _)\n\
 with {\n"
-	for (i in test){
-		dsp=dsp+"tabSpeakerX("+test[i].canal+")="+test[i].posX+";\n"
-		dsp=dsp+"tabSpeakerY("+test[i].canal+")="+test[i].posY+";\n"
-		dsp=dsp+"tabSpeakerZ("+test[i].canal+")="+test[i].posZ+";\n"
-		dsp=dsp+"tabSpeakerD("+test[i].canal+")="+(Math.sqrt(Math.pow(0-test[i].posX,2)+Math.pow(0-test[i].posY,2)+Math.pow(0-test[i].posZ,2))).toFixed(2)+";\n"
+	for (i in tableSpeakers){
+		dsp=dsp+"tabSpeakerX("+i+")="+tableSpeakers[i].posX+";\n"
+		dsp=dsp+"tabSpeakerY("+i+")="+tableSpeakers[i].posY+";\n"
+		dsp=dsp+"tabSpeakerZ("+i+")="+tableSpeakers[i].posZ+";\n"
+		dsp=dsp+"tabSpeakerD("+i+")="+(Math.sqrt(Math.pow(0-tableSpeakers[i].posX,2)+Math.pow(0-tableSpeakers[i].posY,2)+Math.pow(0-tableSpeakers[i].posZ,2))).toFixed(2)+";\n"
 	}
 
 	dsp=dsp+"dtencGen(in, out) = sqrt(pow(tabSpeakerX(out)-x(in),2) + pow(tabSpeakerY(out)+y(in),2) + pow(tabSpeakerZ(out)-z(in),2));\n\
@@ -807,7 +751,7 @@ Fader(in,out)= vgroup(\"[1]Input %2in\",dgain(in,out));\n\
 cdistance(in)=hslider(\"dt\",1,0,1,0.1):si.smoo;\n\
 paramDistance(x)=hgroup(\"[2]Distance\",x);\n"
 dsp=dsp+"};\n\
-process =_,_:> Matrix(1,"+test.length+");\n"
+process =_,_:> Matrix(1,"+tableSpeakers.length+");\n"
 
 	return dsp
 }
@@ -816,11 +760,9 @@ function saveStudio() {
 	var txtStd=saveTxt()
 	var txtDsp=saveDsp()
 	var cmd='saveDsp;'+btoa(txtHtml)+";"+btoa(txtStd)+";"+btoa(txtDsp)
-	console.log("save",txtDsp)
 	window.api.send("toMain", cmd)
 }
 function selectStudio() {
-	newStudio()
 	window.api.send("toMain", 'selectStd')
 }
 function loadStudio(std) {
@@ -836,62 +778,34 @@ function loadStudio(std) {
 }
 function readStd(txt) {
 	var speakers=txt.split("\n")
-
-	//document.getElementById('speakers').innerHTML=""
-	//document.getElementById('plan3D').innerHTML=""
-	//document.getElementById('2Dplan').innerHTML=""
-	for(i=0;i<tablePlan.length;i++){
-		document.getElementById('curseurs').removeChild(document.getElementById('plan'+i))
-		document.getElementById('plan3D').firstChild.removeChild(document.getElementById('lna'+i))
-		document.getElementById('plan3D').firstChild.removeChild(document.getElementById('lnb'+i))
-		document.getElementById('plan3D').firstChild.removeChild(document.getElementById('lnc'+i))
-	}
 	tableSpeakers=[]
-	nbSpeakers=0
-	tablePlan=[]
-	nbPlan=0
-	
-	document.getElementById('planSelect').style="position:absolute;top:426px;left:646px;"
-	
 	var currentPlan=1024
 	var nsp={}
-	var nbplan=0
 	for(let i=0;i<speakers.length-1;i++){
 		var sp=speakers[i].split(",")
 		nsp={
-			id:"sp"+i,
-			canal:parseInt(sp[1]),
-			plan:parseInt(sp[0]),
-			posX:parseFloat(sp[2]),
-			posY:parseFloat(sp[3]),
-			posZ:parseFloat(sp[4])
+			id:"sp"+parseInt(sp[0]),
+			canal:parseInt(sp[0]),
+			posX:parseFloat(sp[1]),
+			posY:parseFloat(sp[2]),
+			posZ:parseFloat(sp[3])
 		}
 	   tableSpeakers.push(nsp)
 	}
-	
 	nbSpeakers=tableSpeakers.length
 	defAllSpeakers()
 	
 	for(let i=0;i<tableSpeakers.length;i++){
-	/*
-		if(currentPlan!=tableSpeakers[i].posY+0.06){
+		if(currentPlan!=tableSpeakers[i].posY){
 	   	newPlan(tableSpeakers[i].posY+0.06)
 	   	currentPlan=tableSpeakers[i].posY+0.06
 	   }
-	 */
-	 	var obj = tablePlan.findIndex((e) => e === tableSpeakers[i].posY);
-	 	if(obj==-1){
-	 		newPlan(tableSpeakers[i].posY+0.06)
-	   	currentPlan=tableSpeakers[i].posY+0.06
-	 	}
 	}
-	console.log('speakerload',tableSpeakers,tablePlan)
-	planActif=0
-	document.getElementById('planSelect').style.top=(parseFloat(document.getElementById("plan"+planActif).style.top)-4)+"px"
-	selectSpeakersPlan()
 	readTableSpeaker(1024)
 }
-
+function ide() {
+         window.api.send("toMain","ide")
+}
 function defStudioOk(){
 	 window.api.send("toMain","defStudioOk")
 }
