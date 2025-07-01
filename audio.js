@@ -46,25 +46,31 @@ function multiStop(){
 }
 function readPart(){
 	let nbp=0;
+	var lsgrp=[];
+	for(i=0;i<tableObjet.length;i++){
+		if(tableObjet[i].etat==1){
+			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+				if (tableObjet[i].class==1 && tableObjet[i].type<24) {
+					lsgrp.push(i);
+				}
+			}
+		}
+	}
 	if(playerStat==0){
-		document.getElementById("playerRd").src="./images/png/stop.png";
+		//document.getElementById("play3").src="./images/png/stop.png";
 		playerStat=1;
-		readMultiAudio();
-		defTime("barVerticale");
-		tmp=(parseInt(document.getElementById("barVerticale").style.left)*(720/12960));
-		console.log("nbp",nbp,document.querySelector("#work").scrollLeft);
-		var ht=0;
-		var mt=tmp/60;
-		var st=tmp%60;
-		console.log(tmp,mt,st);
-		points=0;
-		compteur=0;
-		foo();
+		//readMultiAudio();
+		renderGrpAudio2(lsgrp,1)
+		
 	}else{
-		document.getElementById("playerRd").src="./images/png/read.png";
+		//document.getElementById("play3").src="./images/png/read.png";
 		playerStat=0;
 		clearTimeout(timer);
-		multiStop();
+		//multiStop();
+		document.getElementById("renduWav").pause();
+		if(vueStudio==1 ){
+			window.api.send("toMain", "endEvtAudio;")
+		}
 	}
 }
 function playerDebut(){
@@ -99,7 +105,8 @@ function foo() {
 	var ht;
 	var st;
 	var mt;
-	var delay=55;
+	var gtempo=60/parseFloat(document.getElementById("tempo").value)
+	var delay=55*gtempo;
 	
 	var nbp2;
 	var nbp=-1;
@@ -109,7 +116,7 @@ function foo() {
     document.getElementById("barVerticale").style.left=lleft+"px";
     nbp2=Math.floor(parseInt(document.getElementById("barVerticale").style.left)/1200); 
     
-    if(points<18){
+    if(points<(18/gtempo)){
     	points+=1.065;
     }else{
 
@@ -117,6 +124,7 @@ function foo() {
 			 document.getElementById("work").scrollLeft=nbp2*1200;
 			 nbp=nbp2;
 		 }
+		
 		dsecondes=Math.round(dsecondes+1);
 	 	if(dsecondes>59){
 	 		dminutes=dminutes+1;
@@ -146,23 +154,29 @@ function foo() {
 		 document.getElementById("compteurM").innerHTML = mt+" : ";
 		 document.getElementById("compteurS").innerHTML = st;
 		 points=0;
-		 console.log("vueStudio",vueStudio)
-		 if(vueStudio==1 && compteur<tableListSource.length){
-		 	var nl=lleft;
-		 	while (nl<lleft+5 && compteur<tableListSource.length){
-			if(tableListSource[compteur].start<lleft+5){
-				cmd=tableListSource[compteur].id+";"+tableListSource[compteur].posX+";"+tableListSource[compteur].posY+";"+tableListSource[compteur].scale+";"+tableListSource[compteur].width+";"+tableListSource[compteur].zindex+";"+tableListSource[compteur].image;
-				window.api.send("toMain", "createEvtAudio;"+cmd)			 	
-			 	compteur++;
-			 }
-			 nl++;
-			 }
-		 }
-		 
-	 }
 
-    timer=setTimeout(foo, delay);
-    
+		 if(vueStudio==1 ){
+		 	for(i=0;i<tableListSource.length;i++){
+			 	if(tableListSource[i].etat==0 && tableListSource[i].start<parseInt(document.getElementById("barVerticale").style.left)+9){
+			 		tableListSource[i].etat=1
+			 		//console.log('date',Date.now()-compteur)
+			 		console.log("create",i,tableListSource[i].start,parseInt(document.getElementById("barVerticale").style.left))
+			 		cmd="obj"+i+";"+tableListSource[i].posX+";"+tableListSource[i].posY+";"+tableListSource[i].scale+";"+tableListSource[i].width+";"+tableListSource[i].zindex+";"+tableListSource[i].image;
+					window.api.send("toMain", "createEvtAudio;"+cmd)
+			 	}
+		 	}
+		 	for(i=0;i<tableListSource.length;i++){
+			 	if(tableListSource[i].etat==1 && tableListSource[i].end<parseInt(document.getElementById("barVerticale").style.left)+9){
+			 		console.log("del",i,tableListSource[i].end,parseInt(document.getElementById("barVerticale").style.left))
+			 		tableListSource[i].etat=2
+			 		window.api.send("toMain", "delEvtAudio;obj"+i)
+			 	}
+		 	}
+		 
+		 }
+	 }
+	 
+    	timer=setTimeout(foo, delay);
     }
 }
 function defTime(elem) {
@@ -195,7 +209,7 @@ function defTime(elem) {
  	 document.getElementById("compteurH").innerHTML = ht+" : ";
 	 document.getElementById("compteurM").innerHTML = mt+" : ";
 	 document.getElementById("compteurS").innerHTML = st;
-	
+	return tmp
 }
 function convertAudioBufferToBlob(audioBuffer) {
 
@@ -226,7 +240,7 @@ function convertAudioBufferToBlob(audioBuffer) {
     const wavBytes = this.getWavBytes(interleaved.buffer, {
       isFloat: true, // floating point or 16-bit integer
       numChannels:2,
-      sampleRate: 44100,
+      sampleRate: contextAudio.sampleRate,
     });
     const wav = new Blob([wavBytes], { type: "audio/wav" });
     return wav
@@ -247,7 +261,7 @@ function convertAudioBufferToBlob(audioBuffer) {
 function getWavHeader(options) {
   const numFrames =      options.numFrames
   const numChannels =    options.numChannels || 2
-  const sampleRate =     options.sampleRate || 44100
+  const sampleRate =     options.sampleRate || contextAudio.sampleRate
   const bytesPerSample = options.isFloat? 4 : 2
   const format =         options.isFloat? 3 : 1
 
@@ -392,7 +406,7 @@ function copySliceBuffer(source,len,offset) {
 	return buffer2	
 }
 
-function readSimpleAudioA(mode){
+async function readSimpleAudioA(mode){
 	var audioRate=tableBuffer[0].buffer.sampleRate;
 	if(tableObjet[objActif].class==1){
 		if (tableObjet[objActif].type<24) {
@@ -443,8 +457,7 @@ function readSimpleAudioA(mode){
 					const panner = contextAudio.createPanner();
 					const convolver = contextAudio.createConvolver();
 					var now=contextAudio.currentTime;
-					var rt=readSourceAudio(contextAudio,source,objActif,gainNode,now,panner,convolver);
-
+					var rt=await readSourceAudio(contextAudio,source,objActif,gainNode,now,panner,convolver);
 					if(mode==1){
 						recordingstream=contextAudio.createMediaStreamDestination();
 	  					recorder=new MediaRecorder(recordingstream.stream);
@@ -455,7 +468,7 @@ function readSimpleAudioA(mode){
 					if(mode==1){
 						recorder.start();
 					}
-					document.getElementById("barVerticale").style.left=(tableObjet[objActif].posX-4)+"px";
+					document.getElementById("barVerticale").style.left=((tableObjet[objActif].posX-4)*zoomScale)+"px";
 	  				playerStat=1;
 	  				defTime("barVerticale");
 	  				foo();
@@ -476,7 +489,7 @@ function renderAllFxAudio(){
 function renderFxAudio(){
 	renderFxAudioA(objActif)	
 }
-function renderFxAudioA(obj){
+async function renderFxAudioA(obj){
 	var audioRate=tableBuffer[0].buffer.sampleRate;
 	if (tableObjet[obj].type<24) {
 		if (tableObjet[obj].file) {
@@ -535,7 +548,7 @@ function renderFxAudioA(obj){
 				};
 				const gainNode = contextAudio.createGain();
 				var now=contextAudio.currentTime;
-				var rt=readFxAudio(contextAudio,source,obj,gainNode,now);
+				var rt=await readFxAudio(contextAudio,source,obj,gainNode,now);
 				source=rt;
 				recordingstream=contextAudio.createMediaStreamDestination();
   				recorder=new MediaRecorder(recordingstream.stream);
@@ -555,7 +568,7 @@ function renderFxAudioA(obj){
 		}
 	}
 }
-function readFxAudio(audioContext,nsource,id,gainNode,now){
+async function readFxAudio(audioContext,nsource,id,gainNode,now){
 	if(tableObjet[id].class==1){
 		var typevar=tableObjet[id].envType;
 		var tableGreffons=[];
@@ -578,24 +591,79 @@ function readFxAudio(audioContext,nsource,id,gainNode,now){
 			var j=1;
 			for(let i=0;i<7;i++){
 				if(tableObjet[id].tableFx[i]!="" && tableObjet[id].tableFx[i]!=0 ){
-					var pluginURL = "./greffons";
-					var greffon=eval("Faust"+listeFx[tableObjet[id].tableFx[i]].greffon)
-					var plugin = new greffon(audioContext, pluginURL);
-					plugin.load().then(node => {
-						tableGreffons[j]=node;
-						var localParam=tableObjet[id].tableFxParam[i].split("/");
-						var offset=listeFx[tableObjet[id].tableFx[i]].offset
-						for(let k=0;k<localParam.length;k++){	
-							tableGreffons[j].setParamValue(tableGreffons[j].inputs_items[k+offset], parseFloat(localParam[k]));
+										 const createFaustNode = async (audioContext, dspName , voices = 0, sp = false) => {
+				    // Set to true if the DSP has an effect
+				    const FAUST_DSP_HAS_EFFECT = false;
+				
+				    // Import necessary Faust modules and data
+				    const { FaustMonoDspGenerator, FaustPolyDspGenerator } = await import("./greffons/"+dspName+"-wasm/faustwasm/index.js");
+				
+				    // Load DSP metadata from JSON
+				    /** @type {FaustDspMeta} */
+				    const dspMeta = await (await fetch("./greffons/"+dspName+"-wasm/dsp-meta.json")).json();
+				
+				    // Compile the DSP module from WebAssembly binary data
+				    const dspModule = await WebAssembly.compileStreaming(await fetch("./greffons/"+dspName+"-wasm/dsp-module.wasm"));
+				
+				    // Create an object representing Faust DSP with metadata and module
+				    /** @type {FaustDspDistribution} */
+				    const faustDsp = { dspMeta, dspModule };
+				
+				    /** @type {FaustNode | null} */
+				    let faustNode = null;
+				
+				    // Create either a polyphonic or monophonic Faust audio node based on the number of voices
+				        // Create a standard Faust audio node
+				        const generator = new FaustMonoDspGenerator();
+				        faustNode = await generator.createNode(
+				            audioContext,
+				            dspName,
+				            { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
+				            sp
+				        );
+				     
+				
+				    // Return an object with the Faust audio node and the DSP metadata
+				     return { faustNode, dspMeta };
+					}			
+					
+					const { faustNode, dspMeta: { name } } = await createFaustNode(audioContext, listeFx[tableObjet[id].tableFx[i]].greffon, 0);
+    				if (!faustNode) throw new Error("Faust DSP not compiled");
+    				tableGreffons[j]=faustNode
+    				console.log(faustNode)
+					
+						var dest= listeFx[tableObjet[id].tableFx[i]].paramname.split(',')
+						var fxparam=tableObjet[id].tableFxParam[i].split('/')
+						for(let m=0;m<fxparam.length;m++){
+						var param=fxparam[m].split("&")
+						var shiftParam = tableGreffons[j].parameters.get(dest[m]);
+						var paramvalue=param[0].split("?")
+						console.log("obj",tableObjet[id],"dest",dest[m],"fxparam",fxparam[m],"param",param,"shiftParam",shiftParam);
+						shiftParam.setValueAtTime(parseFloat(paramvalue[1]), now);
+						
+						for(k=1;k<param.length;k++){
+							paramvalue=param[k].split("?")
+							console.log('paramvalue',param[k]," ",param.length)
+							shiftParam.linearRampToValueAtTime(parseFloat(paramvalue[1]), now + parseFloat(paramvalue[0]));
 						}
-						console.log('greffon',tableObjet[id],tableGreffons[j])
 						tableGreffons[j-1].connect(tableGreffons[j]);
+						}
+						console.log("faust",shiftParam)
 						j++;
 						if (j>nbg) {
 							tableGreffons[j-1].connect(gainNode);
-						}
-						
-					});
+							
+							if(tableObjet[id].convolver==""){
+								gainNode.connect(audioContext.destination);
+							}else{
+								convolver.buffer=tableBufferIR[tableObjet[id].convolver];
+								gainNode.connect(convolver);
+								convolver.connect(audioContext.destination);
+							}
+					
+					
+				}
+					
 				}
 			}
 			gainNode.connect(audioContext.destination);
@@ -679,18 +747,18 @@ function readGrpAudio(){
   	console.log("lastAudioInGrp",deflastObj.id)
   	var j=0
 	if(grp.length>0){
-		document.getElementById("barVerticale").style.left=tableObjet[grp[idpos]].posX-10+"px";
-		posX=tableObjet[grp[idpos]].posX-10;
-		bar=(posX*ratioT/zoomScale);
+		document.getElementById("barVerticale").style.left=((tableObjet[grp[idpos]].posX-10)*zoomScale)+"px";
+		posX=parseFloat(document.getElementById("barVerticale").style.left)/zoomScale;
+		bar=(posX*ratioT);
 		for(let i=0;i<grp.length;i++){
-			if(tableObjet[grp[i]].posX>posX){
+			if(tableObjet[grp[i]].posX*zoomScale>posX){
 				console.log("id",i,tableObjet[grp[i]].bufferId)
 				
 				var source2=contextAudio.createBufferSource();
-				if(tableObjet[objActif].convolver!="" && tableBufferIR[tableObjet[objActif].convolver].duration>tableBuffer[tableObjet[objActif].bufferId].buffer.duration*tableObjet[objActif].fin){					
-						source2.buffer=copySliceBuffer(tableBuffer[tableObjet[objActif].bufferId].buffer,tableBufferIR[tableObjet[objActif].convolver].length,0)
+				if(tableObjet[grp[i]].convolver!="" && tableBufferIR[tableObjet[grp[i]].convolver].duration>tableBuffer[tableObjet[grp[i]].bufferId].buffer.duration*tableObjet[grp[i]].fin){					
+						source2.buffer=copySliceBuffer(tableBuffer[tableObjet[grp[i]].bufferId].buffer,tableBufferIR[tableObjet[grp[i]].convolver].length,0)
 				}else{
-						source2.buffer =tableBuffer[tableObjet[objActif].bufferId].buffer;
+						source2.buffer =tableBuffer[tableObjet[grp[i]].bufferId].buffer;
 				}
 				
 				tableSrc[j]=contextAudio.createBufferSource();
@@ -764,7 +832,7 @@ function defPeak(id,buf,g) {
 	peak[id]=lpeak*g
 	console.log("peak",lpeak,20 * Math.log (lpeak) / Math.log(10), "dBFS")
 }
-function renderGrpAudio(ngrp){
+async function renderGrpAudio(ngrp){
 	var ratioT=(720/12960);
 	var posX;
 	var bar;
@@ -891,7 +959,7 @@ function renderGrpAudio(ngrp){
 				panner[j] = contextAudio.createPanner();
 				convolver[j] = contextAudio.createConvolver();
 				now=curTime+((tableObjet[grp[i]].posX*ratioT)-bar);
-				var rt=readSourceAudio(contextAudio,tableSrc[j],grp[i],gainNode[j],now,panner[j],convolver[j]);	
+				var rt=await readSourceAudio(contextAudio,tableSrc[j],grp[i],gainNode[j],now,panner[j],convolver[j]);	
 				tableSrc[j]=rt.src;
 				ndeb[j]=rt.ndeb;
 				nfin[j]=rt.nfin;
@@ -940,8 +1008,9 @@ function renderGrpAudio(ngrp){
 }
 
 
-function renderGrpAudio2(ngrp) {
+async function renderGrpAudio2(ngrp,mode) {
 	var ratioT=(720/12960);
+	var tempo=60/parseFloat(document.getElementById("tempo").value)
 	var startX;
 	var maxT=0;
 	var maxPosX=0;
@@ -953,6 +1022,8 @@ function renderGrpAudio2(ngrp) {
 	var grp=[];
 	var ndeb=[];
 	var nfin=[];
+	
+	tableListSource=[];
 
 	if(ngrp && ngrp.length>0){
 		grp=[].concat(ngrp);
@@ -980,9 +1051,9 @@ function renderGrpAudio2(ngrp) {
 		
 		var audioLast=lastAudioInGrp(grp);
 		var minId=indexFirstObjInGrp(grp);
-		var maxT= ((Math.abs(tableObjet[audioLast.id].posX-tableObjet[minId].posX))*ratioT)+audioLast.maxDuree+5;
+		var maxT= ((Math.abs(tableObjet[audioLast.id].posX-tableObjet[minId].posX))*ratioT)+audioLast.maxDuree+15;
 		var audioRate=tableBuffer[0].buffer.sampleRate;
-
+		console.log("maxT",maxT)
 		const offlineCtx = new OfflineAudioContext(2,audioRate*maxT,audioRate);
 
 		var curTime = offlineCtx.currentTime;
@@ -995,15 +1066,30 @@ function renderGrpAudio2(ngrp) {
 	  		console.log('Rendering is completed',renderedBuffer.duration);
 	  		const song = contextAudio.createBufferSource();
 	  		//var newBuffer = removeFirstNSeconds(offlineCtx,renderedBuffer,audioRate,4);
-  
-  			song.buffer = renderedBuffer;
-		  
-		  song.connect(contextAudio.destination);
-		  var rwav=convertAudioBufferToBlob(song.buffer);
-		
-		  //song.connect(contextAudio.destination);
-		  document.getElementById("renduWav").src=URL.createObjectURL(rwav);
-		  document.getElementById("renderAudio").style.display="block";
+	  		song.buffer=renderedBuffer
+  			var rwav3=removeSilenceFromStart(song.buffer)
+				var rwav4 = trimSilenceAtEnd(contextAudio, rwav3, threshold = 0.001)
+				var rwav5=addSilenceToBuffer(contextAudio, rwav4, (tablePosX[0]*ratioT*tempo))
+				var rwav6=convertAudioBufferToBlob(rwav5);
+				document.getElementById("renduWav").src=URL.createObjectURL(rwav6);
+		  if(mode==0){
+		  		console.log("mode0")
+		 	 document.getElementById("renderAudio").style.display="block";
+		  }else{
+		  		defTime("barVerticale");
+				tmp=(parseInt(document.getElementById("barVerticale").style.left)*(720/12960));
+				console.log("mode1")
+				var ht=0;
+				var mt=tmp/60;
+				var st=tmp%60;
+				console.log(tmp,mt,st);
+				points=0;
+				document.getElementById("renduWav").currentTime=tmp;
+				document.getElementById("renduWav").play()
+				console.log(tableListSource)
+				compteur=Date.now()
+				foo();
+				  }
 		};	
 		var tablePosX=[];
 		var j=0;
@@ -1036,11 +1122,97 @@ function renderGrpAudio2(ngrp) {
 						panner[j] = offlineCtx.createPanner();
 						convolver[j] = offlineCtx.createConvolver();
 						now=curTime+((tableObjet[grp[i]].posX*ratioT)-bar);
-						var rt=readSourceAudio(offlineCtx,tableSrc[j],grp[i],gainNode[j],now,panner[j],convolver[j]);	
+						var rt=await readSourceAudio(offlineCtx,tableSrc[j],grp[i],gainNode[j],now,panner[j],convolver[j]);	
 						tableSrc[j]=rt.src;
 						ndeb[j]=rt.ndeb;
-						nfin[j]=rt.nfin;
+						nfin[j]=tableObjet[grp[i]].fin;
 						tablePosX.push(tableObjet[grp[i]].posX);
+						
+						defPeak(j,rt.src,tableObjet[grp[i]].gain)
+						var gain=peak[j]
+						var obj = {};
+						if(vueStudio==1){
+							var lscale=(1-tableObjet[grp[i]].spZ[0])/2;
+							console.log("lscale",lscale)
+							var cX=tableObjet[grp[i]].spX[0]
+							var cY=tableObjet[grp[i]].spY[0]
+						}else{
+							var lscale=(1-tableObjet[grp[i]].spZ[0])/2;
+							var cX=0;
+							var cY=0;
+						}
+						var lscale2=2	
+						if (gain<0.30){
+							var ws=30*lscale2;
+							var im="./images/png/path4484.png";
+						}
+						if (gain>=-0.30 && gain<-0.60){
+							var ws=35*lscale2;
+							var im="./images/png/path4488.png";
+						} 
+						if (gain>=-0.60 && gain<-0.90){
+							var ws=40*lscale2;
+							var im="./images/png/path4487.png";
+						}
+						if (gain>=-0.90 && gain<1.10){
+							var ws=50*lscale2;
+							var im="./images/png/path4486.png";
+						}
+						if (gain>=1.10 && gain<1.5){
+							var ws=60*lscale2;
+							var im="./images/png/path4489.png";
+						}
+						if (gain>=1.5 && gain<2.0){
+							var ws=70*lscale2;
+							var im="./images/png/path4490.png";
+						}
+						if (gain>=2.0){
+							var ws=80*lscale2;
+							var im="./images/png/path4485.png";
+						}
+						
+						var nduree=rt.src.buffer.duration/tableObjet[grp[i]].transposition;
+						obj = {
+							start:tableObjet[grp[i]].posX,
+							end:tableObjet[grp[i]].posX+(rt.nfin/ratioT),
+							id:tableObjet[grp[i]].id,
+							etat:0,
+							posX:cX,
+							posY:cY,
+							scale:lscale,
+							width:ws,
+							image:im,
+							zindex:Math.round((lscale*100)+1)
+						}	
+						if(tableObjet[grp[i]].spT.length>1){
+							obj.end=tableObjet[grp[i]].posX+((nduree*parseFloat(tableObjet[grp[i]].spT[1]))/ratioT)
+						}				
+						tableListSource.push(obj);
+						var posTrajectoire=[]
+						if(vueStudio==1 && tableObjet[grp[i]].spT.length>1){
+							for(t=1;t<tableObjet[grp[i]].spT.length;t++){
+								posTrajectoire[t] = {
+								start:tableObjet[grp[i]].posX+((nduree*tableObjet[grp[i]].spT[t])/ratioT),
+								end:0,
+								id:tableObjet[grp[i]].id,
+								etat:0,
+								posX:tableObjet[grp[i]].spX[t],
+								posY:tableObjet[grp[i]].spY[t],
+								scale:(1-tableObjet[grp[i]].spZ[t])/2,
+								width:ws,
+								image:im,
+								zindex:Math.round((lscale*100)+1)
+								}
+								if(t==tableObjet[grp[i]].spT.length-1){
+									posTrajectoire[t].end=tableObjet[grp[i]].posX+(rt.nfin/ratioT)
+								}else{
+									posTrajectoire[t].end=tableObjet[grp[i]].posX+((nduree*parseFloat(tableObjet[grp[i]].spT[t+1]))/ratioT)
+								}
+								tableListSource.push(posTrajectoire[t]);
+								console.log("duree",nduree,tableObjet[grp[i]].spT[t])
+							}
+							
+						}
 					}
 				}
 			}
@@ -1048,10 +1220,12 @@ function renderGrpAudio2(ngrp) {
 		}
 		
 	   for(let i=0;i<tableSrc.length;i++){
-   		startX=((tablePosX[i])-posX)*ratioT;
-			tableSrc[i].start(startX,ndeb[i],nfin[i]);
-						
-			console.log("grpstart",i,tablePosX[i],tableSrc[i].buffer.duration,rt.nfin);
+	   	
+   		startX=((tablePosX[i])-posX)*ratioT*tempo;
+   		console.log("startX",tempo,startX)
+			//tableSrc[i].start(startX,ndeb[i],nfin[i]);
+			tableSrc[i].start(startX,ndeb[i],tableSrc[i].buffer.duration*nfin[i]);			
+			console.log("grpstart",i,startX,tablePosX[i],tableSrc[i].buffer.duration,rt.ndeb,rt.nfin,nfin[i]);
 	   }
 		offlineCtx.startRendering().then(function(renderedBuffer) {
 	   	console.log('Rendering completed successfully');
@@ -1062,6 +1236,26 @@ function renderGrpAudio2(ngrp) {
 			
 	}
 	
+}
+function renderObjeteAudio(){
+	var lsgrp=[];
+	lsgrp.push(objActif);
+	document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
+	renderGrpAudio2(lsgrp,0);
+}
+function renderGrpAudio(ngrp){
+	if(ngrp && ngrp.length>0){
+		grp=[].concat(ngrp);
+	}else{
+		if(grpSelect==1){
+			grp=[].concat(preservSelect);
+			document.getElementById("barVerticale").style.left=document.getElementById("grpSelect").style.left;
+		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
+			grp=[].concat(tableObjet[objActif].liste);
+			document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
+			}
+	}
+	renderGrpAudio2(lsgrp,0);
 }
 function renderIntervalleAudio(){
 	var lsgrp=[];
@@ -1076,7 +1270,7 @@ function renderIntervalleAudio(){
 	}
 	console.log("debut",deb,"fin",fin,lsgrp);
 	document.getElementById("barVerticale").style.left="0px";
-	renderGrpAudio(lsgrp);
+	renderGrpAudio2(lsgrp,0);
 }
 
 function renderPartAudio(){
@@ -1092,142 +1286,86 @@ function renderPartAudio(){
 	}
 	console.log(lsgrp);
 	document.getElementById("barVerticale").style.left="0px";
-	renderGrpAudio2(lsgrp);
+	renderGrpAudio2(lsgrp,0);
 }
 
-function readMultiAudio(){
-	var posX=parseFloat(document.getElementById("barVerticale").style.left);
-	var ratioT=(720/12960);
-	var bar=(posX*ratioT/zoomScale);
-	var startX;
-	var curTime = contextAudio.currentTime;
-	tableSrc=[];
-	var gainNode=[];
-	var panner=[];
-	var convolver=[];
-	var ndeb=[];
-	var nfin=[];
-	var tablePosX=[];
-	var j=0;
-	var ngrp=[].concat(tableObjet);
-	tableListSource=[];
-	for(let i=0;i<ngrp.length;i++){
-		if(ngrp[i].etat==1 && ngrp[i].class==1 && ngrp[i].type<24){
-			if (ngrp[i].file!=""  && ngrp[i].mute==0) {
-				if(ngrp[i].posX>posX){
-					var source2=contextAudio.createBufferSource();
-					if(ngrp[i].convolver!="" && tableBufferIR[ngrp[i].convolver].duration>tableBuffer[ngrp[i].bufferId].buffer.duration*ngrp[i].fin){					
-						source2.buffer=copySliceBuffer(tableBuffer[ngrp[i].bufferId].buffer,tableBufferIR[ngrp[i].convolver].length,0)
-					}else{
-						source2.buffer =tableBuffer[ngrp[i].bufferId].buffer;
-					}
-					tableSrc[j]=contextAudio.createBufferSource();
-					if(ngrp[i].reverse==true){
-						var buf1= new Float32Array()
-						var buf2= new Float32Array()
-						buf1=source2.buffer.getChannelData(0)
-        				buf2=source2.buffer.getChannelData(1);
-        				var myArrayBuffer = contextAudio.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-        				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-        				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-        				tableSrc[j].buffer=myArrayBuffer
-        			}else{
-        				tableSrc[j]=source2
-        			}
 
-					tableSrc[j].onended = () => {
-			  			sourcEtat=0;
-			  			console.log("source "+i+" stop");
-			  			if(vueStudio==1){
-			  				window.api.send("toMain", "delEvtAudio;"+ngrp[i].id)	
-			  			}
-					};
-					gainNode[j] = contextAudio.createGain();
-					panner[j] = contextAudio.createPanner();
-					convolver[j] = contextAudio.createConvolver();
-					now=curTime+((ngrp[i].posX*ratioT)-bar);
-					var rt=readSourceAudio(contextAudio,tableSrc[j],i,gainNode[j],now,panner[j],convolver[j]);	
-					tableSrc[j]=rt.src;
-					ndeb[j]=rt.ndeb;
-					nfin[j]=rt.nfin;
-					defPeak(j,rt.src,ngrp[i].gain)
-					var gain=peak[j]
-					if(vueStudio==1){
-						var lscale=(1-ngrp[i].spZ[0])/2;
-						console.log("lscale",lscale)
-						var cX=ngrp[i].spX[0]
-						var cY=ngrp[i].spY[0]
-					}else{
-						var lscale=(1-ngrp[i].spZ[0])/2;
-						var cX=0;
-						var cY=0;
-					}
-					var lscale2=2	
-					if (gain<0.30){
-						var ws=30*lscale2;
-						var im="./images/png/path4484.png";
-					}
-					if (gain>=-0.30 && gain<-0.60){
-						var ws=35*lscale2;
-						var im="./images/png/path4488.png";
-					} 
-					if (gain>=-0.60 && gain<-0.90){
-						var ws=40*lscale2;
-						var im="./images/png/path4487.png";
-					}
-					if (gain>=-0.90 && gain<1.10){
-						var ws=50*lscale2;
-						var im="./images/png/path4486.png";
-					}
-					if (gain>=1.10 && gain<1.5){
-						var ws=60*lscale2;
-						var im="./images/png/path4489.png";
-					}
-					if (gain>=1.5 && gain<2.0){
-						var ws=70*lscale2;
-						var im="./images/png/path4490.png";
-					}
-					if (gain>=2.0){
-						var ws=80*lscale2;
-						var im="./images/png/path4485.png";
-					}
-					
-					obj = {};
-					obj = {
-						start:ngrp[i].posX,
-						id:ngrp[i].id,
-						posX:cX,
-						posY:cY,
-						scale:lscale,
-						width:ws,
-						image:im,
-						zindex:Math.round((lscale*100)+1)
-					}					
-					tableListSource.push(obj);
-					
-					j++;
-				}
-			}
-		}
-	}
-	console.log("source",ngrp,tableListSource);
-	for(let i=0;i<tableSrc.length;i++){
-		if(tableListSource[i].start>posX){
-			startX=(tableListSource[i].start-posX)*ratioT;
-			if(tableSrc[i]){
-				tableSrc[i].start(contextAudio.currentTime+startX,ndeb[i],nfin[i]);
-				playerStat=1;
-			}
-		}
-	}
-}
 function exportObjetActif() {
-	exportAudioObjet(objActif)
+	exportAudioObjet(objActif,0)
 }
 
+var defrenderedBuffer={};
+async function exportAudioObjet(obj,mode) {	
+console.log("obj",obj,tableBufferIR,tableObjet[obj],tableBufferIR[tableObjet[obj].convolver],contextAudio.sampleRate)
+	var audioRate=contextAudio.sampleRate;
+	var nduree=tableObjet[obj].duree/tableObjet[obj].transposition;
+	if(tableObjet[obj].convolver!="" && tableBufferIR[tableObjet[obj].convolver].buffer.duration>nduree){
+			var ndt=tableBufferIR[tableObjet[obj].convolver].duration
+		}else{
+			var ndt=nduree
+		}
+	const offlineCtx = new OfflineAudioContext(2,ndt*audioRate,audioRate);
+	var curTime = offlineCtx.currentTime;
 
-function exportAudioObjet(obj) {	
-console.log("obj",obj)
+	
+	var source=offlineCtx.createBufferSource();
+	source.buffer =tableBuffer[tableObjet[obj].bufferId].buffer;
+	var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
+	if(tableObjet[obj].reverse==true){
+		var buf1= new Float32Array()
+		var buf2= new Float32Array()
+		buf1=source.buffer.getChannelData(0)
+  		buf2=source.buffer.getChannelData(1);
+  		var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
+  		myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
+  		myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
+  		source.buffer=myArrayBuffer
+  	}
+	var gainNode = offlineCtx.createGain();
+	var convolver = offlineCtx.createConvolver();
+	if(tableObjet[obj].mute==0){
+		var now=curTime				
+		var rt=await defSourceAudio(offlineCtx,source,obj,gainNode,now,convolver);
+		console.log("source",convolver,tableBuffer[tableObjet[obj].bufferId].name,rt.src.buffer.duration,rt.src.playbackRate.value,rt.nfin)
+		rt.src.start(0,rt.debut,rt.fin)
+					
+		offlineCtx.startRendering().then(function(renderedBuffer) {
+	   	console.log('Start Rendering');
+		}).catch((err) => {
+		    console.error(`Rendering failed: ${err}`);
+		    // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
+		});
+			
+	}
+var nrc={}
+	rt.src.onended = () => {
+		offlineCtx.oncomplete = function(e) {
+		  	var renderedBuffer = e.renderedBuffer;
+		  	console.log("objet"+obj,' Rendering is completed',renderedBuffer.duration);
+		  	
+ 			if(mode==0){
+			var rwav=convertAudioBufferToBlob(renderedBuffer)
+	
+			var reader = new FileReader();
+			reader.readAsArrayBuffer(rwav);
+			reader.onloadend = (event) => {
+	    		// The contents of the BLOB are in reader.result:	
+	    	console.log("result ",audioDirectory+"exports/"+tableObjet[obj].id+".wav"," ",reader.result);
+	    	window.api.saveAudio('saveAudio',(audioDirectory+"exports/"+tableObjet[obj].id+".wav"), reader.result);
+			}
+			}else{
+					nrc.obj=obj;
+					nrc.buffer=renderedBuffer;
+			}
+		}
+		
+	}	
+return nrc
+}
+
+		
+async function defAudioObjet(obj) {	
+console.log("obj",obj,tableObjet[obj],tableBufferIR[tableObjet[obj].convolver])
 	var audioRate=tableBuffer[0].buffer.sampleRate;
 	var nduree=tableObjet[obj].duree/tableObjet[obj].transposition;
 	if(tableObjet[obj].convolver!="" && tableBufferIR[tableObjet[obj].convolver].duration>nduree){
@@ -1239,36 +1377,29 @@ console.log("obj",obj)
 	var curTime = offlineCtx.currentTime;
 
 	
-	var source2=offlineCtx.createBufferSource();
-	if(tableObjet[obj].convolver!="" && tableBufferIR[tableObjet[obj].convolver].duration>tableBuffer[tableObjet[obj].bufferId].buffer.duration*tableObjet[obj].fin){					
-		source2.buffer=copySliceBuffer(tableBuffer[tableObjet[obj].bufferId].buffer,tableBufferIR[tableObjet[obj].convolver].length,0)
-	}else{
-		source2.buffer =tableBuffer[tableObjet[obj].bufferId].buffer;
-	}
 	var source=offlineCtx.createBufferSource();
+	source.buffer =tableBuffer[tableObjet[obj].bufferId].buffer;
+	var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
 	if(tableObjet[obj].reverse==true){
 		var buf1= new Float32Array()
 		var buf2= new Float32Array()
-		buf1=source2.buffer.getChannelData(0)
-  				buf2=source2.buffer.getChannelData(1);
-  				var myArrayBuffer = contextAudio.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-  				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-  				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-  				source.buffer=myArrayBuffer
-  			}else{
-  				source=source2
-  			}
-	
+		buf1=source.buffer.getChannelData(0)
+  		buf2=source.buffer.getChannelData(1);
+  		var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
+  		myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
+  		myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
+  		source.buffer=myArrayBuffer
+  	}
 	var gainNode = offlineCtx.createGain();
 	var convolver = offlineCtx.createConvolver();
 	if(tableObjet[obj].mute==0){
 		var now=curTime				
-		var rt=defSourceAudio(offlineCtx,source,obj,gainNode,now,convolver);
-		console.log("source",tableBuffer[tableObjet[obj].bufferId].name,rt.src.buffer.duration,rt.src.playbackRate.value,rt.nfin)
+		var rt=await defSourceAudio(offlineCtx,source,obj,gainNode,now,convolver);
+		console.log("sourcedefAudioObjet",convolver,tableBuffer[tableObjet[obj].bufferId].name,rt.src.buffer.duration,rt.src.playbackRate.value,rt.nfin)
 		rt.src.start(0,rt.debut,rt.fin)
 					
 		offlineCtx.startRendering().then(function(renderedBuffer) {
-	   	console.log('Rendering completed successfully');
+	   	console.log('Start Rendering');
 		}).catch((err) => {
 		    console.error(`Rendering failed: ${err}`);
 		    // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
@@ -1278,17 +1409,8 @@ console.log("obj",obj)
 
 	rt.src.onended = () => {
 		offlineCtx.oncomplete = function(e) {
-		  	var renderedBuffer = e.renderedBuffer;
-		  	console.log('Rendering is completed',renderedBuffer.duration);
-			var rwav=convertAudioBufferToBlob(renderedBuffer)
-	
-			var reader = new FileReader();
-			reader.readAsArrayBuffer(rwav);
-			reader.onloadend = (event) => {
-	    		// The contents of the BLOB are in reader.result:	
-	    	window.api.saveAudio('saveAudio',(audioDirectory+"exports/"+tableObjet[obj].id+".wav"), reader.result);
-	   		 //console.log(reader.result);
-			}
+			console.log('Rendering complete');
+			drawSvgWaveform(e.renderedBuffer, document.getElementById("canvas").firstChild.nextSibling.firstChild, 0.5,1)
 		}
 	}	
 	
@@ -1321,7 +1443,7 @@ function defSourceEnveloppe(id,nduree,gainNode,dtime){
    return gainNode;
 }
 
-function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
+async function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
 	console.log("id resource",id)
 	var spgain=[]
 	if(tableObjet[id].class==1){
@@ -1419,18 +1541,65 @@ function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
 			var j=1;
 			for(let i=0;i<7;i++){
 				if(tableObjet[id].tableFx[i]!="" && tableObjet[id].tableFx[i]!=0 ){
-					var pluginURL = "./greffons";
-					var greffon=eval("Faust"+listeFx[tableObjet[id].tableFx[i]].greffon)
-					var plugin = new greffon(audioContext, pluginURL);
-					plugin.load().then(node => {
-						tableGreffons[j]=node;
-						var localParam=tableObjet[id].tableFxParam[i].split("/");
-						var offset=listeFx[tableObjet[id].tableFx[i]].offset
-						for(let k=0;k<localParam.length;k++){	
-							tableGreffons[j].setParamValue(tableGreffons[j].inputs_items[k+offset], parseFloat(localParam[k]));
+			
+					 const createFaustNode = async (audioContext, dspName , voices = 0, sp = false) => {
+				    // Set to true if the DSP has an effect
+				    const FAUST_DSP_HAS_EFFECT = false;
+				
+				    // Import necessary Faust modules and data
+				    const { FaustMonoDspGenerator, FaustPolyDspGenerator } = await import("./greffons/"+dspName+"-wasm/faustwasm/index.js");
+				
+				    // Load DSP metadata from JSON
+				    /** @type {FaustDspMeta} */
+				    const dspMeta = await (await fetch("./greffons/"+dspName+"-wasm/dsp-meta.json")).json();
+				
+				    // Compile the DSP module from WebAssembly binary data
+				    const dspModule = await WebAssembly.compileStreaming(await fetch("./greffons/"+dspName+"-wasm/dsp-module.wasm"));
+				
+				    // Create an object representing Faust DSP with metadata and module
+				    /** @type {FaustDspDistribution} */
+				    const faustDsp = { dspMeta, dspModule };
+				
+				    /** @type {FaustNode | null} */
+				    let faustNode = null;
+				
+				    // Create either a polyphonic or monophonic Faust audio node based on the number of voices
+				        // Create a standard Faust audio node
+				        const generator = new FaustMonoDspGenerator();
+				        faustNode = await generator.createNode(
+				            audioContext,
+				            dspName,
+				            { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
+				            sp
+				        );
+				     
+				
+				    // Return an object with the Faust audio node and the DSP metadata
+				     return { faustNode, dspMeta };
+					}			
+					
+					const { faustNode, dspMeta: { name } } = await createFaustNode(audioContext, listeFx[tableObjet[id].tableFx[i]].greffon, 0);
+    				if (!faustNode) throw new Error("Faust DSP not compiled");
+    				tableGreffons[j]=faustNode
+    				console.log(faustNode)
+					
+						var dest= listeFx[tableObjet[id].tableFx[i]].paramname.split(',')
+						var fxparam=tableObjet[id].tableFxParam[i].split('/')
+						for(let m=0;m<fxparam.length;m++){
+						var param=fxparam[m].split("&")
+						var shiftParam = tableGreffons[j].parameters.get(dest[m]);
+						var paramvalue=param[0].split("?")
+						console.log("obj",tableObjet[id],"dest",dest[m],"fxparam",fxparam[m],"param",param,"shiftParam",shiftParam);
+						shiftParam.setValueAtTime(parseFloat(paramvalue[1]), now);
+						
+						for(k=1;k<param.length;k++){
+							paramvalue=param[k].split("?")
+							console.log('paramvalue',param[k]," ",param.length)
+							shiftParam.linearRampToValueAtTime(parseFloat(paramvalue[1]), now + parseFloat(paramvalue[0]));
 						}
-						console.log('greffon',tableObjet[id],tableGreffons[j])
 						tableGreffons[j-1].connect(tableGreffons[j]);
+						}
+						console.log("faust",shiftParam)
 						j++;
 						if (j>nbg) {
 							tableGreffons[j-1].connect(gainNode);
@@ -1445,13 +1614,12 @@ function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
 							panner.connect(audioContext.destination);
 							
 						}
-						
-					});
+					
 				}
 			}
 			
 		}
-	
+	 
 		function positionPanner() {
 		  var xPos=parseFloat(tableObjet[id].spX[0]);
 		  var yPos=-parseFloat(tableObjet[id].spY[0]);
@@ -1482,7 +1650,7 @@ function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
 	}
 	
 }
-function defSourceAudio(audioContext,nsource,id,gainNode,now,convolver){
+async function defSourceAudio(audioContext,nsource,id,gainNode,now,convolver){
 	if(tableObjet[id].class==1){
 		var typevar=tableObjet[id].envType;
 		var tableGreffons=[];
@@ -1508,21 +1676,116 @@ function defSourceAudio(audioContext,nsource,id,gainNode,now,convolver){
 		var nbg=j;
 		console.log("nbfx",nbg)
 		tableGreffons[0]=nsource;
-		console.log("convolver",tableObjet[id])
-		tableGreffons[0].connect(gainNode);
-		if(tableObjet[id].convolver==""){
-			gainNode.connect(audioContext.destination);
+		if(nbg==0){
+
+			tableGreffons[0].connect(gainNode);
+			//positionPanner();
+			/*
+			if(tableObjet[id].convolver==""){
+				gainNode.connect(panner);
+			}else{
+				convolver.buffer=tableBufferIR[tableObjet[id].convolver];
+				gainNode.connect(convolver);
+				convolver.connect(panner);
+			}
+			//panner.connect(audioContext.destination);
+			*/
+			tableGreffons[0].connect(gainNode);
+					
+			if(tableObjet[id].convolver==""){
+				gainNode.connect(audioContext.destination);
+			}else{
+				convolver.buffer=tableBufferIR[tableObjet[id].convolver];
+				gainNode.connect(convolver);
+				convolver.connect(audioContext.destination);
+			}
+			console.log("nsource an",nsource.buffer.duration)
+
 		}else{
-			convolver.buffer=tableBufferIR[tableObjet[id].convolver];
-			gainNode.connect(convolver);
-			convolver.connect(audioContext.destination);
-		}
+			var j=1;
+		for(let i=0;i<7;i++){
+			if(tableObjet[id].tableFx[i]!=""  && tableObjet[id].tableFx[i]!=0 ){
+				const createFaustNode = async (audioContext, dspName , voices = 0, sp = false) => {
+				    // Set to true if the DSP has an effect
+				    const FAUST_DSP_HAS_EFFECT = false;
+				
+				    // Import necessary Faust modules and data
+				    const { FaustMonoDspGenerator, FaustPolyDspGenerator } = await import("./greffons/"+dspName+"-wasm/faustwasm/index.js");
+				
+				    // Load DSP metadata from JSON
+				    /** @type {FaustDspMeta} */
+				    const dspMeta = await (await fetch("./greffons/"+dspName+"-wasm/dsp-meta.json")).json();
+				
+				    // Compile the DSP module from WebAssembly binary data
+				    const dspModule = await WebAssembly.compileStreaming(await fetch("./greffons/"+dspName+"-wasm/dsp-module.wasm"));
+				
+				    // Create an object representing Faust DSP with metadata and module
+				    /** @type {FaustDspDistribution} */
+				    const faustDsp = { dspMeta, dspModule };
+				
+				    /** @type {FaustNode | null} */
+				    let faustNode = null;
+				
+				    // Create either a polyphonic or monophonic Faust audio node based on the number of voices
+				        // Create a standard Faust audio node
+				        const generator = new FaustMonoDspGenerator();
+				        faustNode = await generator.createNode(
+				            audioContext,
+				            dspName,
+				            { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
+				            sp
+				        );
+				     
+				
+				    // Return an object with the Faust audio node and the DSP metadata
+				     return { faustNode, dspMeta };
+					}			
+					
+					const { faustNode, dspMeta: { name } } = await createFaustNode(audioContext, listeFx[tableObjet[id].tableFx[i]].greffon, 0);
+    				if (!faustNode) throw new Error("Faust DSP not compiled");
+    				
+    				tableGreffons[j]=faustNode
+    				console.log(faustNode)
+						var dest= listeFx[tableObjet[id].tableFx[i]].paramname.split(',')
+						console.log("dest",listeFx[tableObjet[id].tableFx[i]].paramname)
+						var fxparam=tableObjet[id].tableFxParam[i].split('/')
+						for(let m=0;m<fxparam.length;m++){
+						var param=fxparam[m].split("&")
+						console.log("dest",dest[m],"fxparam",fxparam[m]," param",param)
+						var shiftParam = tableGreffons[j].parameters.get(dest[m]);
+						var paramvalue=param[0].split("?")
+						shiftParam.setValueAtTime(parseFloat(paramvalue[1]), now);
+						for(k=1;k<param.length;k++){
+							paramvalue=param[k].split("?")
+							console.log('paramvalue',param[k]," ",param.length)
+							shiftParam.linearRampToValueAtTime(parseFloat(paramvalue[1]), now + parseFloat(paramvalue[0]));
+						}
+						tableGreffons[j-1].connect(tableGreffons[j]);
+						}
+						console.log("faust",shiftParam,dest[i])
+				j++;
+				if (j>nbg) {
+					tableGreffons[j-1].connect(gainNode);
+					
+					if(tableObjet[id].convolver==""){
+						gainNode.connect(audioContext.destination);
+					}else{
+						convolver.buffer=tableBufferIR[tableObjet[id].convolver];
+						gainNode.connect(convolver);
+						convolver.connect(audioContext.destination);
+					}
+					
+					
+				}
 			
+		  }
+		 }
+		}
+		
 		return param = {
 			src:nsource,
 			ndeb: ndeb,
 			nfin: nfin}
-		console.log("nduree",nduree,tableBufferIR[tableObjet[id].convolver]);
 	}
 	
 }
@@ -1547,7 +1810,7 @@ function indexFirstObjInGrp(lgrp) {
 	return id;
 }
 
-function tempoAudio() {
+async function tempoAudio() {
 	document.getElementById("tempoAudio").style.display="block";
 	document.getElementById("sliderTempo").value=1.00;
 	document.getElementById("inpTempo").value=document.getElementById("sliderTempo").value;
@@ -1579,14 +1842,14 @@ function tempoAudio() {
 				const convolver = contextAudio.createConvolver();
 				console.log("source",tableObjet[objActif].file);
 				var now=contextAudio.currentTime;
-				var rt=readSourceAudio(contextAudio,source,objActif,gainNode,now,panner,convolver);
+				var rt=await readSourceAudio(contextAudio,source,objActif,gainNode,now,panner,convolver);
 				source=rt.src;
 				var ndeb=rt.ndeb;
 				var nfin=rt.nfin;
 				recordingstream=contextAudio.createMediaStreamDestination();
   				recorder=new MediaRecorder(recordingstream.stream);
   				panner.connect(recordingstream);
-  				
+  				console.log("source",source)
   				source.start(0,ndeb,nfin);
   				recorder.start();
 				sourcEtat=1;
