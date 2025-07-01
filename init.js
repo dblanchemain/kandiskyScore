@@ -11,7 +11,7 @@
 // You should have received a copy of the GNU General Public License along with this program; If not, see http://www.gnu.org/licenses.var contextAudio=new AudioContext();
 
 let tableObjet=[]
-let tableBuffer=[];
+let tableBuffer=[]
 let selectObjet=''
 let objActif=1048576
 let nbObjets=0
@@ -24,8 +24,10 @@ let inclusionEtat=0
 let paramProjet={}
 let paramSpace={}
 
-var contextAudio=new AudioContext()
-
+var contextAudio=new AudioContext({
+  latencyHint: "interactive",
+  sampleRate: 48000}
+  )
 
 
 function importLang(name) {
@@ -43,7 +45,7 @@ function importLang(name) {
 function defLang (txt) {
 	var ntxt = txt.split('\n')
 	var sp=[]
-	for(let i=0;i<ntxt.length-1;i++){
+	for(let i=11;i<ntxt.length-1;i++){
 		sp=ntxt[i].split('=')
 		tableLang[sp[0]]=sp[1]
 	}
@@ -64,7 +66,12 @@ function interfaceLang () {
 	document.getElementById('paletteLignest').innerHTML=tableLang['Plignes']
 	document.getElementById('paletteNuancest').innerHTML=tableLang['Pnuances']
 	document.getElementById('paletteObjetst').innerHTML=tableLang['Psymboles']
+	document.getElementById('paletteFonctionst').innerHTML=tableLang['Pfunc']
 	document.getElementById('paletteLignest').innerHTML=tableLang['Plignes']
+	document.getElementById('listNewFxHeader').firstChild.innerHTML=tableLang['listFx']
+	document.getElementById('popupParamFxHeader').firstChild.innerHTML=tableLang['SettingFx']
+	document.getElementById('listeAudiosHeader').firstChild.innerHTML=tableLang['listFileAudio']
+	document.getElementById('tdobj').innerHTML=tableLang['listeObjet']
 	
 	document.getElementById('varial').innerHTML=tableLang['Variation']
 	document.getElementById('variah').innerHTML=tableLang['VHaut']
@@ -91,7 +98,7 @@ function defInterface() {
  document.getElementById("bfsvgt").setAttribute("style","fill:"+fontIntervalColor+";font-size:"+intervalFontSize+"em;");
  document.getElementById("bdsvgt").setAttribute("font-size",intervalFontSize);
  document.getElementById("bfsvgt").setAttribute("font-size",intervalFontSize);
- document.getElementById("space").style.backgroundColor=workSpaceBkg;
+ document.getElementById("space").style.backgroundColor="transparent";
  /*
  document.getElementById("clgrilleBkg").style.backgroundColor=colorGrille;
  document.getElementById("opacityGrille").value=spaceGrilleOpacity;
@@ -120,20 +127,20 @@ for(let i=0;i<tbgrille.length;i++){
 }
 function configPalette() {
 	
-	document.getElementById("circle").setAttribute("fill",paletteDisque)
-	document.getElementById("carre").setAttribute("fill",paletteCarre)
-	document.getElementById("triangle").setAttribute("fill",paletteTriangle)
-	document.getElementById("ellipse").setAttribute("fill",paletteEllipse)
-	document.getElementById("rectangle").setAttribute("fill",paletteRectangle)
-	document.getElementById("triangle").setAttribute("fill",paletteTrianglelong)
-	document.getElementById("rondlong").firstChild.firstChild.setAttribute("fill",paletteRondlong)
-	document.getElementById("rondlong").firstChild.firstChild.nextSibling.setAttribute("fill",paletteRondlong)
-	document.getElementById("carrelong").firstChild.firstChild.setAttribute("fill",paletteCarrelong)
-	document.getElementById("carrelong").firstChild.firstChild.nextSibling.setAttribute("fill",paletteCarrelong)
-	document.getElementById("crescendo").setAttribute("fill",paletteCrescendo)
-	document.getElementById("ligne").setAttribute("stroke",paletteLigne)
-	document.getElementById("glissando").setAttribute("stroke",paletteGlissando)
-	document.getElementById("block").setAttribute("stroke",paletteBlock)
+	document.getElementById("pdisque").firstChild.firstChild.setAttribute("fill",paletteDisque)
+	document.getElementById("pcarre").firstChild.firstChild.setAttribute("fill",paletteCarre)
+	document.getElementById("ptriangle").firstChild.firstChild.setAttribute("fill",paletteTriangle)
+	document.getElementById("pellipse").firstChild.firstChild.setAttribute("fill",paletteEllipse)
+	document.getElementById("prectangle").firstChild.firstChild.setAttribute("fill",paletteRectangle)
+	document.getElementById("ptrianglelong").firstChild.firstChild.setAttribute("fill",paletteTrianglelong)
+	document.getElementById("prondlong").firstChild.firstChild.setAttribute("fill",paletteRondlong)
+	document.getElementById("prondlong").firstChild.firstChild.nextSibling.setAttribute("fill",paletteRondlong)
+	document.getElementById("pcarrelong").firstChild.firstChild.setAttribute("fill",paletteCarrelong)
+	document.getElementById("pcarrelong").firstChild.firstChild.nextSibling.setAttribute("fill",paletteCarrelong)
+	document.getElementById("pcrescendo").setAttribute("fill",paletteCrescendo)
+	document.getElementById("pligne").setAttribute("stroke",paletteLigne)
+	document.getElementById("pglissando").setAttribute("stroke",paletteGlissando)
+	document.getElementById("pblock").setAttribute("stroke",paletteBlock)
 	document.getElementById("decresc").firstChild.firstChild.setAttribute("fill",paletteDecresc)
 	document.getElementById("decrescb").firstChild.firstChild.setAttribute("fill",paletteDecrescb)
 	document.getElementById("cresc").firstChild.firstChild.setAttribute("fill",paletteCresc)
@@ -174,8 +181,82 @@ function configPalette() {
 	*/
 	var txt=imgpart.replaceAll('#000000', paletteImage)
 	txt=imgpart.replaceAll('#000000', paletteImage)
-	document.getElementById("Image").innerHTML=txt
+	document.getElementById("pImage").innerHTML=txt
 	symbCreate()
+	
+	document.getElementById("pcouleur").firstChild.firstChild.setAttribute('fill',paletteDisque)
+	document.getElementById("toutEnBas").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteFleche)
+	document.getElementById("toutEnBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnBas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque2)
+	document.getElementById("descendre").firstChild.firstChild.firstChild.setAttribute('stroke',paletteFleche)
+	document.getElementById("descendre").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteFleche)
+	document.getElementById("descendre").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("descendre").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("descendre").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque2)
+	document.getElementById("descendre").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("descendre").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("monter").firstChild.firstChild.firstChild.setAttribute('stroke',paletteFleche)
+	document.getElementById("monter").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteFleche)
+	document.getElementById("monter").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("monter").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("monter").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque2)
+	document.getElementById("monter").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("monter").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnHaut").firstChild.firstChild.firstChild.setAttribute('stroke',paletteFleche)
+	document.getElementById("toutEnHaut").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteFleche)
+	document.getElementById("toutEnHaut").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque2)
+	document.getElementById("toutEnHaut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnHaut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnHaut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("toutEnHaut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	
+	document.getElementById("pforme").firstChild.firstChild.firstChild.setAttribute('fill',paletteDisque)
+	document.getElementById("pforme").firstChild.firstChild.firstChild.nextSibling.setAttribute('fill',paletteCarre)
+	document.getElementById("pforme").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('fill',paletteTriangle)
+	
+	document.getElementById("gauche").firstChild.firstChild.firstChild.setAttribute('stroke',paletteMarque2)
+	document.getElementById("gauche").firstChild.firstChild.firstChild.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("gauche").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("gauche").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("gauche").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("gauche").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("gauche").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("haut").firstChild.firstChild.firstChild.setAttribute('stroke',paletteMarque2)
+	document.getElementById("haut").firstChild.firstChild.firstChild.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("haut").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("haut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("haut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("haut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("haut").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("droite").firstChild.firstChild.firstChild.setAttribute('stroke',paletteMarque2)
+	document.getElementById("droite").firstChild.firstChild.firstChild.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("droite").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("droite").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("droite").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("droite").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("droite").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("bas").firstChild.firstChild.firstChild.setAttribute('stroke',paletteMarque2)
+	document.getElementById("bas").firstChild.firstChild.firstChild.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("bas").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("bas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("bas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("bas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	document.getElementById("bas").firstChild.firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute('stroke',paletteMarque1)
+	
+	document.getElementById("play1").firstChild.firstChild.setAttribute("fill",paletteLecteur)
+	document.getElementById("play1").firstChild.firstChild.nextSibling.setAttribute("fill",paletteLecteur)
+	document.getElementById("play1").firstChild.firstChild.nextSibling.nextSibling.setAttribute("fill",paletteLecteur)
+	document.getElementById("play2").firstChild.firstChild.setAttribute("fill",paletteLecteur)
+	document.getElementById("play2").firstChild.firstChild.nextSibling.setAttribute("fill",paletteLecteur)
+	document.getElementById("play3").firstChild.firstChild.setAttribute("fill",paletteLecteur)
+	document.getElementById("play4").firstChild.firstChild.setAttribute("fill",paletteLecteur)
+	document.getElementById("play4").firstChild.firstChild.nextSibling.setAttribute("fill",paletteLecteur)
+	document.getElementById("play5").firstChild.firstChild.setAttribute("fill",paletteLecteur)
+	document.getElementById("play5").firstChild.firstChild.nextSibling.setAttribute("fill",paletteLecteur)
+	document.getElementById("play5").firstChild.firstChild.nextSibling.nextSibling.setAttribute("fill",paletteLecteur)
 }
 function symbCreate(){
 	document.getElementById("symb1").firstChild.firstChild.innerHTML=glyphArpege
@@ -378,5 +459,140 @@ function symbCreate(){
 	document.getElementById("symb50").firstChild.firstChild.setAttribute("stroke",paletteSymb)
 	document.getElementById("symb50").firstChild.firstChild.setAttribute("fill",paletteSymb)
 	document.getElementById("symb50").firstChild.setAttribute("transform",'scale(1.2 1.2) translate(10 10) rotate(0 0 0) ')
-	
+	document.getElementById("symb51").firstChild.firstChild.innerHTML=glyphTremolo
+	document.getElementById("symb51").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb51").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb51").firstChild.setAttribute("transform",'scale(1 1) translate(5 10) rotate(0 0 0) ')
+	document.getElementById("symb52").firstChild.firstChild.innerHTML=glyphSoftAccent
+	document.getElementById("symb52").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb52").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb52").firstChild.setAttribute("transform",'scale(1 1) translate(5 10) rotate(0 0 0) ')
+	document.getElementById("symb53").firstChild.firstChild.innerHTML=glyphSoftAccentPointe
+	document.getElementById("symb53").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb53").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb53").firstChild.setAttribute("transform",'scale(1 1) translate(5 10) rotate(0 0 0) ')
+	document.getElementById("symb54").firstChild.firstChild.innerHTML=glyphSoftTenuto
+	document.getElementById("symb54").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb54").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb54").firstChild.setAttribute("transform",'scale(1 1) translate(5 10) rotate(0 0 0) ')
+	document.getElementById("symb55").firstChild.firstChild.innerHTML=glyphSoftTenutoPointe
+	document.getElementById("symb55").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb55").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb55").firstChild.setAttribute("transform",'scale(1 1) translate(5 10) rotate(0 0 0) ')
+	document.getElementById("symb56").firstChild.firstChild.innerHTML=glyphRepete
+	document.getElementById("symb56").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb56").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb56").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb57").firstChild.firstChild.innerHTML=glyphRetrograde
+	document.getElementById("symb57").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb57").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb57").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb58").firstChild.firstChild.innerHTML=glyphRenverse
+	document.getElementById("symb58").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb58").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb58").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb59").firstChild.firstChild.innerHTML=glyphRetrogradeRv
+	document.getElementById("symb59").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb59").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb59").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb60").firstChild.firstChild.innerHTML=glyphSuperposition
+	document.getElementById("symb60").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb60").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb60").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb61").firstChild.firstChild.innerHTML=glyphTuilageInf
+	document.getElementById("symb61").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb61").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb61").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb62").firstChild.firstChild.innerHTML=glyphTuilageSup
+	document.getElementById("symb62").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb62").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb62").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb63").firstChild.firstChild.innerHTML=glyphExpansion
+	document.getElementById("symb63").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb63").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb63").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb64").firstChild.firstChild.innerHTML=glyphContraction
+	document.getElementById("symb64").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb64").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb64").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb65").firstChild.firstChild.innerHTML=glyphAccelerando
+	document.getElementById("symb65").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb65").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb65").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb66").firstChild.firstChild.innerHTML=glyphFastAccelerando
+	document.getElementById("symb66").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb66").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb66").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb67").firstChild.firstChild.innerHTML=glyphRitardando
+	document.getElementById("symb67").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb67").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb67").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb68").firstChild.firstChild.innerHTML=glyphFastRitardando
+	document.getElementById("symb68").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb68").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb68").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb69").firstChild.firstChild.innerHTML=glyphTranspoInf
+	document.getElementById("symb69").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb69").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb69").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb70").firstChild.firstChild.innerHTML=glyphTranspoSup
+	document.getElementById("symb70").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb70").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb70").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb71").firstChild.firstChild.innerHTML=glyphLinkInf
+	document.getElementById("symb71").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb71").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb71").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb72").firstChild.firstChild.innerHTML=glyphLinkSup
+	document.getElementById("symb72").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb72").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb72").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb73").firstChild.firstChild.innerHTML=glyphLink
+	document.getElementById("symb73").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb73").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb73").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 7) rotate(0 0 0) ')
+	document.getElementById("symb74").firstChild.firstChild.innerHTML=glyphLigneTxt
+	document.getElementById("symb74").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb74").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb74").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 -6) rotate(0 0 0) ')
+	document.getElementById("symb75").firstChild.firstChild.innerHTML=glyphInsertion
+	document.getElementById("symb75").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb75").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb75").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb76").firstChild.firstChild.innerHTML=glyphPermutation
+	document.getElementById("symb76").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb76").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb76").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb77").firstChild.firstChild.innerHTML=glyphPalindrome
+	document.getElementById("symb77").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb77").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb77").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb78").firstChild.firstChild.innerHTML=glyphGrille
+	document.getElementById("symb78").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb78").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb78").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb79").firstChild.firstChild.innerHTML=glyphGrille2
+	document.getElementById("symb79").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb79").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb79").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb80").firstChild.firstChild.innerHTML=glyphGrille3
+	document.getElementById("symb80").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb80").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb80").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb81").firstChild.firstChild.innerHTML=glyphProfile
+	document.getElementById("symb81").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb81").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb81").firstChild.setAttribute("transform",'scale(0.8 0.8) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb82").firstChild.firstChild.innerHTML=glyphGranul
+	document.getElementById("symb82").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb82").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb82").firstChild.setAttribute("transform",'scale(1 1) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb83").firstChild.firstChild.innerHTML=glyphOnde
+	document.getElementById("symb83").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb83").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb83").firstChild.setAttribute("transform",'scale(1 1) translate(1 1) rotate(0 0 0) ')
+	document.getElementById("symb84").firstChild.firstChild.innerHTML=glyphFlecheDouble
+	document.getElementById("symb84").firstChild.firstChild.setAttribute("stroke",paletteSymb)
+	document.getElementById("symb84").firstChild.firstChild.setAttribute("fill",paletteSymb)
+	document.getElementById("symb84").firstChild.setAttribute("transform",'scale(1.2 1.2) translate(10 0) rotate(0 0 0) ')
 }
