@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2023-12-08T13:45:58+0100" />
+<meta name="date" content="2024-01-04T16:04:26+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -16,7 +16,7 @@
 <body>
 
 <div id="simpleObjParam" style="width:400px;height:620px;">
-	<div id="paramFile"><button id="paramFileSelect" style="width:70px;margin-left:10px" onclick='openFileAudio();'>Audio : </button><span id="lbmute" style="position:absolute;top:8px;left:99px;">Mute :</span> <span  style="position:absolute;top:6px;left:140px;"><input  type="checkbox" id="objMute" name="mute" /></span><span style="position:absolute;top:8px;left:170px;" id="lbfichier" >Fichier : </span><span id="paramLabel" style="position:absolute;top:8px;left:226px;"></span></div>
+	<div id="paramFile"><button id="paramFileSelect" style="width:70px;margin-left:10px" onclick='openFileAudio();'>Audio : </button><span id="lbmute" style="position:absolute;top:8px;left:99px;">Mute :</span> <span  style="position:absolute;top:6px;left:164px;"><input  type="checkbox" id="objMute" name="mute" /></span><span style="position:absolute;top:8px;left:190px;" id="lbfichier" >Fichier : </span><span id="paramLabel" style="position:absolute;top:8px;left:226px;"></span></div>
 	<div id="lbduree" style="position:absolute;top:44px;left:99px;">Durée :<span id="paramDuree" style="position:absolute;top:0px;left:54px;"></span> </div>
 			<div id="lbcanaux" style="position:absolute;top:44px;left:270px;">canaux : <span id="paramCanaux"  style="position:absolute;top:0px;left:60px;"></span> </div>
 	<div style="margin:0px;padding:0px;width:50px;height:50px;" >
@@ -64,12 +64,12 @@
 		<div id="env7"  style="position:absolute;top:94px;left:196px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
 	</div>
 
-	<div id="lbgain"  style="position:absolute;top:190px;left:38px;">Gain : <input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
-	<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span style="position:absolute;top:300px;left:60px;" id="lbrate"  >Vitesse de lecture : <input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></span> </p>
+	<div id="lbgain"  style="position:absolute;top:190px;left:38px;"><span>Gain : </span><input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
+<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span style="position:absolute;top:300px;left:60px;" id="lbrate"  ><span>Vitesse de lecture : </span><input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></span> </p>
 	</div>
-	<div id="position" style="position:absolute;top:334px;left:80px;">Position : <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
+	<div id="position" style="position:absolute;top:334px;left:80px;"><span>Position : </span> <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
 	<div id="lbdetune" style="position:absolute;top:384px;left:14px;">Detune : </div> <span id="etir" style="margin:0px;padding:0px;position:absolute;top:375px;left:88px;" ><input id="ndetune" style="width:80px;height:24px;" type="number"  value="0" min="-1199" max="1199" step="1" /></span><div class="slider"  style="position:absolute;top:383px;left:184px;"><input  style="margin-left:14px;width:180px;" id="detune" type="range" value="1" min="-1199" max="1199" step="1" /></div>
-	<div id="lblimites" style="position:absolute;top:436px;left:10px;">Limites :<img  src="./images/png/fondSlider.png" style="margin-left:30px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:88px;height:20px;" /><span style="position:absolute;top:20px;left:88px;" id="bgauchet"></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:346px;height:20px;"/><span style="position:absolute;top:20px;left:88px;" id="bdroitt"></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
+	<div id="lblimites" style="position:absolute;top:436px;left:10px;"><span>Limites :</span><img  src="./images/png/fondSlider.png" style="position:absolute;top:5px;left:88px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:88px;height:20px;" /><span style="position:absolute;top:20px;left:88px;" id="bgauchet"></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:346px;height:20px;"/><span style="position:absolute;top:20px;left:88px;" id="bdroitt"></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
 	</div>
 	<div style="position:absolute;top:495px;left:10px;"><span id="lbnom" >Nom : </span><input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
 	<div  id="lbinstrument" style="position:absolute;top:537px;left:10px;"><span id="lbinstrument" >Piste : </span><input id="inpCanal" style="width:50px;" type="number"  value="0" min="0" max="64" step="1" /></div>
@@ -79,7 +79,7 @@
 			<option value="0"></option>
 		</select>
 		</div>
-	<div style="position:absolute;top:575px;left:700px;" ><button id="lbvalid" onclick='objValid();'>Valider</button></div>
+			<div style="position:absolute;top:575px;left:700px;" ><button id="lbvalid" onclick='objValid();'>Valider</button></div>
 </div>
 
 
@@ -98,7 +98,7 @@
 <div ><span style="position:absolute;top:146px;left:650px;" id="transpa"> Transparence </span><span style="position:absolute;top:144px;left:630px;"><input id="bkgGrpTransparent" type="checkbox" checked /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="bkgOpac">Bkg Opacité : </span><input id="bkgGrpOpacity" style="width:40px;"type="number" value="1" min="0" max="1" step="0.1" /></span></div>
 <div  style="position:absolute;top:175px;left:420px;"><span id="lbwidth">Largeur : </span><input id="bkgGrpw" style="width:60px;" type="number" value="20" step="1" /><span id="lbheight"> Hauteur : </span><input id="bkgGrph" type="number" style="width:60px;" step="1" value="50"/><span id="lbbkgcolor"> Couleur : </span><input id="bkgGrpColor" type="color" value="transparent"/></div>
 
-<table style="position:absolute;top:220px;left:420px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
+<table style="position:absolute;top:220px;left:450px;" border="1" style="font-size:1em;" cellpadding="4" cellspacing="6" >
 	<tbody>
 		<tr><td  id="lbcadre" colspan="6" style="text-align:center; "> Cadre </td></tr>
 		<tr><td id="tp" style="border:0px;"></td><td>Type</td><td id="ep" >Épais.</td><td id="rd" >Radius</td><td id="cl" >Couleur</td><td id="mg">Marge</td></tr>
@@ -148,19 +148,19 @@ document.getElementById('lbmute').innerHTML=tableLang["objpMute"]
 document.getElementById('lbfichier').innerHTML=tableLang["objpFile"]
 document.getElementById('lbduree').innerHTML=tableLang["objpDuree"]
 document.getElementById('lbcanaux').innerHTML=tableLang["objpCanaux"]
-document.getElementById('dureeReelle').firstChild.firstChild.innerHTML=tableLang["objpDreel"]
+document.getElementById('dureeReelle').firstChild.innerHTML=tableLang["objDreel"]
 document.getElementById('tpenv').innerHTML=tableLang["objpTpEnv"]
 document.getElementById('lbtpenv1').innerHTML=tableLang["objpTpEnv1"]
 document.getElementById('lbtpenv2').innerHTML=tableLang["objpTpEnv2"]
 document.getElementById('lbtpenv3').innerHTML=tableLang["objpTpEnv3"]
 document.getElementById('ongEnv').innerHTML=tableLang["objpEnv"]
-document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain "]
+document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain"]
 document.getElementById('lbrate').firstChild.innerHTML=tableLang["objpRate"]
-document.getElementById('position').firstChild.innerHTML=tableLang["objpPos"]
+document.getElementById('position').firstChild.firstChild.innerHTML=tableLang["objpPos"]
 document.getElementById('lbdetune').firstChild.innerHTML=tableLang["objpDetune"]
-document.getElementById('lblimites').firstChild.innerHTML=tableLang["objpLimites"]
+document.getElementById('lblimites').firstChild.innerHTML=tableLang["objLimites"]
 document.getElementById('lbnom').innerHTML=tableLang["objpNom"]
-document.getElementById('lbinstrument').innerHTML=tableLang["objpInstrument"]
+document.getElementById('lbinstrument').firstChild.innerHTML=tableLang["objpInstrument"]
 document.getElementById('bkg').innerHTML=tableLang["objgBkg"]
 document.getElementById('transpa').innerHTML=tableLang["objgTranspa"]
 document.getElementById('bkgOpac').innerHTML=tableLang["objgBkgOpacity"]
@@ -370,7 +370,7 @@ function objetStringDef(txt,c) {
 	}else{
 		document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
 	}
-	console.log("type",selectObj.type)
+
 	switch(selectObj.type){
 					case "18":
 						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(14 6)' ><rect x='0' y='2' width='4' height='34' fill='"+selectObj.objColor+"' /><rect x='6' y='2' width='10' height='10' fill='blue' /><rect x='6' y='14' width='10' height='10' fill='"+selectObj.objColor+"' /><rect x='6' y='26' width='10' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
@@ -483,15 +483,12 @@ function objetStringDef(txt,c) {
 	}else{
 		document.getElementById("bkgGrpTransparent").checked=false
 	}
-	console.log("preDef",selectObj)
 }
 function objetGraphToString() {
 var txt=selectObj.bkgColor+":"+selectObj.bkgHeight+":"+selectObj.bkgImg+":"+selectObj.bkgTrp+":"+selectObj.bkgWidth+":"+selectObj.borderBc+":"+selectObj.borderBr+":"+selectObj.borderBs+":"+selectObj.borderBw+":"+selectObj.borderDc+":"+selectObj.borderDr+":"+selectObj.borderDs+":"+selectObj.borderDw+":"+selectObj.borderGc+":"+selectObj.borderGr+":"+selectObj.borderGs+":"+selectObj.borderGw+":"+selectObj.borderHc+":"+selectObj.borderHr+":"+selectObj.borderHs+":"+selectObj.borderHw+":"+selectObj.height+":"+selectObj.margeG+":"+selectObj.margeH+":"+selectObj.objBorderC+":"+selectObj.objBorderW+":"+selectObj.objColor+":"+selectObj.objOpacity+":"+selectObj.r+":"+selectObj.width
 	return txt
 }
 window.api.receive("fromMain", (data) => {
-
-console.log(`objParam1 : `,data);
 	var nsize=data
 	var cmd=data.split(";")
 	switch(cmd[0]){
@@ -503,18 +500,24 @@ console.log(`objParam1 : `,data);
 					selectId=cmd[1]
 				lang=cmd[2]
 				importLang('./Local/'+lang+'/preDef-'+lang+".txt")
-				console.log("tableLang",tableLang)
 					objetStringDef(cmd[3],cmd[4])
 				}else{
 				console.log('alerte')
 				}
-				//console.log(`objParam2 :`,cmd[2],selectObj,selectId)
 				break
 			case 'defAudioObj':
 				defAudioFile(cmd[1],cmd[2])
 				break
 			case 'fileAudioParam':
 				paramFileAudio(cmd[2],cmd[3])
+				break
+			case 'transposition':
+				document.getElementById("transposition").value=parseFloat(cmd[2]).toFixed(2)
+				break
+			case 'position':
+				document.getElementById("mnt").value=cmd[1];
+				document.getElementById("mns").value=Math.floor(parseFloat(cmd[2]));
+				document.getElementById("mnl").value=Math.floor(parseFloat(cmd[3])*1000);
 				break
 			case 'defGrpImg':
 				document.getElementById("dobjColor").style.backgroundImage="url('"+cmd[2]+"')"
@@ -524,12 +527,10 @@ console.log(`objParam1 : `,data);
 				
 				
 				break
-	}  
-	 //console.log(`objParam :`,cmd[0]);      
+	}      
 });
 function openFileAudio(){
 	var cmd="audioPreDef;"+selectId
-	console.log("cmd",cmd,selectObj);
 	window.api.send("toMain", cmd)
 }
 function paramFileAudio(d,c){
@@ -540,7 +541,6 @@ function paramFileAudio(d,c){
 
 function objValid() {
 	var cmd="preDefValid;"+selectId
-	console.log("cmd",cmd);
 	window.api.send("toMain",cmd )
 	
 }
@@ -574,7 +574,6 @@ objColor.addEventListener("change", defColor, false);
 
 
 function defColor(e) {
-console.log(this.value,document.getElementById("dobjColor").firstChild.firstChild)
 	document.getElementById("dobjColor").firstChild.firstChild.firstChild.setAttribute("fill",this.value)
 	document.getElementById("dobjColor").firstChild.firstChild.firstChild.nextSibling.setAttribute("fill",this.value)
 	document.getElementById("dobjColor").firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute("fill",this.value)
@@ -734,7 +733,6 @@ function defAudioFile(id,file) {
 	var defFile=file.split('/')
 	var defnom=defFile[defFile.length-1].split('.')
 	document.getElementById("paramLabel").innerHTML=defnom[0]
-	console.log(`objParam :`,id,file)
 }
 
 function mute() {
@@ -743,7 +741,6 @@ function mute() {
 	}else{
 		selectObj.mute=0
 	}
-	console.log("mute",selectObj.mute)
 	window.api.send("toMain", "mutePreDef;"+selectId+";"+selectObj.mute);
 }
 function gain() {
@@ -752,7 +749,6 @@ function gain() {
 }
 function envType() {
 	selectObj.envType=document.getElementById("selecType").value
-	console.log("type",selectObj.envType)
 	window.api.send("toMain", "envPreDefType;"+selectId+";"+selectObj.envType);
 }
 function flagTranspo() {
@@ -761,7 +757,6 @@ function flagTranspo() {
 	}else{
 		selectObj.flagTranspo=0
 	}
-	console.log("flagTranspo",selectObj.flagTranspo)
 	window.api.send("toMain", "preDefFlagTranspo;"+selectId+";"+selectObj.flagTranspo);
 }
 function defPosition(){
@@ -772,7 +767,6 @@ function defPosition(){
 	var tmp=(((mn*60)+s)+(ml/1000))/ratioT;
 	//document.getElementById(selectObj).style.left=tmp+"px";
 	selectObj.posX=tmp;
-	console.log("flagTranspo",selectObj.posX)
 }
 function detune() {
 	selectObj.detune=document.getElementById("ndetune").value
@@ -787,25 +781,21 @@ function sdetune() {
 
 function nom() {
 	selectObj.nom=document.getElementById("inpNom").value
-	console.log("nom",selectObj.nom)
 	window.api.send("toMain", "preDefNom;"+selectId+";"+selectObj.nom);
 }
 
 function piste() {
 	selectObj.piste=document.getElementById("inpCanal").value
-	console.log("piste",selectObj.piste)
 	window.api.send("toMain", "preDefPiste;"+selectId+";"+selectObj.piste);
 }
 function convol(c) {
 	selectObj.convolver=c
-	console.log("selecReverb",selectObj.convolver)
 	window.api.send("toMain", "preDefConvolver;"+selectId+";"+selectObj.convolver);
 }
 
 
 
 function dragElement2(elmnt) {
-console.log("obj",elmnt)
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (document.getElementById(elmnt.id + "Header")) {
     /* if present, the header is where you move the DIV from:*/
@@ -818,7 +808,6 @@ console.log("obj",elmnt)
 
   function dragMouseDown2(e) {
     e = e || window.event;
-    console.log("obj",elmnt.id);
     e.preventDefault();
     e.stopPropagation();
     // get the mouse cursor position at startup:
@@ -887,12 +876,6 @@ console.log("obj",elmnt)
 	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 	 	envDef(elmnt);
 	 }
-	 if(elmnt.id=="envm1" || elmnt.id=="envm2" || elmnt.id=="envm3" || elmnt.id=="envm4" || elmnt.id=="envm5" || elmnt.id=="envm6" || elmnt.id=="envm7"){
-	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-	 	envDef2(elmnt);
-	 	console.log("env2",elmnt.id);
-	 }
 	if(elmnt.id=="envT1" || elmnt.id=="envT2" || elmnt.id=="envT3" || elmnt.id=="envT4" || elmnt.id=="envT5" || elmnt.id=="envT6" || elmnt.id=="envT7"){
 	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
 	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
@@ -905,7 +888,6 @@ console.log("obj",elmnt)
     document.onmouseup = null;
     document.onmousemove = null;
     elmnt.style.cursor="default";
-    //console.log("limite b",selectObj.debut,selectObj.fin)
     var nex=[]
     for(let i=0;i<7;i++){
     	nex[i]={
@@ -944,27 +926,6 @@ function envDef(elmnt){
 	 	selectObj.envX[nid]=(parseFloat(elmnt.style.left)/199).toFixed(2);
 	   selectObj.envY[nid]=(1-(parseFloat(elmnt.style.top)/128)).toFixed(2);
 	   window.api.send("toMain", "preDefEnv;"+selectId+";"+nid+";"+selectObj.envX[nid]+";"+selectObj.envY[nid]);
-	 	console.log(elmnt.id,nid,selectObj.envX[nid],selectObj.envY[nid]);
-}
-function envDef2(elmnt){
-		var nid=parseInt(elmnt.id.substring(3,elmnt.id.length))-1;
-	 	if(parseInt(elmnt.style.top)<0){
-	 		elmnt.style.top="0px";
-	 	}
-	 	if(parseInt(elmnt.style.top)>parseInt(elmnt.parentNode.style.height)-2){
-	 		elmnt.style.top=(parseInt(elmnt.style.top)-4)+"px";
-	 	}
-	 	if(parseInt(elmnt.style.left)<0){
-	 		elmnt.style.left="0px";
-	 	}
-	 	if(parseInt(elmnt.style.left)>(parseInt(elmnt.parentNode.style.width)-2)){
-	 		elmnt.style.left=(parseInt(elmnt.parentNode.style.width)-4)+"px";
-	 	}
-	 	var nid=parseInt(elmnt.id.substring(4))-1;
-	 	selectObj.envmX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
-	   selectObj.envmY[nid]=(1-(parseInt(elmnt.style.top)/180)).toFixed(2);
-	   
-	 	console.log(elmnt.id,nid,selectObj.envX[nid],selectObj.envY[nid]);
 }
 
 function envTDef(elmnt){
@@ -984,13 +945,11 @@ function envTDef(elmnt){
 	 	var nid=parseInt(elmnt.id.substring(4))-1;
 	 	selectObj.envX[nid]=(parseInt(elmnt.style.left)/199).toFixed(2);
 	   selectObj.envY[nid]=(1-(parseInt(elmnt.style.top)/180));
-	   
-	 	//console.log(elmnt.id,nid,selectObj,"destY",tableObjet,selectObj.envX[nid],selectObj.envY[nid]);
+
 }
 function invTransposition(y){
 	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
  	let invT=(refViewBoxHeight-y )/(refViewBoxHeight/2);
- 	console.log("refViewBoxHeight",refViewBoxHeight);
    return invT;
 }
 function position(x){
@@ -1019,13 +978,11 @@ function openSpatialisation() {
 		selectObj.spT[0]=0
 	}
 	var cmd="winSpatial;"+selectId+";"+selectObj.spT+";"+selectObj.spX+";"+selectObj.spY+";"+selectObj.spZ+";"+selectObj.spD+";"+selectObj.gain
-console.log("open spatialisation","spX",selectObj.spX,"cmd",cmd)
 	window.api.send("toMain", cmd)
 }
 function spatialspXZ(pt,X,Z) {
 	selectObj.spX[pt]=parseFloat(X);
    selectObj.spZ[pt]=parseFloat(Z);
-   console.log("spat XZ",pt,selectObj.spX,selectObj.spY,selectObj.spZ)
 }
 function spatialspZY(pt,Z,Y) {
 	selectObj.spZ[pt]=parseFloat(Z);
