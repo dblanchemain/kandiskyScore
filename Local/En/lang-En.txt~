@@ -1,0 +1,31 @@
+// Ce fichier appartient à l'application Kandiskyscore.
+// Ce logiciel est sous license GNU.: GPL-3.0-or-later
+// Auteur : D.Blanchemain
+// ***************************************************** variables globales **************************
+// License
+// 
+// This Architecture section is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with this program; If not, see http://www.gnu.org/licenses.var contextAudio=new 
+Parpeges=Arpeggios and glissando
+Particul=Articulations
+Pinscript=Inscriptions
+Plignes=Lines
+Pnuances=Nuances
+Psymboles=Symbols
+Icompt=Counter
+Itempo=Time
+Isign=Sign
+Iworkspace=Workspace 
+Icontext=Context
+Rdeb=Start
+Rfin=End
+Variation=Time variation
+VHaut=Transposition
+Aleat=Random
+listFx=FX List
+SettingFx=Settings
+listFileAudio=Audio Buffer
+listeObjet=object
