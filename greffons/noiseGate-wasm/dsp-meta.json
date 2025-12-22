@@ -1,8 +1,8 @@
 {
     "name": "noiseGate",
-    "filename": "noiseGate.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "noiseGate",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/demos.lib",
@@ -21,7 +21,7 @@
         "."
     ],
     "size": 100,
-    "code": "iH72",
+    "code": "6Fft",
     "inputs": 2,
     "outputs": 2,
     "meta": [
@@ -32,7 +32,7 @@
             "analyzers.lib/name": "Faust Analyzer Library"
         },
         {
-            "analyzers.lib/version": "1.2.0"
+            "analyzers.lib/version": "1.3.0"
         },
         {
             "author": "JOS, revised by RM"
@@ -44,13 +44,10 @@
             "basics.lib/name": "Faust Basic Element Library"
         },
         {
-            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+            "basics.lib/version": "1.22.0"
         },
         {
-            "basics.lib/version": "1.19.1"
-        },
-        {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "demos.lib/gate_demo:author": "Julius O. Smith III"
@@ -68,7 +65,7 @@
             "description": "Gate demo application."
         },
         {
-            "filename": "noiseGate.dsp"
+            "filename": "noiseGate"
         },
         {
             "maths.lib/author": "GRAME"
@@ -83,7 +80,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "misceffects.lib/gate_gain_mono:author": "Julius O. Smith III"
@@ -101,7 +98,7 @@
             "misceffects.lib/name": "Misc Effects Library"
         },
         {
-            "misceffects.lib/version": "2.5.0"
+            "misceffects.lib/version": "2.5.1"
         },
         {
             "name": "noiseGate"
@@ -156,6 +153,7 @@
                         {
                             "type": "checkbox",
                             "label": "Bypass",
+                            "varname": "fCheckbox0",
                             "shortname": "Bypass",
                             "address": "/GATE/0x00/Bypass",
                             "index": 0,
@@ -171,6 +169,7 @@
                         {
                             "type": "hbargraph",
                             "label": "Gate Gain",
+                            "varname": "fHbargraph0",
                             "shortname": "Gate_Gain",
                             "address": "/GATE/0x00/Gate_Gain",
                             "index": 64,
@@ -202,6 +201,7 @@
                         {
                             "type": "hslider",
                             "label": "Threshold",
+                            "varname": "fHslider2",
                             "shortname": "Threshold",
                             "address": "/GATE/0x00/Threshold",
                             "index": 32,
@@ -227,6 +227,7 @@
                         {
                             "type": "hslider",
                             "label": "Attack",
+                            "varname": "fHslider0",
                             "shortname": "Attack",
                             "address": "/GATE/0x00/Attack",
                             "index": 16,
@@ -255,6 +256,7 @@
                         {
                             "type": "hslider",
                             "label": "Hold",
+                            "varname": "fHslider3",
                             "shortname": "Hold",
                             "address": "/GATE/0x00/Hold",
                             "index": 44,
@@ -283,6 +285,7 @@
                         {
                             "type": "hslider",
                             "label": "Release",
+                            "varname": "fHslider1",
                             "shortname": "Release",
                             "address": "/GATE/0x00/Release",
                             "index": 20,

@@ -1,6 +1,6 @@
 {
-    "name": "MoogLadder",
-    "filename": "moogLadder",
+    "name": "oberheimBPF",
+    "filename": "oberheimBPF",
     "version": "2.81.10",
     "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
@@ -8,7 +8,8 @@
         "/usr/share/faust/vaeffects.lib",
         "/usr/share/faust/signals.lib",
         "/usr/share/faust/maths.lib",
-        "/usr/share/faust/platform.lib"
+        "/usr/share/faust/platform.lib",
+        "/usr/share/faust/misceffects.lib"
     ],
     "include_pathnames": [
         "/share/faust",
@@ -16,22 +17,22 @@
         "/usr/share/faust",
         "."
     ],
-    "size": 68,
-    "code": "0F7D",
+    "size": 52,
+    "code": "NDkf",
     "inputs": 1,
     "outputs": 1,
     "meta": [
         {
-            "author": "Romain Michon"
+            "author": "Eric Tarr"
         },
         {
             "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
-            "description": "MoogLadder."
+            "description": "Band-Pass Oberheim filter."
         },
         {
-            "filename": "moogLadder"
+            "filename": "oberheimBPF"
         },
         {
             "maths.lib/author": "GRAME"
@@ -49,7 +50,19 @@
             "maths.lib/version": "2.9.0"
         },
         {
-            "name": "MoogLadder"
+            "misceffects.lib/cubicnl:author": "Julius O. Smith III"
+        },
+        {
+            "misceffects.lib/cubicnl:license": "STK-4.3"
+        },
+        {
+            "misceffects.lib/name": "Misc Effects Library"
+        },
+        {
+            "misceffects.lib/version": "2.5.1"
+        },
+        {
+            "name": "oberheimBPF"
         },
         {
             "platform.lib/name": "Generic Platform Library"
@@ -64,13 +77,19 @@
             "signals.lib/version": "1.6.0"
         },
         {
-            "vaeffects.lib/moogLadder:author": "Dario Sanfilippo"
-        },
-        {
-            "vaeffects.lib/moogLadder:license": "MIT-style STK-4.3 license"
-        },
-        {
             "vaeffects.lib/name": "Faust Virtual Analog Filter Effect Library"
+        },
+        {
+            "vaeffects.lib/oberheim:author": "Eric Tarr"
+        },
+        {
+            "vaeffects.lib/oberheim:license": "MIT-style STK-4.3 license"
+        },
+        {
+            "vaeffects.lib/oberheimBPF:author": "Eric Tarr"
+        },
+        {
+            "vaeffects.lib/oberheimBPF:license": "MIT-style STK-4.3 license"
         },
         {
             "vaeffects.lib/version": "1.4.0"
@@ -82,18 +101,18 @@
     "ui": [
         {
             "type": "hgroup",
-            "label": "MoogLadder",
+            "label": "oberheimBPF",
             "items": [
                 {
                     "type": "vslider",
                     "label": "Q",
                     "varname": "fVslider1",
                     "shortname": "Q",
-                    "address": "/MoogLadder/Q",
+                    "address": "/oberheimBPF/Q",
                     "index": 32,
                     "init": 1,
-                    "min": 0.7072,
-                    "max": 25,
+                    "min": 0.5,
+                    "max": 10,
                     "step": 0.01
                 },
                 {
@@ -101,9 +120,9 @@
                     "label": "freq",
                     "varname": "fVslider0",
                     "shortname": "freq",
-                    "address": "/MoogLadder/freq",
+                    "address": "/oberheimBPF/freq",
                     "index": 16,
-                    "init": 0.1,
+                    "init": 0.5,
                     "min": 0,
                     "max": 1,
                     "step": 0.001

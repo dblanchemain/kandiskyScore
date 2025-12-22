@@ -1,8 +1,8 @@
 {
     "name": "modulation",
-    "filename": "modulation.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "modulation",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/instruments.lib",
@@ -20,22 +20,19 @@
         "/usr/share/faust",
         "."
     ],
-    "size": 262448,
-    "code": "mEgVAWQjHw==",
-    "inputs": 2,
-    "outputs": 2,
+    "size": 262344,
+    "code": "QLj8",
+    "inputs": 1,
+    "outputs": 1,
     "meta": [
         {
             "basics.lib/name": "Faust Basic Element Library"
         },
         {
-            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+            "basics.lib/version": "1.22.0"
         },
         {
-            "basics.lib/version": "1.19.1"
-        },
-        {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "envelopes.lib/asr:author": "Yann Orlarey, Stéphane Letz"
@@ -56,7 +53,7 @@
             "envelopes.lib/version": "1.3.0"
         },
         {
-            "filename": "modulation.dsp"
+            "filename": "modulation"
         },
         {
             "filters.lib/allpassnn:author": "Julius O. Smith III"
@@ -74,7 +71,7 @@
             "filters.lib/name": "Faust Filters Library"
         },
         {
-            "filters.lib/version": "1.3.0"
+            "filters.lib/version": "1.7.1"
         },
         {
             "instruments.lib/author": "Romain Michon (rmichon@ccrma.stanford.edu)"
@@ -104,7 +101,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "name": "modulation"
@@ -113,7 +110,7 @@
             "oscillators.lib/name": "Faust Oscillator Library"
         },
         {
-            "oscillators.lib/version": "1.5.1"
+            "oscillators.lib/version": "1.6.0"
         },
         {
             "platform.lib/name": "Generic Platform Library"
@@ -136,8 +133,9 @@
                 {
                     "type": "hslider",
                     "label": "ON/OFF (ASR Envelope)",
-                    "shortname": "OFF_ASR_Envelope",
-                    "address": "/Modulation/ON/OFF__ASR_Envelope_",
+                    "varname": "fHslider3",
+                    "shortname": "ON_OFF_ASR_Envelope",
+                    "address": "/Modulation/ON_OFF__ASR_Envelope_",
                     "index": 262204,
                     "meta": [
                         {
@@ -155,6 +153,7 @@
                 {
                     "type": "hslider",
                     "label": "Modulation Type",
+                    "varname": "fHslider0",
                     "shortname": "Modulation_Type",
                     "address": "/Modulation/Modulation_Type",
                     "index": 262144,
@@ -174,6 +173,7 @@
                 {
                     "type": "hslider",
                     "label": "Modulating Frequency",
+                    "varname": "fHslider2",
                     "shortname": "Modulating_Frequency",
                     "address": "/Modulation/Modulating_Frequency",
                     "index": 262180,
@@ -199,6 +199,7 @@
                 {
                     "type": "hslider",
                     "label": "Modulation Intensity",
+                    "varname": "fHslider1",
                     "shortname": "Modulation_Intensity",
                     "address": "/Modulation/Modulation_Intensity",
                     "index": 262156,
