@@ -21,7 +21,9 @@ body {
   cursor: move;
 }
 
-
+#flagTempo {
+  transform: rotate(270deg);
+}
 #popupEdit {
 width:100%;
 background-color:#000000;
@@ -138,7 +140,7 @@ color:#ffffff;
 	background-color: #434343;
    margin: 0px;
    width:100px;
-   height:6px;
+   height:2px;
    border-radius: 5px; 
   transform-origin: 50px 0px;
   transform: rotate(-90deg);
@@ -162,6 +164,12 @@ color:#ffffff;
 	margin-left:32px;
 	width:200px;
 	height:8px;
+}
+.hslider {
+	width:20px;
+	height:100px;
+	writing-mode: bt-lr;
+    -webkit-appearance: slider-vertical;
 }
 .grille  {
 	position:absolute;
