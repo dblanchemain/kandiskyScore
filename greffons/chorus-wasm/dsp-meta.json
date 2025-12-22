@@ -1,8 +1,8 @@
 {
     "name": "chorus",
-    "filename": "chorus.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "chorus",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/signals.lib",
@@ -18,7 +18,7 @@
         "."
     ],
     "size": 1310780,
-    "code": "kD7Y",
+    "code": "QLzS",
     "inputs": 2,
     "outputs": 2,
     "meta": [
@@ -26,22 +26,19 @@
             "basics.lib/name": "Faust Basic Element Library"
         },
         {
-            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+            "basics.lib/version": "1.22.0"
         },
         {
-            "basics.lib/version": "1.19.1"
-        },
-        {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "delays.lib/name": "Faust Delay Library"
         },
         {
-            "delays.lib/version": "1.1.0"
+            "delays.lib/version": "1.2.0"
         },
         {
-            "filename": "chorus.dsp"
+            "filename": "chorus"
         },
         {
             "maths.lib/author": "GRAME"
@@ -56,7 +53,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "name": "chorus"
@@ -82,6 +79,7 @@
                 {
                     "type": "vslider",
                     "label": "delay",
+                    "varname": "fVslider1",
                     "shortname": "delay",
                     "address": "/Chorus/delay",
                     "index": 786452,
@@ -98,6 +96,7 @@
                 {
                     "type": "vslider",
                     "label": "depth",
+                    "varname": "fVslider2",
                     "shortname": "depth",
                     "address": "/Chorus/depth",
                     "index": 786464,
@@ -114,6 +113,7 @@
                 {
                     "type": "vslider",
                     "label": "freq",
+                    "varname": "fVslider3",
                     "shortname": "freq",
                     "address": "/Chorus/freq",
                     "index": 786472,
@@ -130,6 +130,7 @@
                 {
                     "type": "vslider",
                     "label": "level",
+                    "varname": "fVslider0",
                     "shortname": "level",
                     "address": "/Chorus/level",
                     "index": 786436,

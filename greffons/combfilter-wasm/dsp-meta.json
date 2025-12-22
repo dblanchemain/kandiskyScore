@@ -1,8 +1,8 @@
 {
     "name": "combfilter",
-    "filename": "combfilter.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "combfilter",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/filters.lib",
@@ -17,28 +17,31 @@
         "/usr/share/faust",
         "."
     ],
-    "size": 1048652,
-    "code": "CCrV",
-    "inputs": 2,
-    "outputs": 2,
+    "size": 524332,
+    "code": "QBfR",
+    "inputs": 1,
+    "outputs": 1,
     "meta": [
         {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "delays.lib/name": "Faust Delay Library"
         },
         {
-            "delays.lib/version": "1.1.0"
+            "delays.lib/version": "1.2.0"
         },
         {
-            "filename": "combfilter.dsp"
+            "filename": "combfilter"
+        },
+        {
+            "filters.lib/fb_comb_common:author": "Oleg Nesterov"
         },
         {
             "filters.lib/fb_fcomb:author": "Julius O. Smith III"
         },
         {
-            "filters.lib/fb_fcomb:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>"
+            "filters.lib/fb_fcomb:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>, revised by Oleg Nesterov"
         },
         {
             "filters.lib/fb_fcomb:license": "MIT-style STK-4.3 license"
@@ -50,7 +53,7 @@
             "filters.lib/name": "Faust Filters Library"
         },
         {
-            "filters.lib/version": "1.3.0"
+            "filters.lib/version": "1.7.1"
         },
         {
             "maths.lib/author": "GRAME"
@@ -65,7 +68,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "name": "combfilter"
@@ -91,9 +94,10 @@
                 {
                     "type": "hslider",
                     "label": "Frequency",
+                    "varname": "fHslider1",
                     "shortname": "Frequency",
                     "address": "/CombFilter/Frequency",
-                    "index": 524312,
+                    "index": 24,
                     "meta": [
                         {
                             "acc": "0 1 -10 0 10"
@@ -107,6 +111,7 @@
                 {
                     "type": "hslider",
                     "label": "Intensity",
+                    "varname": "fHslider0",
                     "shortname": "Intensity",
                     "address": "/CombFilter/Intensity",
                     "index": 0,
