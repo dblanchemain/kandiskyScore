@@ -1,8 +1,8 @@
 {
     "name": "phaser",
-    "filename": "phaser.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "phaser",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/demos.lib",
@@ -21,7 +21,7 @@
         "."
     ],
     "size": 200,
-    "code": "kAc6AWQjHw==",
+    "code": "wFcrATQ5Hw==",
     "inputs": 2,
     "outputs": 2,
     "meta": [
@@ -35,13 +35,10 @@
             "basics.lib/name": "Faust Basic Element Library"
         },
         {
-            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+            "basics.lib/version": "1.22.0"
         },
         {
-            "basics.lib/version": "1.19.1"
-        },
-        {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "demos.lib/name": "Faust Demos Library"
@@ -59,7 +56,7 @@
             "description": "Phaser demo application."
         },
         {
-            "filename": "phaser.dsp"
+            "filename": "phaser"
         },
         {
             "filters.lib/fir:author": "Julius O. Smith III"
@@ -104,7 +101,7 @@
             "filters.lib/tf2:license": "MIT-style STK-4.3 license"
         },
         {
-            "filters.lib/version": "1.3.0"
+            "filters.lib/version": "1.7.1"
         },
         {
             "maths.lib/author": "GRAME"
@@ -119,7 +116,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "name": "phaser"
@@ -128,7 +125,7 @@
             "oscillators.lib/name": "Faust Oscillator Library"
         },
         {
-            "oscillators.lib/version": "1.5.1"
+            "oscillators.lib/version": "1.6.0"
         },
         {
             "phaflangers.lib/name": "Faust Phaser and Flanger Library"
@@ -174,6 +171,7 @@
                         {
                             "type": "checkbox",
                             "label": "Bypass",
+                            "varname": "fCheckbox0",
                             "shortname": "Bypass",
                             "address": "/PHASER2/0x00/Bypass",
                             "index": 0,
@@ -189,6 +187,7 @@
                         {
                             "type": "checkbox",
                             "label": "Invert Internal Phaser Sum",
+                            "varname": "fCheckbox2",
                             "shortname": "Invert_Internal_Phaser_Sum",
                             "address": "/PHASER2/0x00/Invert_Internal_Phaser_Sum",
                             "index": 140,
@@ -201,6 +200,7 @@
                         {
                             "type": "checkbox",
                             "label": "Vibrato Mode",
+                            "varname": "fCheckbox1",
                             "shortname": "Vibrato_Mode",
                             "address": "/PHASER2/0x00/Vibrato_Mode",
                             "index": 8,
@@ -224,6 +224,7 @@
                         {
                             "type": "hslider",
                             "label": "Speed",
+                            "varname": "fHslider7",
                             "shortname": "Speed",
                             "address": "/PHASER2/0x00/Speed",
                             "index": 64,
@@ -246,6 +247,7 @@
                         {
                             "type": "hslider",
                             "label": "Notch Depth (Intensity)",
+                            "varname": "fHslider1",
                             "shortname": "Notch_Depth_Intensity",
                             "address": "/PHASER2/0x00/Notch_Depth__Intensity_",
                             "index": 12,
@@ -265,6 +267,7 @@
                         {
                             "type": "hslider",
                             "label": "Feedback Gain",
+                            "varname": "fHslider2",
                             "shortname": "Feedback_Gain",
                             "address": "/PHASER2/0x00/Feedback_Gain",
                             "index": 16,
@@ -295,6 +298,7 @@
                         {
                             "type": "hslider",
                             "label": "Notch width",
+                            "varname": "fHslider3",
                             "shortname": "Notch_width",
                             "address": "/PHASER2/0x00/Notch_width",
                             "index": 40,
@@ -320,6 +324,7 @@
                         {
                             "type": "hslider",
                             "label": "Min Notch1 Freq",
+                            "varname": "fHslider5",
                             "shortname": "Min_Notch1_Freq",
                             "address": "/PHASER2/0x00/Min_Notch1_Freq",
                             "index": 52,
@@ -345,6 +350,7 @@
                         {
                             "type": "hslider",
                             "label": "Max Notch1 Freq",
+                            "varname": "fHslider6",
                             "shortname": "Max_Notch1_Freq",
                             "address": "/PHASER2/0x00/Max_Notch1_Freq",
                             "index": 56,
@@ -370,8 +376,9 @@
                         {
                             "type": "hslider",
                             "label": "Notch Freq Ratio: NotchFreq(n+1)/NotchFreq(n)",
-                            "shortname": "NotchFreq_n",
-                            "address": "/PHASER2/0x00/Notch_Freq_Ratio:_NotchFreq_n+1_/NotchFreq_n_",
+                            "varname": "fHslider4",
+                            "shortname": "Notch_Freq_Ratio_NotchFreq_n_1_NotchFreq_n",
+                            "address": "/PHASER2/0x00/Notch_Freq_Ratio:_NotchFreq_n+1__NotchFreq_n_",
                             "index": 48,
                             "meta": [
                                 {
@@ -400,6 +407,7 @@
                         {
                             "type": "hslider",
                             "label": "Phaser Output Level",
+                            "varname": "fHslider0",
                             "shortname": "Phaser_Output_Level",
                             "address": "/PHASER2/0x00/Phaser_Output_Level",
                             "index": 4,

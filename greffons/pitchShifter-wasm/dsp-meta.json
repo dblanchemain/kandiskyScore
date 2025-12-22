@@ -1,8 +1,8 @@
 {
     "name": "pitchShifter",
-    "filename": "pitchShifter.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "pitchShifter",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/misceffects.lib",
@@ -16,7 +16,7 @@
         "."
     ],
     "size": 524316,
-    "code": "gM++",
+    "code": "4ES8",
     "inputs": 1,
     "outputs": 1,
     "meta": [
@@ -24,7 +24,7 @@
             "author": "Grame"
         },
         {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "copyright": "(c)GRAME 2006"
@@ -33,10 +33,10 @@
             "delays.lib/name": "Faust Delay Library"
         },
         {
-            "delays.lib/version": "1.1.0"
+            "delays.lib/version": "1.2.0"
         },
         {
-            "filename": "pitchShifter.dsp"
+            "filename": "pitchShifter"
         },
         {
             "license": "BSD"
@@ -54,13 +54,13 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "misceffects.lib/name": "Misc Effects Library"
         },
         {
-            "misceffects.lib/version": "2.5.0"
+            "misceffects.lib/version": "2.5.1"
         },
         {
             "name": "pitchShifter"
@@ -77,6 +77,7 @@
                 {
                     "type": "hslider",
                     "label": "shift (semitones)",
+                    "varname": "fHslider1",
                     "shortname": "shift_semitones",
                     "address": "/Pitch_Shifter/shift__semitones_",
                     "index": 524296,
@@ -88,6 +89,7 @@
                 {
                     "type": "hslider",
                     "label": "window (samples)",
+                    "varname": "fHslider0",
                     "shortname": "window_samples",
                     "address": "/Pitch_Shifter/window__samples_",
                     "index": 524292,
@@ -99,6 +101,7 @@
                 {
                     "type": "hslider",
                     "label": "xfade (samples)",
+                    "varname": "fHslider2",
                     "shortname": "xfade_samples",
                     "address": "/Pitch_Shifter/xfade__samples_",
                     "index": 524308,

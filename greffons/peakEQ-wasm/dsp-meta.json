@@ -1,8 +1,8 @@
 {
     "name": "peakEQ",
-    "filename": "peakEQ.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "peakEQ",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/filters.lib",
@@ -17,28 +17,25 @@
         "/usr/share/faust",
         "."
     ],
-    "size": 68,
-    "code": "ZCMf",
-    "inputs": 2,
-    "outputs": 2,
+    "size": 56,
+    "code": "NDkf",
+    "inputs": 1,
+    "outputs": 1,
     "meta": [
         {
             "basics.lib/name": "Faust Basic Element Library"
         },
         {
-            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+            "basics.lib/version": "1.22.0"
         },
         {
-            "basics.lib/version": "1.19.1"
-        },
-        {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "description": "peakEqualizer."
         },
         {
-            "filename": "peakEQ.dsp"
+            "filename": "peakEQ"
         },
         {
             "filters.lib/fir:author": "Julius O. Smith III"
@@ -92,7 +89,7 @@
             "filters.lib/tf2s:license": "MIT-style STK-4.3 license"
         },
         {
-            "filters.lib/version": "1.3.0"
+            "filters.lib/version": "1.7.1"
         },
         {
             "maths.lib/author": "GRAME"
@@ -107,7 +104,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "name": "peakEQ"
@@ -136,6 +133,7 @@
                 {
                     "type": "hslider",
                     "label": "Q",
+                    "varname": "fHslider2",
                     "shortname": "Q",
                     "address": "/PeakEq/Q",
                     "index": 28,
@@ -155,6 +153,7 @@
                 {
                     "type": "hslider",
                     "label": "Peak Frequency",
+                    "varname": "fHslider0",
                     "shortname": "Peak_Frequency",
                     "address": "/PeakEq/Peak_Frequency",
                     "index": 12,
@@ -180,6 +179,7 @@
                 {
                     "type": "hslider",
                     "label": "Level",
+                    "varname": "fHslider1",
                     "shortname": "Level",
                     "address": "/PeakEq/Level",
                     "index": 24,
