@@ -19,7 +19,7 @@
  * @param {boolean} [sp] - Whether to create a ScriptProcessorNode instead of an AudioWorkletNode.
  * @returns {Promise<{ faustNode: FaustNode | null; dspMeta: FaustDspMeta }>} - An object containing the Faust audio node and the DSP metadata.
  */
-const createFaustNode = async (audioContext, dspName = "template", voices = 0, sp = false) => {
+const createFaustNode = async (audioContext, dspName = "template", voices = 0, sp = false, bufferSize = 512) => {
     // Set to true if the DSP has an effect
     const FAUST_DSP_HAS_EFFECT = false;
 
@@ -60,7 +60,8 @@ const createFaustNode = async (audioContext, dspName = "template", voices = 0, s
             { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
             faustDsp.mixerModule,
             faustDsp.effectModule ? { module: faustDsp.effectModule, json: JSON.stringify(faustDsp.effectMeta), soundfiles: {} } : undefined,
-            sp
+            sp,
+            bufferSize
         );
     } else {
         // Create a standard Faust audio node
@@ -69,7 +70,8 @@ const createFaustNode = async (audioContext, dspName = "template", voices = 0, s
             audioContext,
             dspName,
             { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
-            sp
+            sp,
+            bufferSize
         );
     }
 
@@ -78,15 +80,15 @@ const createFaustNode = async (audioContext, dspName = "template", voices = 0, s
 }
 
 /**
- * Connects an audio input stream to a Faust audio node.
+ * Connects an audio input stream to a Faust WebAudio node.
  * 
  * @param {AudioContext} audioContext - The Web Audio API AudioContext to which the Faust audio node is connected.
  * @param {string} id - The ID of the audio input device to connect.
  * @param {FaustNode} faustNode - The Faust audio node to which the audio input stream will be connected.
- * @param {MediaStreamAudioSourceNode} inputStreamNode - The audio input stream node to be disconnected from the Faust audio node.
- * @returns {Promise<MediaStreamAudioSourceNode>} - The audio input stream node connected to the Faust audio node.
+ * @param {MediaStreamAudioSourceNode} oldInputStreamNode - The old audio input stream node to be disconnected from the Faust audio node.
+ * @returns {Promise<MediaStreamAudioSourceNode>} - The new audio input stream node connected to the Faust audio node.
  */
-async function connectToAudioInput(audioContext, id, faustNode, inputStreamNode) {
+async function connectToAudioInput(audioContext, id, faustNode, oldInputStreamNode) {
     // Create an audio input stream node
     const constraints = {
         audio: {
@@ -99,14 +101,18 @@ async function connectToAudioInput(audioContext, id, faustNode, inputStreamNode)
     // Get the audio input stream
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     if (stream) {
-        if (inputStreamNode) inputStreamNode.disconnect();
-        inputStreamNode = audioContext.createMediaStreamSource(stream);
-        inputStreamNode.connect(faustNode);
+        if (oldInputStreamNode) oldInputStreamNode.disconnect();
+        const newInputStreamNode = audioContext.createMediaStreamSource(stream);
+        newInputStreamNode.connect(faustNode);
+        return newInputStreamNode;
+    } else {
+        return oldInputStreamNode;
     }
-    return inputStreamNode;
 };
 
 /**
+ * Creates a Faust UI for a Faust audio node.
+ * 
  * @param {FaustAudioWorkletNode} faustNode 
  */
 async function createFaustUI(divFaustUI, faustNode) {
@@ -133,6 +139,114 @@ async function createFaustUI(divFaustUI, faustNode) {
     faustUI.resize();
 };
 
+/**
+ * Request permission to use motion and orientation sensors.
+ */
+async function requestPermissions() {
+
+    // Explicitly request permission on iOS before calling startSensors()
+    if (typeof window.DeviceMotionEvent !== "undefined" && typeof window.DeviceMotionEvent.requestPermission === "function") {
+        try {
+            const permissionState = await window.DeviceMotionEvent.requestPermission();
+            if (permissionState !== "granted") {
+                console.warn("Motion sensor permission denied.");
+            } else {
+                console.log("Motion sensor permission granted.");
+            }
+        } catch (error) {
+            console.error("Error requesting motion sensor permission:", error);
+        }
+    }
+
+    if (typeof window.DeviceOrientationEvent !== "undefined" && typeof window.DeviceOrientationEvent.requestPermission === "function") {
+        try {
+            const permissionState = await window.DeviceOrientationEvent.requestPermission();
+            if (permissionState !== "granted") {
+                console.warn("Orientation sensor permission denied.");
+            } else {
+                console.log("Orientation sensor permission granted.");
+            }
+        } catch (error) {
+            console.error("Error requesting orientation sensor permission:", error);
+        }
+    }
+}
+
+/**
+ * Key2Midi: maps keyboard input to MIDI messages.
+ */
+class Key2Midi {
+    static KEY_MAP = {
+        a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7,
+        y: 8, h: 9, u: 10, j: 11, k: 12, o: 13, l: 14, p: 15, ";": 16,
+        z: "PREV", x: "NEXT", c: "VELDOWN", v: "VELUP"
+    };
+
+    constructor({ keyMap = Key2Midi.KEY_MAP, offset = 60, velocity = 100, handler = console.log } = {}) {
+        this.keyMap = keyMap;
+        this.offset = offset;
+        this.velocity = velocity;
+        this.velMap = [20, 40, 60, 80, 100, 127];
+        this.handler = handler;
+        this.pressed = {};
+
+        this.onKeyDown = this.onKeyDown.bind(this);
+        this.onKeyUp = this.onKeyUp.bind(this);
+    }
+
+    start() {
+        window.addEventListener("keydown", this.onKeyDown);
+        window.addEventListener("keyup", this.onKeyUp);
+    }
+
+    stop() {
+        window.removeEventListener("keydown", this.onKeyDown);
+        window.removeEventListener("keyup", this.onKeyUp);
+    }
+
+    onKeyDown(e) {
+        const key = e.key.toLowerCase();
+        if (this.pressed[key]) return;
+        this.pressed[key] = true;
+
+        const val = this.keyMap[key];
+        if (typeof val === "number") {
+            const note = val + this.offset;
+            this.handler([0x90, note, this.velocity]);
+        } else if (val === "PREV") {
+            this.offset -= 1;
+        } else if (val === "NEXT") {
+            this.offset += 1;
+        } else if (val === "VELDOWN") {
+            const idx = Math.max(0, this.velMap.indexOf(this.velocity) - 1);
+            this.velocity = this.velMap[idx];
+        } else if (val === "VELUP") {
+            const idx = Math.min(this.velMap.length - 1, this.velMap.indexOf(this.velocity) + 1);
+            this.velocity = this.velMap[idx];
+        }
+    }
+
+    onKeyUp(e) {
+        const key = e.key.toLowerCase();
+        const val = this.keyMap[key];
+        if (typeof val === "number") {
+            const note = val + this.offset;
+            this.handler([0x80, note, this.velocity]);
+        }
+        delete this.pressed[key];
+    }
+}
+
+/**
+ * Creates a Key2Midi instance.
+ * 
+ * @param {function} handler - The function to handle MIDI messages.
+ * @returns {Key2Midi} - The Key2Midi instance.
+ */
+function createKey2MIDI(handler) {
+    return new Key2Midi({ handler: handler });
+}
+
 // Export the functions
-export { createFaustNode, createFaustUI, connectToAudioInput };
+export { createFaustNode, createFaustUI, createKey2MIDI, connectToAudioInput, requestPermissions };
 

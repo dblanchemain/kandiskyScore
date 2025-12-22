@@ -19,7 +19,7 @@
  * @param {boolean} [sp] - Whether to create a ScriptProcessorNode instead of an AudioWorkletNode.
  * @returns {Promise<{ faustNode: FaustNode | null; dspMeta: FaustDspMeta }>} - An object containing the Faust audio node and the DSP metadata.
  */
-const createFaustNode = async (audioContext, dspName = "template", voices = 0, sp = false) => {
+const createFaustNode = async (audioContext, dspName = "template", voices = 0, sp = false, bufferSize = 512) => {
     // Set to true if the DSP has an effect
     const FAUST_DSP_HAS_EFFECT = false;
 
@@ -60,7 +60,8 @@ const createFaustNode = async (audioContext, dspName = "template", voices = 0, s
             { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
             faustDsp.mixerModule,
             faustDsp.effectModule ? { module: faustDsp.effectModule, json: JSON.stringify(faustDsp.effectMeta), soundfiles: {} } : undefined,
-            sp
+            sp,
+            bufferSize
         );
     } else {
         // Create a standard Faust audio node
@@ -69,7 +70,8 @@ const createFaustNode = async (audioContext, dspName = "template", voices = 0, s
             audioContext,
             dspName,
             { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
-            sp
+            sp,
+            bufferSize
         );
     }
 
@@ -78,15 +80,15 @@ const createFaustNode = async (audioContext, dspName = "template", voices = 0, s
 }
 
 /**
- * Connects an audio input stream to a Faust audio node.
+ * Connects an audio input stream to a Faust WebAudio node.
  * 
  * @param {AudioContext} audioContext - The Web Audio API AudioContext to which the Faust audio node is connected.
  * @param {string} id - The ID of the audio input device to connect.
  * @param {FaustNode} faustNode - The Faust audio node to which the audio input stream will be connected.
- * @param {MediaStreamAudioSourceNode} inputStreamNode - The audio input stream node to be disconnected from the Faust audio node.
- * @returns {Promise<MediaStreamAudioSourceNode>} - The audio input stream node connected to the Faust audio node.
+ * @param {MediaStreamAudioSourceNode} oldInputStreamNode - The old audio input stream node to be disconnected from the Faust audio node.
+ * @returns {Promise<MediaStreamAudioSourceNode>} - The new audio input stream node connected to the Faust audio node.
  */
-async function connectToAudioInput(audioContext, id, faustNode, inputStreamNode) {
+async function connectToAudioInput(audioContext, id, faustNode, oldInputStreamNode) {
     // Create an audio input stream node
     const constraints = {
         audio: {
@@ -99,14 +101,18 @@ async function connectToAudioInput(audioContext, id, faustNode, inputStreamNode)
     // Get the audio input stream
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     if (stream) {
-        if (inputStreamNode) inputStreamNode.disconnect();
-        inputStreamNode = audioContext.createMediaStreamSource(stream);
-        inputStreamNode.connect(faustNode);
+        if (oldInputStreamNode) oldInputStreamNode.disconnect();
+        const newInputStreamNode = audioContext.createMediaStreamSource(stream);
+        newInputStreamNode.connect(faustNode);
+        return newInputStreamNode;
+    } else {
+        return oldInputStreamNode;
     }
-    return inputStreamNode;
 };
 
 /**
+ * Creates a Faust UI for a Faust audio node.
+ * 
  * @param {FaustAudioWorkletNode} faustNode 
  */
 async function createFaustUI(divFaustUI, faustNode) {
@@ -133,6 +139,39 @@ async function createFaustUI(divFaustUI, faustNode) {
     faustUI.resize();
 };
 
+/**
+ * Request permission to use motion and orientation sensors.
+ */
+async function requestPermissions() {
+
+    // Explicitly request permission on iOS before calling startSensors()
+    if (typeof window.DeviceMotionEvent !== "undefined" && typeof window.DeviceMotionEvent.requestPermission === "function") {
+        try {
+            const permissionState = await window.DeviceMotionEvent.requestPermission();
+            if (permissionState !== "granted") {
+                console.warn("Motion sensor permission denied.");
+            } else {
+                console.log("Motion sensor permission granted.");
+            }
+        } catch (error) {
+            console.error("Error requesting motion sensor permission:", error);
+        }
+    }
+
+    if (typeof window.DeviceOrientationEvent !== "undefined" && typeof window.DeviceOrientationEvent.requestPermission === "function") {
+        try {
+            const permissionState = await window.DeviceOrientationEvent.requestPermission();
+            if (permissionState !== "granted") {
+                console.warn("Orientation sensor permission denied.");
+            } else {
+                console.log("Orientation sensor permission granted.");
+            }
+        } catch (error) {
+            console.error("Error requesting orientation sensor permission:", error);
+        }
+    }
+}
+
 // Export the functions
-export { createFaustNode, createFaustUI, connectToAudioInput };
+export { createFaustNode, createFaustUI, connectToAudioInput, requestPermissions };
 

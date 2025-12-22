@@ -1,8 +1,8 @@
 {
     "name": "distortion",
-    "filename": "distortion.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "distortion",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/stdfaust.lib",
         "/usr/share/faust/misceffects.lib",
@@ -17,22 +17,22 @@
         "/usr/share/faust",
         "."
     ],
-    "size": 68,
-    "code": "ONjT",
-    "inputs": 2,
-    "outputs": 2,
+    "size": 52,
+    "code": "SIzP",
+    "inputs": 1,
+    "outputs": 1,
     "meta": [
         {
             "author": "JOS, revised by RM"
         },
         {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "description": "Distortion demo application."
         },
         {
-            "filename": "distortion.dsp"
+            "filename": "distortion"
         },
         {
             "filters.lib/dcblocker:author": "Julius O. Smith III"
@@ -59,7 +59,7 @@
             "filters.lib/pole:license": "MIT-style STK-4.3 license"
         },
         {
-            "filters.lib/version": "1.3.0"
+            "filters.lib/version": "1.7.1"
         },
         {
             "filters.lib/zero:author": "Julius O. Smith III"
@@ -83,7 +83,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "misceffects.lib/cubicnl:author": "Julius O. Smith III"
@@ -101,7 +101,7 @@
             "misceffects.lib/name": "Misc Effects Library"
         },
         {
-            "misceffects.lib/version": "2.5.0"
+            "misceffects.lib/version": "2.5.1"
         },
         {
             "name": "distortion"
@@ -135,6 +135,7 @@
                 {
                     "type": "hslider",
                     "label": "Drive",
+                    "varname": "fHslider1",
                     "shortname": "Drive",
                     "address": "/CUBIC_NONLINEARITY_cubicnl/Drive",
                     "index": 24,
@@ -154,6 +155,7 @@
                 {
                     "type": "hslider",
                     "label": "Offset",
+                    "varname": "fHslider0",
                     "shortname": "Offset",
                     "address": "/CUBIC_NONLINEARITY_cubicnl/Offset",
                     "index": 8,

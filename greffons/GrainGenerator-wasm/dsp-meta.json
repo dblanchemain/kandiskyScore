@@ -1,8 +1,8 @@
 {
     "name": "GrainGenerator",
-    "filename": "GrainGenerator.dsp",
-    "version": "2.75.3",
-    "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
+    "filename": "GrainGenerator",
+    "version": "2.81.10",
+    "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2",
     "library_list": [
         "/usr/share/faust/all.lib",
         "/usr/share/faust/webaudio.lib",
@@ -25,11 +25,16 @@
         "/usr/share/faust/misceffects.lib",
         "/usr/share/faust/mi.lib",
         "/usr/share/faust/maths.lib",
+        "/usr/share/faust/linearalgebra.lib",
         "/usr/share/faust/interpolators.lib",
         "/usr/share/faust/hoa.lib",
         "/usr/share/faust/filters.lib",
         "/usr/share/faust/fds.lib",
         "/usr/share/faust/envelopes.lib",
+        "/usr/share/faust/pitchenv.lib",
+        "/usr/share/faust/operator.lib",
+        "/usr/share/faust/lfo.lib",
+        "/usr/share/faust/env.lib",
         "/usr/share/faust/dx7.lib",
         "/usr/share/faust/demos.lib",
         "/usr/share/faust/delays.lib",
@@ -45,22 +50,22 @@
         "/usr/share/faust",
         "."
     ],
-    "size": 353100,
-    "code": "mJR9AWQjHw==",
-    "inputs": 2,
-    "outputs": 2,
+    "size": 176676,
+    "code": "4EVoATQ5Hw==",
+    "inputs": 1,
+    "outputs": 1,
     "meta": [
         {
             "aanl.lib/name": "Faust Antialiased Nonlinearities"
         },
         {
-            "aanl.lib/version": "1.3.0"
+            "aanl.lib/version": "1.4.2"
         },
         {
             "analyzers.lib/name": "Faust Analyzer Library"
         },
         {
-            "analyzers.lib/version": "1.2.0"
+            "analyzers.lib/version": "1.3.0"
         },
         {
             "basics.lib/name": "Faust Basic Element Library"
@@ -69,13 +74,10 @@
             "basics.lib/sAndH:author": "Romain Michon"
         },
         {
-            "basics.lib/tabulateNd": "Copyright (C) 2023 Bart Brouns <bart@magnetophon.nl>"
+            "basics.lib/version": "1.22.0"
         },
         {
-            "basics.lib/version": "1.19.1"
-        },
-        {
-            "compile_options": "-lang wasm-i -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
+            "compile_options": "-lang wasm-e -ct 1 -es 1 -mcd 16 -mdd 1024 -mdy 33 -single -ftz 2"
         },
         {
             "compressors.lib/name": "Faust Compressor Effect Library"
@@ -87,7 +89,7 @@
             "delays.lib/name": "Faust Delay Library"
         },
         {
-            "delays.lib/version": "1.1.0"
+            "delays.lib/version": "1.2.0"
         },
         {
             "demos.lib/name": "Faust Demos Library"
@@ -96,7 +98,7 @@
             "demos.lib/version": "1.2.0"
         },
         {
-            "dx7.lib/version": "1.1.0"
+            "dx7.lib/version": "2.0.0"
         },
         {
             "envelopes.lib/author": "GRAME"
@@ -123,7 +125,7 @@
             "fds.lib/version": "1.1.0"
         },
         {
-            "filename": "GrainGenerator.dsp"
+            "filename": "GrainGenerator"
         },
         {
             "filters.lib/dcblockerat:author": "Julius O. Smith III"
@@ -150,7 +152,7 @@
             "filters.lib/pole:license": "MIT-style STK-4.3 license"
         },
         {
-            "filters.lib/version": "1.3.0"
+            "filters.lib/version": "1.7.1"
         },
         {
             "filters.lib/zero:author": "Julius O. Smith III"
@@ -177,7 +179,13 @@
             "interpolators.lib/name": "Faust Interpolator Library"
         },
         {
-            "interpolators.lib/version": "1.3.1"
+            "interpolators.lib/version": "1.4.0"
+        },
+        {
+            "linearalgebra.lib/name": "Faust Linear Algebra Library"
+        },
+        {
+            "linearalgebra.lib/version": "0.1.0"
         },
         {
             "maths.lib/author": "GRAME"
@@ -192,7 +200,7 @@
             "maths.lib/name": "Faust Math Library"
         },
         {
-            "maths.lib/version": "2.8.0"
+            "maths.lib/version": "2.9.0"
         },
         {
             "mi.lib/author": "Romain Michon"
@@ -210,7 +218,7 @@
             "misceffects.lib/name": "Misc Effects Library"
         },
         {
-            "misceffects.lib/version": "2.5.0"
+            "misceffects.lib/version": "2.5.1"
         },
         {
             "name": "GrainGenerator"
@@ -219,13 +227,16 @@
             "noises.lib/name": "Faust Noise Generator Library"
         },
         {
-            "noises.lib/version": "1.4.1"
+            "noises.lib/version": "1.5.0"
+        },
+        {
+            "operator.lib/version": "2.0.0"
         },
         {
             "oscillators.lib/name": "Faust Oscillator Library"
         },
         {
-            "oscillators.lib/version": "1.5.1"
+            "oscillators.lib/version": "1.6.0"
         },
         {
             "phaflangers.lib/name": "Faust Phaser and Flanger Library"
@@ -237,7 +248,7 @@
             "physmodels.lib/name": "Faust Physical Models Library"
         },
         {
-            "physmodels.lib/version": "1.1.0"
+            "physmodels.lib/version": "1.2.0"
         },
         {
             "platform.lib/name": "Generic Platform Library"
@@ -249,7 +260,7 @@
             "quantizers.lib/name": "Faust Frequency Quantization Library"
         },
         {
-            "quantizers.lib/version": "1.1.0"
+            "quantizers.lib/version": "1.1.2"
         },
         {
             "reducemaps.lib/author": "Yann Orlarey"
@@ -270,7 +281,7 @@
             "reverbs.lib/name": "Faust Reverb Library"
         },
         {
-            "reverbs.lib/version": "1.3.0"
+            "reverbs.lib/version": "1.4.0"
         },
         {
             "routes.lib/name": "Faust Signal Routing Library"
@@ -294,7 +305,7 @@
             "spats.lib/name": "Faust Spatialization Library"
         },
         {
-            "spats.lib/version": "1.1.0"
+            "spats.lib/version": "1.2.0"
         },
         {
             "synths.lib/name": "Faust Synthesizer Library"
@@ -306,7 +317,7 @@
             "vaeffects.lib/name": "Faust Virtual Analog Filter Effect Library"
         },
         {
-            "vaeffects.lib/version": "1.2.1"
+            "vaeffects.lib/version": "1.4.0"
         },
         {
             "wdmodels.lib/name": "Faust Wave Digital Model Library"
@@ -338,6 +349,7 @@
                 {
                     "type": "hslider",
                     "label": "decal",
+                    "varname": "fHslider1",
                     "shortname": "decal",
                     "address": "/GrainGenerator/decal",
                     "index": 176432,
@@ -354,6 +366,7 @@
                 {
                     "type": "hslider",
                     "label": "feedback",
+                    "varname": "fHslider0",
                     "shortname": "feedback",
                     "address": "/GrainGenerator/feedback",
                     "index": 176428,
@@ -370,6 +383,7 @@
                 {
                     "type": "hslider",
                     "label": "population",
+                    "varname": "fHslider3",
                     "shortname": "population",
                     "address": "/GrainGenerator/population",
                     "index": 176440,
@@ -386,6 +400,7 @@
                 {
                     "type": "hslider",
                     "label": "speed",
+                    "varname": "fHslider4",
                     "shortname": "speed",
                     "address": "/GrainGenerator/speed",
                     "index": 176460,
@@ -402,6 +417,7 @@
                 {
                     "type": "hslider",
                     "label": "taille",
+                    "varname": "fHslider2",
                     "shortname": "taille",
                     "address": "/GrainGenerator/taille",
                     "index": 176436,
