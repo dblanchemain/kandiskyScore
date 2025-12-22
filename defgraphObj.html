@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-04-24T10:00:47+0200" />
+<meta name="date" content="2025-08-22T10:39:28+0200" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -27,7 +27,7 @@
 	     <input id="selectDroitColor" type="color" style="display:none" value="#ffffff" />
 	     <input id="selectBasColor" type="color" style="display:none" value="#ffffff" />
 		</div>
-		<div  id="objDimXY" style="position:absolute;top:30px;left:130px;"><span>Dim XY : </span><input  id="objDim" style="width:64px;height:24px;" type="number"  value="1" min="0.01" max="50" step="0.001" />
+		<div  id="objDimXY" style="position:absolute;top:30px;left:130px;"><span>Dim XY : </span><input  id="objDim" style="width:64px;height:24px;" type="number"  value="1" min="0.01" max="50" step="0.01" />
 		</div>
 		<div  id="rotation" style="position:absolute;top:30px;left:130px;"><span>Rotate : </span><input  id="objRotate" style="width:44px;height:24px;" type="number"  value="0" min="-180" max="180" step="1" />
 		</div>
@@ -186,6 +186,7 @@ window.api.receive("fromMain", (data) => {
 			case 'defGraphObjet':
 				lang=cmd[2]
 				importLang('./Local/'+lang+'/objGraph-'+lang+".txt")
+				console.log("objGraph",cmd[3])
 				objetStringToGraph(cmd[3])
 				objetParamsToGraph()
 				type=cmd[4]
@@ -217,10 +218,11 @@ window.api.receive("fromMain", (data) => {
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,40 0,0 40,20 0,40' fill='"+objGraph.objColor+"' transform='translate(34 34)'  stroke='"+objGraph.objBorderC+"' stroke-width='"+objGraph.objBorderW+"' /></svg>"
 						document.getElementById("objImg").innerHTML=txt	
 						document.getElementById("objLong").firstChild.innerHTML="Dim XY : "
-						document.getElementById("rotation").style.display='none'
-						document.getElementById("objDimXY").style.display='block'
-						document.getElementById("objLong").style.display='none'
-						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("objRotate").setAttribute('step',90)
+						document.getElementById("rotation").style.display='block'
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("objLong").style.display='block'
+						document.getElementById("objHauteur").style.display='block'
 						document.getElementById("plGauche").style.display='block'
 						document.getElementById("plHaut").style.display='block'
 						break	
@@ -841,6 +843,7 @@ function objetParamsToGraph() {
 	document.getElementById("objWidth").value=objGraph.scaleX
 	document.getElementById("objHeight").value=objGraph.scaleY
 	document.getElementById("objHeight2").value=objGraph.scaleY2
+	document.getElementById("objRotate").value=objGraph.rotate
 	document.getElementById("objImg").style.backgroundImage='url('+objGraph.bkgImg+')'
 	document.getElementById("objImg").style.backgroundSize=objGraph.bkgWidth+"px "+objGraph.bkgHeight+"px"
 	document.getElementById("objImg").style.backgroundColor=document.getElementById("bkgColor").value
@@ -894,7 +897,7 @@ function objetStringToGraph(txt) {
 	objColor:ntxt[29],
 	objOpacity:ntxt[30],
 	radius:ntxt[31],
-	rayon:ntxt[32],
+	rotate:parseFloat(ntxt[32]),
 	scaleX:ntxt[33],
 	scaleY:ntxt[34],
 	scaleY2:ntxt[35],

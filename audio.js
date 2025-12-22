@@ -18,32 +18,16 @@ let tableSrc=[]
 let vueStudio=0
 var points=0
 var compteur=0
+var tempoFoo=[]
+var curTempo=0;
+let dureePlayer=0;
 
 document.getElementById("simpleSpeaker").addEventListener('click',readSimpleAudio)
 document.getElementById("inpTempo").addEventListener('input',inpTempo);
 document.getElementById("sliderTempo").addEventListener('input',sliderTempo);
+document.getElementById("renderPlay").addEventListener('click',player);
 
-function stop(){
-	try{
-		if(playerStat==1){
-			multiStop();
-			playerStat=0;
-		}else{
-  			source.stop();
-  		}
-  }catch(InvalidStateNode){
-  }
-}
-function multiStop(){
-	try{
-		for(i=0;i<tableSrc.length;i++){
-			if(tableSrc[i]){
-				tableSrc[i].stop();
-			}
-  		}
-  }catch(InvalidStateNode){
-  }
-}
+
 function readPart(){
 	let nbp=0;
 	var lsgrp=[];
@@ -56,11 +40,10 @@ function readPart(){
 			}
 		}
 	}
+	
 	if(playerStat==0){
-		//document.getElementById("play3").src="./images/png/stop.png";
 		playerStat=1;
-		//readMultiAudio();
-		renderGrpAudio2(lsgrp,1)
+		renderPartAudio(0);
 		
 	}else{
 		//document.getElementById("play3").src="./images/png/read.png";
@@ -74,13 +57,15 @@ function readPart(){
 	}
 }
 function playerDebut(){
-	document.getElementById("barVerticale").style.left="-4px";
+	document.getElementById("barVerticale").style.left="0px";
 	dheures=0;
 	dsecondes=0;
 	dminutes=0;
 	document.getElementById("compteurH").innerHTML = " 00 : ";
 	document.getElementById("compteurM").innerHTML = " 00 : ";
 	document.getElementById("compteurS").innerHTML = "00";
+	document.getElementById("tempo").value=60
+	console.log('debut bar',document.getElementById("barVerticale").style.left)
 }
 function playerPrec(){
 	document.getElementById("barVerticale").style.left=(parseInt(document.getElementById("barDebut").style.left)+35)+"px";
@@ -105,6 +90,8 @@ function foo() {
 	var ht;
 	var st;
 	var mt;
+	
+	
 	var gtempo=60/parseFloat(document.getElementById("tempo").value)
 	var delay=55*gtempo;
 	
@@ -115,7 +102,7 @@ function foo() {
     var lleft=parseFloat(document.getElementById("barVerticale").style.left)+(1*zoomScale);
     document.getElementById("barVerticale").style.left=lleft+"px";
     nbp2=Math.floor(parseInt(document.getElementById("barVerticale").style.left)/1200); 
-    
+    /*
     if(points<(18/gtempo)){
     	points+=1.065;
     }else{
@@ -124,15 +111,24 @@ function foo() {
 			 document.getElementById("work").scrollLeft=nbp2*1200;
 			 nbp=nbp2;
 		 }
+		 */
+		 document.getElementById("work").scrollLeft=nbp2*1200;
 		
 		dsecondes=Math.round(dsecondes+1);
+		//dsecondes=document.getElementById("renduWav").currentTime+0.01
 	 	if(dsecondes>59){
 	 		dminutes=dminutes+1;
 	 		dsecondes=0;
 	 	}
-	 	if(dminutes>60){
+	 	if(dminutes>59){
 	 		dheures=dheures+1;
 	 		dminutes=0;
+	 		dsecondes=0;
+	 	}
+	 	if(dminutes<10){
+	 		mt="0"+dminutes;
+	 	}else{
+	 		mt=dminutes;
 	 	}
 	 	if(dheures<10){
 	 		ht="0"+dheures;
@@ -140,15 +136,11 @@ function foo() {
 	 	else{
 	 		ht=dheures;
 	 	}
-	 	if(dminutes<10){
-	 		mt="0"+dminutes;
-	 	}else{
-	 		mt=dminutes;
-	 	}
+	 	
 	 	if(dsecondes<10){
-	 		st="0"+dsecondes;
+	 		st="0"+dsecondes.toFixed(2);
 	 	}else{
-	 		st=dsecondes;
+	 		st=dsecondes.toFixed(2);
 	 	}
 	 	 document.getElementById("compteurH").innerHTML = ht+" : ";
 		 document.getElementById("compteurM").innerHTML = mt+" : ";
@@ -174,8 +166,16 @@ function foo() {
 		 	}
 		 
 		 }
-	 }
+	//}
+	// console.log('time',document.getElementById("renduWav").currentTime)
+	
 	 
+	 if(parseFloat(document.getElementById("barVerticale").style.left)>tempoFoo[curTempo].X){
+	 	//document.getElementById("renduWav").playbackRate =tempoFoo[curTempo].Y/60;
+	 	document.getElementById("tempo").value=tempoFoo[curTempo].Y.toFixed(2)
+	 	 curTempo++;
+	 }
+//console.log('curTempo',curTempo,tempoFoo)
     	timer=setTimeout(foo, delay);
     }
 }
@@ -308,15 +308,35 @@ function getWavHeader(options) {
   return new Uint8Array(buffer)
 }
 function readSimpleAudio() {
-	console.log("read speaker",objActif)
-	if(sourceStat==0){
+	console.log("read speaker",tableObjet[objActif],objActif)
+	if(playerStat==0){
 		sourceStat=1;
 		if(grpSelect==1){
 			playerStat=1;
 			readGrpAudio(0);
 		}else if(tableObjet[objActif].class==1){
-			playerStat=0;
-			readSimpleAudioA(0);
+			playerStat=1;
+			const obj = tableObjet[objActif];
+		    if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
+		    
+		    const filePath = obj.file;
+		    const dir = rdDirName(filePath);
+		    const baseName = rdBaseName(filePath).split(".")[0];
+		    const outPath = `${dir}/${baseName}-fx.wav`;
+		    const options = {
+			    pitchSemitones: obj.detune,  // équivalent à -500 cents
+			    speedFactor: obj.transposition,       // speed 2x
+			    gain: obj.gain,
+			    startSec: obj.debut,
+			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
+				 };
+				 console.log("read speaker opt",options)
+				 document.getElementById("barVerticale").style.left=((tableObjet[objActif].posX-4)*zoomScale)+"px";
+				 defTime("barVerticale");
+	  			 foo();
+			 window.api.send("toMain", 'playDirectFile;'+outPath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
+	  				
+			//spatialiseObjet(objActif,"spline");
 			}else if(grpSelect==1 ||  tableObjet[objActif].class==4){
 				playerStat=1;
 				readGrpAudio(0);
@@ -325,7 +345,8 @@ function readSimpleAudio() {
 		sourceStat=0;
 		playerStat=0;
 		if(tableObjet[objActif].class==1){
-			stop();
+			console.log("stop speaker",objActif)
+			window.api.send("toMain", 'killPlay')
 		}else{
 			multiStop();
 		}
@@ -383,6 +404,29 @@ function lastAudio() {
 function annulAudio(){
 	document.getElementById("renderAudio").style.display="none";
 }
+function player() {
+	if (playerStat==0) {
+	 playerStat=1;
+	
+	 const filePath = document.getElementById("rubber").href.substring(6);
+	 const startx = dureePlayer*parseFloat(document.getElementById("renderPos").value);
+	 const options = {
+	 pitchSemitones: 0,  // équivalent à -500 cents
+	 speedFactor: 1,       // speed 2x
+	 gain: 1,
+	 startSec: startx,
+	 lengthSec:dureePlayer-startx
+	 };
+	 console.log("player",filePath,"duree",dureePlayer,parseFloat(document.getElementById("renderPos").value),options);
+	 document.getElementById("renderPlay").src="./images/png/pauseLect.png";
+	 window.api.send("toMain", 'playDirectFile;'+filePath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
+	 
+	 }else{
+	 	playerStat=0;
+	 	document.getElementById("renderPlay").src="./images/png/lecture.png";
+	 	window.api.send("toMain", 'killPlay')
+	 }
+}
 function copySliceBuffer(source,len,offset) {
 	const buffer1 = source
 
@@ -406,274 +450,34 @@ function copySliceBuffer(source,len,offset) {
 	return buffer2	
 }
 
-async function readSimpleAudioA(mode){
-	var audioRate=tableBuffer[0].buffer.sampleRate;
-	if(tableObjet[objActif].class==1){
-		if (tableObjet[objActif].type<24) {
-			if (tableObjet[objActif].file) {
-				if(tableObjet[objActif].mute==0){
-					var source2=contextAudio.createBufferSource();
-					if(tableObjet[objActif].convolver!="" && tableBufferIR[tableObjet[objActif].convolver].duration>tableBuffer[tableObjet[objActif].bufferId].buffer.duration*tableObjet[objActif].fin){					
-						source2.buffer=copySliceBuffer(tableBuffer[tableObjet[objActif].bufferId].buffer,tableBufferIR[tableObjet[objActif].convolver].length,0)
-					}else{
-						source2.buffer =tableBuffer[tableObjet[objActif].bufferId].buffer;
-					}
-					var source=contextAudio.createBufferSource();
-					if(tableObjet[objActif].reverse==true){
-						var buf1= new Float32Array()
-						var buf2= new Float32Array()
-						buf1=source2.buffer.getChannelData(0)
-        				buf2=source2.buffer.getChannelData(1);
-        				var myArrayBuffer = contextAudio.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-        				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-        				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-        				source.buffer=myArrayBuffer
-        			}else{
-        				source=source2
-        			}
-					source.onended = () => {
-						if(mode==1){
-							recorder.addEventListener('dataavailable',function(e){
-				  				e.data.arrayBuffer().then(arrayBuffer => {
-				  					console.log('recorder mode',mode)
-								   contextAudio.decodeAudioData(arrayBuffer, (audioBuffer) => {
-			      				var rwav=convertAudioBufferToBlob(audioBuffer);
-								   document.getElementById("renduWav").src=URL.createObjectURL(rwav);
-								   document.getElementById("renderAudio").style.display="block";
-			    				});
-							});
-				  			recorder=false;
-	    					recordingstream=false;
-	    					
-	  						});
-	    					recorder.stop();
-						}
-			  			sourceStat=0;
-			  			console.log("source end");
-			  			clearTimeout(timer);
-	  					playerStat=0;
-					};
-					const gainNode = contextAudio.createGain();
-					const panner = contextAudio.createPanner();
-					const convolver = contextAudio.createConvolver();
-					var now=contextAudio.currentTime;
-					var rt=await readSourceAudio(contextAudio,source,objActif,gainNode,now,panner,convolver);
-					if(mode==1){
-						recordingstream=contextAudio.createMediaStreamDestination();
-	  					recorder=new MediaRecorder(recordingstream.stream);
-	  					panner.connect(recordingstream);
-					}
-					rt.src.start(0,rt.ndeb,rt.nfin);
-					console.log("source",source.buffer.duration, rt.ndeb, rt.nfin);
-					if(mode==1){
-						recorder.start();
-					}
-					document.getElementById("barVerticale").style.left=((tableObjet[objActif].posX-4)*zoomScale)+"px";
-	  				playerStat=1;
-	  				defTime("barVerticale");
-	  				foo();
-					sourceStat=1;
-					
-				}
-			}
-		}
+// audio.js (Renderer)
+
+// Convertir un ArrayBuffer en AudioBuffer côté Renderer
+function arrayBufferToAudioBuffer(audioContext, buf, numChannels, numSamples, sampleRate) {
+    const audioBuffer = audioContext.createBuffer(numChannels, numSamples, sampleRate);
+    for (let ch = 0; ch < numChannels; ch++) {
+        const floatArray = new Float32Array(buf[ch], 0, numSamples);
+        audioBuffer.copyToChannel(floatArray, ch, 0);
+    }
+    return audioBuffer;
+}
+
+
+function rdDirName(path) {
+	const ndir=path.split("/");
+	let dir="";
+	for(i=0;i<ndir.length-1;i++){
+		dir=dir+ndir[i]+"/"
 	}
+	dir=dir.substring(0, dir.length - 1);
+	return dir;
 }
-function renderAllFxAudio(){
-	for(let i=0;i<tableObjet.length;i++){
-		if(tableObjet[i].tableFx[0] !='' || tableObjet[i].tableFx[0]!=0){
-			renderFxAudioA(i)	
-		}
-	}
+function rdBaseName(path) {
+	const ndir=path.split("/");
+	const baseName=ndir[ndir.length-1]
+	return baseName;
 }
-function renderFxAudio(){
-	renderFxAudioA(objActif)	
-}
-async function renderFxAudioA(obj){
-	var audioRate=tableBuffer[0].buffer.sampleRate;
-	if (tableObjet[obj].type<24) {
-		if (tableObjet[obj].file) {
-			console.log("source1",tableObjet[obj].file);
-			if(tableObjet[obj].mute==0){
-				console.log("source",tableObjet[obj].file);
-				var source="";
-				source=contextAudio.createBufferSource();
-				source.buffer =tableBuffer[tableObjet[obj].bufferId].buffer;
-				source.onended = () => {
-					
-					recorder.addEventListener('dataavailable',function(e){
-	  				e.data.arrayBuffer().then(arrayBuffer => {
-					   contextAudio.decodeAudioData(arrayBuffer, (audioBuffer) => {
-      				var rwav=convertAudioBufferToBlob(audioBuffer);
-					   document.getElementById("renduWav").src=URL.createObjectURL(rwav);
-					   document.getElementById("renderAudio").style.display="block";
-					   const regex = new RegExp('-');
-					   var lab=tableObjet[obj].file.split('.')
-					   var label=''
-					   var sch=lab[0].search(regex)
-						if(sch==-1){
-							label=lab[0]+"-1.wav"
-						}else{
-							var ft=lab[0].substring(0,sch)
-							var rt=lab[0].substring(sch+1)
-							if(isNaN(rt)){
-								rt=0
-							}
-							var rft=parseInt(lab[0].substring(sch+1))+1
-							label=ft+"-"+rft+".wav"
-						}
-						tableObjet[obj].tableFx=['','','','','','','']
-						tableObjet[obj].tableFxParam=['','','','','','','']
-						var reader = new FileReader();
-						reader.readAsArrayBuffer(rwav);
-						reader.onloadend = (event) => {
-	    					// The contents of the BLOB are in reader.result:	
-	    					window.api.saveAudio('saveAudio',(audioDirectory+label), reader.result);
-	    					window.api.send('toMain','replaceAudio;'+obj+';'+audioDirectory+label);
-	    				}
-	    					
-					   	console.log(label);
-    					});
-					});
-		  			recorder=false;
- 					recordingstream=false;
-  						});
-  						
- 					recorder.stop();
-					
-		  			sourceStat=0;
-		  			console.log("source end");
-		  			clearTimeout(timer);
-  					playerStat=0;
-				};
-				const gainNode = contextAudio.createGain();
-				var now=contextAudio.currentTime;
-				var rt=await readFxAudio(contextAudio,source,obj,gainNode,now);
-				source=rt;
-				recordingstream=contextAudio.createMediaStreamDestination();
-  				recorder=new MediaRecorder(recordingstream.stream);
-  				gainNode.connect(recordingstream);
-				source.start(0);
-				recorder.start();
-				document.getElementById("barVerticale").style.left=(tableObjet[obj].posX-4)+"px";
-  				playerStat=1;
-  				defTime("barVerticale");
-  				foo();
-				if(tableObjet[obj].type==13){
-					source2.start(0);
-						
-				}
-				sourceStat=1;
-			}
-		}
-	}
-}
-async function readFxAudio(audioContext,nsource,id,gainNode,now){
-	if(tableObjet[id].class==1){
-		var typevar=tableObjet[id].envType;
-		var tableGreffons=[];
-		var nduree=nsource.buffer.duration
-	   gainNode.gain=1
-		var j=0;
-		for(let i=0;i<7;i++){
-			if(tableObjet[id].tableFx[i]!=""  && tableObjet[id].tableFx[i]!=0 ){
-				j++;
-			}
-		}
-		var nbg=j;
-		console.log("nbfx",nbg)
-		tableGreffons[0]=nsource;
-		console.log("convolver",tableObjet[id])
-		if(nbg==0){
-			tableGreffons[0].connect(gainNode);
-			return nsource
-		}else{
-			var j=1;
-			for(let i=0;i<7;i++){
-				if(tableObjet[id].tableFx[i]!="" && tableObjet[id].tableFx[i]!=0 ){
-										 const createFaustNode = async (audioContext, dspName , voices = 0, sp = false) => {
-				    // Set to true if the DSP has an effect
-				    const FAUST_DSP_HAS_EFFECT = false;
-				
-				    // Import necessary Faust modules and data
-				    const { FaustMonoDspGenerator, FaustPolyDspGenerator } = await import("./greffons/"+dspName+"-wasm/faustwasm/index.js");
-				
-				    // Load DSP metadata from JSON
-				    /** @type {FaustDspMeta} */
-				    const dspMeta = await (await fetch("./greffons/"+dspName+"-wasm/dsp-meta.json")).json();
-				
-				    // Compile the DSP module from WebAssembly binary data
-				    const dspModule = await WebAssembly.compileStreaming(await fetch("./greffons/"+dspName+"-wasm/dsp-module.wasm"));
-				
-				    // Create an object representing Faust DSP with metadata and module
-				    /** @type {FaustDspDistribution} */
-				    const faustDsp = { dspMeta, dspModule };
-				
-				    /** @type {FaustNode | null} */
-				    let faustNode = null;
-				
-				    // Create either a polyphonic or monophonic Faust audio node based on the number of voices
-				        // Create a standard Faust audio node
-				        const generator = new FaustMonoDspGenerator();
-				        faustNode = await generator.createNode(
-				            audioContext,
-				            dspName,
-				            { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
-				            sp
-				        );
-				     
-				
-				    // Return an object with the Faust audio node and the DSP metadata
-				     return { faustNode, dspMeta };
-					}			
-					
-					const { faustNode, dspMeta: { name } } = await createFaustNode(audioContext, listeFx[tableObjet[id].tableFx[i]].greffon, 0);
-    				if (!faustNode) throw new Error("Faust DSP not compiled");
-    				tableGreffons[j]=faustNode
-    				console.log(faustNode)
-					
-						var dest= listeFx[tableObjet[id].tableFx[i]].paramname.split(',')
-						var fxparam=tableObjet[id].tableFxParam[i].split('/')
-						for(let m=0;m<fxparam.length;m++){
-						var param=fxparam[m].split("&")
-						var shiftParam = tableGreffons[j].parameters.get(dest[m]);
-						var paramvalue=param[0].split("?")
-						console.log("obj",tableObjet[id],"dest",dest[m],"fxparam",fxparam[m],"param",param,"shiftParam",shiftParam);
-						shiftParam.setValueAtTime(parseFloat(paramvalue[1]), now);
-						
-						for(k=1;k<param.length;k++){
-							paramvalue=param[k].split("?")
-							console.log('paramvalue',param[k]," ",param.length)
-							shiftParam.linearRampToValueAtTime(parseFloat(paramvalue[1]), now + parseFloat(paramvalue[0]));
-						}
-						tableGreffons[j-1].connect(tableGreffons[j]);
-						}
-						console.log("faust",shiftParam)
-						j++;
-						if (j>nbg) {
-							tableGreffons[j-1].connect(gainNode);
-							
-							if(tableObjet[id].convolver==""){
-								gainNode.connect(audioContext.destination);
-							}else{
-								convolver.buffer=tableBufferIR[tableObjet[id].convolver];
-								gainNode.connect(convolver);
-								convolver.connect(audioContext.destination);
-							}
-					
-					
-				}
-					
-				}
-			}
-			gainNode.connect(audioContext.destination);
-			return nsource
-		}
-	
-		console.log("nduree",nduree,tableBufferIR[tableObjet[id].convolver]);
-	}
-	
-}
+
 function readGrpAudio(){
 	var ratioT=(720/12960);
 	var posX;
@@ -812,438 +616,41 @@ function readGrpAudio(){
 	}
 }
 let peak=[]
-function defPeak(id,buf,g) {
-	var bufleft= new Float32Array()
-	var bufRight= new Float32Array()
-	var lpeak=0
-	bufLeft = buf.buffer.getChannelData(0)
-	bufRight = buf.buffer.getChannelData(1)
-	console.log("bufLeft",bufLeft.length,bufLeft[100])
-	for(i in bufLeft){
-		if(Math.abs(bufLeft[i])>lpeak){
-			lpeak=bufLeft[i]
-		}
-	}
-	for(i in bufRight){
-		if(Math.abs(bufRight[i])>lpeak){
-			lpeak=bufRight[i]
-		}
-	}
-	peak[id]=lpeak*g
-	console.log("peak",lpeak,20 * Math.log (lpeak) / Math.log(10), "dBFS")
-}
-async function renderGrpAudio(ngrp){
-	var ratioT=(720/12960);
-	var posX;
-	var bar;
-	var startX;
-	var curTime = contextAudio.currentTime;
-	tableSrc=[];
-	var gainNode=[];
-	var panner=[];
-	var convolver=[];
-	var ndeb=[];
-	var nfin=[];
-	var grp=[];
-	if(ngrp && ngrp.length>0){
-		var minx=tableObjet[ngrp[0]].posX
-		for(let i=0;i<ngrp.length;i++){
-			if(tableObjet[ngrp[i]].posX<minx){
-				minx=tableObjet[ngrp[i]].posX
-			}
-		}
-		var maxx=tableObjet[ngrp[ngrp.length-1]].posX
-		for(let i=0;i<ngrp.length;i++){
-			if(tableObjet[ngrp[i]].posX>maxx){
-				maxx=tableObjet[ngrp[i]].posX
-			}
-		}
-		for(let i=0;i<tableObjet.length;i++){
-			if(tableObjet[i].posX>=minx && tableObjet[i].posX<=maxx){
-				if(tableObjet[i].etat==1 && tableObjet[i].class==1  && tableObjet[i].file && tableObjet[i].mute==0){
-					grp.push(i)
-				}
-			}	
-		}
+
+function saveRenduAudio(duree,file){
+dureePlayer = duree;
+console.log("duree",duree,file);
+	var a;
+	document.getElementById("renderAudio").style.display="block";
+	if(document.getElementById("rubber")){
+		a=document.getElementById("rubber");
 	}else{
-		if(grpSelect==1){
-			var minx=tableObjet[preservSelect[0]].posX
-			for(let i=0;i<preservSelect.length;i++){
-				if(tableObjet[preservSelect[i]].posX<minx){
-					minx=tableObjet[preservSelect[i]].posX
-				}
-			}
-			var maxx=tableObjet[preservSelect[preservSelect.length-1]].posX
-			for(let i=0;i<preservSelect.length;i++){
-				if(tableObjet[preservSelect[i]].posX>maxx){
-					maxx=tableObjet[preservSelect[i]].posX
-				}
-			}
-			for(let i=0;i<tableObjet.length;i++){
-				if(tableObjet[i].posX>=minx && tableObjet[i].posX<=maxx){
-					if(tableObjet[i].etat==1 && tableObjet[i].class==1  && tableObjet[i].file && tableObjet[i].mute==0){
-						grp.push(i)
-					}
-				}	
-			}
-			console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp)
-		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
-			var minx=tableObjet[tableObjet[objActif].liste[0]].posX
-			
-			for(let i=0;i<tableObjet[objActif].liste.length;i++){
-				if(tableObjet[tableObjet[objActif].liste[i]].posX<minx){
-					minx=tableObjet[preservSelect[i]].posX
-				}
-			}
-			var maxx=tableObjet[tableObjet[objActif].liste[tableObjet[objActif].liste.length-1]].posX
-			for(let i=0;i<tableObjet[objActif].liste.length;i++){
-				if(tableObjet[tableObjet[objActif].liste[i]].posX>maxx){
-					maxx=tableObjet[preservSelect[i]].posX
-				}
-			}
-			for(let i=0;i<tableObjet.length;i++){
-				if(tableObjet[i].posX>=minx && tableObjet[i].posX<=maxx){
-					if(tableObjet[i].etat==1 && tableObjet[i].class==1 && tableObjet[i].file && tableObjet[i].mute==0){
-						grp.push(i)
-					}
-				}
-			}
-			console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp)
-		}
+	a = document.createElement('a');
+	document.getElementById("renderAudioBlock").appendChild(a);
+	a.id="rubber";
 	}
-	
-	var minpos=tableObjet[grp[0]].posX;
-	var idpos=0;
-	for(let i=0;i<grp.length;i++){
-		if(tableObjet[grp[i]].posX<minpos){
-			minpos=tableObjet[grp[i]].posX;
-			idpos=i;
-		}
-	}
-	var tablePosX=[];
-	recordingstream=contextAudio.createMediaStreamDestination();
-  	recorder=new MediaRecorder(recordingstream.stream);
-  	var deflastObj=lastAudioInGrp(grp)
-  	
-  	console.log("lastAudioInGrp",deflastObj.id)
-  	var j=0
-	if(grp.length>0){
-		document.getElementById("barVerticale").style.left=tableObjet[grp[idpos]].posX-10+"px";
-		posX=tableObjet[grp[idpos]].posX-10;
-		bar=(posX*ratioT/zoomScale);
-		for(let i=0;i<grp.length;i++){
-			if(tableObjet[grp[i]].posX>posX){
-				console.log("id",i,tableObjet[grp[i]].bufferId)
-				
-				var source2=contextAudio.createBufferSource();
-				if(tableObjet[grp[i]].convolver!="" && tableBufferIR[tableObjet[grp[i]].convolver].duration>tableBuffer[tableObjet[grp[i]].bufferId].buffer.duration*tableObjet[grp[i]].fin){			
-					source2.buffer=copySliceBuffer(tableBuffer[tableObjet[grp[i]].bufferId].buffer,tableBufferIR[tableObjet[grp[i]].convolver].length,0)
-				}else{
-					source2.buffer =tableBuffer[tableObjet[grp[i]].bufferId].buffer;
-				}
-				tableSrc[j]=contextAudio.createBufferSource();
-				if(tableObjet[grp[i]].reverse==true){
-					var buf1= new Float32Array()
-					var buf2= new Float32Array()
-					buf1=source2.buffer.getChannelData(0)
-     				buf2=source2.buffer.getChannelData(1);
-     				var myArrayBuffer = contextAudio.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-     				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-     				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-     				tableSrc[j].buffer=myArrayBuffer
-     			}else{
-     				tableSrc[j]=source2
-     			}				
-				
-				gainNode[j] = contextAudio.createGain();
-				panner[j] = contextAudio.createPanner();
-				convolver[j] = contextAudio.createConvolver();
-				now=curTime+((tableObjet[grp[i]].posX*ratioT)-bar);
-				var rt=await readSourceAudio(contextAudio,tableSrc[j],grp[i],gainNode[j],now,panner[j],convolver[j]);	
-				tableSrc[j]=rt.src;
-				ndeb[j]=rt.ndeb;
-				nfin[j]=rt.nfin;
-				tablePosX.push(tableObjet[grp[i]].posX)
-				j++
-			}
-		}		
-		
-		recorder.start();	
-		
-  		playerStat=1;
-  		defTime("barVerticale");
-  		foo();
-  		console.log("nbsources",tableSrc.length);	
-		for(let i=0;i<tableSrc.length;i++){
-			if(tableSrc[i] && tablePosX[i]>posX){
-				startX=(tablePosX[i]-posX)*ratioT;//startX=(tablePosX[i])*ratioT;
-				panner[i].connect(recordingstream);
-				console.log("source",i)
-				tableSrc[i].start( contextAudio.currentTime+startX,ndeb[i],nfin[i]);
-				playerStat=1;
-			}
-		}
-		
-		tableSrc[deflastObj.id].onended = () => {
-  			sourcEtat=0;
-  			console.log("lastAudioInGrp",deflastObj.id)
-  			recorder.addEventListener('dataavailable',function(e){
-  				e.data.arrayBuffer().then(arrayBuffer => {
-				   contextAudio.decodeAudioData(arrayBuffer, (audioBuffer) => {
-					var rwav=convertAudioBufferToBlob(audioBuffer);
-				   document.getElementById("renduWav").src=URL.createObjectURL(rwav);
-				   document.getElementById("renderAudio").style.display="block";
-	 					});
-				});
- 				recorder=false;
- 				recordingstream=false;
-  				});
-  				recorder.stop();
-  				clearTimeout(timer);
-  				playerStat=0;
-  				console.log("grp end");
-		};	
-		
-	}
+  //const fileName = file.split(/[\\/]/).pop(); 
+  a.href = file//URL.createObjectURL(rwav);
+  a.download = file;
+  a.textContent = 'Sauvegarder le fichier audio';
+  a.style.display = 'inline-block';
+  a.style.margin = '10px';
+  a.style.padding = '2px 12px';
+  a.style.background = '#0078d7';
+  a.style.color = 'white';
+  a.style.borderRadius = '6px';
+  a.style.textDecoration = 'none';
 }
-
-
-async function renderGrpAudio2(ngrp,mode) {
-	var ratioT=(720/12960);
-	var tempo=60/parseFloat(document.getElementById("tempo").value)
-	var startX;
-	var maxT=0;
-	var maxPosX=0;
-	var id=0;
-	tableSrc=[];
-	var gainNode=[];
-	var panner=[];
-	var convolver=[];
-	var grp=[];
-	var ndeb=[];
-	var nfin=[];
-	
-	tableListSource=[];
-
-	if(ngrp && ngrp.length>0){
-		grp=[].concat(ngrp);
-	}else{
-		if(grpSelect==1){
-			grp=[].concat(preservSelect);
-			document.getElementById("barVerticale").style.left=document.getElementById("grpSelect").style.left;
-		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
-			grp=[].concat(tableObjet[objActif].liste);
-			document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
-			}
-	}
-	var minpos=tableObjet[grp[0]].posX;
-	var idpos=0;
-	for(let i=0;i<grp.length;i++){
-		if(tableObjet[grp[i]].posX<minpos){
-			minpos=tableObjet[grp[i]].posX;
-			idpos=i;
-		}
-	}
-	var posX=parseFloat(document.getElementById("barVerticale").style.left);
-		console.log("liste",grp);
-		
-		if(grp.length>0){
-		
-		var audioLast=lastAudioInGrp(grp);
-		var minId=indexFirstObjInGrp(grp);
-		var maxT= ((Math.abs(tableObjet[audioLast.id].posX-tableObjet[minId].posX))*ratioT)+audioLast.maxDuree+15;
-		var audioRate=tableBuffer[0].buffer.sampleRate;
-		console.log("maxT",maxT)
-		const offlineCtx = new OfflineAudioContext(2,audioRate*maxT,audioRate);
-
-		var curTime = offlineCtx.currentTime;
-		posX=tableObjet[grp[idpos]].posX-10;
-		bar=(posX*ratioT/zoomScale);
-		console.log("grp",grp,posX);
-		offlineCtx.oncomplete = function(e) {
-	  		var renderedBuffer = e.renderedBuffer;
-	  		// do something with the rendered buffer
-	  		console.log('Rendering is completed',renderedBuffer.duration);
-	  		const song = contextAudio.createBufferSource();
-	  		//var newBuffer = removeFirstNSeconds(offlineCtx,renderedBuffer,audioRate,4);
-	  		song.buffer=renderedBuffer
-  			var rwav3=removeSilenceFromStart(song.buffer)
-				var rwav4 = trimSilenceAtEnd(contextAudio, rwav3, threshold = 0.001)
-				var rwav5=addSilenceToBuffer(contextAudio, rwav4, (tablePosX[0]*ratioT*tempo))
-				var rwav6=convertAudioBufferToBlob(rwav5);
-				document.getElementById("renduWav").src=URL.createObjectURL(rwav6);
-		  if(mode==0){
-		  		console.log("mode0")
-		 	 document.getElementById("renderAudio").style.display="block";
-		  }else{
-		  		defTime("barVerticale");
-				tmp=(parseInt(document.getElementById("barVerticale").style.left)*(720/12960));
-				console.log("mode1")
-				var ht=0;
-				var mt=tmp/60;
-				var st=tmp%60;
-				console.log(tmp,mt,st);
-				points=0;
-				document.getElementById("renduWav").currentTime=tmp;
-				document.getElementById("renduWav").play()
-				console.log(tableListSource)
-				compteur=Date.now()
-				foo();
-				  }
-		};	
-		var tablePosX=[];
-		var j=0;
-		for(let i=0;i<grp.length;i++){
-			if(tableObjet[grp[i]].etat==1 && tableObjet[grp[i]].class==1  && tableObjet[i].type<24){
-				if (tableObjet[grp[i]].file && tableObjet[i].mute==0) {
-					if(tableObjet[grp[i]].posX>posX){
-						
-						var source2=offlineCtx.createBufferSource();
-						if(tableObjet[grp[i]].convolver!="" && tableBufferIR[tableObjet[grp[i]].convolver].duration>tableBuffer[tableObjet[grp[i]].bufferId].buffer.duration*tableObjet[grp[i]].fin){					
-							source2.buffer=copySliceBuffer(tableBuffer[tableObjet[grp[i]].bufferId].buffer,tableBufferIR[tableObjet[grp[i]].convolver].length,0)
-						}else{
-							source2.buffer =tableBuffer[tableObjet[grp[i]].bufferId].buffer;
-						}
-						tableSrc[j]=offlineCtx.createBufferSource();
-						if(tableObjet[grp[i]].reverse==true){
-							var buf1= new Float32Array()
-							var buf2= new Float32Array()
-							buf1=source2.buffer.getChannelData(0)
-		     				buf2=source2.buffer.getChannelData(1);
-		     				var myArrayBuffer = offlineCtx.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-		     				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-		     				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-		     				tableSrc[j].buffer=myArrayBuffer
-		     			}else{
-		     				tableSrc[j]=source2
-		     			}
-						
-						gainNode[j] = offlineCtx.createGain();
-						panner[j] = offlineCtx.createPanner();
-						convolver[j] = offlineCtx.createConvolver();
-						now=curTime+((tableObjet[grp[i]].posX*ratioT)-bar);
-						var rt=await readSourceAudio(offlineCtx,tableSrc[j],grp[i],gainNode[j],now,panner[j],convolver[j]);	
-						tableSrc[j]=rt.src;
-						ndeb[j]=rt.ndeb;
-						nfin[j]=tableObjet[grp[i]].fin;
-						tablePosX.push(tableObjet[grp[i]].posX);
-						
-						defPeak(j,rt.src,tableObjet[grp[i]].gain)
-						var gain=peak[j]
-						var obj = {};
-						if(vueStudio==1){
-							var lscale=(1-tableObjet[grp[i]].spZ[0])/2;
-							console.log("lscale",lscale)
-							var cX=tableObjet[grp[i]].spX[0]
-							var cY=tableObjet[grp[i]].spY[0]
-						}else{
-							var lscale=(1-tableObjet[grp[i]].spZ[0])/2;
-							var cX=0;
-							var cY=0;
-						}
-						var lscale2=2	
-						if (gain<0.30){
-							var ws=30*lscale2;
-							var im="./images/png/path4484.png";
-						}
-						if (gain>=-0.30 && gain<-0.60){
-							var ws=35*lscale2;
-							var im="./images/png/path4488.png";
-						} 
-						if (gain>=-0.60 && gain<-0.90){
-							var ws=40*lscale2;
-							var im="./images/png/path4487.png";
-						}
-						if (gain>=-0.90 && gain<1.10){
-							var ws=50*lscale2;
-							var im="./images/png/path4486.png";
-						}
-						if (gain>=1.10 && gain<1.5){
-							var ws=60*lscale2;
-							var im="./images/png/path4489.png";
-						}
-						if (gain>=1.5 && gain<2.0){
-							var ws=70*lscale2;
-							var im="./images/png/path4490.png";
-						}
-						if (gain>=2.0){
-							var ws=80*lscale2;
-							var im="./images/png/path4485.png";
-						}
-						
-						var nduree=rt.src.buffer.duration/tableObjet[grp[i]].transposition;
-						obj = {
-							start:tableObjet[grp[i]].posX,
-							end:tableObjet[grp[i]].posX+(rt.nfin/ratioT),
-							id:tableObjet[grp[i]].id,
-							etat:0,
-							posX:cX,
-							posY:cY,
-							scale:lscale,
-							width:ws,
-							image:im,
-							zindex:Math.round((lscale*100)+1)
-						}	
-						if(tableObjet[grp[i]].spT.length>1){
-							obj.end=tableObjet[grp[i]].posX+((nduree*parseFloat(tableObjet[grp[i]].spT[1]))/ratioT)
-						}				
-						tableListSource.push(obj);
-						var posTrajectoire=[]
-						if(vueStudio==1 && tableObjet[grp[i]].spT.length>1){
-							for(t=1;t<tableObjet[grp[i]].spT.length;t++){
-								posTrajectoire[t] = {
-								start:tableObjet[grp[i]].posX+((nduree*tableObjet[grp[i]].spT[t])/ratioT),
-								end:0,
-								id:tableObjet[grp[i]].id,
-								etat:0,
-								posX:tableObjet[grp[i]].spX[t],
-								posY:tableObjet[grp[i]].spY[t],
-								scale:(1-tableObjet[grp[i]].spZ[t])/2,
-								width:ws,
-								image:im,
-								zindex:Math.round((lscale*100)+1)
-								}
-								if(t==tableObjet[grp[i]].spT.length-1){
-									posTrajectoire[t].end=tableObjet[grp[i]].posX+(rt.nfin/ratioT)
-								}else{
-									posTrajectoire[t].end=tableObjet[grp[i]].posX+((nduree*parseFloat(tableObjet[grp[i]].spT[t+1]))/ratioT)
-								}
-								tableListSource.push(posTrajectoire[t]);
-								console.log("duree",nduree,tableObjet[grp[i]].spT[t])
-							}
-							
-						}
-					}
-				}
-			}
-			j++;
-		}
-		
-	   for(let i=0;i<tableSrc.length;i++){
-	   	
-   		startX=((tablePosX[i])-posX)*ratioT*tempo;
-   		console.log("startX",tempo,startX)
-			//tableSrc[i].start(startX,ndeb[i],nfin[i]);
-			tableSrc[i].start(startX,ndeb[i],tableSrc[i].buffer.duration*nfin[i]);			
-			console.log("grpstart",i,startX,tablePosX[i],tableSrc[i].buffer.duration,rt.ndeb,rt.nfin,nfin[i]);
-	   }
-		offlineCtx.startRendering().then(function(renderedBuffer) {
-	   	console.log('Rendering completed successfully');
-		}).catch((err) => {
-		    console.error(`Rendering failed: ${err}`);
-		    // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
-		});	
-			
-	}
-	
-}
-function renderObjeteAudio(){
+async function renderObjAudio(){
 	var lsgrp=[];
 	lsgrp.push(objActif);
-	document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
-	renderGrpAudio2(lsgrp,0);
+	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX);
+	console.log("retour",rt.mixDuration,rt.output);
+	saveRenduAudio(rt.mixDuration,rt.output);
 }
-function renderGrpAudio(ngrp){
+
+function renderGrpAudio3(ngrp){
+	var tempoMap=[];
 	if(ngrp && ngrp.length>0){
 		grp=[].concat(ngrp);
 	}else{
@@ -1255,11 +662,51 @@ function renderGrpAudio(ngrp){
 			document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
 			}
 	}
-	renderGrpAudio2(lsgrp,0);
+	lsgrp.sort(function (a, b) {
+  return tableObjet[a].posX - tableObjet[b].posX;
+});
+	
+	var indDebut=tempoFoo.find((element) => element.X>=tableObjet[lsgrp[0]].posX);
+	var nfin=tableObjet[lsgrp[lsgrp.length-1]].posX+(tableObjet[lsgrp[lsgrp.length-1]].duree*18)
+	var indFin=tempoFoo.find((element) => element.X>=nfin);
+	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
+	var i=0;
+	var base=tableObjet[lsgrp[0]].posX;
+	console.log("base",base);
+	document.getElementById("barVerticale").style.left=(tableObjet[lsgrp[0]].posX-8)+"px";
+	tempoMap[0]={
+			x:0,
+			y:indDebut.Y/60
+			}
+			console.log("tempoMap",lsgrp,indDebut,indFin,nfin,j)
+			i++;
+	while(tempoPoints[j].X<indFin.X){
+		console.log("tempoMap",j,indDebut.X,(tempoPoints[j].X-base)/18,(240-(parseFloat(tempoPoints[j].Y)/0.4167)))
+		if(tempoPoints[j].X>indDebut.X){
+		tempoMap[i]={
+			x:(parseFloat(tempoPoints[j].X)-base)/18,
+			y:(240-(parseFloat(tempoPoints[j].Y)/0.4167))/60
+			}
+			i++;
+		 }
+			j++;
+	}
+	tempoMap[i]={
+			x:(parseFloat(indFin.X)-base)/18,
+			y:indFin.Y/60
+			}
+	i++;
+	
+	(async () => {
+		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
+		console.log("retour",rt);
+		saveRenduAudio(rt.mixDuration,rt.output);
+	})();
 }
 function renderIntervalleAudio(){
 	var lsgrp=[];
-	var deb=parseFloat(document.getElementById("barDebut").style.left);
+	var tempoMap=[];
+	var deb=parseFloat(document.getElementById("barDebut").style.left)+36;
 	var fin=parseFloat(document.getElementById("barFin").style.left);
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
@@ -1268,527 +715,980 @@ function renderIntervalleAudio(){
 			}
 		}
 	}
+	lsgrp.sort(function (a, b) {
+  		return tableObjet[a].posX - tableObjet[b].posX;
+	});
 	console.log("debut",deb,"fin",fin,lsgrp);
-	document.getElementById("barVerticale").style.left="0px";
-	renderGrpAudio2(lsgrp,0);
+	// window.api.send("toMain", "renderGroupSoX;"+lsgrp+";"+JSON.stringify(tableObjet)+";"+tableObjet[0].posX);
+	(async () => {
+		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb);
+		console.log("retour",rt.duree,rt.path);
+		saveRenduAudio(rt.mixDuration,rt.output);
+	})();
 }
-
-function renderPartAudio(){
+async function renderPartAudio(mode){
 	var lsgrp=[];
+	var startx=parseFloat(document.getElementById("barVerticale").style.left);
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
 			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
-				if (tableObjet[i].class==1 && tableObjet[i].type<24) {
+				if (tableObjet[i].class==1 && tableObjet[i].type<24 && tableObjet[i].posX>startx) {
 					lsgrp.push(i);
 				}
 			}
 		}
 	}
 	console.log(lsgrp);
-	document.getElementById("barVerticale").style.left="0px";
-	renderGrpAudio2(lsgrp,0);
-}
-
-
-function exportObjetActif() {
-	exportAudioObjet(objActif,0)
-}
-
-var defrenderedBuffer={};
-async function exportAudioObjet(obj,mode) {	
-console.log("obj",obj,tableBufferIR,tableObjet[obj],tableBufferIR[tableObjet[obj].convolver],contextAudio.sampleRate)
-	var audioRate=contextAudio.sampleRate;
-	var nduree=tableObjet[obj].duree/tableObjet[obj].transposition;
-	if(tableObjet[obj].convolver!="" && tableBufferIR[tableObjet[obj].convolver].buffer.duration>nduree){
-			var ndt=tableBufferIR[tableObjet[obj].convolver].duration
-		}else{
-			var ndt=nduree
-		}
-	const offlineCtx = new OfflineAudioContext(2,ndt*audioRate,audioRate);
-	var curTime = offlineCtx.currentTime;
-
 	
-	var source=offlineCtx.createBufferSource();
-	source.buffer =tableBuffer[tableObjet[obj].bufferId].buffer;
-	var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-	if(tableObjet[obj].reverse==true){
-		var buf1= new Float32Array()
-		var buf2= new Float32Array()
-		buf1=source.buffer.getChannelData(0)
-  		buf2=source.buffer.getChannelData(1);
-  		var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-  		myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-  		myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-  		source.buffer=myArrayBuffer
-  	}
-	var gainNode = offlineCtx.createGain();
-	var convolver = offlineCtx.createConvolver();
-	if(tableObjet[obj].mute==0){
-		var now=curTime				
-		var rt=await defSourceAudio(offlineCtx,source,obj,gainNode,now,convolver);
-		console.log("source",convolver,tableBuffer[tableObjet[obj].bufferId].name,rt.src.buffer.duration,rt.src.playbackRate.value,rt.nfin)
-		rt.src.start(0,rt.debut,rt.fin)
-					
-		offlineCtx.startRendering().then(function(renderedBuffer) {
-	   	console.log('Start Rendering');
-		}).catch((err) => {
-		    console.error(`Rendering failed: ${err}`);
-		    // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
-		});
-			
+	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx);
+	console.log("retour",rt);
+	var start=startx/18;
+	var end=rt.mixDuration-start;
+	console.log("read start",start,rt.mixDuration,end)
+	
+	var tempoMap=[]
+	for(i=0;i<tempoPoints.length;i++){
+		tempoMap[i]={
+			x:parseFloat(tempoPoints[i].X)/18,
+			y:(240-(parseFloat(tempoPoints[i].Y)/0.4167))/60
+			}
 	}
-var nrc={}
-	rt.src.onended = () => {
-		offlineCtx.oncomplete = function(e) {
-		  	var renderedBuffer = e.renderedBuffer;
-		  	console.log("objet"+obj,' Rendering is completed',renderedBuffer.duration);
-		  	
- 			if(mode==0){
-			var rwav=convertAudioBufferToBlob(renderedBuffer)
-	
-			var reader = new FileReader();
-			reader.readAsArrayBuffer(rwav);
-			reader.onloadend = (event) => {
-	    		// The contents of the BLOB are in reader.result:	
-	    	console.log("result ",audioDirectory+"exports/"+tableObjet[obj].id+".wav"," ",reader.result);
-	    	window.api.saveAudio('saveAudio',(audioDirectory+"exports/"+tableObjet[obj].id+".wav"), reader.result);
-			}
-			}else{
-					nrc.obj=obj;
-					nrc.buffer=renderedBuffer;
-			}
-		}
+	console.log("tempoMap",tempoPoints,tempoMap);
+	//console.warn("TYPE console.log =", typeof console.log);
 		
-	}	
-return nrc
+		if(mode==0){
+			console.log("read");
+			defTime("barVerticale");
+	  		foo();
+			window.api.send("toMain", 'playDirectFile;'+rt.output+";"+"pitch 0 speed 1 vol 1 trim 0 "+rt.mixDuration);
+			
+		}else{
+			saveRenduAudio(rt.mixDuration,rt.output);
+		}
 }
 
-		
-async function defAudioObjet(obj) {	
-console.log("obj",obj,tableObjet[obj],tableBufferIR[tableObjet[obj].convolver])
-	var audioRate=tableBuffer[0].buffer.sampleRate;
-	var nduree=tableObjet[obj].duree/tableObjet[obj].transposition;
-	if(tableObjet[obj].convolver!="" && tableBufferIR[tableObjet[obj].convolver].duration>nduree){
-			var ndt=tableBufferIR[tableObjet[obj].convolver].duration
-		}else{
-			var ndt=nduree
-		}
-	const offlineCtx = new OfflineAudioContext(2,ndt*audioRate,audioRate);
-	var curTime = offlineCtx.currentTime;
+function defSourceEnveloppe(id, nduree, gainNode, dtime) {
 
-	
-	var source=offlineCtx.createBufferSource();
-	source.buffer =tableBuffer[tableObjet[obj].bufferId].buffer;
-	var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-	if(tableObjet[obj].reverse==true){
-		var buf1= new Float32Array()
-		var buf2= new Float32Array()
-		buf1=source.buffer.getChannelData(0)
-  		buf2=source.buffer.getChannelData(1);
-  		var myArrayBuffer = contextAudio.createBuffer(2, source.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-  		myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-  		myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-  		source.buffer=myArrayBuffer
-  	}
-	var gainNode = offlineCtx.createGain();
-	var convolver = offlineCtx.createConvolver();
-	if(tableObjet[obj].mute==0){
-		var now=curTime				
-		var rt=await defSourceAudio(offlineCtx,source,obj,gainNode,now,convolver);
-		console.log("sourcedefAudioObjet",convolver,tableBuffer[tableObjet[obj].bufferId].name,rt.src.buffer.duration,rt.src.playbackRate.value,rt.nfin)
-		rt.src.start(0,rt.debut,rt.fin)
-					
-		offlineCtx.startRendering().then(function(renderedBuffer) {
-	   	console.log('Start Rendering');
-		}).catch((err) => {
-		    console.error(`Rendering failed: ${err}`);
-		    // Note: The promise should reject when startRendering is called a second time on an OfflineAudioContext
-		});
-			
-	}
+    const typevar = tableObjet[id].envType;
+    const ngain = tableObjet[id].gain;
+    const envX = tableObjet[id].envX;
+    const envY = tableObjet[id].envY;
 
-	rt.src.onended = () => {
-		offlineCtx.oncomplete = function(e) {
-			console.log('Rendering complete');
-			drawSvgWaveform(e.renderedBuffer, document.getElementById("canvas").firstChild.nextSibling.firstChild, 0.5,1)
-		}
-	}	
-	
-}	
+    if (typevar === 3) {
+        // ----- CURVE -----
+        const waveArray = new Float32Array(7);
+        for (let i = 0; i < 7; i++) {
+            waveArray[i] = ngain * parseFloat(envY[i]);
+        }
 
+        // 3e paramètre = durée, pas endTime !
+        gainNode.gain.setValueCurveAtTime(waveArray, dtime, nduree);
 
-function defSourceEnveloppe(id,nduree,gainNode,dtime){
-	var typevar=tableObjet[id].envType;
-	const waveArray = new Float32Array(7); //                                      selection type enveloppe
-	
-	var ngain=tableObjet[id].gain //*tableObjet[id].spD;	
-	if(typevar==3){ //                                                                CurveAtTime
-		for(i=0;i<7;i++){
-			waveArray[i] = ngain*parseFloat(tableObjet[id].envY[i]);
-		}
-		gainNode.gain.setValueCurveAtTime(waveArray, dtime, dtime+nduree);
-	}else{
-		gainNode.gain.setValueAtTime(ngain*parseFloat(tableObjet[id].envY[0]),dtime);
-		for(i=1;i<7;i++){
-			switch(typevar) {
-				case 1: //                                                               linearRampToValueAtTime
-					gainNode.gain.linearRampToValueAtTime(ngain*parseFloat(tableObjet[id].envY[i]), dtime+ (nduree*parseFloat(tableObjet[id].envX[i])));
-					break;
-				case 2: //                                                               exponentialRampToValueAtTime
-					gainNode.gain.exponentialRampToValueAtTime(ngain*parseFloat(tableObjet[id].envY[i]), dtime + (nduree*parseFloat(tableObjet[id].envX[i])));
-					break;
-			}
-		}
-   }
-   return gainNode;
+    } else {
+
+        // point 0
+        gainNode.gain.setValueAtTime(ngain * parseFloat(envY[0]), dtime);
+
+        for (let i = 1; i < 7; i++) {
+
+            const t = nduree * parseFloat(envX[i]);
+            let v = ngain * parseFloat(envY[i]);
+
+            switch (typevar) {
+
+                case 1: // ----- LINEAR -----
+                    gainNode.gain.linearRampToValueAtTime(v, dtime + t);
+                    break;
+
+                case 2: // ----- EXPONENTIAL -----
+                    // valeurs > 0 obligatoires
+                    v = Math.max(v, 1e-6);
+                    gainNode.gain.exponentialRampToValueAtTime(v, dtime + t);
+                    break;
+            }
+        }
+    }
+
+    return gainNode;
 }
 
-async function readSourceAudio(audioContext,nsource,id,gainNode,now,panner,convolver){
-	console.log("id resource",id)
-	var spgain=[]
-	if(tableObjet[id].class==1){
-		var tableGreffons=[];
-		var nduree=nsource.buffer.duration/tableObjet[id].transposition;
-		console.log("nduree",id,nduree,tableObjet[id].transposition)
-	   gainNode=defSourceEnveloppe(id,nduree,gainNode,now);
-		nsource.detune.value=tableObjet[id].detune;
-		nsource.playbackRate.value=tableObjet[id].transposition;
-		
-		switch(tableObjet[id].type) {
-		case 11:
-			var defEndRate=invTransposition(tableObjet[id].y2);
-			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
-			var ratioT=(720/12960);
-			var ntime=((tableObjet[id].x2-tableObjet[id].x1)*ratioT)/zoomScale;
-			console.log("defEndRate11",tableObjet[id].y1,tableObjet[id].y2,ntime,defEndRate);
-			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + ntime);
-			break;
-		case 13:
-			var defEndRate=invTransposition(tableObjet[id].posY-tableObjet[id].bkgHeight);
-			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
-			console.log("readSourceAudio",tableObjet[id].transposition,defEndRate,"debut",now,"fin",now+nduree);
-			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
-			break;
-		case 14:
-			var defEndRate=invTransposition(tableObjet[id].posY+tableObjet[id].bkgHeight);
-			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
-			console.log("defEndRate15",defEndRate);
-			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
-			break;
-		case 15:
-			var defEndRate=invTransposition(tableObjet[id].posY-tableObjet[id].bkgHeight);
-			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
-			console.log("defEndRate16",defEndRate);
-			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
-			break;
-		case 16:
-			var defEndRate=invTransposition(tableObjet[id].posY+tableObjet[id].bkgHeight);
-			nsource.playbackRate.setValueAtTime(tableObjet[id].transposition,now);
-			console.log("defEndRate17",defEndRate);
-			nsource.playbackRate.linearRampToValueAtTime(defEndRate, now + nduree);
-			break;
-	}
-		
-		var ndeb=nduree*tableObjet[id].debut;
-		if(tableObjet[id].convolver!="" && tableBufferIR[tableObjet[id].convolver].duration>nduree*tableObjet[id].fin){
-			nfin=tableBufferIR[tableObjet[id].convolver].duration
-		}else{
-			var nfin=(nduree*tableObjet[id].fin)
-		}
-	
-		panner.panningModel = pannerPanningModel;
-		panner.distanceModel = pannerDistanceModel;
-		panner.refDistance = pannerRefDistance;
-		panner.maxDistance = pannerMaxDistance;
-		panner.rolloffFactor =pannerRolloffFactor;
-		panner.coneInnerAngle =pannerConeInnerAngle;
-		panner.coneOuterAngle =pannerConeOuterAngle;
-		panner.coneOuterGain = pannerConeOuterGain;
-		
-		if (panner.orientationX) {
-		  panner.orientationX.setValueAtTime(pannerOrientationX, audioContext.currentTime);
-		  panner.orientationY.setValueAtTime(pannerOrientationY, audioContext.currentTime);
-		  panner.orientationZ.setValueAtTime(pannerOrientationZ, audioContext.currentTime);
-		} else {
-		  panner.setOrientation(pannerOrientationX, pannerOrientationY, pannerOrientationZ);
-		}
-		var j=0;
-		for(let i=0;i<7;i++){
-			if(tableObjet[id].tableFx[i]!=""  && tableObjet[id].tableFx[i]!=0 ){
-				j++;
-			}
-		}
-		var nbg=j;
-		console.log("nbfx",nbg)
-		tableGreffons[0]=nsource;
-		console.log("convolver",tableObjet[id])
 
-		if(nbg==0){
+// ======================================================================
 
-			tableGreffons[0].connect(gainNode);
-			positionPanner();
-			if(tableObjet[id].convolver==""){
-				gainNode.connect(panner);
-			}else{
-				convolver.buffer=tableBufferIR[tableObjet[id].convolver];
-				gainNode.connect(convolver);
-				convolver.connect(panner);
-			}
-			panner.connect(audioContext.destination);
-			console.log("nsource an",nsource.buffer.duration)
+function reverseMultiBuffersFloat32(srcBuffers) {
+    const out = new Array(srcBuffers.length);
 
-		}else{
-			var j=1;
-			for(let i=0;i<7;i++){
-				if(tableObjet[id].tableFx[i]!="" && tableObjet[id].tableFx[i]!=0 ){
-			
-					 const createFaustNode = async (audioContext, dspName , voices = 0, sp = false) => {
-				    // Set to true if the DSP has an effect
-				    const FAUST_DSP_HAS_EFFECT = false;
-				
-				    // Import necessary Faust modules and data
-				    const { FaustMonoDspGenerator, FaustPolyDspGenerator } = await import("./greffons/"+dspName+"-wasm/faustwasm/index.js");
-				
-				    // Load DSP metadata from JSON
-				    /** @type {FaustDspMeta} */
-				    const dspMeta = await (await fetch("./greffons/"+dspName+"-wasm/dsp-meta.json")).json();
-				
-				    // Compile the DSP module from WebAssembly binary data
-				    const dspModule = await WebAssembly.compileStreaming(await fetch("./greffons/"+dspName+"-wasm/dsp-module.wasm"));
-				
-				    // Create an object representing Faust DSP with metadata and module
-				    /** @type {FaustDspDistribution} */
-				    const faustDsp = { dspMeta, dspModule };
-				
-				    /** @type {FaustNode | null} */
-				    let faustNode = null;
-				
-				    // Create either a polyphonic or monophonic Faust audio node based on the number of voices
-				        // Create a standard Faust audio node
-				        const generator = new FaustMonoDspGenerator();
-				        faustNode = await generator.createNode(
-				            audioContext,
-				            dspName,
-				            { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
-				            sp
-				        );
-				     
-				
-				    // Return an object with the Faust audio node and the DSP metadata
-				     return { faustNode, dspMeta };
-					}			
-					
-					const { faustNode, dspMeta: { name } } = await createFaustNode(audioContext, listeFx[tableObjet[id].tableFx[i]].greffon, 0);
-    				if (!faustNode) throw new Error("Faust DSP not compiled");
-    				tableGreffons[j]=faustNode
-    				console.log(faustNode)
-					
-						var dest= listeFx[tableObjet[id].tableFx[i]].paramname.split(',')
-						var fxparam=tableObjet[id].tableFxParam[i].split('/')
-						for(let m=0;m<fxparam.length;m++){
-						var param=fxparam[m].split("&")
-						var shiftParam = tableGreffons[j].parameters.get(dest[m]);
-						var paramvalue=param[0].split("?")
-						console.log("obj",tableObjet[id],"dest",dest[m],"fxparam",fxparam[m],"param",param,"shiftParam",shiftParam);
-						shiftParam.setValueAtTime(parseFloat(paramvalue[1]), now);
-						
-						for(k=1;k<param.length;k++){
-							paramvalue=param[k].split("?")
-							console.log('paramvalue',param[k]," ",param.length)
-							shiftParam.linearRampToValueAtTime(parseFloat(paramvalue[1]), now + parseFloat(paramvalue[0]));
-						}
-						tableGreffons[j-1].connect(tableGreffons[j]);
-						}
-						console.log("faust",shiftParam)
-						j++;
-						if (j>nbg) {
-							tableGreffons[j-1].connect(gainNode);
-							positionPanner();
-							if(tableObjet[id].convolver==""){
-								gainNode.connect(panner);
-							}else{
-								convolver.buffer=tableBufferIR[tableObjet[id].convolver];
-								gainNode.connect(convolver);
-								convolver.connect(panner);
-							}
-							panner.connect(audioContext.destination);
-							
-						}
-					
-				}
-			}
-			
-		}
-	 
-		function positionPanner() {
-		  var xPos=parseFloat(tableObjet[id].spX[0]);
-		  var yPos=-parseFloat(tableObjet[id].spY[0]);
-		  var zPos=parseFloat(tableObjet[id].spZ[0]);
-			  
-	     panner.positionX.setValueAtTime(xPos, now);
-	     panner.positionY.setValueAtTime(yPos, now);
-	     panner.positionZ.setValueAtTime(zPos, now);
-			  
-		  for(i=1;i<tableObjet[id].spT.length;i++){
-		  	var xPos=parseFloat(tableObjet[id].spX[i]);
-		   var yPos=-parseFloat(tableObjet[id].spY[i]);
-		   var zPos=parseFloat(tableObjet[id].spZ[i]);
-		   var posT=parseFloat(tableObjet[id].spT[i])*nduree;
-		  	panner.positionX.linearRampToValueAtTime(xPos, now+posT);
-		   panner.positionY.linearRampToValueAtTime(yPos, now+posT);
-		   panner.positionZ.linearRampToValueAtTime(zPos, now+posT);
-		  }
-		}
-		
-		
-		//console.log("nduree",nduree,tableBufferIR[tableObjet[id].convolver]);
+    for (let i = 0; i < srcBuffers.length; i++) {
+        const ch = srcBuffers[i];
+        const rev = new Float32Array(ch.length);
 
-		return param = {
-				src:nsource,
-				ndeb: ndeb,
-				nfin: nfin}
-	}
-	
+        // copie inversée
+        for (let j = 0, k = ch.length - 1; j < ch.length; j++, k--) {
+            rev[j] = ch[k];
+        }
+
+        out[i] = rev;
+    }
+    return out;
 }
-async function defSourceAudio(audioContext,nsource,id,gainNode,now,convolver){
-	if(tableObjet[id].class==1){
-		var typevar=tableObjet[id].envType;
-		var tableGreffons=[];
-		var nduree=nsource.buffer.duration/tableObjet[id].transposition;
-		
-	   gainNode=defSourceEnveloppe(id,nduree,gainNode,now);
-		nsource.detune.value=tableObjet[id].detune;
-		nsource.playbackRate.value=tableObjet[id].transposition;
-		
-		var ndeb=nduree*tableObjet[id].debut;
-		if(tableObjet[id].convolver!="" && tableBufferIR[tableObjet[id].convolver].duration>nduree*tableObjet[id].fin){
-			nfin=tableBufferIR[tableObjet[id].convolver].duration
-		}else{
-			var nfin=(nduree*tableObjet[id].fin)
-		}
-		
-		var j=0;
-		for(let i=0;i<7;i++){
-			if(tableObjet[id].tableFx[i]!=""  && tableObjet[id].tableFx[i]!=0 ){
-				j++;
-			}
-		}
-		var nbg=j;
-		console.log("nbfx",nbg)
-		tableGreffons[0]=nsource;
-		if(nbg==0){
+async function convolveMultiBuffers(rt, irBuffer) {
+    const numChannels = rt.numChannels;
+    const numSamples  = rt.numSamples;
+    const sampleRate  = rt.sampleRate;
 
-			tableGreffons[0].connect(gainNode);
-			//positionPanner();
-			/*
-			if(tableObjet[id].convolver==""){
-				gainNode.connect(panner);
-			}else{
-				convolver.buffer=tableBufferIR[tableObjet[id].convolver];
-				gainNode.connect(convolver);
-				convolver.connect(panner);
-			}
-			//panner.connect(audioContext.destination);
-			*/
-			tableGreffons[0].connect(gainNode);
-					
-			if(tableObjet[id].convolver==""){
-				gainNode.connect(audioContext.destination);
-			}else{
-				convolver.buffer=tableBufferIR[tableObjet[id].convolver];
-				gainNode.connect(convolver);
-				convolver.connect(audioContext.destination);
-			}
-			console.log("nsource an",nsource.buffer.duration)
+    console.log("convolveMultiBuffers →", { numChannels, numSamples, sampleRate });
 
-		}else{
-			var j=1;
-		for(let i=0;i<7;i++){
-			if(tableObjet[id].tableFx[i]!=""  && tableObjet[id].tableFx[i]!=0 ){
-				const createFaustNode = async (audioContext, dspName , voices = 0, sp = false) => {
-				    // Set to true if the DSP has an effect
-				    const FAUST_DSP_HAS_EFFECT = false;
-				
-				    // Import necessary Faust modules and data
-				    const { FaustMonoDspGenerator, FaustPolyDspGenerator } = await import("./greffons/"+dspName+"-wasm/faustwasm/index.js");
-				
-				    // Load DSP metadata from JSON
-				    /** @type {FaustDspMeta} */
-				    const dspMeta = await (await fetch("./greffons/"+dspName+"-wasm/dsp-meta.json")).json();
-				
-				    // Compile the DSP module from WebAssembly binary data
-				    const dspModule = await WebAssembly.compileStreaming(await fetch("./greffons/"+dspName+"-wasm/dsp-module.wasm"));
-				
-				    // Create an object representing Faust DSP with metadata and module
-				    /** @type {FaustDspDistribution} */
-				    const faustDsp = { dspMeta, dspModule };
-				
-				    /** @type {FaustNode | null} */
-				    let faustNode = null;
-				
-				    // Create either a polyphonic or monophonic Faust audio node based on the number of voices
-				        // Create a standard Faust audio node
-				        const generator = new FaustMonoDspGenerator();
-				        faustNode = await generator.createNode(
-				            audioContext,
-				            dspName,
-				            { module: faustDsp.dspModule, json: JSON.stringify(faustDsp.dspMeta), soundfiles: {} },
-				            sp
-				        );
-				     
-				
-				    // Return an object with the Faust audio node and the DSP metadata
-				     return { faustNode, dspMeta };
-					}			
-					
-					const { faustNode, dspMeta: { name } } = await createFaustNode(audioContext, listeFx[tableObjet[id].tableFx[i]].greffon, 0);
-    				if (!faustNode) throw new Error("Faust DSP not compiled");
-    				
-    				tableGreffons[j]=faustNode
-    				console.log(faustNode)
-						var dest= listeFx[tableObjet[id].tableFx[i]].paramname.split(',')
-						console.log("dest",listeFx[tableObjet[id].tableFx[i]].paramname)
-						var fxparam=tableObjet[id].tableFxParam[i].split('/')
-						for(let m=0;m<fxparam.length;m++){
-						var param=fxparam[m].split("&")
-						console.log("dest",dest[m],"fxparam",fxparam[m]," param",param)
-						var shiftParam = tableGreffons[j].parameters.get(dest[m]);
-						var paramvalue=param[0].split("?")
-						shiftParam.setValueAtTime(parseFloat(paramvalue[1]), now);
-						for(k=1;k<param.length;k++){
-							paramvalue=param[k].split("?")
-							console.log('paramvalue',param[k]," ",param.length)
-							shiftParam.linearRampToValueAtTime(parseFloat(paramvalue[1]), now + parseFloat(paramvalue[0]));
-						}
-						tableGreffons[j-1].connect(tableGreffons[j]);
-						}
-						console.log("faust",shiftParam,dest[i])
-				j++;
-				if (j>nbg) {
-					tableGreffons[j-1].connect(gainNode);
-					
-					if(tableObjet[id].convolver==""){
-						gainNode.connect(audioContext.destination);
-					}else{
-						convolver.buffer=tableBufferIR[tableObjet[id].convolver];
-						gainNode.connect(convolver);
-						convolver.connect(audioContext.destination);
-					}
-					
-					
-				}
-			
-		  }
+    // Convertir IR en AudioBuffer mono si besoin
+    let irAudioBuffer;
+    if (irBuffer instanceof AudioBuffer) {
+        irAudioBuffer = irBuffer;
+    } else if (irBuffer instanceof Float32Array) {
+        const tmpCtx = new OfflineAudioContext(1, irBuffer.length, sampleRate);
+        irAudioBuffer = tmpCtx.createBuffer(1, irBuffer.length, sampleRate);
+        irAudioBuffer.copyToChannel(irBuffer, 0);
+    } else {
+        throw new Error("IR invalide");
+    }
+
+    // === Traitement canal-par-canal SANS MIXAGE ===
+    const outputChannels = [];
+
+    for (let ch = 0; ch < numChannels; ch++) {
+
+        // Un OfflineAudioContext *par canal*
+        const ctx = new OfflineAudioContext({
+            numberOfChannels: 1,
+            length: numSamples + irAudioBuffer.length,
+            sampleRate : irAudioBuffer.sampleRate
+        });
+
+        const source = ctx.createBufferSource();
+        const conv   = ctx.createConvolver();
+
+        conv.buffer = irAudioBuffer;
+
+        const buf = ctx.createBuffer(1, numSamples, sampleRate);
+        buf.copyToChannel(rt.channels[ch], 0);
+        source.buffer = buf;
+
+        source.connect(conv);
+        conv.connect(ctx.destination);
+
+        source.start();
+
+        const rendered = await ctx.startRendering();
+
+        outputChannels[ch] = rendered.getChannelData(0).slice();
+    }
+
+    return {
+        sampleRate,
+        buffers: outputChannels
+    };
+}
+async function createTempoMap(id){
+	var tempoMap=[];
+	var indDebut=tempoFoo.find((element) => element.X>=tableObjet[id].posX);
+	var nfin=tableObjet[id].posX+(tableObjet[id].duree*18);
+	var indFin=tempoFoo.find((element) => element.X>=nfin);
+	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
+	var i=0;
+	var base=tableObjet[id].posX;
+	
+	tempoMap[0]={
+			x:0,
+			y:indDebut.Y/60
+			}
+			console.log("tempoMap",lsgrp,indDebut,indFin,nfin,j)
+			i++;
+	while(tempoPoints[j].X<indFin.X){
+		console.log("tempoMap",j,indDebut.X,(tempoPoints[j].X-base)/18,(240-(parseFloat(tempoPoints[j].Y)/0.4167)))
+		if(tempoPoints[j].X>indDebut.X){
+		tempoMap[i]={
+			x:(parseFloat(tempoPoints[j].X)-base)/18,
+			y:(240-(parseFloat(tempoPoints[j].Y)/0.4167))/60
+			}
+			i++;
 		 }
-		}
-		
-		return param = {
-			src:nsource,
-			ndeb: ndeb,
-			nfin: nfin}
+			j++;
 	}
+	tempoMap[i]={
+			x:(parseFloat(indFin.X)-base)/18,
+			y:indFin.Y/60
+			}
+	i++;
 	
+	console.log("tempoMap",tempoPoints,tempoMap,indDebut,indFin)	
+	return tempoMap;
 }
+// ======================================================================
+async function prepareAudio(id, currentChannels, sampleRate, options) {
+    const { pitchSemitones, speedFactor, gain, startSec, lengthSec } = options;
+
+    const numChannels = currentChannels.length;
+    const totalLength = Math.max(...currentChannels.map(ch => ch.length));
+
+    // ----- TRIM -----
+    const startSample = Math.floor(startSec * sampleRate);
+    const endSample = Math.min(Math.floor((startSec + lengthSec) * sampleRate), totalLength);
+    const trimmedLength = endSample - startSample;
+
+    // ----- NOUVELLE DURÉE APRÈS SPEED -----
+    const renderedLength = Math.floor(trimmedLength / speedFactor);
+
+    // ----- CONTEXTE OFFLINE AVEC LA BONNE DURÉE -----
+    const offlineCtx = new OfflineAudioContext(numChannels, renderedLength, sampleRate);
+
+    // ----- AudioBuffer avec la portion originale -----
+    const buffer = offlineCtx.createBuffer(numChannels, trimmedLength, sampleRate);
+    for (let ch = 0; ch < numChannels; ch++) {
+        buffer.copyToChannel(currentChannels[ch].subarray(startSample, endSample), ch);
+    }
+
+    // ----- SOURCE -----
+    const source = offlineCtx.createBufferSource();
+    source.buffer = buffer;
+
+    // Speed (change durée finale)
+    console.log("source",source.playbackRate.value,source.detune.value)
+    source.playbackRate.value = speedFactor;
+    
+    source.detune.value = pitchSemitones;
+console.log("source",source.playbackRate.value,source.detune.value)
+    // Gain
+    const gainNode = offlineCtx.createGain();
+    gainNode.gain.value = gain;
+
+    if (typeof defSourceEnveloppe === "function") {
+        defSourceEnveloppe(id, lengthSec, gainNode, 0);
+    }
+
+    source.connect(gainNode);
+    gainNode.connect(offlineCtx.destination);
+
+    source.start(0);
+
+    // ----- RENDU -----
+    const renderedBuffer = await offlineCtx.startRendering();
+
+    // ----- EXTRACTION -----
+    const processedChannels = [];
+    for (let ch = 0; ch < numChannels; ch++) {
+        processedChannels.push(new Float32Array(renderedBuffer.getChannelData(ch)));
+    }
+
+    return {
+    	newlength:renderedLength,
+    	buffers:processedChannels
+    };
+}
+function extractEnvelopeForObject(gainPoints, objStartX, objDurationX) {
+	 function lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+    const objEndX = objStartX + objDurationX;
+    let result = [];
+
+    // Parcours des segments successifs
+    for (let i = 0; i < gainPoints.length - 1; i++) {
+
+        const p1 = gainPoints[i];
+        const p2 = gainPoints[i + 1];
+
+        // Segment hors zone → skip
+        if (p2.X < objStartX || p1.X > objEndX) 
+            continue;
+
+        // Interpolation du point d'entrée (si le segment croise objStartX)
+        if (p1.X <= objStartX && p2.X >= objStartX) {
+            let t = (objStartX - p1.X) / (p2.X - p1.X);
+            result.push({
+                X: objStartX,
+                Y: lerp(p1.Y, p2.Y, t)
+            });
+        }
+
+        // Points internes
+        if (p1.X >= objStartX && p1.X <= objEndX) {
+            result.push({...p1});
+        }
+    }
+
+    // Interpolation du point de sortie
+    for (let i = 0; i < gainPoints.length - 1; i++) {
+
+        const p1 = gainPoints[i];
+        const p2 = gainPoints[i + 1];
+
+        if (p1.X <= objEndX && p2.X >= objEndX) {
+            let t = (objEndX - p1.X) / (p2.X - p1.X);
+
+            result.push({
+                X: objEndX,
+                Y: lerp(p1.Y, p2.Y, t)
+            });
+            break;
+        }
+    }
+
+    return result;
+}
+function convertToLocalEnvelope(extracted, objAudioDurationSec) {
+
+    const startX = extracted[0].X;
+    const endX = extracted[extracted.length - 1].X;
+    const lenX = endX - startX;
+
+    return extracted.map(p => ({
+        t: ((p.X - startX) / lenX) * objAudioDurationSec,
+        v: (100 - p.Y) * 0.05
+    }));
+}
+function applyEnvelopeToGainNode(gainNode, localEnv) {
+
+    gainNode.gain.cancelScheduledValues(0);
+
+    // Premier point = valeur instantanée
+    gainNode.gain.setValueAtTime(localEnv[0].v, 0);
+
+    // Ramps pour les autres points
+    for (let i = 1; i < localEnv.length; i++) {
+        gainNode.gain.linearRampToValueAtTime(localEnv[i].v, localEnv[i].t);
+    }
+}
+
+
+async function readSimpleAudioA(id,mode) {
+    const obj = tableObjet[id];
+    console.time()
+    if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
+	 document.getElementById("loading").style.display="block";
+    const filePath = obj.file;
+    const dir = rdDirName(filePath);
+    const baseName = rdBaseName(filePath).split(".")[0];
+    const outPath = `${dir}/${baseName}-fx.wav`;
+
+    console.log("[pipeline] readSimpleAudioA start", { filePath, outPath });
+
+    // ----- LOAD BUFFERS (via preload, déjà Float32Array) -----
+    const rt = await window.api.loadBuffers(filePath);
+    if (!rt || !Array.isArray(rt.channels) || rt.channels.length === 0) {
+        throw new Error("loadBuffers: aucun canal renvoyé par preload");
+    }
+    const numChannels = rt.numChannels;
+    let numSamples = rt.numSamples;
+    const sampleRate = rt.sampleRate;
+	 console.log("length",numSamples);
+    // Clone des buffers pour traitement
+    let currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
+
+    // ----- REVERSE -----
+    if (obj.reverse) {
+        currentChannels = await reverseMultiBuffersFloat32(currentChannels);
+    }
+
+    // ----- CONVOLUTION IR -----
+    if (obj.convolver && tableBufferIR[obj.convolver]) {
+        const convResult = await convolveMultiBuffers(rt, tableBufferIR[obj.convolver]);
+        currentChannels = convResult.buffers.map(b => new Float32Array(b));
+    }
+    
+	    const options = {
+	    pitchSemitones: obj.detune/100,  // équivalent à -500 cents
+	    speedFactor: obj.transposition,       // speed 2x
+	    gain: obj.gain,
+	    startSec: obj.debut,
+	    lengthSec: (obj.duree*obj.fin)-(obj.duree*obj.debut)
+		 };
+		 console.log("options",options)
+		
+    // ----- Sauvegarde finale ----- 
+    //
+    const startSample = Math.floor(options.startSec * sampleRate);
+    const endSample = Math.min(Math.floor((options.startSec + options.lengthSec) * sampleRate), numSamples);
+    const trimmedLength = endSample - startSample;
+
+    // ----- NOUVELLE DURÉE APRÈS SPEED -----
+    const renderedLength = Math.floor(trimmedLength / options.speedFactor);
+    console.log("nbsamples",renderedLength);
+    numSamples =  renderedLength;
+    
+	    
+	
+	 currentChannels = await applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate) 
+	 const monoBuffer = await mixToMono(currentChannels);
+	 
+	  await window.api.saveAudioBuffer({
+        filePath: "renduin.wav",
+        buffer: { sampleRate, channels: [monoBuffer] }
+    });
+	 
+	 
+	 const tempoMap = await createTempoMap(id);
+	 const info = {
+	 	id:id,
+	 	mode:mode,
+      sampleRate:sampleRate,
+      channels: 1,
+      length: numSamples,
+      duration: numSamples*sampleRate,
+      tempoMap,
+    };
+
+    window.api.send("toMain", "processAudio;" + JSON.stringify(info));
+	 
+    console.log("[pipeline] saved →", "renduout.wav");
+    return true;
+}
+async function endTrim(renderedBuffer, nsecondes) {
+    const sampleRate = renderedBuffer.sampleRate;
+    const full = renderedBuffer.getChannelData(0);
+
+    // Nombre d'échantillons à retirer
+    const removeSamples = Math.floor(nsecondes * sampleRate);
+
+    // Longueur finale minimale = 1 (sinon AudioBuffer plante)
+    const finalLength = Math.max(1, full.length - removeSamples);
+
+    // Créer le buffer tronqué
+    const trimmed = new Float32Array(finalLength);
+    trimmed.set(full.subarray(0, finalLength));
+
+    return trimmed;
+}
+async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate) {
+	
+	console.log("listeFx",obj,obj.tableFx)
+    // ----- WAM / GREFFONS -----
+    const fxSlots = obj.tableFx || [];
+    const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
+
+    const blockSize = 1024;
+
+    // Import faustwasm once
+    
+    const faustPkg = await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+    const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
+    const faustModule = await instantiateFaustModuleFromFile("./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js");
+    const libFaust = new LibFaust(faustModule);
+    const compiler = new FaustCompiler(libFaust);
+
+    for (let slotIndex = 0; slotIndex < validSlots.length; slotIndex++) {
+        const fxKey = validSlots[slotIndex];
+        const fxDesc = listeFx[fxKey];
+        const dspName = fxDesc.greffon;
+
+        let processor = null;
+        let paramsPaths = [];
+
+        try {
+            const generator = new FaustMonoDspGenerator();
+            let dspSource = await window.api.readFxFile(`./greffons/${dspName}-wasm/${dspName}.dsp`);
+            if (dspSource instanceof Uint8Array || dspSource instanceof ArrayBuffer) {
+                dspSource = new TextDecoder().decode(dspSource);
+            }
+
+            await generator.compile(compiler, dspName, dspSource, "");
+            processor = await generator.createOfflineProcessor(sampleRate, blockSize);
+
+            // récupère les paramètres WAM
+            const paramDest = processor.getParams();
+            if (paramDest && paramDest.length > 0) {
+                paramsPaths = paramDest.map(p => p.path || p);
+            }
+        } catch (err) {
+            console.warn(`[pipeline] DSP compilation failed for slot ${slotIndex} → passthrough`, err);
+            processor = null;
+        }
+
+        // ----- Parse automation -----
+        const tableFxParam = obj.tableFxParam || [];
+        const fxParamString = tableFxParam[slotIndex] || "";
+        const paramBlocks = fxParamString.split("/").map(blockStr => {
+            if (!blockStr) return [];
+            return blockStr.split("&").map(seg => {
+                const [t, v] = seg.split("?");
+                return { time: parseFloat(t||0), value: parseFloat(v||0) };
+            }).sort((a,b)=>a.time-b.time);
+        });
+
+        // ----- Traitement multi-canaux -----
+        const processedChannels = new Array(numChannels);
+
+        for (let ch = 0; ch < numChannels; ch++) {
+            const inBuf = currentChannels[ch];
+            const outBuf = new Float32Array(numSamples);
+
+            for (let offset = 0; offset < numSamples; offset += blockSize) {
+                const len = Math.min(blockSize, numSamples - offset);
+                const t0 = offset / sampleRate;
+                
+                // --- Automation WAM ---
+                for (let pIndex = 0; pIndex < paramsPaths.length; pIndex++) {
+                    const path = paramsPaths[pIndex];
+                    const events = paramBlocks[pIndex] || [];
+                    if (!events.length) continue;
+
+                    let val = events[0].value;
+                    if (t0 <= events[0].time) val = events[0].value;
+                    else if (t0 >= events[events.length-1].time) val = events[events.length-1].value;
+                    else {
+                        for (let i = 0; i < events.length-1; i++) {
+                            const a = events[i], b = events[i+1];
+                            if (t0 >= a.time && t0 < b.time) {
+                                const frac = (t0 - a.time)/(b.time - a.time);
+                                val = a.value + frac*(b.value - a.value);
+                                break;
+                            }
+                        }
+                    }
+                    try { processor.setParamValue(path, val); } catch(e){}
+                }
+
+                // --- Process block ---
+                const sliceIn = inBuf.subarray(offset, offset+len);
+                let blockOut = sliceIn;
+                if (processor) {
+                    const tmp = processor.render([sliceIn], len);
+                    blockOut = Array.isArray(tmp)?tmp[0]:tmp;
+                }
+                outBuf.set(blockOut, offset);
+            }
+            processedChannels[ch] = outBuf;
+        }
+
+        // mise à jour pour le slot suivant
+        currentChannels = processedChannels.map(c => new Float32Array(c));
+    }
+    return currentChannels;
+}
+
+async function loadLayoutJSON(layoutName) {
+	console.log("layoutName",layoutName)
+    if (!layoutName) throw new Error("layoutName missing");
+    const buf = await window.api.readFile(`./Dsp/${layoutName}.json`);
+    const txt = new TextDecoder("utf-8").decode(buf);
+    return JSON.parse(txt);
+}
+function interpolate(times, values, t, type = "linear") {
+    if (!times || !times.length) return values && values[0] || 0;
+    if (!values || !values.length) return 0;
+    if (t <= times[0]) return values[0];
+    if (t >= times[times.length - 1]) return values[values.length - 1];
+
+    // trouve l’intervalle
+    let lo = 0, hi = times.length - 1;
+    while (hi - lo > 1) {
+        const m = (lo + hi) >> 1;
+        if (times[m] <= t) lo = m; else hi = m;
+    }
+
+    const t0 = times[lo], t1 = times[hi];
+    const v0 = values[lo] !== undefined ? values[lo] : values[0];
+    const v1 = values[hi] !== undefined ? values[hi] : v0;
+    const mu = (t - t0) / (t1 - t0 || 1);
+
+    switch (type.toLowerCase()) {
+        case "linear":
+            return v0 * (1 - mu) + v1 * mu;
+
+        case "exp":
+            // évite zéro ou négatif
+            const v0e = v0 <= 0 ? 0.0001 : v0;
+            const v1e = v1 <= 0 ? 0.0001 : v1;
+            return v0e * Math.pow(v1e / v0e, mu);
+
+        case "spline":
+        case "catmull-rom":
+            const p0 = lo > 0 ? values[lo - 1] : v0;
+            const p1 = v0;
+            const p2 = v1;
+            const p3 = hi + 1 < values.length ? values[hi + 1] : v1;
+            const mu2 = mu * mu, mu3 = mu2 * mu;
+            return 0.5 * (
+                (2 * p1) +
+                (-p0 + p2) * mu +
+                (2*p0 - 5*p1 + 4*p2 - p3) * mu2 +
+                (-p0 + 3*p1 - 3*p2 + p3) * mu3
+            );
+
+        default:
+            return v0 * (1 - mu) + v1 * mu;
+    }
+}
+function mixToMono(channels) {
+    if (channels.length === 0) return null;
+
+    const length = channels[0].length;
+    const out = new Float32Array(length);
+
+    for (let i = 0; i < length; i++) {
+        let sum = 0;
+
+        for (let c = 0; c < channels.length; c++) {
+            sum += channels[c][i];
+        }
+
+        out[i] = sum / channels.length; // moyenne → évite clipping
+    }
+
+    return out;
+}
+async function createLayout(layout, numChannels) {
+    console.log("[compile] START", layout);
+    // ===== LOAD LAYOUT =====
+    const layoutJSON = await loadLayoutJSON(layout, numChannels);
+    const dspSource = generateSpatDSP(layoutJSON, numChannels);
+	 const NP = layoutJSON.speakers.length;
+    // ===== INIT FAUST & COMPILE DSP =====
+    const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } =
+        await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+
+    const faustModule = await instantiateFaustModuleFromFile(
+        "./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js"
+    );
+
+    const libFaust = new LibFaust(faustModule);
+    const compiler = new FaustCompiler(libFaust);
+    const generator = new FaustMonoDspGenerator();
+
+    await generator.compile(compiler, "spat", dspSource, "");
+    return {
+    	generator:generator,
+    	P:NP
+    	};
+}
+async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate , currentChannels, interpType = "linear") {
+    console.log("[spatialiseObjet] START", id);
+
+    const obj = tableObjet[id];
+    // ===== OFFLINE PROCESSOR =====
+    const blockSize = 64; // plus réactif
+    console.log("generator",await window.wamSpat.generator)
+    const processor = await window.wamSpat.generator.createOfflineProcessor(sampleRate, blockSize);
+	
+    // ===== READ AVAILABLE PARAMS =====
+    const faustParams = processor.getParams();
+    function findParamFor(prefix) {
+        const reIndexed = new RegExp(`^/?${prefix}\\d+`, "i");
+        return faustParams.find(p => reIndexed.test(p)) || faustParams.find(p => p.toLowerCase().includes(prefix.toLowerCase())) || null;
+    }
+    const paramX = findParamFor("X");
+    const paramY = findParamFor("Y");
+    const paramZ = findParamFor("Z");
+    const paramD = faustParams.find(p => /dt|dist|cdistance|distance/i.test(p)) || null;
+
+    // ===== PREPARE AUTOMATION ARRAYS =====
+    const spX = Array.isArray(obj.spX) ? obj.spX.slice() : [];
+    const spY = Array.isArray(obj.spY) ? obj.spY.slice() : [];
+    const spZ = Array.isArray(obj.spZ) ? obj.spZ.slice() : [];
+    const spD = Array.isArray(obj.spD) ? obj.spD.slice() : [];
+    const spT = Array.isArray(obj.spT) ? obj.spT.slice() : [];
+
+    // fallback timeline si absent
+    if (!spT.length) {
+        const n = Math.max(spX.length, spY.length, spZ.length, spD.length, 1);
+        for (let i = 0; i < n; i++) spT[i] = i / (n - 1 || 1);
+        console.warn("[spatialiseObjet] spT absent -> synthetic timeline created", spT);
+    }
+
+    // convert spT ratio -> secondes
+    const durationSec = numSamples / sampleRate;
+    const spTimesSec = spT.map(ratio => ratio * durationSec);
+    
+    // ===== PROCESS AUDIO =====
+    const P = window.wamSpat.P;//layoutJSON.speakers.length; window.wamSpat.generator.P;
+    let processedChannels = Array.from({ length: P }, () => new Float32Array(numSamples));
+
+    for (let offset = 0; offset < numSamples; offset += blockSize) {
+	    const len = Math.min(blockSize, numSamples - offset);
+	
+	    // --- INPUT BLOCK ---
+	    // Mono = 1 seul canal
+	    // Multi = N canaux
+	    // Nombre de canaux d'entrée (1 si mono)
+		 const C = currentChannels.length;
+	    const inputBlock = [];
+	    for (let ch = 0; ch < C; ch++) {
+	        inputBlock[ch] = currentChannels[ch].subarray(offset, offset + len);
+	    }
+	
+	    // --- PARAMS PAR ÉCHANTILLON ---
+	    for (let i = 0; i < len; i++) {
+	        const t = (offset + i) / sampleRate;
+	
+	        if (paramX) processor.setParamValue(paramX, interpolate(spTimesSec, spX, t, interpType));
+	        if (paramY) processor.setParamValue(paramY, interpolate(spTimesSec, spY, t, interpType));
+	        if (paramZ) processor.setParamValue(paramZ, interpolate(spTimesSec, spZ, t, interpType));
+	        if (paramD) processor.setParamValue(paramD, interpolate(spTimesSec, spD, t, interpType));
+	    }
+	
+	    // --- TRAITEMENT DSP ---
+	    const outputBlock = processor.render(inputBlock, len);
+	
+	    // --- COPIE OUTPUT ---
+	    for (let ch = 0; ch < P; ch++) {
+	        processedChannels[ch].set(outputBlock[ch], offset);
+	    }
+	}
+    // ===== SAVE RESULT =====
+     document.getElementById("loading").style.display="none";
+    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: processedChannels } });
+    console.log("[spatialiseObjet] Fichier spatialisé écrit:", outPath);
+
+    return outPath;
+}
+
+async function spatialise(id,filePath,interpType="linear") {
+	 const obj = tableObjet[id];
+    const baseName = rdBaseName(filePath).split(".")[0];
+    const outPath = `${rdDirName(filePath)}/${baseName}-fx.wav`;
+
+    // ===== LOAD AUDIO BUFFERS =====
+    const rt = await window.api.loadBuffers(filePath);
+    const numChannels = rt.numChannels;
+    let numSamples = rt.numSamples;
+    const sampleRate = rt.sampleRate;
+    let currentChannels = rt.channels.map(ch => new Float32Array(ch));
+
+    // ===== LOAD LAYOUT =====
+    const layoutJSON = await loadLayoutJSON(spat3D);
+    const dspSource = generateSpatDSP(layoutJSON, 6);
+
+    // ===== INIT FAUST & COMPILE DSP =====
+    const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } =
+        await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+
+    const faustModule = await instantiateFaustModuleFromFile(
+        "./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js"
+    );
+
+    const libFaust = new LibFaust(faustModule);
+    const compiler = new FaustCompiler(libFaust);
+    const generator = new FaustMonoDspGenerator();
+
+    await generator.compile(compiler, "spat", dspSource, "");
+
+    // ===== OFFLINE PROCESSOR =====
+    const blockSize = 64; // plus réactif
+    const processor = await generator.createOfflineProcessor(sampleRate, blockSize);
+
+    // ===== READ AVAILABLE PARAMS =====
+    const faustParams = processor.getParams();
+    function findParamFor(prefix) {
+        const reIndexed = new RegExp(`^/?${prefix}\\d+`, "i");
+        return faustParams.find(p => reIndexed.test(p)) || faustParams.find(p => p.toLowerCase().includes(prefix.toLowerCase())) || null;
+    }
+    const paramX = findParamFor("X");
+    const paramY = findParamFor("Y");
+    const paramZ = findParamFor("Z");
+    const paramD = faustParams.find(p => /dt|dist|cdistance|distance/i.test(p)) || null;
+
+    // ===== PREPARE AUTOMATION ARRAYS =====
+    const spX = Array.isArray(obj.spX) ? obj.spX.slice() : [];
+    const spY = Array.isArray(obj.spY) ? obj.spY.slice() : [];
+    const spZ = Array.isArray(obj.spZ) ? obj.spZ.slice() : [];
+    const spD = Array.isArray(obj.spD) ? obj.spD.slice() : [];
+    const spT = Array.isArray(obj.spT) ? obj.spT.slice() : [];
+
+    // fallback timeline si absent
+    if (!spT.length) {
+        const n = Math.max(spX.length, spY.length, spZ.length, spD.length, 1);
+        for (let i = 0; i < n; i++) spT[i] = i / (n - 1 || 1);
+        console.warn("[spatialiseObjet] spT absent -> synthetic timeline created", spT);
+    }
+
+    // convert spT ratio -> secondes
+    const durationSec = numSamples / sampleRate;
+    const spTimesSec = spT.map(ratio => ratio * durationSec);
+    
+    // ===== PROCESS AUDIO =====
+    const P = layoutJSON.speakers.length;
+    let processedChannels = Array.from({ length: P }, () => new Float32Array(numSamples));
+
+    for (let offset = 0; offset < numSamples; offset += blockSize) {
+        const len = Math.min(blockSize, numSamples - offset);
+        const inputBlock = currentChannels.map(ch => ch.subarray(offset, offset + len));
+
+        // update params par échantillon
+        for (let i = 0; i < len; i++) {
+            const t = (offset + i) / sampleRate;
+            if (paramX) processor.setParamValue(paramX, interpolate(spTimesSec, spX, t, interpType));
+            if (paramY) processor.setParamValue(paramY, interpolate(spTimesSec, spY, t, interpType));
+            if (paramZ) processor.setParamValue(paramZ, interpolate(spTimesSec, spZ, t, interpType));
+            if (paramD) processor.setParamValue(paramD, interpolate(spTimesSec, spD, t, interpType));
+        }
+
+        const outputBlock = processor.render(inputBlock, len);
+
+        for (let ch = 0; ch < P; ch++) {
+            processedChannels[ch].set(outputBlock[ch], offset);
+        }
+    }
+
+    // ===== SAVE RESULT =====
+    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: processedChannels } });
+    console.log("[spatialiseObjet] Fichier spatialisé écrit:", outPath);
+
+    return outPath;
+}
+
+async function postRubberband(id,mode,file) {
+	const response = await fetch(file);
+  	const arrayBuffer = await response.arrayBuffer();
+
+  	// Décode les données en AudioBuffer via Web Audio API
+  	const audioBuffer = await contextAudio.decodeAudioData(arrayBuffer);				
+	console.log("audioBuffer",file,audioBuffer.length);
+	const numChannels = audioBuffer.numberOfChannels;
+   const numSamples = audioBuffer.length;
+   const sampleRate =audioBuffer.sampleRate;
+   
+   const trimmed= await endTrim(audioBuffer,0)
+	const trimmedLength = trimmed.length; 
+   console.log("TRIMMED LENGTH =", trimmedLength);
+   console.log("rendu",numChannels,numSamples,sampleRate)
+	const offlineCtx = new OfflineAudioContext(1,trimmedLength,sampleRate );
+	const song = offlineCtx.createBufferSource();
+	const resultBuffer = offlineCtx.createBuffer(1, trimmedLength, sampleRate);
+	resultBuffer.copyToChannel(trimmed, 0);  // copie dans le canal 0
+	song.buffer = resultBuffer; 
+	const gainNode = offlineCtx.createGain();
+	console.log("gain",gainPoints)
+	const extracted = extractEnvelopeForObject(
+    gainPoints,
+    tableObjet[id].posX,        // position de l’objet dans le X global
+    song.buffer.duration * 18     // durée en X dans la partition
+);
+	const localEnv = convertToLocalEnvelope(
+    extracted,
+    song.buffer.duration   // durée de l’audio en secondes
+);
+	applyEnvelopeToGainNode(gainNode, localEnv);
+	song.connect(gainNode);
+	gainNode.connect(offlineCtx.destination);
+	song.start(0);	
+	const renderedBuffer = await offlineCtx.startRendering();
+	
+   console.log("renderedBuffer",id,renderedBuffer.length,renderedBuffer.numberOfChannels);
+	const currentChannels = [new Float32Array(renderedBuffer.getChannelData(0))];
+	 const obj = tableObjet[id];
+	const filePath = obj.file;
+    const dir = rdDirName(filePath);
+    const baseName = rdBaseName(filePath).split(".")[0];
+    let outPath = `${dir}/${baseName}-fx.wav`;
+    if(mode==0){
+	   await spatialiseBuffer(id,outPath, numChannels, trimmedLength, sampleRate , currentChannels, interpType = "linear");
+	   console.timeEnd()
+	   console.log("[pipeline] saved →", outPath);
+    }else{
+    	outPath = `${dir}/exports/${tableObjet[id].id}.wav`;
+    	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
+    	document.getElementById("loading").style.display="none";
+   	console.log("[no spatialiseObjet] File save:", outPath);
+   	exportCompteur++;
+   	console.log("exportTable",exportCompteur,exportTable)
+   	if(exportCompteur<exportTable.length){
+   	await readSimpleAudioA(exportTable[exportCompteur],1);
+   	}
+    }
+}
+
+async function exportObjAudio(){
+	var lsgrp=[];
+	lsgrp.push(objActif);
+	await readSimpleAudioA(objActif,1);
+	exportToSeq(lsgrp);
+}
+let exportTable=[];
+let exportCompteur=0;
+async function exportIntv(){
+	var lsgrp=[];
+	var tempoMap=[];
+	var deb=parseFloat(document.getElementById("barDebut").style.left)+36;
+	var fin=parseFloat(document.getElementById("barFin").style.left);
+	for(i=0;i<tableObjet.length;i++){
+		if(tableObjet[i].etat==1 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
+			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+				lsgrp.push(i);
+			}
+		}
+	}
+	lsgrp.sort(function (a, b) {
+  		return tableObjet[a].posX - tableObjet[b].posX;
+	});
+	console.log("debut",deb,"fin",fin,lsgrp);
+	exportTable=lsgrp;
+	exportCompteur=0;
+	await readSimpleAudioA(lsgrp[0],1);
+	
+	exportToSeq(lsgrp);
+}
+async function exportGrp(){
+	var tempoMap=[];
+	if(grpSelect==1){
+		grp=[].concat(preservSelect);
+		document.getElementById("barVerticale").style.left=document.getElementById("grpSelect").style.left;
+	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
+		grp=[].concat(tableObjet[objActif].liste);
+		document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
+		}
+	lsgrp.sort(function (a, b) {
+   return tableObjet[a].posX - tableObjet[b].posX;
+   });
+	exportTable=lsgrp;
+	exportCompteur=0;
+	await readSimpleAudioA(lsgrp[0],1);
+	exportToSeq(lsgrp);
+}
+async function exportPart(){
+	var tempoMap=[];
+	if(grpSelect==1){
+		grp=[].concat(preservSelect);
+		document.getElementById("barVerticale").style.left=document.getElementById("grpSelect").style.left;
+	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
+		grp=[].concat(tableObjet[objActif].liste);
+		document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
+		}
+	lsgrp.sort(function (a, b) {
+   return tableObjet[a].posX - tableObjet[b].posX;
+   });
+	exportTable=lsgrp;
+	exportCompteur=0;
+	await readSimpleAudioA(lsgrp[0],1);
+	exportToSeq(lsgrp);
+}
+function exportToSeq(refGrp){
+	var autoGain="";
+	for(i=0;i<gainPoints.length;i++){
+		autoGain=autoGain+((gainPoints[i].X/18).toFixed(2))+","+((100-gainPoints[i].Y)*0.05).toFixed(2)+";"
+	}
+	autoGain=autoGain.substring(0,autoGain.length-1)
+	var txt=audioDirectory+"\n"+spat3D+"\n"+spat3DCanaux+"\n"+contextAudio.sampleRate+"\n"+autoGain+"\n";
+	var nfilesave=[];
+	var ratioT=(720/12960);
+	var offsetPiste=1;
+	var track=1
+	nfilesave=[].concat(refGrp);
+	nfilesave.sort((a, b) => a.piste - b.piste);
+	console.log("exportToSeq",refGrp,nfilesave)
+	console.log(tableObjet[0])
+	for(let i in nfilesave){
+		if(tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].class==1 && tableObjet[i].type<24){
+			if(refGrp.length>0){
+				track=tableObjet[nfilesave[i]].piste+offsetPiste
+			}
+			txt=txt+tableObjet[nfilesave[i]].nom+";"+(tableObjet[nfilesave[i]].objColor.substring(1)+"ff")+";"+tableObjet[nfilesave[i]].id+";"+(tableObjet[nfilesave[i]].piste+offsetPiste)+";"+Math.floor((tableObjet[nfilesave[i]].posX*ratioT)*48000)			
+			txt=txt+";"+tableObjet[nfilesave[i]].spT+";"+tableObjet[nfilesave[i]].spX+";"+tableObjet[nfilesave[i]].spY+";"+tableObjet[nfilesave[i]].spZ+";"+tableObjet[nfilesave[i]].spD+"\n";   	
+		 }
+		
+	}
+   	window.api.send("toMain", "exportSelect;"+btoa(txt))
+}
+
+// ***********************************************************************************************************************
+
+
 function appendBuffer(context,buffer1, buffer2,audioRate) {
  var numberOfChannels = Math.min( buffer1.numberOfChannels, buffer2.numberOfChannels );
  var tmp = context.createBuffer( numberOfChannels, (buffer1.length + buffer2.length), audioRate );

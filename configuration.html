@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-01-27T22:57:28+0100" />
+<meta name="date" content="2025-10-24T18:52:10+0200" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -148,7 +148,7 @@
 		<div style="position:absolute;top:600px;left:150px;"><button onclick='paletteDefault();'>Defaut</button></div>
 	<div style="position:absolute;top:615px;left:450px;"><button style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button onclick='exportPalette();'>Valider</button> <button onclick='closeConfigPalette();'>Quitter</button></div>
 	</div>
-<div id="panExt"  style="padding:10px;background-color:#f9f9fd;overflow:auto;height:500px;border:0px solid black;display:none">
+<div id="panExt"  style="padding:10px;background-color:#f9f9fd;overflow:auto;height:600px;border:0px solid black;display:none">
 	<table id="table3D" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
 		<tbody>
 			<tr ><td colspan="4"> <b>Éditeur</b> </td></tr>
@@ -160,6 +160,8 @@
 			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>Éditeur Audio</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='audioEditor' type="texte" style="width:520px" value='' /></td></tr>
+			<tr ><td colspan="4"> <b>Rubberband</b> </td></tr>
+			<tr><td></td><td colspan="3"><input id='rubberband' type="texte" style="width:520px" value='' /></td></tr>
 			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>PDF</b> </td></tr>
 			<tr ><td >Page </td><td id="pagePdf"  ><div style="margin:20px;" ><select id="selectPage" size="1"  >
@@ -299,7 +301,7 @@ console.log(`Received ${data} from renderer process`);
 			case 'defProjet':
 				lang=cmd[1]
 				importLang('./Local/'+lang+'/configInterf-'+lang+".txt")
-				console.log('tableLang',tableLang)
+				console.log('tableLang',cmd[6])
 				importProjet(cmd[2])
 				importSpace(cmd[3])
 				importInterface(cmd[4])
@@ -834,6 +836,7 @@ window.api.send("toMain", 'exportInterface;'+txt)
 function exportExterne() {
 defExterne()
 var txt=paramExterne.editor+','+paramExterne.daw+','+paramExterne.cmdDaw+','+paramExterne.pdfPage+','+paramExterne.pdfLandscape+','+paramExterne.pdfScale+','+paramExterne.pdfMgTop+','+paramExterne.pdfMgBot+','+paramExterne.pdfMgLeft+','+paramExterne.pdfMgRight+','+paramExterne.pdfBkg+','+paramExterne.pdfAssCmd+','+paramExterne.pdfAppCmd+','+paramExterne.editAudioCmd
+txt=txt+","+paramExterne.rubberband
 console.log('exportExterne',txt)
 window.api.send("toMain", 'exportExterne;'+btoa(txt))
 }
@@ -1150,7 +1153,8 @@ function externeRestore() {
 	pdfBkg:0,
 	pdfAssCmd:'pdfunite',
 	pdfAppCmd:'atril',
-	editAudioCmd:'audacity'
+	editAudioCmd:'audacity',
+	rubberband:""
 	}
 }
 function importExterne(txt){
@@ -1171,7 +1175,8 @@ function importExterne(txt){
 	pdfBkg:exterf[10],
 	pdfAssCmd:exterf[11],
 	pdfAppCmd:exterf[12],
-	editAudioCmd:exterf[13]
+	editAudioCmd:exterf[13],
+	rubberband:exterf[14]
 	}
 }
 function configExterne(txt) {
@@ -1201,6 +1206,7 @@ function configExterne(txt) {
 	}
 	document.getElementById("AssPdf").value=paramExterne.pdfAssCmd
 	document.getElementById("appPdf").value=paramExterne.pdfAppCmd
+	document.getElementById("rubberband").value=paramExterne.rubberband
 }
 function defExterne(txt) {
 	paramExterne.editor=document.getElementById("defEditor").value;
@@ -1230,6 +1236,7 @@ function defExterne(txt) {
 	paramExterne.pdfAssCmd=document.getElementById("AssPdf").value;
 	paramExterne.pdfAppCmd=document.getElementById("appPdf").value;
 	paramExterne.editAudioCmd=document.getElementById("audioEditor").value;
+	paramExterne.rubberband=document.getElementById("rubberband").value;
 }
 
 /* ************************************************* palette *************************************** */

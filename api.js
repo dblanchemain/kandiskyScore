@@ -19,14 +19,23 @@ function gainObjet(id,g){
 	}
 	tableObjet[id].gain=g
 }
-function envTypeObjet(id,type){
+function fadeInTypeObjet(id,type){
 	if(type<1){
 		type=0
 	}
 	if(type>3){
 		type=3
 	}
-	tableObjet[id].envType=type
+	tableObjet[id].fadeInType=type
+}
+function fadeOutTypeObjet(id,type){
+	if(type<1){
+		type=0
+	}
+	if(type>3){
+		type=3
+	}
+	tableObjet[id].fadeOutType=type
 }
 function envObjet(id,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,x7,y7){
 	if(x1<0){
@@ -649,6 +658,77 @@ trimmedBuffer: Nouveau AudioBuffer sans silence au début, contenant les donnée
   }
 
   return trimmedBuffer;
+}
+function removeEndSpikes(audioBuffer, tailDuration, threshold) {
+  const sampleRate = audioBuffer.sampleRate;
+  const nChannels = audioBuffer.numberOfChannels;
+  const len = audioBuffer.length;
+  const startIndex = Math.max(0, len - Math.floor(tailDuration * sampleRate));
+
+  for (let ch = 0; ch < nChannels; ch++) {
+    const data = audioBuffer.getChannelData(ch);
+    for (let i = startIndex; i < len; i++) {
+      if (Math.abs(data[i]) > threshold) data[i] = 0;
+    }
+  }
+  return audioBuffer;
+}
+function trimBeforEnd(context, audioBuffer, duration ) {
+  const sampleRate = audioBuffer.sampleRate;
+  const numChannels = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length;
+  duration=duration*48000;
+  
+  let cutoffIndex = Math.min(length-duration, length);
+console.log("cutoffIndex",length,length-duration,cutoffIndex)
+  // Créer un nouveau buffer coupé
+  const trimmed = context.createBuffer(numChannels, cutoffIndex, sampleRate);
+  for (let ch = 0; ch < numChannels; ch++) {
+    const src = audioBuffer.getChannelData(ch);
+    trimmed.copyToChannel(src.subarray(0, cutoffIndex), ch);
+  }
+
+  return trimmed;
+}
+function trimAfterSilence(context, audioBuffer, silenceDuration, threshold ) {
+  const sampleRate = audioBuffer.sampleRate;
+  const numChannels = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length;
+  const silenceSamples = Math.floor(silenceDuration * sampleRate);
+  const nbuffer=removeEndSpikes(audioBuffer, 0.1, 0.1)
+  let lastActiveSample = 0;
+  let consecutiveSilent = 0;
+
+  for (let i = 0; i < length; i++) {
+    let active = false;
+
+    for (let ch = 0; ch < numChannels; ch++) {
+      const data = nbuffer.getChannelData(ch);
+      if (Math.abs(data[i]) > threshold) {
+        active = true;
+        break;
+      }
+    }
+
+    if (active) {
+      lastActiveSample = i;
+      consecutiveSilent = 0;
+    } else {
+      consecutiveSilent++;
+    }
+  }
+	console.log("silenceSamples",consecutiveSilent,lastActiveSample/48000,silenceSamples,length/48000)
+  // S'il reste plus de silence que la durée autorisée à la fin
+  let cutoffIndex = Math.min(lastActiveSample + silenceSamples, length);
+
+  // Créer un nouveau buffer coupé
+  const trimmed = context.createBuffer(numChannels, cutoffIndex, sampleRate);
+  for (let ch = 0; ch < numChannels; ch++) {
+    const src = nbuffer.getChannelData(ch);
+    trimmed.copyToChannel(src.subarray(0, cutoffIndex), ch);
+  }
+
+  return trimmed;
 }
 function trimSilenceAtEnd(context,audioBuffer, threshold = 0.001) {
 	/*
@@ -1572,6 +1652,6 @@ function pdfConfig(page,landscape,scale,margeT,margeL,margeB,margeR,Bkg) {
   	pdfBkg=Bkg
 }
 function apiParamProjet() {
-	var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+ pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd;
+	var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+ pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd;	
 	window.api.send("toMain", 'defExterne;'+btoa(txt));
 }
