@@ -301,6 +301,8 @@
 		<div id="work" style="position:absolute; top:38px;left:0px;padding:0px;margin:0px;width:12960px;height:788px;overflow-x: scroll;overflow-y: hidden;border:0px solid red;">
 			<div id="regle" style="position:absolute; top:0px;left:0px;padding:0px;margin:0px;width:12960px;height:50px;border-top: 1px solid #000000;;transform-origin: 0 0" ><svg  id="reglette" width="12960" height="50"  style="outline : 2px solid #630 ;" viewBox="0 0 12960 50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  "><style>.small {font: 0.8em sans-serif;}</style></svg>
 			</div>
+			<div id="wtempo" title="Tempo automation" style="position:absolute; top:52px;left:0px;padding:0px;margin:0px;width:12960px;height:100px;z-index:10;border:1px solid green;display:none;"><svg width="12960" height="100"  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ><polyline id="lineTempo" fill="none" stroke="green" stroke-width="2" points=''  /><polyline id="lineGain" fill="none" stroke="red" stroke-width="2" points=''  /></svg>
+			</div>
 			<div  id="work2" style="position:absolute; top:52px;left:0px;padding:0px;margin:0px;width:12960px;height:788px;z-index:1;transform-origin: 0 0;overflow-x: hidden;overflow-y: scroll;border:1px solid red;">
 			<div id="spaceBkg" class="space" style="position:absolute; top:0px;left:0px;padding:0px;margin:0px;width:12960px;height:788px;z-index:1;transform-origin: 0 0;transform:scale(1 1);border:0px solid green;z-index:0;" oncontextmenu="event.preventDefault();">
 			</div>
@@ -335,6 +337,7 @@
 	<text id="bfsvgt" x="16" y="9" class="small"> </text>
 </svg>
 			</div>
+			<div id="flagTempo"  style="position:absolute; top:68px;left:-11px;padding:0px;margin:0px;background-color:#ff0000;z-index:10;">Tempo</div>
 			<div id="canvas"   style="position:absolute;top:300px;left:300px;width:600px;height:400px;max-width:600px;display:none;border:1px solid black;z-index:10;background-color:#000000;color:#ffffff;" ><div id="canvasHeader"  class="popupHeader" style="color:#ffffff;"><b>Waveform</b></div>
 			<div style="width:100%;;background-color:#e2e2e2;">
 			<img alt="Save" src="./images/png/floppy.png" style="width:18px;" onclick='saveWaveForm();'/><input id="waveFormColor" type="color" value="#ff0000" style="width:40px;height:24px;"  > H : <input id="zHWaveForm" type="number"  min='0.1' max='2.0' value="1.0" step="0.1" oninput='waveFormH()'><button   onclick='closeWaveForm();'>Annul</button>
@@ -347,7 +350,7 @@
 	<div id="fichierSave" style="display:none;" ></div>
 	<input type="color" id="menuColorGrp" value="#000000" style="position:absolute; top:100px;left:100px;display:none" onchange="defColorMenu(event);"/> 
 	<!--  **************************************popup palette flottante**************************************      -->
-
+<div id="loading"  style="position:absolute; top:300px;left:700px;padding:0px;margin:0px;background-color:#ff0000;z-index:10;display:none;background-color:white;"><img alt="Save" src="./images/circle.gif" style="width:64px;" /></div>
 <div id="fenetreFlot" class="popup" style="width:120px;height:170px;">
 	<div id="fenetreFlotHeader" class="popupHeader"><b>Formes</b></div>
 	<div style="text-align:center;"><img alt="flotPalette2" src="./images/png/palette2.png"  usemap="#workpalette2"></div>
@@ -396,9 +399,9 @@
 <div id="renderAudio" style="position:absolute;top:200px;left:380px;width:300px;height:100px;border:1px solid black;display:none;z-index:10;background-color:#f9f9fd;">
 	<div id="renderAudioHeader" class="popupHeader"><b>Rendu </b></div>
 
- <div style="text-align:center;">	<audio align="center" style="margin-top:10px;padding:px;width:90%;height:24px;" id="renduWav" controls src=""></audio></div>
-
-		<div style="position:absolute;top:70px;left:230px;"><button onclick='annulAudio();'>Ok</button></div>
+ <div ><img id="renderPlay" alt="" src="./images/png/lecture.png" style="position:absolute;top:40px;left:10px;" /><input type="range" id="renderPos" name="rdpos" min="0.0" value="0.0" max="0.99" step="0.01" style="position:absolute;top:40px;left:45px;width:240px;" /></audio></div>
+<div id="renderAudioBlock" style="position:absolute;top:62px;left:10px;">	</div>
+		<div style="position:absolute;top:72px;left:240px;"><button onclick='annulAudio();'>Ok</button></div>
 </div>
 
 <!--    **************************************   fenêtre tempo audio  **************************************     -->
@@ -480,6 +483,7 @@ Teste de Editor
 
 
 <!--	<script  type="text/javascript" src='./config.js'></script> -->
+
 	<script  type="text/javascript" src="./init.js" ></script>
 	<script  type="text/javascript" src="./interface.js" ></script>
 	<script  type="text/javascript" src="./palette.js" ></script>
@@ -489,15 +493,12 @@ Teste de Editor
 	<script  type="text/javascript" src="./renderer.js" ></script>
 	<script  type="text/javascript" src="./edition.js" ></script>
 	<script  type="text/javascript" src="./atelier.js" ></script>
-
 	<script  type="text/javascript" src="./audio.js" ></script>
 	<script  type="text/javascript" src="./svg.js" ></script>
-	<script  type="text/javascript" src="./export.js" ></script>
 	<script  type="text/javascript" src="./analyser.js" ></script>
 	<script  type="text/javascript" src="./api.js" ></script>
+	<script  type="text/javascript" src="./spatialisation.js" ></script>
 	<script type="text/javascript">
-
-
 
 	</script>
   </body>

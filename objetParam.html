@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-04-08T11:34:15+0200" />
+<meta name="date" content="2025-12-12T15:01:04+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -12,6 +12,12 @@
 <meta http-equiv="expires" content="0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Objet-Paramètres</title>
+<style>
+    body { font-family: sans-serif;}
+    .panel { display: flex; gap: 40px; }
+    svg { background-color: #d0d0d0; border: 1px solid #aaa; }
+    .draggable { cursor: pointer; }
+</style>
 </head>
 <body>
 <div id="simpleObjParam" style="width:400px;height:620px;">
@@ -32,52 +38,58 @@
 	   <input id="selectColor" type="color" style="display:none" value="" />
 	    <input id="selectStrokeColor" type="color" style="display:none" value="" />
 		</span>
-		<div id="dureeReelle" style="position:absolute;top:87px;left:100px;"><button onclick='defDureeReelle();'> Durée Réelle</button> Reverse : <input id="nreverse" style="position:absolute;top:2px;left:190px;"type="checkbox" /> </div>
-		
+		<div style="position:absolute;top:87px;left:100px;">Reverse : <input id="nreverse" style="position:absolute;top:-2px;left:80px;"type="checkbox" /> </div>
    </div>
-   <div id="nspacialisation" onclick='openSpatialisation();' style="position:absolute;top:75px;left:340px;width:32px;height:32px;"><img src="./images/png/f3D.png" alt "3D" /></div>
-   <div id="tpenv" style="position:absolute;top:230px;left:50px;">Type de variation :</div>
-	<div style="position:absolute;top:260px;left:50px;"> 
-		<form action="">
-		<select id="selecType" size="1">
-			<option value="0"></option>
-			<option id="lbtpenv1" value="1">Linéaire</option>
-			<option id="lbtpenv2" value="2">Exponentielle</option>
-			<option id="lbtpenv3" value="3">Courbe</option>
-		</select>
-		</form>
+   <div id="dureeReelle" style="position:absolute;top:240px;left:30px;"><button onclick='defDureeReelle();'> Durée Réelle</button>  </div>
+   <div id="nspacialisation" onclick='openSpatialisation();' style="position:absolute;top:71px;left:340px;width:36px;height:36px;"><img src="./images/png/f3D.png" alt "3D" /></div>
+	<div style="position:absolute;top:250px;left:150px;"> fade-in :<br/>
+        <select id="fadeInType">
+            <option value="q">Qt sinusoïde (q)</option>
+            <option value="h">Demi-sinus. (h)</option>
+            <option value="t">Linéaire (t)</option>
+            <option value="l">Logarithmique (l)</option>
+            <option value="p">Parab. invers. (p)</option>
+        </select>
 	</div>
+	<div style="position:absolute;top:250px;left:280px;"> fade-out : <br>
+        <select id="fadeOutType">
+            <option value="q">Qt sinusoïde (q)</option>
+            <option value="h">Demi-sinus. (h)</option>
+            <option value="t">Linéaire (t)</option>
+            <option value="l">Logarithmique (l)</option>
+            <option value="p">Parab. invers. (p)</option>
+        </select>
+	</div>
+	
 	<div>
-	<span  id="ongEnv" style="position:absolute;top:127px;left:184px;background-color:#d3dbde;width:80px;height:20px;border:1px solid black;padding-left:4px;" onclick="defEnv();" >Enveloppe</span>
-	<div id="panEnv" style="position:absolute;top:148px;left:184px;border:1px solid black;width:200px;height:128px;">
-		<div id="env1"  style="position:absolute;top:94px;left:0px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		<div id="env2"  style="position:absolute;top:60px;left:14px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		<div id="env3"  style="position:absolute;top:25px;left:50px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		<div id="env4"  style="position:absolute;top:5px;left:100px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		<div id="env5"  style="position:absolute;top:25px;left:150px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		<div id="env6"  style="position:absolute;top:60px;left:174px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		<div id="env7"  style="position:absolute;top:94px;left:196px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
-		
-	</div>
+	<span style="display:none;"><input  id="fadeInPos"  type="number" style="width:60px;"  min="0" max="1" step="0.01" value="0.2" /><input id="fadeLg" type="number" style="width:60px;"/><input id="fadeOutPos" type="number" style="width:60px;"  min="0" max="1" step="0.01" value="0.8"/></span>
+	<span  style="position:absolute;top:127px;left:184px;width:200px;height:20px;" ><input  id="fadePosIn"  type="number" style="width:60px;"   min="0" max="1" step="0.01" value="0.2" /><input id="lgFade" type="number" style="width:60px;"/><input id="fadePosOut" type="number" style="width:60px;"  min="0" max="1" step="0.01" value="0.8"/></span>
+	<div id="panEnv" style="position:absolute;top:148px;left:184px;border:1px solid black;width:200px;height:90px;">
+		<div id="env1"  style="position:absolute;top:0px;left:40px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<div id="env2"  style="position:absolute;top:0px;left:160px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
+		<svg id="editor" width="200" height="90">
+    <polyline id="curve" fill="white" stroke="black" stroke-width="2"/>
 
-	<div id="listeFiltre" style="position:absolute;top:140px;left:80px;"><img alt="fx" src="./images/png/metafx.png"  /></div><div id="substituer" style="position:absolute;top:147px;left:125px;"><img alt="sub" src="./images/refresh.svg "  style="width:18px;height:18px;" /></div>
-	<div id="lbgain"  style="position:absolute;top:190px;left:38px;"><span>Gain : </span><input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
+</svg>
+	</div>
+	<div id="listeFiltre" style="position:absolute;top:150px;left:80px;"><img alt="fx" src="./images/png/metafx.png"  /></div><div id="substituer" style="position:absolute;top:157px;left:125px;"><img alt="sub" src="./images/refresh.svg "  style="width:18px;height:18px;" /></div>
+	<div id="lbgain"  style="position:absolute;top:200px;left:38px;"><span>Gain : </span><input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
 	<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span id="lbrate" style="position:absolute;top:300px;left:60px;"  >Vitesse de lecture :</span> <span style="position:absolute;top:297px;left:206px;" ><input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.01" max="4.0" step="0.01" /></span> </p>
 	</div>
 	<div id="position" style="position:absolute;top:334px;left:80px;"><span>Position : </span> <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
-	<div id="lbdetune" style="position:absolute;top:384px;left:14px;">Detune : </div> <span id="etir" style="margin:0px;padding:0px;position:absolute;top:375px;left:88px;" ><input id="ndetune" style="width:80px;height:24px;" type="number"  value="0" min="-1199" max="1199" step="1" /></span><div class="slider"  style="position:absolute;top:383px;left:184px;"><input  style="margin-left:14px;width:180px;" id="detune" type="range" value="1" min="-1199" max="1199" step="1" /></div>
-	<div id="lblimites" style="position:absolute;top:416px;left:10px;"><span>Limites :</span><img  src="./images/png/fondSlider.png" style="margin-left:30px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:88px;height:20px;" /><span style="position:absolute;top:30px;left:68px;"   >% <input id="inpgauchet" style="width:50px;" type="number"  value="0.001" min="0.000" max="1.000" step="0.001" /></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:306px;height:20px;"/><span style="position:absolute;top:30px;left:276px;" >% <input id="inpdroitt" style="width:50px;" type="number"  value="1.000" min="0.001" max="1.000" step="0.001" /></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
+	<div id="lbdetune" style="position:absolute;top:384px;left:10px;">Detune : </div> <span id="etir" style="margin:0px;padding:0px;position:absolute;top:375px;left:88px;" ><input id="ndetune" style="width:80px;height:24px;" type="number"  value="0" min="-1199" max="1199" step="1" /></span><div class="slider"  style="position:absolute;top:383px;left:184px;"><input  style="margin-left:14px;width:180px;" id="detune" type="range" value="1" min="-1199" max="1199" step="1" /></div>
+	<div id="lblimites" style="position:absolute;top:416px;left:10px;"><span>Limites :</span><img  src="./images/png/fondSlider.png" style="margin-left:40px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:90px;height:20px;" /><span style="position:absolute;top:30px;left:68px;"   >% <input id="inpgauchet" style="width:50px;" type="number"  value="0.001" min="0.000" max="1.000" step="0.001" /></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:348px;height:20px;"/><span style="position:absolute;top:30px;left:276px;" >% <input id="inpdroitt" style="width:50px;" type="number"  value="1.000" min="0.001" max="1.000" step="0.001" /></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
 	</div>
 	<div style="position:absolute;top:485px;left:10px;" >Durée relative : <input id="inprelatif" style="width:50px;" type="text"  value="0.001" min="0.001" max="1.000" step="0.001" /> s.</div>
 	<div id="lbnom" style="position:absolute;top:525px;left:10px;"><span>Nom : </span><input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
 	<div id="lbinstrument" style="position:absolute;top:577px;left:10px;"><span>Instrument :</span> <input id="inpCanal" style="width:50px;" type="number"  value="0" min="0" max="64" step="1" /></div>
-	<div  style="position:absolute;top:520px;left:290px;"><img alt="Reverb. Convolution impulse reponse" title="Reverb. Convolution impulse reponse" src="./images/png/convol2.png" style="width:48px;"  onclick="fxAddPlugin();" /> </div>
-	<div  style="position:absolute;top:577px;left:260px;">
+	<div  style="position:absolute;top:510px;left:290px;"><img alt="Reverb. Convolution impulse reponse" title="Reverb. Convolution impulse reponse" src="./images/png/convol2.png" style="width:48px;"   /> </div>
+	<div  style="position:absolute;top:567px;left:260px;">
 		<select id="selecReverb" size="1"  value="0" onchange="convol(value);">
 			<option value="0"></option>
 		</select>
 		</div>
-	<div style="position:absolute;top:605px;left:300px;" ><button  id="lbvalid" onclick='objValid();'></button></div>
+	<div style="position:absolute;top:605px;left:270px;" ><button  id="lbAnnul" onclick='objAnnul();'>Annul</button><button  id="lbvalid"  style="margin-left:10px;" onclick='objValid();'></button></div>
 </div>
 <script  src="impulseReponse.js"></script>
 <script >
@@ -89,15 +101,10 @@ let tempo=60;
 
 dragElement2(document.getElementById("bgauche"));
 dragElement2(document.getElementById("bdroit"));
-//dragElement2(document.getElementById("bgauchet"));
-//dragElement2(document.getElementById("bdroitt"));
+
 dragElement2(document.getElementById("env1"));
 dragElement2(document.getElementById("env2"));
-dragElement2(document.getElementById("env3"));
-dragElement2(document.getElementById("env4"));
-dragElement2(document.getElementById("env5"));
-dragElement2(document.getElementById("env6"));
-dragElement2(document.getElementById("env7"));
+
 
 
 document.getElementById("listeFiltre").addEventListener('click',listeFx)
@@ -105,13 +112,12 @@ document.getElementById("substituer").addEventListener('click',substituerFx)
 document.getElementById("objMute").addEventListener('click',mute)
 document.getElementById("ngain").addEventListener('input',gain)
 document.getElementById("nreverse").addEventListener('click',reverse)
-document.getElementById("selecType").addEventListener('click',envType)
+
 document.getElementById("objFlagTranspo").addEventListener('click',flagTranspo)
 document.getElementById("mnt").addEventListener('input',defPosition)
 document.getElementById("mn2").addEventListener('input',defPosition)
 document.getElementById("mn3").addEventListener('input',defPosition)
 document.getElementById("transposition").addEventListener('input',transpoToPosY)
-
 document.getElementById("ndetune").addEventListener('input',detune)
 document.getElementById("detune").addEventListener('input',sdetune)
 document.getElementById("inpgauchet").addEventListener('input',defDebut)
@@ -149,7 +155,9 @@ function defLang (txt) {
 	interfaceLang ()
 }
 
-
+function openMass(){
+	window.api.send("toMain", "openSpatMass;0");
+}
 
 function interfaceLang () {
 document.getElementById('paramFileSelect').firstChild.innerHTML=tableLang['objpAudio']
@@ -158,11 +166,6 @@ document.getElementById('lbfichier').innerHTML=tableLang["objpFile"]
 document.getElementById('lbduree').innerHTML=tableLang["objpDuree"]
 document.getElementById('lbcanaux').innerHTML=tableLang["objpCanaux"]
 document.getElementById('dureeReelle').firstChild.innerHTML=tableLang["objDreel"]
-document.getElementById('tpenv').innerHTML=tableLang["objpTpEnv"]
-document.getElementById('lbtpenv1').innerHTML=tableLang["objpTpEnv1"]
-document.getElementById('lbtpenv2').innerHTML=tableLang["objpTpEnv2"]
-document.getElementById('lbtpenv3').innerHTML=tableLang["objpTpEnv3"]
-document.getElementById('ongEnv').innerHTML=tableLang["objpEnv"]
 document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain"]
 document.getElementById('lbrate').innerHTML=tableLang["objpRate"]
 document.getElementById('position').firstChild.innerHTML=tableLang["objpPos"]
@@ -208,29 +211,16 @@ function objetStringDef(txt,c) {
 	selectObj.debut=parseFloat(tbtxt[28])
 	selectObj.detune=parseFloat(tbtxt[29])
 	selectObj.duree=parseFloat(tbtxt[30])
-	selectObj.envType=parseInt(tbtxt[31])
-	var ev=tbtxt[32].split(",")
+	selectObj.fadeIn=tbtxt[31]
+	selectObj.fadeOut=tbtxt[32]
+	var ev=tbtxt[33].split(",")
+	
 	selectObj.envX=[]
-	for(let j=0;j<7;j++){
+	for(let j=0;j<2;j++){
 		selectObj.envX[j]=ev[j]
+		//selectObj.envY[j]=0
 	}
-	ev=tbtxt[33].split(",")
-	selectObj.envY=[]
-	for(let j=0;j<7;j++){
-		selectObj.envY[j]=ev[j]
-	}
-	if(parseInt(tbtxt[65])==13){
-		ev=tbtxt[72].split(",")
-		selectObj.envmX=[]
-		for(let j=0;j<7;j++){
-			selectObj.envmX[j]=ev[j]
-		}
-		ev=tbtxt[73].split(",")
-		selectObj.envmY=[]
-		for(let j=0;j<7;j++){
-			selectObj.envmY[j]=ev[j]
-		}
-	}
+	
 	selectObj.etat=parseInt(tbtxt[34])
 	selectObj.file=tbtxt[35]
 	selectObj.fin=parseFloat(tbtxt[36])
@@ -279,6 +269,7 @@ function objetStringDef(txt,c) {
 	for(let j=0;j<lspZ.length;j++){
 		selectObj.spZ[j]=parseFloat(lspZ[j])
 	}
+	
 	selectObj.tableFx=tbtxt[62]
 	selectObj.tableFxParam=tbtxt[63]
 	selectObj.transposition=parseFloat(tbtxt[64]).toFixed(2)
@@ -394,8 +385,8 @@ function objetStringDef(txt,c) {
 		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke",selectObj.objBorderC)
 		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke-width",selectObj.objBorderW)
 	}		
-	var pathnom=tbtxt[35].split('.')
-	document.getElementById("paramLabel").innerHTML=pathnom[0]
+	var pathnom=tbtxt[35].split('/')
+	document.getElementById("paramLabel").innerHTML="&nbsp;"+pathnom[pathnom.length-1]
 	
 	if(selectObj.file!=""){
 		document.getElementById("paramDr").textContent=selectObj.duree.toFixed(2)
@@ -411,13 +402,22 @@ function objetStringDef(txt,c) {
 	}else{
 		document.getElementById("nreverse").checked=false
 	}
+	
 	document.getElementById("ngain").value=selectObj.gain
-	document.getElementById("selecType").value=selectObj.envType
+	
+	//document.getElementById("selecType").value=selectObj.envType
+	document.getElementById("fadeInType").value=selectObj.fadeIn
+	document.getElementById("fadeOutType").value=selectObj.fadeOut
+	console.log("env",selectObj.envX)
+	fadeInPos.value=selectObj.envX[0];
+	fadeOutPos.value=selectObj.envX[1];
+	
 	if(selectObj.flagTranspo==1){
 		document.getElementById("objFlagTranspo").checked=true
 	}else{
 		document.getElementById("objFlagTranspo").checked=false
 	}
+	
 	position(selectObj.posX)
 	document.getElementById("transposition").value=selectObj.transposition
 	
@@ -425,7 +425,9 @@ function objetStringDef(txt,c) {
 	document.getElementById("ndetune").value=selectObj.detune
 	document.getElementById("bgauche").style.left=posLimite(selectObj.debut)+"px"
 	document.getElementById("inpgauchet").value=selectObj.debut
+	
 	document.getElementById("limFond").style.left=document.getElementById("bgauche").style.left
+	document.getElementById("inpdroitt").value=selectObj.fin
 	document.getElementById("bdroit").style.left=(posLimite(selectObj.fin)-8)+"px"
 	document.getElementById("limFond").style.width=(262-(262*(selectObj.debut+(1-selectObj.fin))))+"px"
 	
@@ -434,24 +436,16 @@ function objetStringDef(txt,c) {
 	document.getElementById("selecReverb").value=selectObj.convolver
 	
 	document.getElementById("env1").style.left=(200*selectObj.envX[0])+"px"
-	document.getElementById("env1").style.top=(128-(128*selectObj.envY[0]))+"px"
 	document.getElementById("env2").style.left=(200*selectObj.envX[1])+"px"
-	document.getElementById("env2").style.top=(128-(128*selectObj.envY[1]))+"px"
-	document.getElementById("env3").style.left=(200*selectObj.envX[2])+"px"
-	document.getElementById("env3").style.top=(128-(128*selectObj.envY[2]))+"px"
-	document.getElementById("env4").style.left=(200*selectObj.envX[3])+"px"
-	document.getElementById("env4").style.top=(128-(128*selectObj.envY[3]))+"px"
-	document.getElementById("env5").style.left=(200*selectObj.envX[4])+"px"
-	document.getElementById("env5").style.top=(128-(128*selectObj.envY[4]))+"px"
-	document.getElementById("env6").style.left=(200*selectObj.envX[5])+"px"
-	document.getElementById("env6").style.top=(128-(128*selectObj.envY[5]))+"px"
-	document.getElementById("env7").style.left=(200*selectObj.envX[6])+"px"
-	document.getElementById("env7").style.top=(128-(128*selectObj.envY[6]))+"px"
 	
 	var rw=parseInt(document.getElementById("bdroit").style.left)-parseInt(document.getElementById("bgauche").style.left);
 	var nduree=selectObj.duree/selectObj.transposition
 	var relative=nduree*((rw+4)/262)
 	document.getElementById("inprelatif").value=relative.toFixed(3)
+	lgFade.value=relative.toFixed(3)
+	fadePosIn.value=lgFade.value*selectObj.envX[0];
+	fadePosOut.value=lgFade.value-(lgFade.value*selectObj.envX[1]);
+	update()
 }
 function defDureeReelle(){
 	window.api.send("toMain", "dureeReelle;"+selectId)
@@ -463,6 +457,7 @@ var txt=selectObj.bkgColor+":"+selectObj.bkgHeight+":"+selectObj.bkgImg+":"+sele
 function aenu(chn) {
   return decodeURIComponent(escape(atob(chn)));
 }
+
 window.api.receive("fromMain", (data) => {
 console.log(`objparam ${data} from renderer process`);
 	var nsize=data
@@ -478,15 +473,16 @@ console.log(`objparam ${data} from renderer process`);
 					tempo=cmd[5]
 					importLang('./Local/'+lang+'/objParam-'+lang+".txt")
 					objetStringDef(cmd[3],cmd[4])
+					console.log(selectObj)
 				}else{
 				console.log('alerte')
 				}
 				break
 			case 'defAudioObj':
-				defAudioFile(cmd[1],cmd[2],parseInt(cmd[3]))
+				defAudioFile(cmd[1],cmd[2])
 				break
 			case 'fileAudioParam':
-				paramFileAudio(cmd[2],cmd[3])
+				paramFileAudio(cmd[1],cmd[2],cmd[3],cmd[4])
 				break
 			case 'objColor':
 				defObjColor(cmd[1],cmd[2])
@@ -550,13 +546,17 @@ function openFileAudio(){
 	window.api.send("toMain", cmd)
 }
 
-function paramFileAudio(d,c){
+function paramFileAudio(id,name,d,c){
+		var nfile=name.split("/")
+		document.getElementById("lbfichier").textContent="Fichier : "+nfile[nfile.length-1];
 		document.getElementById("paramDr").textContent=parseFloat(d).toFixed(2)
 		document.getElementById("paramCanaux").textContent=c
 		selectObj.duree=parseFloat(d).toFixed(2)
 		var nduree=selectObj.duree/parseFloat(document.getElementById("transposition").value)
 		var relative=nduree
 		document.getElementById("inprelatif").value=relative.toFixed(3)
+		document.getElementById("lgFade").value=relative.toFixed(3)
+		console.log("obj",selectObj,nfile)
 }
 
 function defGraphObj(e){
@@ -598,14 +598,10 @@ function objValid() {
 }
 
 /* ******************************************************** param audio *********************************** */
-function defAudioFile(id,file,num) {
+function defAudioFile(id,file) {
 	var defFile=file.split('/')
 	var defnom=defFile[defFile.length-1].split('.')
-	if(num==1){
-		document.getElementById("paramLabel").innerHTML=defnom[0]
-	}else{
-		document.getElementById("paramLabel2").innerHTML=defnom[0]
-	}
+	document.getElementById("paramLabel").innerHTML=defnom[0]
 }
 
 function mute() {
@@ -628,9 +624,15 @@ function reverse() {
 	}
 	window.api.send("toMain", "reverse;"+selectId+";"+selectObj.reverse);
 }
-function envType() {
-	selectObj.envType=document.getElementById("selecType").value
-	window.api.send("toMain", "envType;"+selectId+";"+selectObj.envType);
+function fadeIn() {
+	selectObj.fadeIn=document.getElementById("fadeInType").value
+	update();
+	window.api.send("toMain", "fadeInType;"+selectId+";"+selectObj.fadeIn);
+}
+function fadeOut() {
+	selectObj.fadeOut=document.getElementById("fadeOutType").value
+	update();
+	window.api.send("toMain", "fadeOutType;"+selectId+";"+selectObj.fadeOut);
 }
 function flagTranspo() {
 	if(document.getElementById("objFlagTranspo").checked==true){
@@ -668,7 +670,9 @@ function defDebut() {
 	var nduree=selectObj.duree/selectObj.transposition
 	var relative=nduree*(parseFloat(document.getElementById("limFond").style.width)/261.8)
 	document.getElementById("inprelatif").value=relative.toFixed(3)
+	document.getElementById("lgFade").value=relative.toFixed(3)
 	window.api.send("toMain", "debut;"+selectId+";"+selectObj.debut);
+	
 }
 function defFin() {
 	selectObj.fin=document.getElementById("inpdroitt").value
@@ -678,7 +682,9 @@ function defFin() {
    var nduree=selectObj.duree/selectObj.transposition
 	var relative=nduree*(parseFloat(document.getElementById("limFond").style.width)/268.8)
 	document.getElementById("inprelatif").value=relative.toFixed(3)
+	lgFade.value=relative.toFixed(3)
 	window.api.send("toMain", "fin;"+selectId+";"+selectObj.fin);
+	
 }
 function nom() {
 	selectObj.nom=document.getElementById("inpNom").value
@@ -714,6 +720,7 @@ function dragElement2(elmnt) {
     document.onmouseup = closeDragElement2;
     // call a function whenever the cursor moves:
     document.onmousemove = elementDrag2;
+    lgFade.value = parseFloat(document.getElementById("inprelatif").value);
   }
 
   function elementDrag2(e) {
@@ -752,6 +759,7 @@ function dragElement2(elmnt) {
 	 	var nduree=selectObj.duree/selectObj.transposition
 		var relative=nduree*((lw+4)/262)
 		document.getElementById("inprelatif").value=relative.toFixed(3)
+		document.getElementById("lgFade").value=relative.toFixed(3)
 	   console.log(selectObj.debut)
 	 }
 	 if (elmnt.id=="bdroit" ) {
@@ -775,18 +783,44 @@ function dragElement2(elmnt) {
 	 	var nduree=selectObj.duree/selectObj.transposition
 		var relative=nduree*((rw+4)/262)
 		document.getElementById("inprelatif").value=relative.toFixed(3)
+		document.getElementById("lgFade").value=relative.toFixed(3)
 	 }
-	 if(elmnt.id=="env1" || elmnt.id=="env2" || elmnt.id=="env3" || elmnt.id=="env4" || elmnt.id=="env5" || elmnt.id=="env6" || elmnt.id=="env7"){
-	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 if(elmnt.id=="env1" ){
+	 	
+	 	//envDef(elmnt);
+	 	var nv1=parseFloat(document.getElementById("env1").style.left);
+	 	var nv2=parseFloat(document.getElementById("env2").style.left);
 	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-	 	envDef(elmnt);
+	 	if(nv1>nv2-10){
+	 		elmnt.style.left = (nv2-10)+"px";
+	 	}
+	 	
+	 	if(nv1>0 && nv1<nv2){
+	 		fadeInPos.value=((elmnt.offsetLeft - pos1)*0.005).toFixed(2);
+	 		console.log("nv1",fadeInPos.value,lgFade.value*fadeInPos.value,selectObj.envX)
+	 		fadePosIn.value= lgFade.value*parseFloat(fadeInPos.value);
+	 		selectObj.envX[0]=parseFloat(fadeInPos.value);
+	 		update();
+	 	}
+	 	
+	 	
 	 }
-	 
-	if(elmnt.id=="envT1" || elmnt.id=="envT2" || elmnt.id=="envT3" || elmnt.id=="envT4" || elmnt.id=="envT5" || elmnt.id=="envT6" || elmnt.id=="envT7"){
-	 	elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+	 if( elmnt.id=="env2"){
+	 	var nv1=parseFloat(document.getElementById("env1").style.left);
+	 	var nv2=parseFloat(document.getElementById("env2").style.left);
 	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-	 	envTDef(elmnt);
+	 	if(nv2<nv1+10){
+	 		elmnt.style.left = (nv2+10)+"px";
+	 	}
+	 	if(nv2>nv1 && nv2<200){
+	 		fadeOutPos.value=((elmnt.offsetLeft - pos1)*0.005).toFixed(2);
+	 		console.log("nv2",fadeInPos.value,lgFade.value*fadeInPos.value,selectObj.envX)
+	 		fadePosOut.value= lgFade.value-(lgFade.value*parseFloat(fadeOutPos.value));
+	 		selectObj.envX[1]= parseFloat(fadeOutPos.value);
+	 		update();
+	 	}
 	 }
+	
   }
 
   function closeDragElement2() {
@@ -795,19 +829,20 @@ function dragElement2(elmnt) {
     document.onmousemove = null;
     elmnt.style.cursor="default";
     var nex=[]
-    for(let i=0;i<7;i++){
+    for(let i=0;i<2;i++){
     	nex[i]={
      		x:selectObj.envX[i],
-   		y:selectObj.envY[i]
+   		y:0
    	}
     }
     nex=nex.sort((s1, s2) => {
    		 return s1.x - s2.x;
 			});
-    for(let i=0;i<7;i++){
+    for(let i=0;i<2;i++){
     	selectObj.envX[i]=nex[i].x
-    	selectObj.envY[i]=nex[i].y
+    	//selectObj.envY[i]=0
     }
+    window.api.send("toMain", "defEnv;"+selectObj.envX);
   }
 }
 
@@ -830,7 +865,7 @@ function envDef(elmnt){
 	 	}
 	 	var nid=parseInt(elmnt.id.substring(3))-1;
 	 	selectObj.envX[nid]=(parseFloat(elmnt.style.left)/199).toFixed(2);
-	   selectObj.envY[nid]=(1-(parseFloat(elmnt.style.top)/128)).toFixed(2);
+	   //selectObj.envY[nid]=(1-(parseFloat(elmnt.style.top)/128)).toFixed(2);
 	   window.api.send("toMain", "env;"+selectId+";"+nid+";"+selectObj.envX[nid]+";"+selectObj.envY[nid]);
 }
 
@@ -916,6 +951,103 @@ function spatialspT(pt,T) {
 function createSpatialPoint(pt,t) {
 	selectObj.spT[pt]=parseFloat(t);
 }
+// -----------------------------------------------------------------------------------------
+// --- CURVES EXACTES SOX ---
+function applyCurve(x, type) {
+    switch (type) {
+        case "q": return Math.sin((x * Math.PI) / 2); // quart de sinusoïde
+        case "h": return (1 - Math.cos(Math.PI * x)) / 2; // demi sinusoïde
+        case "t": return x; // linéaire
+        case "l": return Math.log(1 + 9 * x) / Math.log(10); // logarithmique approx
+        case "p": return 1 - Math.pow(1 - x, 2); // parabole inversée
+    }
+}
+
+const svg = document.getElementById("editor");
+const fadeInPos = document.getElementById("fadeInPos");
+const fadeOutPos = document.getElementById("fadeOutPos");
+const fadePosIn = document.getElementById("fadePosIn");
+const fadePosOut = document.getElementById("fadePosOut");
+const lgFade = document.getElementById("lgFade");
+const fadeInType = document.getElementById("fadeInType");
+const fadeOutType = document.getElementById("fadeOutType");
+const curve = document.getElementById("curve");
+const handleIn = document.getElementById("env1");
+const handleOut = document.getElementById("env2");
+
+function update() {
+    const W = 200, H = 100;
+    const yBase = H - 1;
+
+    const xIn = fadeInPos.value * W;
+    const xOut = fadeOutPos.value * W;
+
+    // Position handles
+    handleIn.setAttribute("cx", xIn);
+    handleIn.setAttribute("cy", yBase - 100);
+
+    handleOut.setAttribute("cx", xOut);
+    handleOut.setAttribute("cy", yBase - 100);
+
+    let points = [];
+
+    for (let i = 0; i < W; i++) {
+        const xNorm = i / W;
+        let y;
+
+        if (xNorm <= fadeInPos.value) {
+            const local = xNorm / fadeInPos.value;
+            y = applyCurve(local, fadeInType.value);
+        } else if (xNorm >= fadeOutPos.value) {
+            const local = (1 - xNorm) / (1 - fadeOutPos.value);
+            y = applyCurve(local, fadeOutType.value);
+        } else {
+            y = 1;
+        }
+
+        const px = i;
+        const py = yBase - y * 95;
+        points.push(px + "," + py);
+    }
+
+    curve.setAttribute("points", points.join(" "));
+}
+
+update();
+
+/*
+// --- DRAG HANDLES ---
+let dragging = null;
+
+svg.addEventListener("mousedown", e => {
+    if (e.target.classList.contains("draggable")) {
+        dragging = e.target;
+    }
+});
+
+svg.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    const rect = svg.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const norm = Math.max(0, Math.min(1, x / 800));
+
+    if (dragging === handleIn) fadeInPos.value = Math.min(norm, fadeOutPos.value - 0.05);
+    if (dragging === handleOut) fadeOutPos.value = Math.max(norm, fadeInPos.value + 0.05);
+
+    update();
+});
+
+svg.addEventListener("mouseup", () => dragging = null);
+svg.addEventListener("mouseleave", () => dragging = null);
+*/
+// Réactualiser si les menus changent
+
+
+fadeInPos.oninput = update;
+fadeOutPos.oninput = update;
+
+fadeInType.onchange = fadeIn;
+fadeOutType.onchange = fadeOut;
 </script>
 </body>
 </html>

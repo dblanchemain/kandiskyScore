@@ -94,6 +94,9 @@ function defObjGrp(id,nbobjets,cla) {
 			txt=txt+"		<rx value='"+id.rx+"'></rx>\n\
 		<ry value='"+id.ry+"'></ry>\n";
 		}
+		if(parseInt(id.type)==3){
+			txt=txt+"		<rotation value='"+id.rotate+"'></rotation>\n";
+		}
 		txt=txt+"		<scalex value='"+id.scaleX+"'></scalex>\n\
 		<scaley value='"+id.scaleY+"'></scaley>\n"
 		if(id.scaleY2){
@@ -351,6 +354,7 @@ function defProjetConf(txt) {
 	<externepdfass value='"+pdfAssCmd+"'></externepdfass>\n\
 	<externepdfapp value='"+pdfAppCmd+"'></externepdfapp>\n\
 	<externeaudioedit value='"+editAudioCmd+"'></externeaudioedit>\n\
+	<rubberbandPath value='"+ rubberband+"'></rubberbandPath>\n\
 	</externe>\n"
 	return txt
 }
@@ -591,7 +595,13 @@ function objXmlToScore(id,i) {
 			tableObjet[id].img=org.getElementsByTagName("imag")[0].getAttribute("value")
 			tableObjet[id].rotate=org.getElementsByTagName("rotation")[0].getAttribute("value")
 		}
-		
+		if(tableObjet[id].type==3){
+			if(org.getElementsByTagName("rotation")[0]){
+				tableObjet[id].rotate=org.getElementsByTagName("rotation")[0].getAttribute("value")
+			}else{
+				tableObjet[id].rotate=0
+			}
+		}
 		if(parseInt(org.getElementsByTagName("class")[0].getAttribute("value"))==2){
 			sp=[]
    		sp=obj.getElementsByTagName("objet")[i].getElementsByTagName("liste")[0].getAttribute("value").split(",")
@@ -795,6 +805,7 @@ function defObjets(i,liste,dx,dy){
 				}
 			}
 			var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd+","+editAudioCmd
+			txt=txt+","+rubberband			
 			window.api.send("toMain", 'defExterne;'+btoa(txt))
 }
 function initTableBuffer(i,liste,dx,dy) {
@@ -1158,6 +1169,11 @@ function defExterneConfig() {
 		pdfAssCmd = obj.getElementsByTagName("externepdfass")[0].getAttribute("value")
 		pdfAppCmd = obj.getElementsByTagName("externepdfapp")[0].getAttribute("value")
 		editAudioCmd = obj.getElementsByTagName("externeaudioedit")[0].getAttribute("value")
+		if( obj.getElementsByTagName("rubberbandPath")[0]){
+			rubberband = obj.getElementsByTagName("rubberbandPath")[0].getAttribute("value")
+		}else{
+			rubberband = ""
+		}
 		if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png"
 		}else{

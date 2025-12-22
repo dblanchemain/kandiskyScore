@@ -18,7 +18,223 @@ const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer } = req
 const url = require('url');
 const path = require('path')
 const fs = require("fs-extra")
-//const fsx = require("fs-extra")
+const os = require("os");
+const { existsSync } = require("fs");
+
+const createModule = require('./public/split_wasm.js');
+const createMergeModule = require('./public/merge_wasm.js');
+
+//const { AudioContext } = require('web-audio-api');
+const WavDecoder = require("wav-decoder");
+const WavEncoder = require("wav-encoder");
+const wav = require("node-wav");
+
+var AudioBuffer = require('audiobuffer')
+const { exec, execSync, spawn } = require("child_process");
+const util = require("util");
+const execAsync = util.promisify(exec);
+
+const baseDir = getBinBaseDir();
+const platform = os.platform();
+let playState=0;
+let playProcess=null;
+
+function getBinBaseDir() {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, "bin")
+    : path.join(__dirname, "resources", "bin");
+}
+
+function findSoxPath() {
+  let localPath;
+  switch (platform) {
+    case "win32":
+      localPath = path.join(baseDir, "win", "sox.exe");
+      break;
+    case "darwin":
+      localPath = path.join(baseDir, "mac", "sox");
+      break;
+    default:
+      localPath = path.join(baseDir, "linux", "sox");
+  }
+
+  if (existsSync(localPath)) return localPath;
+
+  // fallback global
+  try {
+    execSync("sox --version", { stdio: "ignore" });
+    return "sox";
+  } catch {
+    throw new Error(
+      `❌ sox introuvable. Place le binaire dans ${baseDir}/[win|mac|linux]/ ou installe-le globalement.`
+    );
+  }
+}
+
+/**
+ * Retourne le chemin correct vers le binaire soxi (local ou global)
+ */
+function findSoxiPath() {
+  let localPath;
+  switch (platform) {
+    case "win32":
+      localPath = path.join(baseDir, "win", "sox.exe --i ");
+      break;
+    case "darwin":
+      localPath = path.join(baseDir, "mac", "soxi");
+      break;
+    default:
+      localPath = path.join(baseDir, "linux", "soxi");
+  }
+
+  if (existsSync(localPath)) return localPath;
+  return "soxi"; // fallback global
+}
+/**
+ * Retourne le chemin correct vers le binaire play (local ou global)
+ */
+function findPlayPath() {
+  let localPath;
+  switch (platform) {
+    case "win32":
+      localPath = path.join(baseDir, "win", "sox.exe");
+      break;
+    case "darwin":
+      localPath = path.join(baseDir, "mac", "play");
+      break;
+    default:
+      localPath = path.join(baseDir, "linux", "play");
+  }
+
+  if (existsSync(localPath)) return localPath;
+  return "play"; // fallback global
+}
+function findRubberbandPath() {
+  const baseDir = getBinBaseDir();
+  const platform = os.platform();
+
+  let localPath;
+  switch (platform) {
+    case "win32":
+      localPath = path.join(baseDir, "win", "rubberband.exe");
+      break;
+    case "darwin":
+      localPath = path.join(baseDir, "mac", "rubberband");
+      break;
+    default:
+      localPath = path.join(baseDir, "linux", "rubberband");
+  }
+
+  if (existsSync(localPath)) return `"${localPath}"`;
+  return "rubberband"; // fallback global
+}
+function getFFmpegPaths() {
+  const platform = process.platform;
+  const baseDir = getBinBaseDir();
+  const basePath = path.join(process.resourcesPath, "bin");
+
+  let binDir;
+  if (platform === "win32") binDir = path.join(baseDir, "win");
+  else if (platform === "darwin") binDir = path.join(baseDir, "mac");
+  else binDir = path.join(baseDir, "linux");
+
+  const ffmpegPath = path.join(binDir, platform === "win32" ? "ffmpeg.exe" : "ffmpeg");
+  const ffplayPath = path.join(binDir, platform === "win32" ? "ffplay.exe" : "ffplay");
+  const ffprobePath = path.join(binDir, platform === "win32" ? "ffprobe.exe" : "ffprobe");
+
+  // Vérifie la présence des binaires
+  for (const p of [ffmpegPath, ffplayPath, ffprobePath]) {
+    if (!fs.existsSync(p)) console.warn("⚠️ Binaire manquant :", p);
+  }
+
+  return { ffmpegPath, ffplayPath, ffprobePath };
+}
+const soxPath = findSoxPath();
+const soxiPath = findSoxiPath();
+const playPath = findPlayPath();
+const rubberbandPath = findRubberbandPath();
+const { ffmpegPath, ffplayPath, ffprobePath } = getFFmpegPaths();
+console.log("🎧 Sox détecté :", soxPath,soxiPath,playPath,rubberbandPath,ffmpegPath, ffplayPath, ffprobePath );
+
+async function callRubberbandCLI(rb,id,mode,inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null) {
+  let cmd = rb+` -t ${timeRatio} -p ${pitchSemitones}  --window-long --no-transients --smoothing --no-threads --crisp 4 "${inputPath}" "${outputPath}"`;
+  if (timeMapPath) {
+    cmd += ` -M "${timeMapPath}"`;
+  }
+  const { stdout, stderr } = await execAsync(cmd);
+  //if (stderr) console.error("rubberband stderr:", stderr);
+  console.log("Rubberband terminé !");
+  mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath)
+}
+async function autoRubberbandCLI(rb,inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null,obj) {
+  let cmd = rb+` -t ${timeRatio} -p ${pitchSemitones}  --window-long --no-transients --smoothing --threads "${inputPath}" "${outputPath}"`;
+  if (timeMapPath) {
+    cmd += ` -M "${timeMapPath}"`;
+  }
+  const { stdout, stderr } = await execAsync(cmd);
+  //if (stderr) console.error("rubberband stderr:", stderr);
+  console.log("Rubberband terminé !");
+  mainWindow.webContents.send("fromMain", "autoRubberband;"+obj+";"+outputPath)
+}
+async function checkTimeMapLength(timeMapPath) {
+  try {
+    const content = await fs.promises.readFile(timeMapPath, "utf8");
+    const lines = content
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0); // ignore lignes vides
+
+    return lines.length;
+  } catch (err) {
+    console.error("Erreur de lecture du timeMap :", err);
+    return 0;
+  }
+}
+ipcMain.on("audio-buffer", (event, data) => {
+  const { sampleRate, numberOfChannels, length, channels, savePath } = data;
+  const buffers = channels.map(ch => new Float32Array(ch));
+
+  saveWavFile(savePath, buffers, sampleRate);
+});
+function saveSerializedAudioBufferToWav(data, outputPath) {
+  if (!data || !data.channels) {
+    console.error("❌ Données audio invalides :", data);
+    return;
+  }
+
+  // Reconvertit chaque ArrayBuffer reçu en Float32Array
+  const channelData = data.channels.map(ch => new Float32Array(ch));
+
+  const audioData = {
+    sampleRate: data.sampleRate,
+    channelData,
+  };
+
+  WavEncoder.encode(audioData)
+    .then(buffer => {
+      fs.writeFileSync(outputPath, Buffer.from(buffer));
+      console.log("✅ WAV sauvegardé :", outputPath);
+    })
+    .catch(err => console.error("❌ Erreur encodage :", err));
+}
+/*
+async function saveAudioBufferToWav(audioBuffer, outputPath) {
+	//let result= fs.readFileSync(file);
+	//let audioBuffer = WavDecoder.decode(result);
+	console.log("audioBuffer",atob(audioBuffer))
+	/*
+  const wavData = await WavEncoder.encode({
+    sampleRate: audioBuffer.sampleRate,
+    channelData: Array.from({ length: audioBuffer.numberOfChannels }, (_, i) =>
+      audioBuffer.getChannelData(i)
+    ),
+  });
+
+  fs.writeFileSync(outputPath, Buffer.from(wavData));
+  console.log("WAV correctement sauvegardé :", outputPath);
+  
+}
+*/
 
 let localFilePath='';
 //const Buffer = require("buffer")
@@ -106,7 +322,7 @@ fs.access(app.getPath('appData')+'/kandiskyscore/Pdf', (err) => {
 	    }
    })
 
-const { exec } = require("child_process");
+
 
 const isMac = process.platform === 'darwin'
 
@@ -128,6 +344,13 @@ let winVueStudio3DEtat=0
 let winDocEtat=0
 let winSpectroEtat=0
 let winSvgEtat=0
+let winMediaExplorerEtat=0
+let winImgViewerEtat=0;
+let winHostEtat=0
+let winPro54Etat=0
+let winObxdEtat=0
+let winSpatMassEtat=0
+let winMassWasmEtat=0
 
 let projetName=''
 let projetPath=app.getPath('home')+'/kandiskyscore/projets'
@@ -147,6 +370,7 @@ let pdfMgRight=0.2
 let pdfBkg=0
 let pdfAssCmd='pdfunite'
 let pdfAppCmd='atril'
+let rubberband=""
 
 let currentProjet=app.getPath('home')+'/kandiskyscore/Projets'
 app.disableHardwareAcceleration()
@@ -160,7 +384,8 @@ const createWindow = () => {
     	nodeIntegration: false, // is default value after Electron v5
       contextIsolation: true, // protect against prototype pollution
       enableRemoteModule: false, // turn off remote
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      sandbox: false
     }
     
   })
@@ -190,12 +415,60 @@ const createWindow = () => {
   })
 })  
 }
+//"../../kandiskyscore/Projets/Projet3/Audios/outfoxing.wav"
+
+
+
+function buildSmoothRubberbandTimeMap(tempoCurve, sampleRate, durationSec, totalInFrames, stepSec = 0.1) {
+  const lines = [];
+  let outTime = 0;
+
+  const tempoAt = (x) => {
+    // interpolation linéaire entre deux points de tempoCurve
+    for (let i = 1; i < tempoCurve.length; i++) {
+      const a = tempoCurve[i - 1];
+      const b = tempoCurve[i];
+      if (x <= a.x) return a.y;
+      if (x < b.x) {
+        const t = (x - a.x) / (b.x - a.x);
+        return a.y + t * (b.y - a.y);
+      }
+    }
+    return tempoCurve.at(-1).y;
+  };
+
+  lines.push(`0 0`);
+
+  for (let t = stepSec; t <= durationSec; t += stepSec) {
+    const y = tempoAt(t);
+    outTime += stepSec / y;
+    const inFrame = Math.round(t * sampleRate);
+    const outFrame = Math.round(outTime * sampleRate);
+
+    if (inFrame > totalInFrames) break;
+    lines.push(`${inFrame} ${outFrame}`);
+  }
+
+  // dernière ligne exacte
+  if (lines.at(-1).split(" ")[0] != totalInFrames.toString()) {
+    const lastTempo = tempoAt(durationSec);
+    const remaining = (totalInFrames / sampleRate) - durationSec;
+    const outExtra = remaining / lastTempo;
+    const finalOut = outTime + outExtra;
+    lines.push(`${totalInFrames} ${Math.round(finalOut * sampleRate)}`);
+  }
+
+  return lines.join("\n");
+}
+
 
 // Cette méthode sera appelée quand Electron aura fini
 // de s'initialiser et sera prêt à créer des fenêtres de navigation.
 // Certaines APIs peuvent être utilisées uniquement quant cet événement est émit.
-app.whenReady().then(() => {
-	
+app.whenReady().then(async () => {
+  // Charger dynamiquement Rubber Band
+ 	//await initializeRubberBand();
+	//testRubberband().catch(console.error);
   createWindow()
   
   
@@ -264,6 +537,11 @@ const template = [
       { label: Mdegrouper },
       { label: Mregrouper },
       { label: MtoutDegrouper },
+      { type: 'separator' },
+      { label: 'Media Explorer',
+				click: () => mediaExplorer()  },
+		{ label: 'Image viewer',
+				click: () => imgViewer()  },  
       { type: 'separator' },
       { label: McouleurGrp,
 				click: () => grpColor() },
@@ -381,8 +659,24 @@ const template = [
       { type: 'separator' },
       { label: Mwaveform,
       		click: () => waveForm() },
-       { label: 'Spectrogram',
+      { label: 'Spectrogram',
       		click: async () => spectrogram() },
+      { label: 'MetaMass',
+      		click: async () => defSpatMass() },
+      { label: 'Wam2 Plugins',
+      	submenu: [
+      		{ label: 'host',
+      		click: async () => host() },
+      		{ label: 'Synthétiseur',
+					submenu: [
+						{ label: 'Obxd',
+						click: () => sObxd()},
+		  				{ label: 'Pro24 synth',
+		  				click: () => sPro24()}
+  				]
+				}
+  				]
+      },
       { type: 'separator' },
       { label: Mobjetwav,
       		click: () => renduObjet() },
@@ -510,11 +804,114 @@ function autoFileSave(event,filePath,audioData) {
 		    console.log('Saved! '+filePath)
 				    });
 }
+
 ipcMain.on ("saveAudio", (event, ...args) => {									// Affichage du menu popup
 	console.log(`Save`+ args[1] +` from param`)
     autoFileSave(event,args[1],args[2])
 });
 
+ipcMain.handle('saveAudioTempo', async (event, filePath, arrayBuffer) => {
+  try {
+    const fullPath = path.resolve(filePath);
+    const buffer = Buffer.from(arrayBuffer);
+
+    // ✅ On attend la fin complète de l’écriture
+    await fs.promises.writeFile(fullPath, buffer);
+
+    console.log("✅ WAV sauvegardé :", fullPath);
+
+    // ✅ Vérification que le fichier existe et a une taille > 0
+    const stats = await fs.promises.stat(fullPath);
+    if (stats.size === 0) throw new Error("Le fichier est vide après écriture.");
+
+    // ✅ On renvoie explicitement la confirmation
+    return { success: true, path: fullPath, size: stats.size };
+
+  } catch (err) {
+    console.error("❌ Erreur lors de la sauvegarde du WAV :", err);
+    throw err;
+  }
+});
+
+
+ipcMain.on("save-File", (event, { filename, data }) => {
+  const savePath = path.join(app.getPath('home')+'/kandiskyscore', filename);
+  console.log(savePath)
+	
+  dialog.showSaveDialog({
+        title: 'Select the File Path to save',
+        defaultPath: path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName),
+        buttonLabel: 'Save',
+        // Restricting the user to only Text Files.
+        
+    }).then(file => {
+        // Stating whether dialog operation was cancelled or not.
+        console.log(file.canceled);
+        if (!file.canceled) {
+            console.log(file.filePath.toString());
+            
+            currentProjet=file.filePath.toString()
+            // Creating and Writing to the sample.txt file
+            fs.writeFile(file.filePath.toString(), 
+                         data, function (err) {
+                if (err) throw err;
+                console.log('État sauvegardé dans', savePath);
+            });
+        }
+    }).catch(err => {
+        console.log(err)
+    });  
+  
+});
+//******************************************audio tempo ***********************************************************
+
+async function playRubberBand(filePath, tempoFoo = 1.0) {
+  const data = await fs.readFile(filePath);
+  const audioCtx = new AudioContext();
+  const audioBuffer = await audioCtx.decodeAudioData(data.buffer);
+
+  const rb = await RubberBandWasm();
+  const stretcher = new rb.RubberBandStretcher(
+    audioBuffer.sampleRate,
+    audioBuffer.numberOfChannels,
+    rb.OptionProcessRealTime | rb.OptionPitchHighQuality
+  );
+
+  const channels = [];
+  for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+    channels.push(audioBuffer.getChannelData(ch));
+  }
+
+  stretcher.setTempoChange(tempoFoo);
+  stretcher.process(channels);
+
+  const outChannels = stretcher.retrieve();
+  const outLen = outChannels[0].length;
+
+  const outBuffer = new Float32Array(outLen * audioBuffer.numberOfChannels);
+  for (let ch = 0; ch < audioBuffer.numberOfChannels; ch++) {
+    const chData = outChannels[ch];
+    for (let i = 0; i < outLen; i++) {
+      outBuffer[i * audioBuffer.numberOfChannels + ch] = chData[i];
+    }
+  }
+
+  return {
+    buffer: outBuffer.buffer,
+    sampleRate: audioBuffer.sampleRate,
+    channels: audioBuffer.numberOfChannels,
+  };
+}
+
+// Listener IPC "process-audio"
+ipcMain.on("process-audio", async (event, args) => {
+  try {
+    const result = await playRubberBand(args.filePath, args.tempo);
+    event.sender.send("process-audio-done", result);
+  } catch (err) {
+    event.sender.send("process-audio-done", { error: err.message });
+  }
+});
 
 // ****************************************************************************************************************
 //																	Menu principal
@@ -705,6 +1102,28 @@ function defStudio() {
 	console.log("saveStudio")
 	newStudio.webContents.send("fromMain", 'saveStudio;');
 }
+function sPro24() {
+	winPro54Open()
+}
+function sObxd() {
+	winObxdOpen()
+}
+
+// Dans votre main process
+ipcMain.handle("readFile", async (event, path) => {
+  const data = await fs.promises.readFile(path);
+  return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+});
+ipcMain.handle('read-file', async (event, filePath) => {
+    try {
+      const data = await fs.readFile(filePath);
+      return data.buffer;
+    } catch (err) {
+      console.error('Erreur lors de la lecture du fichier :', err);
+      throw err;
+    }
+  });
+
 // ******************************************************************************************************
 async function ide() {
           const { shell } = require('electron')
@@ -1216,7 +1635,7 @@ function exportSelect(block) {
 
 function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
 	if(winProjetEtat==0){
-		winProjet = new BrowserWindow({width:840,height:650,
+		winProjet = new BrowserWindow({width:840,height:720,
 		webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,
@@ -1226,7 +1645,7 @@ function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
 		})
 		winProjet.loadFile('configuration.html')
 		winProjet.removeMenu();
-		//winProjet.webContents.openDevTools()
+		winProjet.webContents.openDevTools()
 		winProjetEtat=1
 		winProjet.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winProjet.webContents.send("fromMain", "defProjet;"+lang+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6);
@@ -1266,7 +1685,7 @@ function configClose() {
 
 function winObjetParam(objId,lang,obj,c,t) {
 	if(winConfigEtat==0){
-		winConfig = new BrowserWindow({width:400,height:640,alwaysOnTop:true,
+		winConfig = new BrowserWindow({width:410,height:640,alwaysOnTop:true,
 		webPreferences: {
 	            nodeIntegration: true,
 	            contextIsolation: true,
@@ -1276,7 +1695,7 @@ function winObjetParam(objId,lang,obj,c,t) {
 		})
 		winConfig.loadFile('objetParam.html')
 		winConfig.removeMenu();
-		//winConfig.webContents.openDevTools()
+		winConfig.webContents.openDevTools()
 		winConfigEtat=1
 		winConfig.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winConfig.webContents.send("fromMain", "defObjet;"+objId+";"+lang+";"+obj+";"+c+";"+t);
@@ -1302,6 +1721,92 @@ function winObjetParam(objId,lang,obj,c,t) {
 	  */
 	  //winConfig.destroy()
 	  winConfigEtat=0
+		console.log('')
+	}
+}
+function spatMass(id,obj) {
+	if(winSpatMassEtat==0){
+		winSpatMass = new BrowserWindow({width:780,height:570,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winSpatMass.loadFile('spatMass.html')
+		winSpatMass.removeMenu();
+		winSpatMass.webContents.openDevTools()
+		winSpatMassEtat=1
+		winSpatMass.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winSpatMass.webContents.send("fromMain", "openSpatMass;"+id+";"+obj);
+  		});
+
+		winSpatMass.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winSpatMass.destroy()
+	  winSpatMassEtat=0
+	  if(winMassWasmEtat==1){
+			winMassWasm.destroy();
+			winMassWasmEtat=0;
+		}
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winSpatMass.destroy()
+	  winSpatMassEtat=0;
+		console.log('')
+	}
+}
+function openMassWasm(id,file,rate) {
+	if(winMassWasmEtat==0){
+		winMassWasm = new BrowserWindow({width:680,height:530,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winMassWasm.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html')
+		winMassWasm.removeMenu();
+		winMassWasm.webContents.openDevTools()
+		winMassWasmEtat=1
+		winMassWasm.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winMassWasm.webContents.send("fromMain", "objsource;"+id+";"+file+";"+rate);
+  		});
+
+		winMassWasm.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winMassWasm.destroy()
+	  winMassWasmEtat=0;
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winMassWasm.destroy()
+	  winMassWasmEtat=0
 		console.log('')
 	}
 }
@@ -1395,7 +1900,7 @@ function createWinGraph(id,lang,param,type) {
 		})
 		winGraphObj.loadFile('defgraphObj.html')
 		winGraphObj.removeMenu();
-		//winGraphObj.webContents.openDevTools()
+		winGraphObj.webContents.openDevTools()
 		winGraphObjEtat=1
 		winGraphObj.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphObj.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
@@ -1708,7 +2213,214 @@ function openDoc() {
 	   })
 	}
 }
+function mediaExplorer() {
+	if(winMediaExplorerEtat==0){
+		winMediaExplorer = new BrowserWindow({width:900,height:680,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winMediaExplorer.loadFile('./mediaExplorer.html')
+		winMediaExplorer.removeMenu();
+		winMediaExplorer.webContents.openDevTools()
+		winMediaExplorerEtat=1
+		winMediaExplorer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winMediaExplorer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+app.getPath('home')+'/kandiskyscore;'+currentProjet);
+  		});
 
+		winMediaExplorer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winMediaExplorer.destroy()
+	  winMediaExplorerEtat=0
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winGraphicEqua.destroy()
+	  winMediaExplorerEtat=0
+		console.log('')
+	}
+}
+function imgViewer() {
+	if(winImgViewerEtat==0){
+		winImgViewer = new BrowserWindow({width:898,height:530,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winImgViewer.loadFile('./imgViewer.html')
+		winImgViewer.removeMenu();
+		winImgViewer.webContents.openDevTools()
+		winImgViewerEtat=1
+		winImgViewer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winImgViewer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+app.getPath('home')+'/kandiskyscore;'+currentProjet);
+  		});
+
+		winImgViewer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winImgViewer.destroy()
+	  winImgViewerEtat=0
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winGraphicEqua.destroy()
+	  winImgViewerEtat=0
+		console.log('')
+	}
+}
+function winPro54Open() {
+	if(winPro54Etat==0){
+		winPro54 = new BrowserWindow({width:825,height:854,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		console.log('winPro54Open')
+		winPro54.loadFile('./Wam2/wam-examples-master/packages/Synthe/Pro54/index.html')
+		winPro54.removeMenu();
+		winPro54.webContents.openDevTools()
+		winPro54Etat=1
+		winPro54.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		//winPro54.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
+  		});
+
+		winPro54.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winPro54.destroy()
+	  winPro54Etat=0
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winPro54.destroy()
+	  winPro54Etat=0
+		console.log('')
+	}
+}
+function winObxdOpen() {
+	if(winObxdEtat==0){
+		winObxd = new BrowserWindow({width:825,height:854,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		console.log('winObxdOpen')
+		winObxd.loadFile('./Wam2/wam-examples-master/packages/Synthe/Obxd/index.html')
+		winObxd.removeMenu();
+		winObxd.webContents.openDevTools()
+		winObxdEtat=1
+		winObxd.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		//winObxd.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
+  		});
+
+		winObxd.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winObxd.destroy()
+	  winObxdEtat=0
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winObxd.destroy()
+	  winObxdEtat=0
+		console.log('')
+	}
+}
+
+function winHostOpen(id,objWav) {
+	if(winHostEtat==0){
+		winHost = new BrowserWindow({width:835,height:310,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winHost.loadFile('./Wam2/wam-examples-master/packages/hostModules/index.html')
+		winHost.removeMenu();
+		winHost.webContents.openDevTools()
+		winHostEtat=1
+		winHost.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winHost.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
+  		});
+
+		winHost.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winHost.destroy()
+	  winHostEtat=0
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winHost.destroy()
+	  winHostEtat=0
+		console.log('')
+	}
+}
 function tempoAudio() {
 	mainWindow.webContents.send("fromMain", "tempoAudio")
 }
@@ -1839,6 +2551,9 @@ function spectrogram() {
 	mainWindow.webContents.send("fromMain", "spectrogram")
 }
 
+function host() {
+	mainWindow.webContents.send("fromMain", "host")
+}
 function soxSpectrogram(npath) {
 	var txt="";
 	if(winSpectroEtat==0){
@@ -1852,7 +2567,7 @@ function soxSpectrogram(npath) {
 		        //return;
 		    }
 		setTimeout(function(){    
-		exec("sox  "+npath+" -n stats ", (error, stdout, stderr) => {
+		exec(soxPath+" "+npath+" -n stats ", (error, stdout, stderr) => {
 		    if (error) {
 		        //console.log(`error: ${error.message}`);
 		        return;
@@ -1963,10 +2678,34 @@ function audioEditor(obj) {
 	console.log('cm',cm)
 	exec(cm)
 }
+function pro54Preset() {
+	var testfile = dialog.showOpenDialog({
+	properties: [
+    'openFile'],
+     defaultPath: app.getPath('home'),
+	filters: [
+    { name: 'kandiskyscore', extensions: ['pro'] },
+    { name: 'All Files', extensions: ['*'] }
+  ]
+   }).then(result => {
+   	console.log(result.canceled)
+  		console.log('result.filePaths',result.filePaths)
+  		if(!result.canceled){
+  			try {
+			    const data = fs.readFileSync(result.filePaths.toString(), "utf-8");
+			    winPro54.webContents.send("fromMain", 'presetPro54;'+data)
+			  } catch (err) {
+			    console.error("⚠️ Impossible de charger le state :", err);
+			  }
+  			
+  		}
+	})
+}
 // ****************************************************************************************************************
 //const ipc = require('electron').ipcRenderer;
 
 ipcMain.on ("toMain", (event, args) => {
+  if (typeof args === "string") {
 	let cmd=args.split(';')
 	switch(cmd[0]) {
 		case 'basePath':
@@ -1979,7 +2718,7 @@ ipcMain.on ("toMain", (event, args) => {
 			spaceToSvg(cmd[1],cmd[2])
 			break
 		case 'openObjetParam':
-		//console.log(`openObjetParam ${args} from param`);
+		console.log(`openObjetParam ${args} from param`);
 			winObjetParam(cmd[1],cmd[2],cmd[3],cmd[4],cmd[6])
 			break
 		case 'openSymbParam':
@@ -1995,7 +2734,7 @@ ipcMain.on ("toMain", (event, args) => {
 			createPreDef(cmd[1],cmd[2],cmd[3])
 			break
 		case 'objParamAnnul':
-			console.log(`Restore ${args} from param`);
+			//console.log(`Restore ${args} from param`);
 			mainWindow.webContents.send("fromMain", "annulModifObj;"+cmd[1])
 			winConfigEtat=0
 			winConfig.destroy()
@@ -2021,6 +2760,7 @@ ipcMain.on ("toMain", (event, args) => {
 			}
 			break
 		case 'objParamValid':
+			console.log(`Restore spatial ${args}`);
 			if(winGraphObjEtat==1){
 				winGraphObj.destroy()
 				winGraphObjEtat=0
@@ -2034,7 +2774,8 @@ ipcMain.on ("toMain", (event, args) => {
 				winTrajectoireEtat=0
 			}
 			winConfig.destroy()
-			winConfigEtat=0
+			winConfigEtat=0;
+			mainWindow.webContents.send("fromMain", "objValid;"+cmd[1])
 			break
 		case 'objGraphValid':
 			if(winGraphObjEtat==1){
@@ -2141,7 +2882,7 @@ ipcMain.on ("toMain", (event, args) => {
 			break
 		case 'audioFileObj':
 			console.log("id1",cmd[1])
-			objetAudio(cmd[1],1)
+			objetAudio(cmd[1])
 			break
 		case 'audioFileObj2':
 			console.log("id1",cmd[1])
@@ -2158,8 +2899,9 @@ ipcMain.on ("toMain", (event, args) => {
 			preDefAudio(cmd[1])
 			break
 		case 'fileAudioParam':
-			console.log("id1",cmd[1])
-			winConfig.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
+			console.log("id1",cmd[1]);
+			//console.log(`openObjetParam ${args} from param`);
+			winConfig.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
 			break
 		case 'fileAudioPreDef':
 			console.log("id1",cmd[1])
@@ -2184,9 +2926,14 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'preDefGain':
 			mainWindow.webContents.send("fromMain", "preDefGain;"+cmd[1]+";"+cmd[2])
 			break
-		case 'envType':
+		case 'fadeInType':
 			if(winConfigEtat==1){
-				mainWindow.webContents.send("fromMain", "audioEnvType;"+cmd[1]+";"+cmd[2])
+				mainWindow.webContents.send("fromMain", "fadeInType;"+cmd[1]+";"+cmd[2])
+			}
+			break
+		case 'fadeOutType':
+			if(winConfigEtat==1){
+				mainWindow.webContents.send("fromMain", "fadeOutType;"+cmd[1]+";"+cmd[2])
 			}
 			break
 		case 'envPreDefType':
@@ -2259,6 +3006,9 @@ ipcMain.on ("toMain", (event, args) => {
 			break
 		case 'env':
 			mainWindow.webContents.send("fromMain", "audioEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
+			break
+		case 'defEnv':
+			mainWindow.webContents.send("fromMain", "defEnv;"+cmd[1])
 			break
 		case 'preDefEnv':
 			mainWindow.webContents.send("fromMain", "preDefEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
@@ -2703,6 +3453,7 @@ ipcMain.on ("toMain", (event, args) => {
 			mainWindow.webContents.send("fromMain", "exportExterne;"+cmd[1])
 			break
 		case 'defExterne':
+		console.log(`externe ${args} from renderer process`);
 			mainExternes2(cmd[1])
 			break
 		case 'exportSelect':
@@ -2720,13 +3471,1022 @@ ipcMain.on ("toMain", (event, args) => {
 			console.log(`save spectro ${args} from renderer process`);
 			audioEditor(cmd[1])
 			break
-	}
-         
+		case 'openGraphEqua':
+		   console.log(`openObjetParam ${args} from param`);
+			winGraphicEqualizer(cmd[1],cmd[2])
+			break
+		case 'openBigMuff':
+		   console.log(`openObjetParam ${args} from param`);
+			winBigMuffOpen(cmd[1],cmd[2])
+			break
+		case 'bigMuffExit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winBigMuffEtat==1){
+				winBigMuff.destroy()
+	  			winBigMuffEtat=0
+	  		}
+			break
+		case 'openStonePhaser':
+		   console.log(`openObjetParam ${args} from param`);
+			winStonePhaserOpen(cmd[1],cmd[2])
+			break
+		case 'stonePhaserExit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winStonePhaserEtat==1){
+				winStonePhaser.destroy()
+	  			winStonePhaserEtat=0
+	  		}
+			break
+		case 'openDistoM':
+		   console.log(`openObjetParam ${args} from param`);
+			winDistoMOpen(cmd[1],cmd[2])
+			break
+		case 'distoMExit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winDistoMEtat==1){
+				winDistoMOpen.destroy()
+	  			winDistoMEtat=0
+	  		}
+			break
+		case 'openGuitarAmp':
+		   console.log(`openObjetParam ${args} from param`);
+			winGuitarAmpOpen(cmd[1],cmd[2])
+			break
+		case 'guitarAmpExit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winGuitarAmpEtat==1){
+				winGuitarAmp.destroy()
+	  			winGuitarAmpEtat=0
+	  		}
+	  		break
+	  	case 'openQuadrafuzz':
+		   console.log(`openObjetParam ${args} from param`);
+			winQuadrafuzzOpen(cmd[1],cmd[2])
+			break
+		case 'quadrafuzzExit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winQuadrafuzzEtat==1){
+				winQuadrafuzz.destroy()
+	  			winQuadrafuzzEtat=0
+	  		}
+	  		break
+	  	case 'openHost':
+		   console.log(`openObjetParam ${args} from param`);
+			winHostOpen(cmd[1],cmd[2])
+			break
+		case 'hostExit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winHostEtat==1){
+				winHost.destroy()
+	  			winHostEtat=0
+	  		}
+	  		break
+	  	case 'hostWamsExit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winMassWasmEtat==1){
+				winMassWasm.destroy()
+	  			winMassWasmEtat=0
+	  		}
+	  		break
+	  	case 'pro54Exit':
+		   console.log(`openObjetParam ${args} from param`);
+			if(winPro54Etat==1){
+				winPro54.destroy()
+	  			winPro54Etat=0
+	  		}
+	  		break
+	  	case 'pro54Preset':
+		   console.log(`openObjetParam ${args} from param`);
+			pro54Preset();
+	  		break
+	  	case 'readNewSelect':
+		   console.log(`openObjetParam ${args} from param`);
+			const folders = listSubfolders(cmd[1]);
+		   const files = listAudioFiles(cmd[1],cmd[2]);
+		   var fsize=[];
+		   var mtime=[];
+		   var ninfo;
+			for(let i=0;i<files.length;i++){
+				ninfo=fs.statSync(files[i])
+				fsize[i]=ninfo.size
+				mtime[i]=ninfo.mtime
+			}
+				console.log("size",fsize,mtime)
+			
+			winMediaExplorer.webContents.send("fromMain", "retReadDir;"+folders+";"+files+";"+fsize+";"+mtime)
+console.log("Sous-dossiers :", folders);
+	  		break
+	  	case 'readImgsSelect':
+		   console.log(`openObjetParam ${args} from param`);
+			const ifolders = listSubfolders(cmd[1]);
+		   const ifiles = listImgFiles(cmd[1],cmd[2]);
+			
+			winImgViewer.webContents.send("fromMain", "retImgDir;"+ifolders+";"+ifiles)
+	  		break
+	  	case 'insertImgSelect':
+			mainWindow.webContents.send("fromMain", "insertImgSelect;"+cmd[1])
+	  		break
+	   case "processAudio":
+	   	//console.log(`openObjetParam ${args} from param`);
+	   	var { id, mode, sampleRate, channels,length, duration, tempoMap } = JSON.parse(cmd[1]);
+	   	
+	   	var totalFrames = length;//4298112 ton WAV
+	   	var durationSec = totalFrames / sampleRate; 
+			var inputPath = path.resolve("./renduin.wav");
+			var outputPath = path.resolve("./renduout.wav");
+			var timeMapPath = path.resolve("./timemap.txt");
+
+		(async  () => {
+		  const timemap = await buildSmoothRubberbandTimeMap(tempoMap, sampleRate, duration, length,0.1);
+			await fs.writeFileSync(timeMapPath, timemap, "utf8");
+		
+		//rubberband --timemap timemap.txt --window 3 --pitch 0 --no-transients --smooth --threads -1 inputPath outputPath
+		//await callRubberbandCLI(inputPath, outputPath, 1.0, 0, timeMapPath);
+			const result = await validateAndFixTimeMapFile(timeMapPath, totalFrames);
+
+			if (!result.valid) {
+			  console.error("Timemap invalide :", result.reason);
+			} else { 
+			  await callRubberbandCLI(rubberbandPath,id,mode,inputPath, outputPath, 1.0, 0, timeMapPath);
+			}
+			})();
+     	  break;
+		case "processAutoTempo":
+	   	//console.log(`openObjetParam ${args} from param`);
+	   	var { sampleRate, channels,length, duration, obj, tempoMap } = JSON.parse(cmd[1]);
+	   	
+	   	var totalFrames = length;//4298112 ton WAV
+	   	var durationSec = totalFrames / sampleRate; 
+			var inputPath = path.resolve("./renduin.wav");
+			var outputPath = path.resolve("./renduout.wav");
+			var timeMapPath = path.resolve("./timemap.txt");
+
+		(async  () => {
+		  const timemap = await buildSmoothRubberbandTimeMap(tempoMap, sampleRate, duration, length,0.1);
+			await fs.writeFileSync(timeMapPath, timemap, "utf8");
+		
+		//rubberband --timemap timemap.txt --window 3 --pitch 0 --no-transients --smooth --threads -1 inputPath outputPath
+		//await callRubberbandCLI(inputPath, outputPath, 1.0, 0, timeMapPath);
+			const result = await validateAndFixTimeMapFile(timeMapPath, totalFrames);
+
+			if (!result.valid) {
+			  console.error("Timemap invalide :", result.reason);
+			} else {
+			  		await autoRubberbandCLI(rubberbandPath,inputPath, outputPath, 1.0, 0, timeMapPath,obj);
+			}
+			})();
+     	  break;
+     	  case "infoSpectrogram":
+     	  	if (playProcess) {
+		        killPlay();
+		      }
+     	  	try {
+			  const chans = parseInt(execSync(`"${soxPath}" --i -c "${cmd[1]}"`).toString().trim(),10);
+			  const rate = parseInt(execSync(`"${soxPath}" --i -r "${cmd[1]}"`).toString().trim(),10);
+			  const nbsamples = parseInt(execSync(`"${soxPath}" --i -s "${cmd[1]}"`).toString().trim(),10);
+  			  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 750 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`)
+  			  winMediaExplorer.webContents.send("fromMain", "infoFile;"+chans+";"+rate+";"+nbsamples+";"+cmd[1]+";"+app.getPath('home')+"/kandiskyscore/Projets/spectrogram.png");
+			} catch (err) {
+			  console.error("Erreur lors de l'exécution de sox --i :", err);
+			}
+     	  	break;
+     	  case "wasmSpectrogram":
+     	  		console.log(`openObjetParam ${args} from param`);
+     	  	  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 250 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`)
+  			  winSpatMass.webContents.send("fromMain", "spectrogram;"+app.getPath('home')+"/kandiskyscore/Projets/spectrogram.png");
+
+     	   break;
+     	  case "playFile":
+	     	  
+	     	  var args;
+	     	  	if (playProcess) {
+		        killPlay();
+		      }
+	     	  	
+			  if (platform === "win32") {
+				     if (cmd[2] > 0) {
+					      args = [cmd[1], "-d", "trim", cmd[2].toString()];
+					    } else {
+					      args = [cmd[1], "-d"];
+					  }
+			  } else {
+			  	if (cmd[2] > 0) {
+			      args = [cmd[1], "trim", cmd[2].toString(),"vol", cmd[3].toString()];
+			    } else {
+			      args = [cmd[1],"vol", cmd[3].toString()];
+			    }
+			    playProcess = spawn(playPath, args, {
+		        shell: true,
+		        detached: true, // 🔑 crée un groupe de processus
+		      });
+				console.log("args :",args);
+		      console.log("PID du lecteur :", playProcess.pid);
+		
+		      playProcess.stdout.on("data", (data) =>
+		        console.log("stdout:", data.toString())
+		      );
+		      playProcess.stderr.on("data", (data) =>
+		        console.error("stderr:", data.toString())
+		      );
+			    
+			  }
+				playProcess.on("exit", (code) => {
+				      console.log("Lecture terminée, code:", code);
+				      playProcess = null;
+				      if(cmd[4]==1){
+				      	winMediaExplorer.webContents.send("fromMain", "loop");
+				      }
+				    });
+     	  	break;
+     	  case "playDirectFile":
+				console.log(`playDirect ${args} from param`);
+	     	  	if (playProcess) {
+		        killPlay();
+		      }
+		      var opt=cmd[2]
+		      var args=[cmd[1],cmd[2]]
+	     	   playProcess = spawn(playPath, args, {
+		        shell: true,
+		        detached: true, // 🔑 crée un groupe de processus
+		      });
+				console.log("args :",args);
+		      console.log("PID du lecteur :", playProcess.pid);
+		
+		      playProcess.stdout.on("data", (data) =>
+		        console.log("stdout:", data.toString())
+		      );
+		      playProcess.stderr.on("data", (data) =>
+		        console.error("stderr:", data.toString())
+		      );
+				playProcess.on("exit", (code) => {
+				      console.log("Lecture terminée, code:", code);
+				      playProcess = null;
+				      mainWindow.webContents.send("fromMain", "playStop;");
+				      if(winSpatMassEtat==1){
+				      	winSpatMass.webContents.send("fromMain", "playStop;");
+				      }
+				    });
+     	  	break;
+     	  case "killPlay":
+     	  	console.log("killPlay");
+  			killPlay();
+     	  	break;
+     	  case "mediaExplorerQuit":
+			if(winMediaExplorerEtat==1){
+				winMediaExplorer.destroy();
+				winMediaExplorerEtat=0;
+			}
+			break;
+		case "imagesViewerQuit":
+			if(winImgViewerEtat==1){
+				winImgViewer.destroy();
+				winImgViewerEtat=0;
+			}
+			break;
+		case "splitCanaux":
+		console.log(`splitCanaux ${args} from param`);
+			(async () => {
+			  try {
+			    //await splitChannels(cmd[1]);
+			    	const path=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]+".wav";
+	     	  	const outputDir=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]
+	     	  	await splitW64ToWav(path, outputDir, 18, "stem");
+    console.log("🎚️ Fichiers exportés dans :", outputDir);
+			  } catch (err) {
+			    console.error(err);
+			  }
+			})();
+			break;
+		case "playAudioFile":
+			console.log(`openObjetParam ${args} from param`);
+			(async () => {
+				if (playProcess) {
+			        //killPlay();
+			      }
+	     	  	try {
+	     	  	//const path=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]+".wav";
+	     	  	//const outputDir=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]
+	     	  	//await splitW64ToWav(path, outputDir, 18, "stem");
+   // console.log("🎚️ Fichiers exportés dans :", outputDir);
+	     	  	/*
+				  await execSync(`"${soxPath}" -M "${path}"//*.wav "${path}"//out.w64 `);
+				  const dest=path+"/out.w64";
+				  playProcess = spawn(playPath, [dest], {
+		        shell: true,
+		        detached: true, // 🔑 crée un groupe de processus
+		      	});
+		      	*/
+		      	
+				  playProcess = spawn(playPath, [cmd[1]], {
+		        shell: true,
+		        detached: true, // 🔑 crée un groupe de processus
+		      	});
+
+				} catch (err) {
+				  console.error("Erreur lors de l'exécution de sox --i :", err);
+				}
+			})();
+			break;
+			case "openSpatMass":
+				 spatMass(cmd[1],cmd[2])
+			break;
+			case "openMassWasm":
+				console.log(`openObjetParam ${args} from param`);
+				 openMassWasm(cmd[1],cmd[2],cmd[3]);
+			break;
+			case "closeMassPath":
+				if(winMassWasmEtat==1){
+					winMassWasm.destroy();
+					winMassWasmEtat=0;
+				}
+				if(winSpatMassEtat==1){
+					winSpatMass.destroy();
+					winSpatMassEtat=0;
+				}
+			break;
+        }
+		}   
+		if (args && typeof args === "object" && args.type) {
+        switch (args.type) {
+
+            case "rtWasmHost": {
+                const canal = args.canal;
+                const buffer = args.buffer;
+
+                console.log(
+                    "rtWasmHost reçu",
+                    "canal =", canal,
+                    "buffer =", buffer?.constructor?.name
+                );
+					 winSpatMass.webContents.send("fromMain", {
+    type: "rtWasmHost",
+    canal:canal,
+    buffer: buffer
 });
+                if (!(buffer instanceof Float32Array)) {
+                    console.error("buffer n'est pas un Float32Array");
+                    return;
+                }
+
+                //currentChannels[canal] = new Float32Array(buffer);
+                break;
+            }
+
+            default:
+                console.warn("Message objet inconnu :", args.type);
+        }
+        return;
+    }
+		
+		
+		
+		   
+   });
 
 
 })
+async function rtWasmHost(canal, buffer) {
+    console.log("AudioBuffer reçu", buffer.numberOfChannels);
 
+    const data = buffer.getChannelData(0);
+    //currentChannels[canal] = new Float32Array(data);
+}
+function defSpatMass() {
+	mainWindow.webContents.send("fromMain", "defSpatMass;")
+}
+ipcMain.handle("loadFileAsArrayBuffer", async (event, filePath) => {
+  const buf = fs.readFileSync(filePath);
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+});
+ipcMain.handle("infoFile", async (event, filePath) => {
+	const info = {
+  	 chans : parseInt(execSync(`"${soxPath}" --i -c "${filePath}"`).toString().trim(),10),
+  	 rate : parseInt(execSync(`"${soxPath}" --i -r "${filePath}"`).toString().trim(),10),
+  	 nbsamples : parseInt(execSync(`"${soxPath}" --i -s "${filePath}"`).toString().trim(),10)
+  	}
+  	console.log(info)
+  	return info;
+});
+ipcMain.handle("loadBuffers", async (event, filePath) => {
+
+    if (!fs.existsSync(filePath)) {
+        throw new Error("Fichier introuvable : " + filePath);
+    }
+
+    const buffer = fs.readFileSync(filePath);
+    const wav = await WavDecoder.decode(buffer);
+
+    const sampleRate = wav.sampleRate;
+    const numChannels = wav.channelData.length;
+    const numSamples = wav.channelData[0].length;
+
+    // ENVOYER DIRECTEMENT DES Float32Array
+    const channels = wav.channelData.map(ch => {
+        const copy = new Float32Array(ch.length);
+        copy.set(ch);
+        return copy;   // ✔ Float32Array, pas copy.buffer !
+    });
+
+    let rt= {
+        sampleRate,
+        bitsPerSample: 32,
+        numChannels,
+        numSamples,
+        channels
+    };
+    return rt
+});
+
+ipcMain.handle("loadFile", async (event, filePath) => {
+    const abs = path.resolve(filePath);
+
+    try {
+        const ext = path.extname(abs).toLowerCase();
+
+        // BINAIRE → Uint8Array
+        if ([".wasm", ".wav", ".mp3", ".ogg"].includes(ext)) {
+            const buffer = fs.readFileSync(abs);
+            return new Uint8Array(buffer);
+        }
+
+        // TEXTE → string
+        if ([".json", ".txt"].includes(ext)) {
+            return fs.readFileSync(abs, "utf8");
+        }
+
+        // fallback : binaire par défaut
+        const buffer = fs.readFileSync(abs);
+        return new Uint8Array(buffer);
+
+    } catch (err) {
+        console.error("Error loadFile:", err);
+        throw err;
+    }
+});
+ipcMain.handle("toMainAsync", async (event, msg) => {
+    if (msg.cmd === "saveAudioBuffer") {
+        await saveSerializedAudioBufferToWav(msg.buffer, msg.path);
+        return { ok: true };
+    }
+});
+ipcMain.handle("faust-load-file", async (event, path) => {
+    try {
+        const buffer = fs.readFileSync(path);
+        return new Uint8Array(buffer);
+    } catch (e) {
+        console.error("Erreur lecture fichier:", path, e);
+        throw e;
+    }
+});
+ipcMain.handle("saveAudioBuffer", async (event, payload) => {
+    const { filePath, buffer } = payload;
+consolg.log("payload",payload)
+    if (!buffer || !buffer.channels || buffer.channels.length === 0) {
+        throw new Error("buffer.channels vide !");
+    }
+
+    const floatChannels = buffer.channels.map(ch => new Float32Array(ch));
+
+    const wavArrayBuffer = await WavEncoder.encode({
+        sampleRate: buffer.sampleRate,
+        channelData: floatChannels
+    });
+
+    fs.writeFileSync(filePath, Buffer.from(wavArrayBuffer));
+
+    return { ok: true };
+});
+
+ipcMain.handle("saveFile", async (event, { filename, data }) => {
+    try {
+        // data = ArrayBuffer ou Buffer
+        const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+
+        await fs.promises.writeFile(filename, buffer);
+
+        console.log("[main] saveFile OK:", filename);
+        return { ok: true, path: filename };
+
+    } catch (err) {
+        console.error("[main] saveFile ERROR:", err);
+        return { ok: false, error: err.message };
+    }
+});
+
+ipcMain.handle('readFxFile', async (event, relPath) => {
+    const fullPath = path.resolve(__dirname, relPath);
+    const data = await fs.readFile(fullPath);
+    return new Uint8Array(data); // renvoyer Uint8Array ou ArrayBuffer
+});
+ipcMain.handle('load-wasm', async (event, dspName) => {
+  const wasmPath = path.join(__dirname, 'greffons', `${dspName}-wasm`, 'faustwasm', `${dspName}.wasm`);
+  const jsonPath = path.join(__dirname, 'greffons', `${dspName}-wasm`, 'faustwasm', `${dspName}.json`);
+
+  const wasmBytes = fs.readFileSync(wasmPath).buffer;
+  const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+
+  return { wasmBytes, json };
+});
+ipcMain.handle("save-audio-buffer", async (event, { filePath, buffer }) => {
+    try {
+        const { sampleRate, channels } = buffer;
+		  console.log("samplerate",sampleRate)
+        // channels = tableau de ArrayBuffer venant du renderer
+        // Convertir en Float32Array pour wav-encoder
+        const floatChannels = channels.map(
+            ch => new Float32Array(ch)
+        );
+
+        const audioData = {
+            sampleRate,
+            channelData: floatChannels
+        };
+
+        const wavArrayBuffer = await WavEncoder.encode(audioData);
+
+        await fs.promises.writeFile(
+            filePath,
+            Buffer.from(wavArrayBuffer)
+        );
+
+        return true;
+
+    } catch (err) {
+        console.error("Erreur save-audio-buffer:", err);
+        throw err;
+    }
+});
+
+ipcMain.handle('load-buffers', async (event, filePath) => {
+  const fileData = fs.readFileSync(filePath);
+  const audioBuffer = await audioDecode(fileData);
+
+  const numChannels = audioBuffer.numberOfChannels;
+  const numSamples = audioBuffer.length;
+  const sampleRate = audioBuffer.sampleRate;
+
+  const channels = [];
+  for (let c = 0; c < numChannels; c++) {
+    channels.push(audioBuffer.getChannelData(c));
+  }
+
+  return { channels, numChannels, numSamples, sampleRate };
+});
+ipcMain.handle("saveBuffer", async (event, { buffer, path }) => {
+  const fs = require("fs");
+  // buffer est un ArrayBuffer
+  fs.writeFileSync(path, Buffer.from(buffer));
+  return true;
+});
+ipcMain.handle("loadAB", async (event, path) => {
+    const fs = require("fs");
+    const buf = fs.readFileSync(path);
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength); // ← ArrayBuffer !!!
+});
+async function splitW64ToWav(inputPath, outputDir, channelCount, prefix = "ch") {
+  try {
+    if (!fs.existsSync(inputPath)) throw new Error(`❌ Fichier introuvable : ${inputPath}`);
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+    console.log(`▶ Extraction de ${channelCount} canaux depuis ${path.basename(inputPath)}...`);
+
+    // Génération des commandes de mapping audio
+    const mapArgs = [];
+    for (let i = 0; i < channelCount; i++) {
+      const outputFile = path.join(outputDir, `${prefix}${i + 1}.wav`);
+      mapArgs.push(`-map_channel 0.0.${i} "${outputFile}"`);
+    }
+
+    // Commande ffmpeg
+    const cmd = `ffmpeg -y -i "${inputPath}" ${mapArgs.join(" ")}`;
+    console.log("🧩 Commande :", cmd);
+
+    // Exécution non bloquante
+    const { stderr } = await execAsync(cmd, { maxBuffer: 1024 * 1024 * 20 });
+    if (stderr && !stderr.includes("frame=")) console.warn("⚠️ ffmpeg:", stderr);
+
+    console.log(`✅ Séparation terminée → ${outputDir}`);
+    return outputDir;
+  } catch (err) {
+    console.error("❌ Erreur lors de la séparation :", err.message);
+    throw err;
+  }
+}
+function killPlay(){
+	const killCmd =
+ 		platform === "win32"
+   	? `taskkill /IM sox.exe /F` 
+   	: `pkill -f "${playPath}"`;
+  	  	if (playProcess) {
+        console.log("Arrêt du lecteur en cours");
+        exec(killCmd);
+        playProcess = null;
+        mainWindow.webContents.send("fromMain", "playStop;");
+      }
+}
+ function allocStringSafe(str,Module) {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(str + '\0'); // NUL terminated
+    const ptr = Module._malloc(bytes.length);
+    if (!ptr) throw new Error("malloc failed");
+    Module.HEAPU8.set(bytes, ptr);
+    return ptr;
+  }
+ipcMain.handle("load-multichannel-wav", async (event, filePath) => {
+    const wav = parseWAV(filePath);
+
+    // Convert Float32Array → ArrayBuffer pour transfert IPC
+    const channels = wav.channels.map(ch => ch.buffer);
+
+    return {
+        sampleRate: wav.sampleRate,
+        bitsPerSample: wav.bitsPerSample,
+        numChannels: wav.numChannels,
+        numSamples: wav.numSamples,
+        channels  // ArrayBuffer[]
+    };
+});
+function splitChannels(inputFile, outDir) {
+    return new Promise((resolve, reject) => {
+        if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+console.log("inputFile",inputFile,outDir)
+        const info = spawn(soxPath, ["--i", "-c", inputFile]);
+        info.on("error", (err) => {
+    console.error("Spawn error INFO:", err);
+});
+        let chD = "";
+        info.stdout.on("data", d => chD += d.toString());
+
+        info.on("close", () => {
+            const channels = parseInt(chD.trim());
+            if (!channels) return reject("Unable to read number of channels");
+
+            let doneCount = 0;
+
+            for (let c = 1; c <= channels; c++) {
+				    const outfile = path.join(outDir, `chan${c - 1}.wav`);
+				    const args = [inputFile, outfile, "remix", c];
+				
+				    const p = spawn(soxPath, args);
+				
+				    p.on("close", () => {
+				        doneCount++;
+				        if (doneCount === channels) resolve();
+				    });
+				}
+        });
+    });
+}
+
+
+async function mixMultichannelAudio(inputPath, outputPath, mode = "stereo", bitDepth = "pcm16") {
+  // --- 1️⃣ Lecture et décodage WAV ---
+  const buffer = fs.readFileSync(inputPath);
+  const decoded = await WavDecoder.decode(buffer);
+
+  const numChannels = decoded.channelData.length;
+  const length = decoded.channelData[0].length;
+  const sampleRate = decoded.sampleRate;
+
+  console.log(`Décodé : ${numChannels} canaux @ ${sampleRate} Hz`);
+
+  // --- 2️⃣ Création des buffers de sortie ---
+  let outChannels = [];
+  let numOutChannels = mode === "mono" ? 1 : 2;
+
+  if (mode === "mono") {
+    outChannels = [new Float32Array(length)];
+  } else {
+    outChannels = [new Float32Array(length), new Float32Array(length)];
+  }
+
+  // --- 3️⃣ Mixage ---
+  for (let c = 0; c < numChannels; c++) {
+    const ch = decoded.channelData[c];
+    if (mode === "mono") {
+      const weight = 1 / numChannels;
+      for (let i = 0; i < length; i++) {
+        outChannels[0][i] += ch[i] * weight;
+      }
+    } else {
+      const weightL = (c % 2 === 0 ? 1 : 0.7) / numChannels;
+      const weightR = (c % 2 === 1 ? 1 : 0.7) / numChannels;
+      for (let i = 0; i < length; i++) {
+        outChannels[0][i] += ch[i] * weightL;
+        outChannels[1][i] += ch[i] * weightR;
+      }
+    }
+  }
+
+  // --- 4️⃣ Normalisation ---
+  let peak = 0;
+  for (let i = 0; i < length; i++) {
+    if (mode === "mono") {
+      peak = Math.max(peak, Math.abs(outChannels[0][i]));
+    } else {
+      peak = Math.max(
+        peak,
+        Math.abs(outChannels[0][i]),
+        Math.abs(outChannels[1][i])
+      );
+    }
+  }
+  const gain = peak > 0 ? 1 / peak : 1;
+  for (let i = 0; i < length; i++) {
+    if (mode === "mono") {
+      outChannels[0][i] *= gain;
+    } else {
+      outChannels[0][i] *= gain;
+      outChannels[1][i] *= gain;
+    }
+  }
+
+  // --- 5️⃣ Encodage WAV ---
+  const encoded = await WavEncoder.encode({
+    sampleRate,
+    channelData: outChannels,
+    bitDepth, // "16" | "24" | "32" | "32f"
+  });
+
+  fs.writeFileSync(outputPath, Buffer.from(encoded));
+  console.log(`✅ Mix ${mode} (${bitDepth}) terminé : ${outputPath}`);
+}
+/**
+ * Convertit des Float32Arrays vers PCM16, PCM24 ou PCM32
+ */
+function convertBitDepth(left, right, bitDepth) {
+  switch (bitDepth) {
+    case "pcm16": {
+      const left16 = new Int16Array(left.length);
+      const right16 = new Int16Array(right.length);
+      for (let i = 0; i < left.length; i++) {
+        left16[i] = Math.max(-1, Math.min(1, left[i])) * 0x7fff;
+        right16[i] = Math.max(-1, Math.min(1, right[i])) * 0x7fff;
+      }
+      return { leftConv: left16, rightConv: right16 };
+    }
+
+    case "pcm24": {
+      const left24 = new Int32Array(left.length);
+      const right24 = new Int32Array(right.length);
+      for (let i = 0; i < left.length; i++) {
+        left24[i] = Math.max(-1, Math.min(1, left[i])) * 0x7fffff;
+        right24[i] = Math.max(-1, Math.min(1, right[i])) * 0x7fffff;
+      }
+      return { leftConv: left24, rightConv: right24 };
+    }
+
+    case "pcm32": {
+      const left32 = new Int32Array(left.length);
+      const right32 = new Int32Array(right.length);
+      for (let i = 0; i < left.length; i++) {
+        left32[i] = Math.max(-1, Math.min(1, left[i])) * 0x7fffffff;
+        right32[i] = Math.max(-1, Math.min(1, right[i])) * 0x7fffffff;
+      }
+      return { leftConv: left32, rightConv: right32 };
+    }
+
+    default:
+      throw new Error(`Format non pris en charge : ${bitDepth}`);
+  }
+}
+function parseWavHeader(buffer) {
+  const format = buffer.readUInt16LE(20);
+  const channels = buffer.readUInt16LE(22);
+  const sampleRate = buffer.readUInt32LE(24);
+  const bitsPerSample = buffer.readUInt16LE(34);
+  const dataSize = buffer.readUInt32LE(40);
+  const dataOffset = 44;
+  if (format !== 1 && format !== 3)
+    throw new Error(`Format WAV non supporté (${format})`);
+  return { channels, sampleRate, bitsPerSample, dataOffset, dataSize, format };
+}
+
+/**
+ * Écrit l’en-tête W64 (64-bit)
+ */
+function writeWave64Header(fd, numChannels, sampleRate, bitsPerSample, numSamples) {
+  const bytesPerSample = bitsPerSample / 8;
+  const blockAlign = numChannels * bytesPerSample;
+  const dataSize = BigInt(numSamples) * BigInt(blockAlign);
+
+  // GUIDs pour W64
+  const GUID_RIFF = Buffer.from("726966662E91CF11A5D628DB04C10000", "hex");
+  const GUID_WAVE = Buffer.from("77617665F3ACD3118CD100C04F8EDB8A", "hex");
+  const GUID_FMT  = Buffer.from("666D7420F3ACD3118CD100C04F8EDB8A", "hex");
+  const GUID_DATA = Buffer.from("64617461F3ACD3118CD100C04F8EDB8A", "hex");
+
+  const fmtSize = 40n;
+  const fmt = Buffer.alloc(Number(fmtSize));
+  fmt.writeUInt16LE(3, 0); // ⚠️ 3 = IEEE FLOAT (au lieu de 1)
+  fmt.writeUInt16LE(numChannels, 2);
+  fmt.writeUInt32LE(sampleRate, 4);
+  fmt.writeUInt32LE(sampleRate * blockAlign, 8);
+  fmt.writeUInt16LE(blockAlign, 12);
+  fmt.writeUInt16LE(bitsPerSample, 14);
+
+  const fmtChunkSize = 24n + fmtSize;
+  const dataChunkSize = 24n + dataSize;
+  const riffSize = 24n + fmtChunkSize + dataChunkSize;
+
+  function writeGUID(guid, size) {
+    fs.writeSync(fd, guid);
+    const buf = Buffer.alloc(8);
+    buf.writeBigUInt64LE(size);
+    fs.writeSync(fd, buf);
+  }
+
+  // RIFF chunk
+  writeGUID(GUID_RIFF, riffSize);
+  fs.writeSync(fd, GUID_WAVE);
+
+  // fmt chunk
+  writeGUID(GUID_FMT, fmtChunkSize);
+  fs.writeSync(fd, fmt);
+
+  // data chunk
+  writeGUID(GUID_DATA, dataChunkSize);
+}
+
+/** Fusion rapide de WAV mono → W64 multicanaux */
+async function mergeToW64(inputDir, outputFile) {
+  const files = fs.readdirSync(inputDir)
+    .filter(f => f.toLowerCase().endsWith(".wav"))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  if (!files.length) throw new Error("Aucun fichier .wav trouvé");
+
+  console.log(`🎧 Fusion de ${files.length} fichiers...`);
+
+  const channels = [];
+  let sampleRate = null;
+  let bitsPerSample = 32;
+
+  for (const f of files) {
+    const filePath = path.join(inputDir, f);
+    const buffer = fs.readFileSync(filePath);
+    const decoded = wav.decode(buffer);
+    if (decoded.channelData.length !== 1) throw new Error(`${f} nest pas mono`);
+    if (!sampleRate) sampleRate = decoded.sampleRate;
+    else if (sampleRate !== decoded.sampleRate) throw new Error(`Taux différent dans ${f}`);
+
+    channels.push(decoded.channelData[0]);
+  }
+
+  const numChannels = channels.length;
+  const numSamples = channels[0].length;
+
+  console.log(`📦 ${numChannels} canaux, ${numSamples} échantillons @ ${sampleRate} Hz`);
+
+  const fd = fs.openSync(outputFile, "w");
+  writeWave64Header(fd, numChannels, sampleRate, bitsPerSample, numSamples);
+
+  console.log("💾 Écriture par blocs...");
+  const frameSize = numChannels * 4;
+  const blockSize = 65536;
+  const block = Buffer.alloc(blockSize * frameSize);
+
+  for (let i = 0; i < numSamples; i += blockSize) {
+    const n = Math.min(blockSize, numSamples - i);
+    for (let j = 0; j < n; j++) {
+      for (let ch = 0; ch < numChannels; ch++) {
+        block.writeFloatLE(channels[ch][i + j], (j * numChannels + ch) * 4);
+      }
+    }
+    fs.writeSync(fd, block, 0, n * frameSize);
+  }
+
+  fs.closeSync(fd);
+  console.log(`✅ Fusion terminée → ${outputFile}`);
+}
+async function mergeMulticanal(inputDir, outputFile) {
+  console.log("🚀 Initialisation du module WASM (NODERAWFS)...");
+  const Module = await createMergeModule(); // compile avec -s NODERAWFS=1
+  console.log("✅ Module prêt !");
+
+  if (!fs.existsSync(inputDir)) throw new Error("Le dossier d'entrée n'existe pas");
+  const files = fs.readdirSync(inputDir).filter(f => f.endsWith(".wav"));
+  if (files.length === 0) throw new Error("Aucun fichier .wav trouvé dans " + inputDir);
+
+  console.log(`🎧 Fichiers trouvés : ${files.length}`);
+  console.log("📂 Dossier d'entrée :", inputDir);
+  console.log("📄 Fichier de sortie :", outputFile);
+
+  // ⚙️ Appel direct de la fonction C++ (pas de MEMFS)
+  const merge_files = Module.cwrap("merge_files", "number", ["string", "string"]);
+
+  console.log("▶ Appel de merge_files()...");
+  const code = merge_files(inputDir, outputFile);
+
+  console.log("✅ Fusion terminée avec code :", code);
+}
+
+async function validateAndFixTimeMapFile(timeMapPath, totalFrames) {
+  try {
+    const content = await fs.promises.readFile(timeMapPath, "utf8");
+    const rawLines = content
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+
+    if (rawLines.length < 2) {
+      return { valid: false, corrected: false, reason: "Pas assez de points (minimum 2 requis)." };
+    }
+
+    let fixedLines = [];
+    let lastIn = -Infinity;
+    let lastOut = -Infinity;
+
+    for (const line of rawLines) {
+      const parts = line.split(/\s+/);
+      if (parts.length !== 2) continue;
+
+      const [inFrame, outFrame] = parts.map(Number);
+      if (isNaN(inFrame) || isNaN(outFrame)) continue;
+
+      // Supprimer les points non croissants
+      if (inFrame <= lastIn || outFrame <= lastOut) continue;
+
+      fixedLines.push(`${inFrame} ${outFrame}`);
+      lastIn = inFrame;
+      lastOut = outFrame;
+    }
+
+    // Vérifie et corrige le dernier point
+    const [lastInFrame, lastOutFrame] = fixedLines.at(-1).split(" ").map(Number);
+    if (Math.abs(lastInFrame - totalFrames) > totalFrames * 0.01) {
+      fixedLines.push(`${totalFrames} ${Math.round(lastOutFrame * (totalFrames / lastInFrame))}`);
+    }
+
+    // Supprimer doublons exacts
+    fixedLines = [...new Set(fixedLines)];
+
+    // Vérifie le résultat final
+    if (fixedLines.length < 2) {
+      return { valid: false, corrected: false, reason: "Aucune donnée exploitable dans le timemap." };
+    }
+
+    // Si différent du fichier original → le réécrire
+    const newContent = fixedLines.join("\n") + "\n";
+    if (newContent !== content) {
+      await fs.promises.writeFile(timeMapPath, newContent, "utf8");
+      console.log(`🛠 Timemap corrigé et réécrit (${fixedLines.length} lignes) :`, timeMapPath);
+      return { valid: true, corrected: true, lineCount: fixedLines.length };
+    }
+
+    return { valid: true, corrected: false, lineCount: fixedLines.length };
+
+  } catch (err) {
+    return { valid: false, corrected: false, reason: "Erreur de lecture du timemap : " + err.message };
+  }
+}
+
+async function encodeAudioBufferToWav(audioBuffer) {
+  return await WavEncoder.encode({
+    sampleRate: audioBuffer.sampleRate,
+    channelData: Array.from({ length: audioBuffer.numberOfChannels }, (_, i) =>
+      audioBuffer.getChannelData(i)
+    ),
+  });
+}
+function base64ToArrayBuffer(base64) {
+  const binary = Buffer.from(base64, 'base64');
+  return binary.buffer.slice(binary.byteOffset, binary.byteOffset + binary.byteLength);
+}
+// *****************************************************************************************************************
+function listSubfolders(dirPath) {
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    return entries
+      .filter(entry => entry.isDirectory())
+      .map(entry => path.join(dirPath, entry.name));
+  } catch (err) {
+    console.error("Erreur lecture dossier :", err);
+    return [];
+  }
+}
+function listAudioFiles(dirPath,type) {
+  try {
+    const entries = fs.readdirSync(dirPath);
+    return entries
+      .filter(f => f.endsWith("."+type))
+    .map(f => path.join(dirPath, f));
+  } catch (err) {
+    console.error("Erreur lecture fichiers :", err);
+    return [];
+  }
+}
+function listImgFiles(dirPath,type) {
+  try {
+    const entries = fs.readdirSync(dirPath);
+    return entries
+      .filter(f => f.endsWith("."+type))
+    .map(f => path.join(dirPath, f));
+  } catch (err) {
+    console.error("Erreur lecture fichiers :", err);
+    return [];
+  }
+}
 // ****************************************************************************************************************
 function mainExternes(txt) {
 	var defc=atob(txt).split(',')
@@ -2745,6 +4505,8 @@ function mainExternes(txt) {
 	pdfAssCmd=defc[11]
 	pdfAppCmd=defc[12]
 	editAudioCmd=defc[13]
+	rubberband=defc[14]
+	console.log("rubber1",defc)
 }
 function mainExternes2(txt) {
 	var defc=atob(txt).split(',')
@@ -2767,11 +4529,13 @@ function mainExternes2(txt) {
 	pdfAssCmd=defc[15]
 	pdfAppCmd=defc[16]
 	editAudioCmd=defc[17]
+	rubberband=defc[18]
+	console.log("rubber",defc)
 }
 function mainRead3D() {
 	if(daw=='reaper'){
-		//cmdDaw='/home/dominique/Reaper/reaper_linux_x86_64/REAPER/reaper'
-		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/tmp.rpp'+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/insertKandiskyScore2.lua' 
+		cmdDaw='/home/dominique/Reaper/reaper_linux_x86_64/REAPER/reaper'
+		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/tmp.rpp'+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/importKandiskyScore2.lua' 
 	}else{
 		cmdDaw='ardour'
 		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Ardour/tmp/tmp.ardour'
@@ -2796,7 +4560,7 @@ function defProjet(){
 function defTheme() {
 	mainWindow.webContents.send("fromMain", "defTheme")
 }
-function objetAudio(id,num) {
+function objetAudio(id) {
 	console.log("id2",id)
 	var rt=""
 	var audiofile = dialog.showOpenDialog({
@@ -2809,13 +4573,159 @@ function objetAudio(id,num) {
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		console.log("result.filePaths",result.filePaths[0],id,num)
-   		rt=result.filePaths[0]
+   		console.log("result.filePaths",result.filePaths[0],id)
+   		rt=result.filePaths[0];
+   		const chans = parseInt(execSync(`soxi -c "${rt}"`).toString().trim(), 10);
+		    const rate = parseInt(execSync(`"${soxPath}" --i -r "${rt}"`).toString().trim(),10);
+		    const nbsamples = parseInt(execSync(`"${soxPath}" --i -s "${rt}"`).toString().trim(),10);
+		    const dir = path.dirname(rt);
+    		const base = path.basename(rt);
+    		const outputBaseDir =dir+"/"+path.basename(rt).replace(/\.wav$/, "");
+   		mainWindow.webContents.send("fromMain", "loadSound;"+id+";"+dir+";"+base+";"+chans+";"+(nbsamples/rate));
+   		
+   		(async () => {
+   			
+   		console.time()
+   		console.log("inputFile",rt,base)
+   		await splitChannels(rt,outputBaseDir).catch(err => console.error(err));
+   			console.timeEnd() 
+
+   		/*
+   		const outputBaseDir =path.basename(rt).replace(/\.wav$/, "");
+   		var dir=path.join(base,outputBaseDir)
+   		const inputDir2 = dir;
+   		const dest=base+"/merged.w64"
+			const outputFile2 = dest
+			console.log("dest",inputDir2,outputFile2)
+			console.time()
+			//await  mergeMulticanal(inputDir2, outputFile2)
+			await mergeToW64(inputDir2, outputFile2)
+			console.timeEnd()
+			console.time()
+			await mixMultichannelAudio(rt,base+"/stereo.wav","mono","pcm24")
+   		
+   		const outpath=result.filePaths[0];
+   		const out = path.basename(outpath).split(".")
+	     	if (!fs.existsSync(out[0])) {
+                fs.mkdirSync(out[0], { recursive: true });
+            }
+            console.time()
+	     	  	await splitW64ToWav(outpath, out[0], 18, "stem");
+	     	  	*/
+	     	  //	console.timeEnd() 
+    console.log("🎚️ Fichiers exportés dans :", dir);
+   		})();
    	}
-  		winConfig.webContents.send("fromMain", "defAudioObj;"+id+";"+rt+";"+num);
-  		mainWindow.webContents.send("fromMain", "audioImport;"+id+";"+rt+";"+num);
+  		
 	})
 }
+ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
+
+
+    tableObjet = JSON.parse(tbobjets);
+	
+    // lsgrp peut être "[0,1,2]" ou "0,1,2"
+    if (typeof lsgrp === "string") {
+        try {
+            lsgrp = JSON.parse(lsgrp);
+        } catch {
+            lsgrp = lsgrp.split(",").map(n => Number(n));
+        }
+    }
+	if(lsgrp.length>0){
+    const tmpDir = path.join(audioPath, "tmp");
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+
+    let paddedFiles = [];
+    let endTimes = [];
+
+    let idx = 0;
+    for (let i of lsgrp) {
+
+        const obj = tableObjet[i];
+
+        const objfile = obj.file;
+        const { dir, name } = path.parse(objfile);
+        const input = path.join(dir, `${name}-fx.wav`);
+			console.log("sox_dir", input);
+        // Position dans la timeline (en secondes)
+        const tStart = (obj.posX-start) / 18;
+
+        // Durée réelle du fichier
+        const realDuration = parseFloat(
+            execSync(`"${soxiPath}" -D "${input}"`).toString()
+        );
+
+        // Durée demandée après trim
+        let trimmedDuration = (obj.fin - obj.debut)*realDuration ;
+        if (trimmedDuration < 0) trimmedDuration = 0;
+
+       
+        // SPEED dans SoX : si transposition < 1 → ralentissement
+        const speedFactor = obj.transposition || 1;
+
+        // Durée finale après speed
+        const durationAfterSpeed = trimmedDuration / speedFactor;
+
+        console.log(
+            "realDuration=", realDuration,
+            "trim=", trimmedDuration,
+            "afterSpeed=", durationAfterSpeed
+        );
+
+        // Fin dans la timeline
+        const tEnd = tStart + durationAfterSpeed;
+        endTimes.push(tEnd);
+
+        const tmpOut = path.join(tmpDir, `object_${idx}.wav`);
+        console.log("path", input, tmpOut);
+        var tenv=obj.envX.split(",");
+		  var fade = obj.fadeIn +" "+(durationAfterSpeed*tenv[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-tenv[1]);
+        // -- COMMAND SOX ---------------------------------------------------
+        const cmd = [
+            `"${soxPath}" "${input}" "${tmpOut}"`,
+            `trim ${obj.debut} ${trimmedDuration}`,    // Découpage sûr
+            `pitch ${obj.detune * 100}`,                // Semitones → cents
+            `speed ${speedFactor}`,                     // Stretch temporel
+            `vol ${obj.gain}`,                          // Gain
+            `fade ${fade}`,
+            `pad ${tStart}`                             // Placement timeline
+        ].join(" ");
+
+        console.log("cmd", cmd);
+
+        execSync(cmd);
+        paddedFiles.push(`"${tmpOut}"`);
+
+        idx++;
+    }
+
+    // Durée finale pour le mix
+    const mixDuration = Math.max(...endTimes);
+
+    // Fichier final
+    //const output = path.join(__dirname, `renduout.wav`);
+    let output ="renduout.wav";
+console.log("prepa",paddedFiles,paddedFiles.length,"tbobjets",tbobjets,lsgrp,lsgrp[0],"id",tableObjet[lsgrp[0]].id);
+    // MIX FINAL OFFLINE
+    let  mixCmd;
+    if(paddedFiles.length>1){
+    	mixCmd = `sox -m ${paddedFiles.join(" ")} "${output}" trim 0 ${mixDuration} fade 0.005 0 0.02`;
+    }else{
+    	output=audioPath+"exports/"+tableObjet[lsgrp[0]].id+".wav";
+    	mixCmd = `sox ${paddedFiles[0]} "${output}" trim 0 ${mixDuration} fade 0.005 0 0.02`;
+    }
+    console.log("MIX FINAL",mixCmd);
+    if(mixCmd){
+    	execSync(mixCmd);
+    }
+	 var rt={ mixDuration,output};
+    console.log("output",rt);
+
+    return rt;
+   }
+});
+
 function replaceAudio(id,rt) {
 	winConfig.webContents.send("fromMain", "defAudioObj;"+id+";"+rt+";1");
   	mainWindow.webContents.send("fromMain", "audioImport;"+id+";"+rt+";1;0");

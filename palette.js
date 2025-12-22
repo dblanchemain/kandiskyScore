@@ -99,7 +99,7 @@ const glyphTranspoSup="<g transform='translate(0 0)'><path style='fill:none;stro
 const glyphLinkInf="<g transform='translate(0 0)'><path style='fill:none;stroke-width:1.5;stroke-opacity:1' d='M 0,8 L 0,8 0,24' /><path style='fill:none;stroke-width:1.5;stroke-opacity:1' d='M 0,24 L 53,24' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,24 L 54,24 48,20 48,28 54,24' /></g>";
 const glyphLinkSup="<g transform='translate(0 0)'><path style='fill:none;stroke-width:1.5;stroke-opacity:1' d='M 0,24 L 0,24 0,8' /><path style='fill:none;stroke-width:1.5;stroke-opacity:1' d='M 0,8 L 53,8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8' /></g>";
 const glyphLink="<g transform='translate(0 0)'><line style='fill:none;stroke-width:1.5;stroke-opacity:1' x1='0' y1='8' x2='53' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8' /></g>";
-const glyphLigneTxt="<g transform='translate(0 0)'><text x='5' y='16' font-size='12'  style='fill:#000000;stroke-width:0.2;stroke-opacity:1' >Txt</text></g>";
+const glyphLigneTxt="<g transform='translate(0 0)'><text x='5' y='16' font-size='12'  style='stroke-width:0.2;stroke-opacity:1' >Txt</text></g>";
 const glyphInsertion="<g transform='scale(1 1)'><circle style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' cx='8.0' cy='15.0' r='7' /><rect style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' x='18.0' y='13.0' width='4' height='4' /><circle style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' cx='32.0' cy='15.0' r='7' /><rect style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' x='42.0' y='13.0' width='4' height='4' /><circle style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' cx='56.0' cy='15.0' r='7' /><path style='fill:none;fill-opacity:1;stroke-width:1;stroke-opacity:1' d='M 7,7 L 7,7 7,1 55,1 55,7 M 32,1 L 32,7' /><path style='fill:none;fill-opacity:1;stroke-width:1;stroke-opacity:1' d='M 20,17 L 20,25 43,25 43,17' /></g>";
 const glyphPermutation="<g transform='scale(1 1)'><circle style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' cx='8.0' cy='22.0' r='7' /><circle style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' cx='32.0' cy='22.0' r='7' /><circle style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' cx='56.0' cy='22.0' r='7' /><path style='fill:none;fill-opacity:1;stroke-width:1;stroke-opacity:1' d='M 7,6 L 7,6 7,0 55,0 55,10' /><path style='fill:#000000;fill-opacity:1;stroke-width:1;stroke-opacity:1' d='M 5,6 L 9,6 7,10 5,6' /></g>";
 const glyphPalindrome="<g transform='scale(1 1)'><rect style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' x='0.0' y='1.0' width='8' height='8' /><rect style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' x='16.0' y='8.0' width='4' height='4' /><circle style='fill:#ffffff;fill-opacity:1;stroke-width:1;stroke-opacity:1' cx='28.0' cy='15.0' r='4' /><rect style='fill:#000000;fill-opacity:1;stroke-width:1;stroke-opacity:1' x='40.0' y='8.0' width='4' height='4' /><rect style='fill:#000000;fill-opacity:1;stroke-width:1;stroke-opacity:1' x='48.0' y='1.0' width='8' height='8' /><line style='fill:none;fill-opacity:1;stroke-width:1;stroke-opacity:1'x1='28' y1='2' x2='28' y2='22' /></g>";
@@ -153,14 +153,18 @@ function graphCarre(objActif) {
 	document.getElementById("space").appendChild(dupnode);
 	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
 }
-function graphTriangle(objActif) {
+function graphTriangle(objActif,fg) {
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",tableObjet[objActif].id);
 	dupnode.setAttribute("title",tableObjet[objActif].nom);
 	var st=defCadre(objActif)
 	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[objActif].bkgWidth+"' height='"+tableObjet[objActif].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>"; 
-	txt=txt+"<polyline points='0,20 0,0 20,10 0,20' fill='"+tableObjet[objActif].objColor+"' transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+") translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+")'  stroke='"+tableObjet[objActif].objBorderC+"' stroke-width='"+tableObjet[objActif].objBorderW+"' /></svg>";
+	var txt="<svg width='"+tableObjet[objActif].bkgWidth+"' height='"+tableObjet[objActif].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	if(fg==0){ 
+	txt=txt+"<polyline points='0,20 0,0 20,10 0,20' fill='"+tableObjet[objActif].objColor+"' transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+") translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+") '  stroke='"+tableObjet[objActif].objBorderC+"' stroke-width='"+tableObjet[objActif].objBorderW+"' /></svg>";
+	}else {
+		txt=txt+"<polyline points='0,20 0,0 20,10 0,20' fill='"+tableObjet[objActif].objColor+"' transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+") translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+") rotate("+tableObjet[objActif].rotate+" 10 10)'  stroke='"+tableObjet[objActif].objBorderC+"' stroke-width='"+tableObjet[objActif].objBorderW+"' /></svg>";
+	}
 	document.getElementById("space").appendChild(dupnode);
 	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
 }
@@ -193,7 +197,7 @@ function graphTriangleLong(objActif) {
 	var st=defCadre(objActif)
 	dupnode.setAttribute("style",st);
 	var txt="<svg width='"+tableObjet[objActif].bkgWidth+"' height='"+tableObjet[objActif].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>"; 
-	txt=txt+"<polyline points='0,0 0,10 50,5 0,0' fill='"+tableObjet[objActif].objColor+"'  transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+")  translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+")' stroke='"+tableObjet[objActif].objBorderC+"' stroke-width='"+tableObjet[objActif].objBorderW+"' /></svg>";
+	txt=txt+"<polyline points='0,0 0,10 50,5 0,0' fill='"+tableObjet[objActif].objColor+"' transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+")  translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+")' stroke='"+tableObjet[objActif].objBorderC+"' stroke-width='"+tableObjet[objActif].objBorderW+"' /></svg>";
 	document.getElementById("space").appendChild(dupnode);
 	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
 }
@@ -382,6 +386,7 @@ function graphImage(src) {
 	document.getElementById(selectObj).firstChild.style.height=tableObjet[objActif].bkgHeight+"px"
 	dragElement(document.getElementById(selectObj))
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj)
+	console.log(document.getElementById(selectObj))
 }
 function graphSvg() {
 	var dupnode=document.createElement('div');
@@ -444,9 +449,9 @@ function defSelectImg(rt){
 		debut:0,
 		detune:0,
 		duree:0,
-		envType:0,
-		envX:[0.0,0.08,0.245,0.49,0.725,0.87,0.975],
-		envY:[0.1,0.588,0.86,0.99,0.86,0.588,0.1],
+		fadeIn:"l",
+		fadeOut:"l",
+		envX:[0.2,0.8],
 		etat:1,
 		file:"",
 		fin:1,
@@ -539,9 +544,9 @@ function selectobjet(objType,bkgc){
 			debut:0,
 			detune:0,
 			duree:0,
-			envType:0,
-			envX:[0.0,0.08,0.245,0.49,0.725,0.87,0.975],
-			envY:[0.1,0.588,0.86,0.99,0.86,0.588,0.1],
+			fadeIn:"l",
+			fadeOut:"l",
+			envX:"0.2,0.8",
 			etat:1,
 			file:"",
 			fin:1,
@@ -588,7 +593,7 @@ function selectobjet(objType,bkgc){
 				graphCarre(objActif)
 				break
 			case 3:
-				graphTriangle(objActif)
+				graphTriangle(objActif,0)
 				tableObjet[objActif].scaleY=tableObjet[objActif].scaleX
 				break
 			case 4:
@@ -2100,6 +2105,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=20
 			tableObjet[objActif].bkgWidth=40
 			tableObjet[objActif].bkgHeight=20
+			tableObjet[objActif].bkgTrp=false
 			tableObjet[objActif].bkgColor='#99f0ee'
 			graphSymbole(objActif,glyphLigneTxt)
 			break
@@ -2562,9 +2568,9 @@ function pasteObjet(obj,copyX,copyY){
 		debut:tableObjet[obj].debut,
 		detune:tableObjet[obj].fin,
 		duree:tableObjet[obj].duree,
-		envType:tableObjet[obj].envType,
+		fadeIn:tableObjet[obj].fadeIn,
+		fadeOut:tableObjet[obj].fadeOut,
 		envX:[].concat(tableObjet[obj].envX),
-		envY:[].concat(tableObjet[obj].envY),
 		etat:tableObjet[obj].etat,
 		file:tableObjet[obj].file,
 		fin:tableObjet[obj].fin,
@@ -2584,6 +2590,7 @@ function pasteObjet(obj,copyX,copyY){
 		piste:tableObjet[obj].piste,
 		posX:copyX,
 		posY:copyY,
+		rotate:tableObjet[obj].rotate,
 		scaleX:tableObjet[obj].scaleX,
 		scaleY:tableObjet[obj].scaleY,
 		scaleY2:tableObjet[obj].scaleY2,
@@ -2611,7 +2618,7 @@ function pasteObjet(obj,copyX,copyY){
 			graphCarre(objActif)
 			break
 		case 3:
-			graphTriangle(objActif)
+			graphTriangle(objActif,1)
 			break
 		case 4:
 			tableObjet[objActif].cx=tableObjet[obj].cx,
@@ -2701,8 +2708,8 @@ function pasteObjet(obj,copyX,copyY){
 			break
 	}
 	dragElement(document.getElementById(tableObjet[objActif].id))
+	
 	document.getElementById(tableObjet[objActif].id).addEventListener('mouseup',selectBkgObj)
-	console.log(tableObjet[objActif])
 }
 function pasteSymbole(obj,copyX,copyY){
 	objActif=nbObjets;

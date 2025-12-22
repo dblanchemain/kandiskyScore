@@ -3,6 +3,7 @@
 var mainwinWidth=1510
 var mainwinheight=894
 let baseDatatPath=""
+
 window.api.send("toMain", "basePath")
 const tableLang=[]
 
@@ -148,6 +149,7 @@ function defconfig(conf) {
   pdfBkg=parseInt(defc[115])
   pdfAssCmd=defc[116]
   pdfAppCmd=defc[117]
+  rubberband=defc[118]
 }
 
 dragElement(document.getElementById("listNewFx"));
@@ -196,16 +198,23 @@ for (var i in listeFx){
     }
 }
 */
+
 window.api.receive("fromMain", (data) => {
 	var nsize=data
-	var cmd=data.split(";")
+	var cmd=data.split(";");
+	console.log(`openObjet ${data} from param`);
 	switch(cmd[0]){
 			case 'dconfig':
 				baseDatatPath=cmd[1]
 				importUconfig()
 				break
 			case 'audioImport':
-				loadSoundTableBuffer(cmd[1],cmd[2],parseInt(cmd[3]),parseInt(cmd[4]))
+				console.log(`openObjetParam ${data} from param`);
+				window.api.send("toMain", "splitCanaux;"+cmd[4]);
+				break
+			case 'loadSound':
+				console.log(`openObjetParam ${data} from param`);
+				loadSoundTableBufferB(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[7]/cmd[6])
 				break
 			case 'audioPreDefImport':
 				loadPreDefSound(cmd[1],cmd[2])
@@ -225,8 +234,11 @@ window.api.receive("fromMain", (data) => {
 			case 'preDefGain':
 				preDefGain(cmd[1],cmd[2])
 				break
-			case 'audioEnvType':
-				audioEnvType(cmd[1],cmd[2])
+			case 'fadeInType':
+				audioFadeInType(cmd[1],cmd[2])
+				break
+			case 'fadeOutType':
+				audioFadeOutType(cmd[1],cmd[2])
 				break
 			case 'preDefEnvType':
 				preDefEnvType(cmd[1],cmd[2])
@@ -278,6 +290,9 @@ window.api.receive("fromMain", (data) => {
 				break
 			case 'audioEnv':
 				audioEnv(cmd[1],cmd[2],cmd[3],cmd[4])
+				break
+			case 'defEnv':
+				defEnv(cmd[1])
 				break
 			case 'preDefEnv':
 				preDefEnv(cmd[1],cmd[2],cmd[3],cmd[4])
@@ -607,18 +622,19 @@ window.api.receive("fromMain", (data) => {
 				//objetStringDefParams(cmd[1],cmd[2])
 				break
 			case 'renduObjet':
-				renderObjeteAudio();//readSimpleAudioA(1)
+				renderObjAudio();//readSimpleAudioA(objActif,1);
 				break
 			case 'renduGrp':
-				renderGrpAudio()
+				renderGrpAudio3()
 				break
 			case 'renduIntervalle':
 				renderIntervalleAudio()
 				break
 			case 'renduPart':
-				renderPartAudio()
-				break
+				renderPartAudio(1);
+				break;
 			case 'exportProjet':
+				console.log(`openObjetParam ${data} from param`);
 				importProjet(cmd[1])
 				importConfigProjet()
 				break
@@ -666,6 +682,9 @@ window.api.receive("fromMain", (data) => {
 			case 'spatialspD':
 				spatialspD(cmd[1],cmd[2],cmd[3])
 				break
+			case 'defSpatMass':
+				defSpatMass();
+				break
 			case 'createSpatialPoint':
 				createSpatialPoint(cmd[1],cmd[2],cmd[3])
 				break
@@ -691,7 +710,7 @@ window.api.receive("fromMain", (data) => {
 				exportIntv()
 				break
 			case 'exportObj':
-				exportObj()
+				exportObjAudio();
 				break
 			case 'exportGrp':
 				exportGrp()
@@ -730,6 +749,72 @@ window.api.receive("fromMain", (data) => {
 			case 'spectrogram':
 				spectrogram()
 				break
+			case 'host':
+				host()
+				break
+			case 'insertImgSelect':
+				defSelectImg(cmd[1])
+				break
+			case 'objValid':
+				readSimpleAudioA(cmd[1],0)
+				break
+			case 'playStop':
+				console.log("playStop");
+				playerStat=0;
+				document.getElementById("renderPlay").src="./images/png/lecture.png";
+				/*
+				if(timer){
+					clearTimeout(timer);
+				}
+				*/
+				break
+			case 'processAudio':
+				const processedBufferData = JSON.parse(cmd[1]);
+          const processedBuffer = base64ToBuffer(processedBufferData);
+          console.log("AudioBuffer traité reçu :", processedBuffer);
+ 				break;
+ 			case 'processRubberband':
+				(async () => {
+					await postRubberband(cmd[1],cmd[2],cmd[3]);	
+				})();
+				
+ 				break;
+ 			case 'autoRubberband':
+				
+				 document.getElementById("loading").style.display="none";
+				//var rwav=trimSilenceAtEnd(contextAudio, cmd[1], threshold = 0.001)
+				(async () => {
+				const response = await fetch( cmd[2]);
+  				const arrayBuffer = await response.arrayBuffer();
+
+  				// Décode les données en AudioBuffer via Web Audio API
+  				const audioBuffer = await contextAudio.decodeAudioData(arrayBuffer);				
+				
+				const trimBuffer=trimBeforEnd(contextAudio, audioBuffer, 0.5 )
+				
+				var rwav=audioBufferToWavBlob2(trimBuffer);
+				const reader = new FileReader();
+					reader.readAsArrayBuffer(rwav);
+					
+					reader.onloadend = async () => {
+					  const wavArrayBuffer = reader.result;
+					  console.log("audio obj",(audioDirectory+"exports/objet"+cmd[1]+".wav"),exportTable.length)
+					  await window.api.saveAudio('saveAudio',(audioDirectory+"exports/objet"+cmd[1]+".wav"), reader.result); 
+					  if(parseInt(cmd[1])<exportTable.length-1){
+					  	
+					   var obj=parseInt(cmd[1])+1;
+					   console.log("obj",obj)
+					   exportAudioObjet(obj,0)
+					  }
+					}; 
+				})();
+				//document.getElementById("renduWav").src=`file://${cmd[1]}?v=${Date.now()}`;
+ 				break;
+ 			case "infoFile":
+ 				console.log('info',cmd[1],cmd[2],cmd[3]);
+ 				console.log("duree",cmd[5]/cmd[4]);
+ 				
+ 				break;
 			default :			
 
 				break
@@ -812,6 +897,7 @@ function selectBkgObj(e){
 			inclusionRet();
 		}
    }else if(e.button==2){
+   	
 		if (e.target.id=="space"){												// si click droit sur l'espace de travail => popup menu   	
 	     window.api.contextmenu("showmenu","")
      	}
@@ -826,7 +912,8 @@ function selectBkgObj(e){
      	   let id=e.target.id.substring(5)
      	 	objetSaveParams(id)
      	 	nselector=0
-      	grpSelect=0
+      	grpSelect=0;
+      	
       	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
      	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
      	 	}else{
@@ -852,6 +939,7 @@ function selectBkgObj(e){
 	     	 	nselector=0
 	      	grpSelect=0
 	      	objActif=e.target.parentNode.id.substring(5)
+	      	
 	      	if(tableObjet[e.target.parentNode.id.substring(5)].class==1){
 		      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
@@ -882,11 +970,11 @@ function selectBkgObj(e){
      	   if(id==objActif){
 	     	 	objetSaveParams(id)
 	     	 	nselector=0
-	      	grpSelect=0
+	      	grpSelect=0;
 	      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}else{
-	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+objetParamsToString(objActif)+";"+tableBuffer[tableObjet[objActif].bufferId].buffer.numberOfChannels+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
+	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+objetParamsToString(objActif)+";"+tableObjet[objActif].canaux+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}
 	     	 	window.api.send("toMain", 'objGraphValid')
 
@@ -927,8 +1015,9 @@ function selectBkgObj(e){
      	 	if(tableObjet[objActif].class==3){
 		     	 	var ntxt="openSymbParam;"+id+";"+lang+";"+objetGrapĥToString(objActif)+";"+tableObjet[objActif].type
 	     	}					
-	      window.api.send("toMain", ntxt );
+	      window.api.send("toMain",ntxt );
      	}
+     	console.log( tableObjet[objActif],ntxt)
      	if(e.target.id.substring(0,3)=="grp"){
      		selectObj=e.target.id;
    		objActif=parseInt(selectObj.substring(3));
@@ -1043,6 +1132,7 @@ function defautExterne() {
 	pdfAssCmd=''
 	pdfAppCmd=''
 	editAudioCmd=''
+	rubberband=""
 }
 function exportConfig() {
 
@@ -1053,16 +1143,16 @@ var txt3=paletteBkg+":"+fontPalette+":"+ fontPaletteSize+":"+ separateurPalette+
 var txt4=paletteDisque+","+paletteCarre+","+paletteTriangle+","+paletteEllipse+","+paletteRectangle+","+paletteTrianglelong+","+paletteRondlong+","+paletteCarrelong+","+paletteCrescendo+","+paletteLigne+","+paletteGlissando+","+paletteBlock+","+paletteDecresc+","+paletteDecrescb+","+paletteCresc+","+paletteCrescb+","+paletteAgregat+","+paletteArpege+","+paletteMultilignes+","+paletteNuage+","+paletteTexture+","+paletteImage+","+paletteSymb+","+paletteFleche+","+paletteMarque1+","+paletteMarque2+","+paletteLecteur
 
 txt5=editor+','+daw+','+cmdDaw+','+pdfPage+','+pdfLandscape+','+pdfScale+','+pdfMgTop+','+pdfMgBot+','+pdfMgLeft+','+pdfMgRight+','+pdfBkg+','+pdfAssCmd+','+pdfAppCmd+','+editAudioCmd
-
+txt5=txt5+","+rubberband
 window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt2+";"+txt3+";"+txt4+";"+txt5)
 }
 function objetParamsToString(id) {
-	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].envType+":"+tableObjet[id].envX+":"+tableObjet[id].envY+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width+":"+tableObjet[id].reverse
+	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].fadeOut+":"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width+":"+tableObjet[id].reverse
 	
 	return txt
 }
 function preDefToString(id) {
-	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].envType+":"+tableObjet[id].envX+":"+tableObjet[id].envY+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].liste+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width
+	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].fadeOut+";"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].liste+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width
 	
 	return txt
 }
@@ -1107,9 +1197,9 @@ function objetStringToParams(id,txt) {
 	tableObjet[id].debut=tbtxt[28]
 	tableObjet[id].detune=tbtxt[29]
 	tableObjet[id].duree=tbtxt[30]
-	tableObjet[id].envType=tbtxt[31]
-	tableObjet[id].envX=tbtxt[32]
-	tableObjet[id].envY=tbtxt[33]
+	tableObjet[id].fadeIn=tbtxt[31]
+	tableObjet[id].fadeOut=tbtxt[32]
+	tableObjet[id].envX=tbtxt[33]
 	tableObjet[id].etat=tbtxt[34]
 	tableObjet[id].file=tbtxt[35]
 	tableObjet[id].fin=tbtxt[36]
@@ -1282,10 +1372,11 @@ function logKey(e) {
 	var ratioT=(720/12960);
 	if(e.clientX>204 && e.clientY>40){
 	var posX=e.clientX-204+scrollDemo.scrollLeft
-	var tempo=60/parseFloat(document.getElementById("tempo").value)
-	var tmp=((posX*ratioT/zoomScale)*tempo)+1;
+	//var tempo=60/parseFloat(document.getElementById("tempo").value)
+	var tempo=1
+	var tmp=((posX*ratioT/zoomScale)*tempo);
 	var mn=Math.floor(tmp/60);
-	var s=Math.floor(tmp%60);
+	var s=(tmp%60).toFixed(3);
 	if(mn<10){
 		var smn="0"+mn
 	}else{
@@ -1298,6 +1389,10 @@ function logKey(e) {
 	}
 	document.getElementById("compteurM").innerHTML = smn+" : ";
 	document.getElementById("compteurS").innerHTML = ss;
+	}
+	if(posX>-1){
+	var indx=tempoFoo.find((element) => element.X>=posX);
+	document.getElementById("tempo").value=indx.Y.toFixed(2)
 	}
 	if(e.clientX>204 && e.clientY>94){
   screenLog.innerText = `
@@ -1344,12 +1439,12 @@ function uena(chn) {
   return window.btoa(unescape(encodeURIComponent(chn)));
 }
 
-function loadSoundTableBuffer(id,url,num,mode) {
+function loadSoundTableBuffer(id,url) {
     var request = new XMLHttpRequest();
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
     request.onload = function() {
-    contextAudio.decodeAudioData(request.response, function(buffer) {
+      contextAudio.decodeAudioData(request.response, function(buffer) {
         
         //document.getElementById("paramDuree").innerHTML="Durée : "+buffer.duration.toFixed(2)+"s";
         //document.getElementById("paramCanaux").innerHTML="Canaux : "+buffer.numberOfChannels;
@@ -1357,38 +1452,60 @@ function loadSoundTableBuffer(id,url,num,mode) {
         tableObjet[id].fin=1;
         tableObjet[id].debut=0;
         var pathnom=url.split('/')
-        if(num==1){
         	tableObjet[id].file=pathnom[pathnom.length-1]
-        }else{
-        	tableObjet[id].file2=pathnom[pathnom.length-1]
-        }
         
        var hasKey = -1;
        var hasKey =tableBuffer.findIndex(elem => elem.name === pathnom[pathnom.length-1]);
 		 
 		 if(hasKey>-1){
-		 	if(num==1){
-		 		tableObjet[id].bufferId=hasKey;
-		 		window.api.send("toMain", "fileAudioParam;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels )
-		 	}else{
-		 		tableObjet[id].bufferId2=hasKey;
-		 	}
+		 	tableObjet[id].bufferId=hasKey;
+		 	window.api.send("toMain", "fileAudioParam;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels )
         }else{
          tableBuffer.push({name:pathnom[pathnom.length-1],buffer:buffer});
-         if(num==1){
-        		 tableObjet[id].bufferId=tableBuffer.length-1;
-        		 window.api.send("toMain", "fileAudioParam;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels )
-        	}else{
-        		 tableObjet[id].bufferId2=tableBuffer.length-1;
-        	}
+        	tableObjet[id].bufferId=tableBuffer.length-1;
+        	window.api.send("toMain", "fileAudioParam;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels )
          								
         }
-        if(mode==0){
-        	window.api.send("toMain", "fileAudioParam;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels )
-        }
-    });
+      });
     }
     request.send();
+}
+async function importMulti(url,c,d){
+	var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.responseType = 'arraybuffer';
+    console.log("url",url)
+    request.onload = function() {
+    	var pathnom=url.split('/')
+      contextAudio.decodeAudioData(request.response, function(buffer) {
+      tableBuffer.push({name:url,buffer:buffer,canaux:1,duree:d});
+      });
+      }
+   request.send(); 
+}
+async function loadSoundTableBufferB(id,dir,base,c,d) {
+	
+	tableObjet[id].duree = d;
+   tableObjet[id].fin=1;
+   tableObjet[id].debut=0;
+   tableObjet[id].file=dir+"/"+base;
+   tableObjet[id].canaux=parseInt(c);
+	console.log("c",c)
+    var hasKey = -1;
+    var hasKey =tableBuffer.findIndex(elem => elem.name === base);
+	 const outputBaseDir =base.replace(/\.wav$/, "");
+	 if(hasKey>-1){
+	 	tableObjet[id].bufferId=hasKey;
+	 	window.api.send("toMain", "fileAudioParam;"+id+";"+base+";"+d+";"+c)
+     }else{
+     	for(i=1;i<parseInt(c)+1;i++){
+      	await importMulti(dir+"/"+outputBaseDir+"/chan"+i+".wav",c,d);
+      }
+     	tableObjet[id].bufferId=tableBuffer.length-1;
+     	console.log("tableBuffer",tableBuffer,tableObjet)
+     	window.api.send("toMain", "fileAudioParam;"+id+";"+base+";"+d+";"+c)
+      								
+     }  
 }
 function loadPreDefSound(id,url) {
     var request = new XMLHttpRequest();
@@ -1434,6 +1551,20 @@ function defTempo(){
 		regSolfege(zoomScale,"reglette",parseFloat(regleFontSize),regleFontColor,regleFontColor,1)
 	}
 	grilleSpace(zoomScale,"space",colorGrille)
+	var px={
+		id:"tmp0",
+		X:0,
+		Y:0.4167*parseFloat(document.getElementById("tempo").value)
+		}
+	tempoPoints[0]=px;
+	px={
+		id:"tmp1",
+		X:12960,
+		Y:0.4167*parseFloat(document.getElementById("tempo").value)
+		}
+	tempoPoints[1]=px;
+const resultat = tempoPoints.find((obj) => obj.id === "tmp1");
+console.log(tempoPoints,resultat.id);
 }
 function audioMute(id,m) {  
 	tableObjet[id].mute=m
@@ -1459,8 +1590,11 @@ function preDefGain(id,m) {
    tableObjet[id].gain=parseFloat(m)
   
 }
-function audioEnvType(id,m) {
-   tableObjet[id].envType=parseInt(m)
+function audioFadeInType(id,m) {
+   tableObjet[id].fadeIn=m
+}
+function audioFadeOutType(id,m) {
+   tableObjet[id].fadeOut=m
 }
 function preDefEnvType(id,m) {
 	for(let i=0;i<tableObjet[id].liste.length;i++){
@@ -1548,11 +1682,12 @@ function preDefConvolver(id,m) {
    }
 	tableObjet[id].convolver=m
 }
-function audioEnv(id,ev,x,y) {  
+function audioEnv(id,ev,x) {  
 	tableObjet[id].envX[ev]=parseFloat(x)
-	tableObjet[id].envY[ev]=parseFloat(y)
 }
-
+function defEnv(x) {  
+	tableObjet[objActif].envX=x
+}
 function preDefEnv(id,ev,x,y) {  
 	for(let i=0;i<tableObjet[id].liste.length;i++){
   	  var ls=tableObjet[tableObjet[id].liste[i]]
@@ -1691,9 +1826,13 @@ function objScaleX(id,scaleX) {
 	
 	if(tableObjet[id].class==1){
 		tableObjet[id].scaleX=parseFloat(scaleX)
-		tableObjet[id].bkgWidth=tableObjet[id].width*scaleX
+		//tableObjet[id].bkgWidth=tableObjet[id].width*parseFloat(scaleX)
 		switch(tableObjet[id].type) {
-			
+			case 3:
+				var transf='scale('+tableObjet[id].scaleX+' '+tableObjet[id].scaleY+') translate('+tableObjet[id].margeG+' '+tableObjet[id].margeH+') rotate('+tableObjet[id].rotate+' 10 10)'	
+				objetBkgWidth(id,tableObjet[id].width*scaleX)			
+				document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform",transf)
+				break
 			case 7:
 				document.getElementById("objet"+id).firstChild.firstChild.nextSibling.setAttribute('width',(20*tableObjet[id].scaleX))
 				document.getElementById("objet"+id).style.width=((20*tableObjet[id].scaleX)+((10*tableObjet[id].scaleY2))+tableObjet[id].margeG)+"px"
@@ -1861,6 +2000,11 @@ function objScaleY(id,scaleY) {
 	tableObjet[id].scaleY=parseFloat(scaleY)
 	tableObjet[id].scaleY2=parseFloat(scaleY)
 	switch(tableObjet[id].type) {
+		case 3:
+			var transf='scale('+tableObjet[id].scaleX+' '+tableObjet[id].scaleY+') translate('+tableObjet[id].margeG+' '+tableObjet[id].margeH+') rotate('+tableObjet[id].rotate+' 10 10)'	
+			//objetBkgWidth(id,tableObjet[id].width*scaleX)			
+			document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform",transf)
+			break
 		case 7:
 			document.getElementById("objet"+id).firstChild.firstChild.nextSibling.setAttribute("height",10*scaleY)
 			var r=document.getElementById("objet"+id).firstChild.firstChild.getAttribute("cy")
@@ -1995,10 +2139,14 @@ function objetRColor(id,color) {
 		}
 }
 function objRotate(id,rotate) {  
-	tableObjet[id].rotate=parseFloat(rotate) 
-	var transf="transform:scale("+tableObjet[id].scaleX+","+tableObjet[id].scaleY+") translate("+tableObjet[id].margeG+"px,"+tableObjet[id].margeH+"px) rotate("+rotate+"deg 0 0);"
-	document.getElementById("objet"+id).firstChild.style.transform="scale("+tableObjet[id].scaleX+","+tableObjet[id].scaleY+") translate("+tableObjet[id].margeG+"px,"+tableObjet[id].margeH+"px) rotate("+rotate+"deg)"
-	//document.getElementById("objet"+id).firstChild.style.transform=rotate+"deg"
+	tableObjet[id].rotate=parseFloat(rotate)
+	if(tableObjet[id].type==23){
+		var transf= 'rotate('+rotate+'deg)'
+		document.getElementById("objet"+id).firstChild.style.transform=transf;
+	}else{
+	var transf="scale("+tableObjet[id].scaleX+","+tableObjet[id].scaleY+") translate("+tableObjet[id].margeG+","+tableObjet[id].margeH+') rotate('+rotate+' 10 10)'
+	document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform",transf);
+	}
 
 }
 function symbRotate(id,rotate) {  
@@ -2201,6 +2349,10 @@ function objetPlGauche(id,ml) {
 	var elem=document.getElementById(tableObjet[id].id).firstChild.firstChild
 	tableObjet[id].margeG=parseFloat(ml)
 	switch(tableObjet[id].type) {
+		case 3:
+			console.log('scaleX',tableObjet[id])			
+			elem.setAttribute('transform',"scale("+tableObjet[id].scaleX+" "+tableObjet[id].scaleY+") translate("+ml+" "+tableObjet[id].margeH+") rotate("+tableObjet[id].rotate+")")
+			break
 		case 7:
 			elem.setAttribute('transform',"translate("+ml+" "+tableObjet[id].margeH+")")
 			elem.nextSibling.setAttribute('transform',"translate("+ml+" "+tableObjet[id].margeH+")")
@@ -2221,6 +2373,10 @@ function objetPlHaut(id,mh) {
 	var elem=document.getElementById(tableObjet[id].id).firstChild.firstChild
 	tableObjet[id].margeH=parseFloat(mh)
 	switch(tableObjet[id].type) {
+		case 3:
+			console.log('scaleX',tableObjet[id])			
+			elem.setAttribute('transform',"scale("+tableObjet[id].scaleX+" "+tableObjet[id].scaleY+") translate("+tableObjet[id].margeG+" "+mh+") rotate("+tableObjet[id].rotate+")")
+			break
 		case 7:
 			elem.setAttribute('transform',"translate("+tableObjet[id].margeG+" "+mh+")")
 			elem.nextSibling.setAttribute('transform',"translate("+tableObjet[id].margeG+" "+mh+")")
@@ -2424,6 +2580,7 @@ var tableProjet=txt.split(',')
 	var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd
 	window.api.send("toMain", 'defExterne;'+btoa(txt))
 }
+
 function renameProjet(nname) {
 	paramProjet.name=nname;
 	var naudio=paramProjet.audioPath.split('/');
@@ -2487,6 +2644,19 @@ function importConfigProjet(){
 	}else{
 		svgSeconde=false
 	}
+	console.log('paramProjet',paramProjet)
+	
+	console.warn("TYPE console.log =", typeof console.log);
+
+	(async () => {
+		try {
+        window.wamSpat = await createLayout(spat3D,1);
+    } catch (err) {
+        console.error("Erreur dans createLayout:", err);
+    }	
+	})();
+	
+	//createSpatializersForObjects(spat3D)
 }
 function importSpace(txt){
 var tableSpace=txt.split(',')
@@ -2697,6 +2867,7 @@ function importExterne(txt){
 	pdfAssCmd=defc[11]
 	pdfAppCmd=defc[12]
 	editAudioCmd=defc[13]
+	rubberband=[14]
 	if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png"
 	}else{
@@ -2728,6 +2899,10 @@ function createSpatialPoint(id,pt,t){
 	tableObjet[id].spD[pt]=1
 	tableObjet[id].spT[pt]=parseFloat(t);
 }
+function defSpatMass() {
+	window.api.send("toMain", "openSpatMass;"+objActif+";"+JSON.stringify(tableObjet[objActif]))
+}
+
 function openStudio() {
 	if(typeof objActif !== typeof undefined  && objActif!==1048576){
 		var id=objActif
@@ -3070,6 +3245,14 @@ function spectrogram(){
 		window.api.send("toMain", "vueSpectrogram;"+objpath)
 	}
 }
+
+function host(){
+	exportAudioObjet(objActif,0)
+	var objpath=paramProjet.audioPath+"exports/"+tableObjet[objActif].id+".wav"
+	if(paramProjet.audioPath && tableObjet[objActif].file){
+		window.api.send("toMain", "openHost;"+tableObjet[objActif].id+";"+objpath)
+	}
+}
 function openRead3D() {
 	if(grpSelect==1){
 		exportSelect()
@@ -3090,7 +3273,8 @@ trackObjet(objActif,2);\
 console.log(tableObjet[objActif].posX/(18*zoomScale));\
 timePosObjet(objActif,14);\
 convolObjet(objActif,0);\
-envTypeObjet(objActif,1);\
+fadeInTypeObjet(objActif,0);\
+fadeOutTypeObjet(objActif,0);\
 envObjet(objActif,0,0.2,0.08,0.288,0.245,0.86,0.49,0.99,0.725,0.86,0.8,0.58,0.978,0.5);\
 loadAudioTableBuffer(objActif,'/home/dominique/kandiskyscore/Projets/Projet1/Audios/kurt1-1s.wav');"
 	

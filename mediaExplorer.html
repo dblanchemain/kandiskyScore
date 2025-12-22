@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Média explorer</title>
+  <style>
+    body { font-family: sans-serif;font-size:10pt; padding: 12px;background-color:#d7d7d7 }
+    #wavecontainer { border-top: 3px solid #000000; border-left: 3px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000; width: 100%; max-width: 900px; height: 50px; }
+    #dirCourant { border: 1px solid #000000; width: 100%;}
+    #barVerticale {background-color:#ff0000;width:2px;height:50px;}
+   
+  </style>
+</head>
+<body>
+	<div>
+	<table border='0' cellspacing='0' width='100%'><tbody>
+	<tr>
+	<td ><img id="dirSup" src="./images/png/dirSup.png" alt="Dir sup" /></td><td><img id="reloadDir" src="./images/png/redir.png" alt="Recharger" /></td><td> &nbsp;&nbsp;</td><td id='dirCourant' style="padding-left:20px;border-top: 3px solid #000000; border-left: 3px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000;"  > test </td>
+	</tr>
+  </tbody>
+  </table><br/>
+  <br/>
+  <div style="border:1px solid #000000;margin-left:10px;padding:10px;height:230px;float:left"><h4 align='center'>Dossiers</h4><div id='dliste' > </div> </div><div style="border:1px solid #000000;margin-left:10px;height:250px;overflow:auto"> <h4 align='center'>Fichiers</h4><div id='fileList'  > </div> </div>
+  </div>
+  <br/>
+  <table border='0' cellspacing='0' width='100%'><tbody><tr>
+  <td style="width:100px"><img id="fileRead" src="./images/png/lecture.png" alt="Lecture"><img id="susResBtn" src="./images/png/pauseLect.png" alt="Pause Lecture"><img id="fileStop" src="./images/png/stopLect.png" alt="Stop Lecture"><img id="fileLoop" src="./images/png/loop.png" alt="loop"></td><td id="file" style="width:300px;align-content: left" ></td><td >Gain : <input id="svolume" type="range" min='0.1' max='10.00' step='0.1'   value="1.0" style="vertical-align:-20%"/> <input id="volume" type="number" min='0.01' max='4' step='0.01' value="1.0" style="width:40px;vertical-align:0%" />
+  <select name="type" id="typeselect"  style="float:right;">
+  <option value="aac">Aac</option> 
+  <option value="aiff">Aiff</option>  
+  <option value="au">Au</option>
+  <option value="flac">Flac</option>
+  <option value="ogg" >Ogg</option>
+  <option value="wav" selected>Wav</option>
+  <option value="w64" >W64</option>
+</select>
+  </td>
+  </tr>
+  </tbody>
+  </table><br/>
+  <div style="position:absolute;top:400px;left:1px;height:200px;">
+  <div style="position:absolute;top:1px;left:1px;"><img id="imgcont" src="./images/png/spectrogram.png" /></div> 
+  <div id="wavecontainer"  style="position:absolute;top:1px;left:1px;" ></div>
+  </div>
+  
+  <br/>
+  <table  border='1' cellspacing='0' width='99%' style="position:absolute;top:600px;left:1px;">
+  <tbody>
+  <tr><td id='length' >Longueur : </td><td id='nbTrames' >Nb Trames : </td><td id='rate' >Échantillonnage : </td><td id='canaux'>Canaux : </td></tr></tbody>
+  </table>
+  <div id="blockMaj" style="position:absolute;top:640px;left:800px;"><button id="lbvalid"  style="width:60px;" onclick='quit();'>Ok</button></div>
+  <script>
+	document.getElementById("dirSup").addEventListener('click',dirReadSup)  
+   document.getElementById("reloadDir").addEventListener('click',dirReload) 
+   
+   document.getElementById("dirCourant").addEventListener('click',dirNSelect) 
+   
+   document.getElementById("fileRead").addEventListener('click',fileRead)
+   document.getElementById("susResBtn").addEventListener('click',suspend)
+   document.getElementById("fileStop").addEventListener('click',fileStop) 
+   document.getElementById("fileLoop").addEventListener('click',fileLoop)
+   document.getElementById("wavecontainer").addEventListener('click',setBar)
+   document.getElementById("svolume").addEventListener('input',sVolume)
+   document.getElementById("typeselect").addEventListener('change',selectType)
+   let defLoop=0;
+   let home="";
+   let kandiskyscore="";
+   let projets="";
+   let dirCourant="";
+   let rbuffer;
+   let bufferEtat=0;
+   let defGain=1;
+   var defType="wav";
+   var playState=0;
+   var filePath="";
+   var duree=0;
+   var rate=48000;
+   var nbsamples=0;
+   var nbcanaux=0;
+   var timer;
+   var contextAudio=new AudioContext({latencyHint: "interactive"})
+   
+   window.api.receive("fromMain", (data) => {
+console.log(`objparam ${data} from renderer process`);
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'defParam':
+				console.log('home',cmd[1],'kandiskyscore',cmd[2],'projets',cmd[3])
+				home=cmd[1];
+				kandiskyscore=cmd[2];
+				projets=cmd[3]
+				dirCourant=home;
+				var txt="<ul><li id='dhome' href="+home+">Home</li>"
+				txt=txt+"<li id='dirKds' href="+kandiskyscore+">kandiskyscore</li>"
+				txt=txt+"<li id='dirProjets' href="+projets+">Projets</li>"
+				txt=txt+"</ul>"
+				document.getElementById("dliste").innerHTML=txt
+				document.getElementById("dhome").addEventListener('click',dirSelect) 
+   			document.getElementById("dirKds").addEventListener('click',dirSelect)
+   			document.getElementById("dirProjets").addEventListener('click',dirSelect)
+				document.getElementById("dirCourant").innerHTML=dirCourant
+				break
+			case 'retReadDir':
+				txt="";
+				let ndir=[]
+				let lg=0
+				let d=cmd[1].split(",")
+				txt="<table  border='0' cellspacing='0'><tbody><tr><td style='width:32px'> </td><td style='width:400px'> Nom</td><td style='width:60px'> Taille</td><td style='padding:20px;text-align:right'> Dernière modification</td><tr>"
+				for(let k=0;k<d.length;k++){
+					ndir=d[k].split("/")
+					lg=ndir.length-1;
+					txt=txt+"<tr onclick=\"defDir('"+d[k]+"');\"><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td><td> </td><td></td></tr>"	
+				}
+				
+				d=[];
+				s=[];
+				m=[];
+				ndir=[]
+				lg=0
+				d=cmd[2].split(",");
+				s=cmd[3].split(",");
+				m=cmd[4].split(",");
+				for(let k=0;k<d.length;k++){
+				ndir=d[k].split("/")
+					lg=ndir.length-1;
+					txt=txt+"<tr onclick=\"selectFile('"+d[k]+"');\"><td> <td  > "+ndir[lg]+"</td><td style='text-align:right'>"+s[k]+"</td><td style='text-align:right'> "+m[k].substring(4,24)+"</td></tr>"	
+				}
+				
+				txt=txt+"</tbody></table>"
+				document.getElementById("fileList").innerHTML=txt
+				console.log(m)
+				break;
+			case 'infoFile':
+				nbcanaux=cmd[1];
+				rate=cmd[2];
+				nbsamples=cmd[3];
+				duree=nbsamples/rate
+				filePath=cmd[4]
+				var nf=filePath.split("/")
+				 document.getElementById("file").innerHTML=nf[nf.length-1];
+			    document.getElementById("length").innerHTML="Durée : "+duree.toFixed(2)+"s";
+			    document.getElementById("canaux").innerHTML="Canaux : "+nbcanaux;
+			    document.getElementById("rate").innerHTML="Échantillonnage : "+rate;
+			    document.getElementById("nbTrames").innerHTML="Nb Trames : "+nbsamples;
+			    document.getElementById("imgcont").src=cmd[5] + "?"+Date.now();
+				readSimpleAudio(duree,filePath,0)
+				break;
+			case "loop":
+				bvertX=56;
+				clearTimeout(timer);
+				document.getElementById("bvert").setAttribute("x1", bvertX);
+		    	document.getElementById("bvert").setAttribute("x2", bvertX);
+				var gain=parseFloat(document.getElementById("volume").value);
+				readSimpleAudio(duree,filePath,0,gain,defLoop)
+				break;
+   	}  
+     
+	});
+	function quit() {
+		window.api.send("toMain", 'mediaExplorerQuit')
+	}
+	function selectType() {
+		defType=this.value
+		window.api.send("toMain", 'readNewSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
+		console.log(defType)
+	}
+	function sVolume() {
+		document.getElementById("volume").value=document.getElementById("svolume").value
+		defGain=parseFloat(document.getElementById("volume").value)
+	}
+	function dirNSelect() {
+   	console.log('dirNewSelect',this,this.innerHTML)
+   	readNSelect();
+   }
+	function dirSelect() {
+   	console.log('dirSelect',this.getAttribute('href'))
+   	document.getElementById("dirCourant").innerHTML=this.getAttribute('href')
+   	readNSelect();
+   }
+   function readNSelect() {
+   	console.log('readNewSelect',document.getElementById("dirCourant").innerHTML)
+   	window.api.send("toMain", 'readNewSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
+   }
+   function defDir(dr) {
+   	console.log('readdir',dr)
+   	document.getElementById("dirCourant").innerHTML=dr
+   	window.api.send("toMain", 'readNewSelect;'+dr+';'+defType)
+   }
+async   function selectFile(dr) {
+		const width = 800;
+      const height = 180;
+      filePath=dr;
+     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">`;
+		svg=svg+'<line id="bvert" stroke="#ff0000" stroke-width="1px" x1="0" y1="0" x2="0" y2="'+bvertY+'" /></svg>'
+		container.innerHTML = svg;
+		window.api.send("toMain", 'infoSpectrogram;'+dr)
+   }
+   function dirReadSup() {
+   	console.log('dirReadSup')
+   	var nd=document.getElementById("dirCourant").innerHTML.split("/");
+   	if(nd.length>3){
+	   	var txt=""
+	   	for(i=1;i<nd.length-1;i++){
+	   		txt=txt+"/"+nd[i];
+	   	}
+	   	document.getElementById("dirCourant").innerHTML=txt
+	   	readNSelect();
+	   	console.log(nd,txt);
+   	}
+   }
+   function dirReload() {
+   	console.log('dirReload')
+   	readNSelect();
+   }
+   function fileRead() {
+   	var gain=parseFloat(document.getElementById("volume").value);
+   	playState=1;
+	fooBar();
+	window.api.send("toMain", 'playFile;'+filePath+";0;"+gain+";"+defLoop);
+   }
+   function filePause() {
+   	console.log('filePause')
+   }
+   function fileStop() {
+  		waStart=0;
+		waEnd=0;
+		bvertX=56;
+		clearTimeout(timer);
+		document.getElementById("bvert").setAttribute("x1", bvertX);
+    document.getElementById("bvert").setAttribute("x2", bvertX);
+   	window.api.send("toMain", 'killPlay')
+   }
+   function fileLoop() {
+   	console.log('fileLoop')
+   	if(defLoop==0){
+   		defLoop=1
+   		document.getElementById("fileLoop").src="./images/png/loopInv.png"		
+   	}else {
+   		defLoop=0
+   		document.getElementById("fileLoop").src="./images/png/loop.png"
+   	}
+   }
+  
+    const fileInput = document.getElementById('file');
+    const container = document.getElementById('wavecontainer');
+
+    async function decodeAudioFromArrayBuffer(arrayBuffer) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      return await ctx.decodeAudioData(arrayBuffer);
+    }
+
+    function channelToPath(buffer, channelIndex, width, height) {
+      const samples = width; // une colonne par pixel
+      const len = buffer.length;
+      const step = Math.floor(len / samples);
+      const chData = buffer.getChannelData(channelIndex);
+
+      let path = '';
+      const midY = height / 2;
+      const scale = midY;
+
+      // min/max pour chaque colonne
+      for (let i = 0; i < samples; i++) {
+        let start = i * step;
+        let end = Math.min(len, start + step);
+        let min = 1.0, max = -1.0;
+        for (let s = start; s < end; s++) {
+          const v = chData[s];
+          if (v < min) min = v;
+          if (v > max) max = v;
+        }
+        const x = (i / (samples - 1)) * width;
+        const y1 = midY - max * scale;
+        const y2 = midY - min * scale;
+        if (i === 0) {
+          path += `M ${x} ${y1}`;
+        } else {
+          path += ` L ${x} ${y1}`;
+        }
+      }
+      // retour par le bas
+      for (let i = samples - 1; i >= 0; i--) {
+        let start = i * step;
+        let end = Math.min(len, start + step);
+        let min = 1.0, max = -1.0;
+        for (let s = start; s < end; s++) {
+          const v = chData[s];
+          if (v < min) min = v;
+          if (v > max) max = v;
+        }
+        const x = (i / (samples - 1)) * width;
+        const y2 = midY - min * scale;
+        path += ` L ${x} ${y2}`;
+      }
+      path += ' Z';
+      return path;
+    }
+
+    function audioBufferToStereoSVG(buffer, opts={}) {
+      const width = opts.width || 890;
+      const height = opts.height || 100;
+      const halfHeight = height / 2;
+      const colorL = opts.colorL || "#000000"; // gauche
+      const colorR = opts.colorR || "#000000"; // droite
+
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">`;
+		svg=svg+'<line id="bvert" stroke="#ff0000" stroke-width="1px" x1="0" y1="0" x2="0" y2="'+bvertY+'" />'
+      if (buffer.numberOfChannels > 0) {
+        const pathL = channelToPath(buffer, 0, width, halfHeight);
+        svg += `<g transform="translate(0,0)"> <path d="${pathL}" fill="${colorL}" fill-opacity="1"/> </g>`;
+      }
+      if (buffer.numberOfChannels > 1) {
+        const pathR = channelToPath(buffer, 1, width, halfHeight);
+        // translation verticale pour le canal droit
+        svg += `<g transform="translate(0,${halfHeight})"> <path d="${pathR}" fill="${colorR}" fill-opacity="1"/> </g>`;
+      }
+
+      svg += "</svg>";
+      return svg;
+    }
+let activeSource = null;
+let activeSessionId = 0;
+let waStart = 0;
+let waEnd = 0;
+let bvertX = 0;
+let bvertY = 180;
+
+async function readSimpleAudio(duree,filePath,start=0) {
+	if(start==0){
+    bvertX = 56;
+    document.getElementById("bvert").setAttribute("x1", bvertX);
+    document.getElementById("bvert").setAttribute("x2", bvertX);
+    if (timer){
+		 clearTimeout(timer);
+		 playState=0;
+	 }
+	}
+	
+	var gain=parseFloat(document.getElementById("volume").value);
+	playState=1;
+	fooBar();
+	window.api.send("toMain", 'playFile;'+filePath+";"+start+";"+gain+";"+defLoop);
+
+}
+
+function suspend() {
+	if (playState==1) {
+   clearTimeout(timer);
+   playState=0;
+   window.api.send("toMain", 'killPlay');
+  } else {
+    playState=1;
+    var posX=parseFloat(document.getElementById('bvert').getAttribute("x1"))/800;
+    var start=duree*posX
+    var gain=parseFloat(document.getElementById("volume").value);
+	fooBar();
+	window.api.send("toMain", 'playFile;'+filePath+";"+start+";"+gain+";"+defLoop);
+  }
+}
+function fooBar() {
+	var rt=800/(duree*20)
+	var delay=50;
+	console.log("rt",duree,rt)
+	var posx=parseFloat(document.getElementById('bvert').getAttribute("x1"))+rt
+	document.getElementById('bvert').setAttribute("x1",posx)
+	document.getElementById('bvert').setAttribute("x2",posx)
+	if(posx>800){
+		document.getElementById('bvert').setAttribute("x1",56)
+		document.getElementById('bvert').setAttribute("x2",56)
+		clearTimeout(timer);
+  		playState=0;
+	}else{
+	timer=setTimeout(fooBar, delay);
+	}
+}
+function setBar(e) {
+	if(playState==1){
+		clearTimeout(timer);
+	}
+	
+	bvertX=(e.clientX-20)
+	var posX=bvertX/800
+	var posT=duree*posX
+
+   document.getElementById('bvert').setAttribute("x1",bvertX)
+	document.getElementById('bvert').setAttribute("x2",bvertX)
+	var gain=parseFloat(document.getElementById("volume").value);
+	fooBar();
+	window.api.send("toMain", 'playFile;'+filePath+";"+posT+";"+gain+";"+defLoop);
+}
+
+  </script>
+</body>
+</html>

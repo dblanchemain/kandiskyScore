@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Média explorer</title>
+  <style>
+    body { font-family: sans-serif;font-size:10pt; padding: 12px;background-color:#d7d7d7 }
+    #imgcontainer { border-top: 3px solid #000000; border-left: 3px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000;width: 248px; height: 248px;float:right;margin-top:80px; }
+    #dirCourant { border: 1px solid #000000; width: 100%;}
+    #barVerticale {background-color:#ff0000;width:2px;height:50px;}
+   
+  </style>
+</head>
+<body>
+	<div>
+	<table border='0' cellspacing='0' width='100%'><tbody>
+	<tr>
+	<td ><img id="dirSup" src="./images/png/dirSup.png" alt="Dir sup" /></td><td><img id="reloadDir" src="./images/png/redir.png" alt="Recharger" /></td><td> &nbsp;&nbsp;</td><td id='dirCourant' style="padding-left:20px;border-top: 3px solid #000000; border-left: 3px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000;"  > test </td>
+	</tr>
+  </tbody>
+  </table><br/>
+  <br/>
+  <div style="border:1px solid #000000;margin-left:10px;padding:10px;width:150px;height:400px;float:left;"><h4 align='center'>Dossiers</h4><div id='dliste' > </div> </div><div style="float:left;border:1px solid #000000;margin-left:10px;width:400px;height:420px;overflow:auto"> <h4 align='center'>Fichiers</h4><div id='fileList'  > </div> </div> <div id="imgcontainer" ><img id="img" alt="image" src="./resources/images/ks-icon.svg" style="width:100%;height:100%;" /></div>
+  </div>
+
+  <div style="margin-top:10px;float:right;"><span style="margin-right:20px;" id="nimg"></span>
+  <select name="type" id="typeselect">
+  <option value="png">Png</option>
+  <option value="svg" selected>Svg</option>
+</select>
+  </div>
+  <div id="blockMaj" ><button id="lbvalid"  style="margin-left:80%;width:60px;" onclick='quit();'>Ok</button></div>
+  <script>
+	document.getElementById("dirSup").addEventListener('click',dirReadSup)  
+   document.getElementById("reloadDir").addEventListener('click',dirReload) 
+   document.getElementById("typeselect").addEventListener('change',selectType) 
+   document.getElementById("dirCourant").addEventListener('click',dirNSelect) 
+   document.getElementById("img").addEventListener('click',insertImg)
+  
+   let defLoop=0;
+   let home="";
+   let kandiskyscore="";
+   let projets="";
+   let dirCourant="";
+   let rbuffer;
+   let bufferEtat=0;
+   let defType="svg";
+   var contextAudio=new AudioContext({
+  latencyHint: "interactive",
+  sampleRate: 48000}
+  )
+  
+   window.api.receive("fromMain", (data) => {
+console.log(`objparam ${data} from renderer process`);
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'defParam':
+				console.log('home',cmd[1],'kandiskyscore',cmd[2],'projets',cmd[3])
+				home=cmd[1];
+				kandiskyscore=cmd[2];
+				projets=cmd[3]
+				dirCourant=home;
+				var txt="<ul><li id='dhome' href="+home+">Home</li>"
+				txt=txt+"<li id='dirKds' href="+kandiskyscore+">kandiskyscore</li>"
+				txt=txt+"<li id='dirProjets' href="+projets+">Projets</li>"
+				txt=txt+"</ul>"
+				document.getElementById("dliste").innerHTML=txt
+				document.getElementById("dhome").addEventListener('click',dirSelect) 
+   			document.getElementById("dirKds").addEventListener('click',dirSelect)
+   			document.getElementById("dirProjets").addEventListener('click',dirSelect)
+				document.getElementById("dirCourant").innerHTML=dirCourant
+				break
+			case 'retImgDir':
+				txt="";
+				let ndir=[]
+				let lg=0
+				let d=cmd[1].split(",")
+				txt="<table  border='0' cellspacing='0'><tbody><tr><td style='width:32px'> </td><td style='width:400px'> Nom</td><tr>"
+				
+				for(let k=0;k<d.length;k++){
+					ndir=d[k].split("/")
+					console.log(ndir)
+					lg=ndir.length-1;
+					txt=txt+"<tr onclick=\"defDir('"+d[k]+"');\"><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td></tr>"	
+				}
+				txt=txt+"</tbody></table><table  border='0' cellspacing='0'><tbody>"
+				ndir=[]
+				lg=0
+				d=cmd[2].split(",");
+				console.log(d)
+				for(let k=0;k<d.length;k=k+3){
+				ndir=d[k].split("/")
+					console.log(ndir[ndir.length-1])
+					lg=ndir.length-1;
+					txt=txt+"<tr ><td> </td><td  onclick=\"selectFile('"+d[k]+"');\" > <img src='"+d[k]+"' alt='' style='width:128px;' title='"+ndir[ndir.length-1]+"' /></td>"
+					if(k+1<d.length){
+					ndir=d[k+1].split("/")
+					txt=txt+"<td  onclick=\"selectFile('"+d[k+1]+"');\"> <img src='"+d[k+1]+"' alt='' style='width:128px'  title='"+ndir[ndir.length-1]+"'/></td>"
+					}else{
+					txt=txt+"<td  > </td>"
+					}
+					if(k+2<d.length){
+					ndir=d[k+2].split("/")
+					txt=txt+"<td  onclick=\"selectFile('"+d[k+2]+"');\"> <img src='"+d[k+2]+"' alt='' style='width:128px'  title='"+ndir[ndir.length-1]+"'/></td>"
+					}else{
+					txt=txt+"<td  > </td>"
+					}
+					txt=txt+"</td >"
+				}
+				
+				txt=txt+"</tbody></table>"
+				document.getElementById("fileList").innerHTML=txt
+				
+				break
+   	}  
+     
+	});
+	function quit() {
+		window.api.send("toMain", 'imagesViewerQuit')
+	}
+
+	function dirNSelect() {
+   	console.log('readImgsSelect',this,this.innerHTML)
+   	readNSelect();
+   }
+	function dirSelect() {
+   	console.log('readImgs',this.getAttribute('href'))
+   	document.getElementById("dirCourant").innerHTML=this.getAttribute('href')
+   	readNSelect();
+   }
+   function readNSelect() {
+   	console.log('readImgSelect',document.getElementById("dirCourant").innerHTML)
+   	window.api.send("toMain", 'readImgsSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
+   }
+   function defDir(dr) {
+   	console.log('readdir',dr)
+   	document.getElementById("dirCourant").innerHTML=dr
+   	window.api.send("toMain", 'readImgsSelect;'+dr+";"+defType)
+   }
+function selectType() {
+	defType=this.value
+	window.api.send("toMain", 'readImgsSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
+	console.log(defType)
+}
+function selectFile(dr) {
+   document.getElementById("img").src=dr
+   ndir=dr.split("/")
+   document.getElementById("nimg").innerHTML=ndir[ndir.length-1]
+   }
+   function dirReadSup() {
+   	console.log('dirReadSup')
+   	var nd=document.getElementById("dirCourant").innerHTML.split("/");
+   	if(nd.length>3){
+	   	var txt=""
+	   	for(i=1;i<nd.length-1;i++){
+	   		txt=txt+"/"+nd[i];
+	   	}
+	   	document.getElementById("dirCourant").innerHTML=txt
+	   	readNSelect();
+	   	console.log(nd,txt);
+   	}
+   }
+   function dirReload() {
+   	console.log('dirReload')
+   	readNSelect();
+   }
+ function insertImg() {
+   	console.log('insertImg')
+   	window.api.send("toMain", 'insertImgSelect;'+document.getElementById("img").src)
+   }  
+  </script>
+</body>
+</html>
