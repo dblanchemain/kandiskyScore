@@ -55,7 +55,7 @@ const play = (node) => {
     const { createFaustNode, connectToAudioInput } = await import("./create-node.js");
 
     // Create Faust node
-    const result = await createFaustNode(audioContext, "bandpass", FAUST_DSP_VOICES);
+    const result = await createFaustNode(audioContext, "highpass", FAUST_DSP_VOICES);
     faustNode = result.faustNode;  // Assign to the global variable
     if (!faustNode) throw new Error("Faust DSP not compiled");
 
