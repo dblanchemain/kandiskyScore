@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Trajectoire 3D Interactive</title>
+<style>
+  body { font-family: sans-serif; display:flex; flex-direction: row; margin:0; }
+  #controls { width: 300px; padding: 10px; background: #f0f0f0; }
+  label { display:block; margin-top:10px; }
+  canvas { flex:1; display:block; }
+</style>
+</head>
+<body>
+<div id="controls">
+  <label>Forme:
+    <select id="shape">
+      <option>spirale</option>
+      <option>spiraleconique</option>
+      <option>cercle</option>
+      <option>zigzag</option>
+      <option>oscillation</option>
+    </select>
+  </label>
+  <label>nbPoints: <input type="number" id="n" min="10" max="100" step="1" value="10"></label>
+  <label>Radius: <input type="range" id="radius" min="0" max="1" step="0.01" value="0.5"></label>
+  <label>Height: <input type="range" id="height" min="0" max="1" step="0.01" value="0.5"></label>
+  <label>Amplitude: <input type="range" id="amplitude" min="0" max="1" step="0.01" value="0.5"></label>
+  <label>Rotation X: <input type="range" id="rotX" min="0" max="6.28" step="0.01" value="0"></label>
+  <label>Rotation Y: <input type="range" id="rotY" min="0" max="6.28" step="0.01" value="0"></label>
+  <label>Rotation Z: <input type="range" id="rotZ" min="0" max="6.28" step="0.01" value="0"></label>
+</div>
+<span  style="position:absolute;top:280px;left:150px;"><button id="defaut">Defaut</button> <button style="margin-left:40px;" id='valid'>Ok</button></span>
+<canvas id="canvas"></canvas>
+
+<script type="module">
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth - 300;
+canvas.height = window.innerHeight;
+let spatialId;
+
+// === UTILITAIRES 3D ===
+function rotateX(x,y,z,a){const c=Math.cos(a),s=Math.sin(a);return [x,y*c-z*s,y*s+z*c];}
+function rotateY(x,y,z,a){const c=Math.cos(a),s=Math.sin(a);return [x*c+z*s,y,-x*s+z*c];}
+function rotateZ(x,y,z,a){const c=Math.cos(a),s=Math.sin(a);return [x*c-y*s,x*s+y*c,z];}
+function clamp01(v){return Math.max(0,Math.min(1,v));}
+
+// === TRAJECTORY GENERATOR ===
+function generateTrajectory(type, opts){
+  //const n=parseFloat(document.getElementById('shape').value;
+  const {n=10,radius=0.5,height=0.5,amplitude=0.5,rotX=0,rotY=0,rotZ=0} = opts;
+  const spX=[],spY=[],spZ=[],spT=[];
+  for(let i=0;i<n;i++){
+    const t=i/(n-1);
+    let x=0,y=0,z=0;
+    switch(type){
+      case 'spirale': x=clamp01(radius)*Math.cos(2*Math.PI*3*t); y=clamp01(radius)*Math.sin(2*Math.PI*3*t); z=clamp01(height)*t; break;
+      case 'spiraleconique': const dir='up'; const r=dir==='up'?clamp01(radius)*(1-t):clamp01(radius)*t; x=r*Math.cos(2*Math.PI*3*t); y=r*Math.sin(2*Math.PI*3*t); z=dir==='up'?clamp01(height)*t:clamp01(height)*(1-t); break;
+      case 'cercle': x=clamp01(radius)*Math.cos(2*Math.PI*t); y=clamp01(radius)*Math.sin(2*Math.PI*t); z=0; break;
+      case 'zigzag': x=clamp01(amplitude)*Math.sin(8*Math.PI*t); y=clamp01(amplitude)*Math.cos(8*Math.PI*t); z=clamp01(amplitude)*Math.sin(16*Math.PI*t); break;
+      case 'oscillation': x=clamp01(amplitude)*Math.sin(2*Math.PI*t); y=clamp01(amplitude)*Math.sin(4*Math.PI*t); z=clamp01(amplitude)*Math.sin(6*Math.PI*t); break;
+    }
+    [x,y,z]=rotateX(x,y,z,rotX); [x,y,z]=rotateY(x,y,z,rotY); [x,y,z]=rotateZ(x,y,z,rotZ);
+    spX.push(x); spY.push(y); spZ.push(z); spT.push(t);
+  }
+  return {spX,spY,spZ,spT};
+}
+
+// === RENDER ===
+function renderTrajectory(traj){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.beginPath();
+  for(let i=0;i<traj.spX.length;i++){
+    const px = canvas.width/2 + traj.spX[i]*200;
+    const py = canvas.height/2 - traj.spY[i]*200;
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  }
+  ctx.strokeStyle='red'; ctx.lineWidth=2; ctx.stroke();
+}
+
+// === INTERACTION ===
+const controls=['n','shape','radius','height','amplitude','rotX','rotY','rotZ'].map(id=>document.getElementById(id));
+function update(){
+  const opts={};
+  
+  controls.forEach(c=>opts[c.id]=parseFloat(c.value));
+  const traj=generateTrajectory(document.getElementById('shape').value, opts);
+  console.log("spX",traj.spX);
+  renderTrajectory(traj);
+	
+}
+controls.forEach(c=>c.addEventListener('input',update));
+update();
+function defaut() {
+	document.getElementById('n').value=10;
+	document.getElementById('radius').value=0.5;
+	document.getElementById('height').value=0.5;
+	document.getElementById('amplitude').value=0.5;
+	document.getElementById('rotX').value=0;
+	document.getElementById('rotY').value=0;
+	document.getElementById('rotZ').value=0;
+	update();
+}
+function valid() {
+	const opts={};
+	controls.forEach(c=>opts[c.id]=parseFloat(c.value));
+	const traj=generateTrajectory(document.getElementById('shape').value, opts);
+	var sp=JSON.stringify(traj);
+	window.api.send("toMain", "defTrajectory;"+spatialId+";"+sp);
+}
+document.getElementById("defaut").addEventListener('click', defaut);
+document.getElementById("valid").addEventListener('click', valid);
+window.api.receive("fromMain", (data) => {
+
+	var nsize=data
+	var cmd=data.split(";")
+	switch(cmd[0]){
+			case 'trajectory':
+				spatialId=cmd[1];
+				break;
+
+	}  
+     
+});
+</script>
+</body>
+</html>

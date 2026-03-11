@@ -29,7 +29,7 @@ function vueImageSvg(){
 			document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp.bkgWidth+200);
 			document.getElementById("svgGrpVue").firstChild.setAttribute("height",lsgrp.bkgHeight+200);
 			document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+(lsgrp.bkgWidth+400)+" "+(lsgrp.bkgHeight+400))
-
+         console.log(document.getElementById("svgGrpVue").firstChild)
 
 			break
 	}
@@ -54,6 +54,7 @@ function importSvgImage(filePath) {
 }
 let dataImg=''
 function transformObjSvg(pdf,txt,lsgrp) {
+	var pi=3.141592653589793
 		if(lsgrp.borderGs!="" && lsgrp.borderGw>0 && lsgrp.borderGr!="0%"){
 			var radius=lsgrp.borderGr.split(" ")
 			txt=txt+"<rect x='0' y='0' width='"+(lsgrp.bkgWidth)+"' height='"+(lsgrp.bkgHeight)+"' rx='"+parseFloat(radius[0])+"%' ry='"+parseFloat(radius[1])+"%' fill='"+lsgrp.bkgColor+"' stroke='"+lsgrp.borderGc+"' stroke-width='"+parseFloat(lsgrp.borderGw)+"' />\n"
@@ -106,7 +107,33 @@ function transformObjSvg(pdf,txt,lsgrp) {
 			txt=txt+"<rect x='"+(lsgrp.margeG*lsgrp.scaleX)+"' y='"+(lsgrp.margeH*lsgrp.scaleY)+"' width='"+(lsgrp.width*lsgrp.scaleX)+"' height='"+(lsgrp.height*lsgrp.scaleY)+"' fill='"+lsgrp.objColor+"' stroke='"+lsgrp.objBorderC+"' stroke-width='"+lsgrp.objBorderW+"' />\n"
 			break
 		case 3:
-			txt=txt+"<polyline points='0,20 0,0 20,10 0,20' fill='"+lsgrp.objColor+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+")'  fill='"+lsgrp.objColor+"'stroke='"+lsgrp.objBorderC+"' stroke-width='"+lsgrp.objBorderW+"' />\n"
+		var lr=0;
+		var mr=0;
+		if(lsgrp.rotate>0 && lsgrp.rotate<91){
+			var ang=lsgrp.rotate*pi/180
+			lr=20*(Math.sin(ang))
+			mr=20*(Math.cos(ang))
+			console.log('ang',ang,lr)
+		}
+		if(lsgrp.rotate>91 && lsgrp.rotate<181){
+			var ang=lsgrp.rotate*pi/180
+			lr=20*(-Math.cos(ang))
+			mr=20*(-Math.cos(ang))
+			console.log('ang',ang,lr)
+		}
+		if(lsgrp.rotate<0 && lsgrp.rotate>-91){
+			var ang=lsgrp.rotate*pi/180
+			lr=20*(-Math.cos(ang))
+			mr=20*(-Math.sin(ang))
+			console.log('ang',ang,lr)
+		}
+		if(lsgrp.rotate<-90 && lsgrp.rotate>-181){
+			var ang=lsgrp.rotate*pi/180
+			lr=20*(-Math.cos(ang))
+			mr=20*(-Math.cos(ang))
+			console.log('ang',ang,lr)
+		}
+			txt=txt+"<polyline points='0,20 0,0 20,10 0,20' fill='"+lsgrp.objColor+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+(lsgrp.margeG+lr)+" "+(lsgrp.margeH+(mr))+") rotate("+lsgrp.rotate+") '  fill='"+lsgrp.objColor+"'stroke='"+lsgrp.objBorderC+"' stroke-width='"+lsgrp.objBorderW+"' />\n"
 			break
 		case 4:
 			txt=txt+"<ellipse cx='"+((20+parseFloat(lsgrp.margeG))*lsgrp.scaleX)+"' cy='"+((10+lsgrp.margeH)*lsgrp.scaleY)+"' rx='"+(20*lsgrp.scaleX)+"' ry='"+(10*lsgrp.scaleY)+"' fill='"+lsgrp.objColor+"'stroke='"+lsgrp.objBorderC+"' stroke-width='"+lsgrp.objBorderW+"' />\n"
@@ -266,7 +293,6 @@ function transformSymbSvg(txt,lsgrp) {
 				
 				txt=txt+'<path d="m 2.8301032,'+(i*4.9222416)+' c 0,-0.275616 0.137821,-0.413411 0.413411,-0.413411 0.121285,0 0.216376,0.03445 0.285274,0.103346 l 3.381699,2.815326 c 0.190169,0.154358 0.285254,0.356235 0.285254,0.605657 0,0.249423 -0.2322,0.572585 -0.696598,0.9694604 -0.464399,0.396875 -0.826135,0.749644 -1.085207,1.058325 -0.413411,0.413412 -0.620117,0.866098 -0.620117,1.358059 0,0.491958 0.146074,0.910193 0.438216,1.254703 l 0.826823,0.669728 c 0.104733,0.08819 0.157096,0.1881 0.157096,0.299723 0,0.111619 -0.04341,0.21015 -0.130222,0.29559 -0.08682,0.08544 -0.181901,0.128156 -0.285256,0.128156 -0.103351,0 -0.189478,-0.03445 -0.258381,-0.103352 l -3.410651,-2.815333 c -0.190156,-0.137803 -0.285248,-0.336241 -0.285248,-0.595313 0,-0.259072 0.228759,-0.586356 0.68625,-0.981855 0.457518,-0.395499 0.85852,-0.778589 1.203034,-1.1492714 0.344514,-0.370707 0.516758,-0.797216 0.516758,-1.279525 0,-0.482309 -0.147426,-0.89572 -0.44233,-1.240234 l -0.826823,-0.669713 c -0.101971,-0.08821 -0.152982,-0.191559 -0.152982,-0.310066" />'
 			}
-			console.log(lsgrp.height,lsgrp,txt)
 			txt=txt+"</g> "
 			break
 		case 2:
@@ -516,7 +542,7 @@ function transformSymbSvg(txt,lsgrp) {
 			txt=txt+"</g>"
 			break
 		case 55:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphSoftTenutoPointe+"</g>"
+			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphReverse+"</g>"
 			txt=txt+"</g>"
 			break
 		case 56:
@@ -584,31 +610,31 @@ function transformSymbSvg(txt,lsgrp) {
 			txt=txt+"</g>"
 			break
 		case 69:
-			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)' >"
+			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >"
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX))
 			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,8 L 0,8 20,8  20,24 ' /><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 20,24 L "+lx+",24' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,24 L 54,24 48,20 48,28 54,24'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>"
 			break
 		case 70:
-			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)' >"
+			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >"
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX))
 			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,24 L 0,24 20,24 20,8' /><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 20,8 L "+lx+",8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>"
 			break
 		case 71:
-			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)' >"
+			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >"
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX))
 			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,8 L 0,8 0,24' /><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,24 L "+lx+",24' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,24 L 54,24 48,20 48,28 54,24'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>"
 			break
 		case 72:
-			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)' >"
+			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >"
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX))
 			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,24 L 0,24 0,8' /><path style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,8 L "+lx+",8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>"
 			break
 		case 73:
-			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)' >"
+			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >"
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX))
 	txt=txt+"<g transform='translate(0 0)'><line style='fill:none;stroke-width:1.5;stroke:#000000;stroke-opacity:1' x1='0' y1='8' x2='"+lx+"' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>"
