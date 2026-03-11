@@ -2,7 +2,7 @@
 <title>D. Blanchemain</title>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-02-18T18:25:55+0100" />
+<meta name="date" content="2026-02-02T17:47:52+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -144,7 +144,10 @@ function removeEvt(id) {
 console.log("id",id,document.getElementById("studioDivb"))
 	let obj=document.getElementById(id);
 	console.log("id",id,obj)
-	document.getElementById(id).style.display='none';
+	if(obj!=null){
+		document.getElementById(id).style.display='none';
+		document.getElementById(id).parentNode.removeChild(obj);
+	}
 }
 function endEvt() {
 console.log("endEvt")

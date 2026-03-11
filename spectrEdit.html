@@ -1,0 +1,2296 @@
+<!DOCTYPE HTML>
+<head>
+<meta name="generator" content="Bluefish 2.2.12" />
+<meta name="author" content="dominique" />
+<meta name="date" content="2026-03-10T11:49:20+0100" />
+<meta name="copyright" content="D. Blanchemain"/>
+<meta name="keywords" content=""/>
+<meta name="description" content=""/>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="content-style-type" content="text/css"/>
+<link rel="stylesheet" type="text/css" media="all" href="score.css" />
+<meta http-equiv="expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpectrEdit</title>
+<style>
+.mbutton {
+	width:70px;
+	margin-left:8px;
+}
+</style>
+
+</head>
+<body>
+<script  type="text/javascript" src="./listeFx.js" ></script>
+<script  type="text/javascript" src="./api.js" ></script>
+<div id="outils" style="position:absolute;top:0px;left:0px;padding-left:40px;padding-right:40px;padding-top:10px;width:150px;height:822px;background-color:#e2e2e2;border:solid 2px green;text-align:center">
+	<div><table style="width:90px;height:100px;margin-left:-30px;" border="0">
+	<tbody>
+	<tr><td rowspan="4" style="padding:4px;margin:0px;">Temps</td><td><button id="couper" class="mbutton" style="width:70px;">Couper</button></td><td><button id="fadein" class="mbutton" style="width:70px;">FadeIn</button></td></tr>
+	<tr><td><button id="copy" class="mbutton" style="width:70px;" >Copier</button></td><td><button id="fadeout" class="mbutton" style="width:70px;">FadeOut</button></td></tr>
+	<tr><td><button id="coller" class="mbutton"  style="width:70px;">Coller</button></td><td><button id="lissage" class="mbutton" style="width:70px;">Lissage</button></td></tr>
+	<tr><td><button id="insert" class="mbutton"  style="width:70px;">Insérer</button></td><td></td></tr>
+	</tbody>
+	</table>
+	</div>
+	<br/>
+	<div ><button id="erase"  style="width:70px;margin-top:4px;" >Effacer</button></div>	
+	<div ><button id="filtre"  style="width:70px;margin-top:4px;" >Filtrer</button></div>
+	<div ><button  id="move"  style="width:70px;margin-top:4px;" >Déplacer</button></div>
+	<div ><hr/> </div>
+	<div ><button id="sv1" style="width:90px;"  onclick=';'>Sauvegarder</button></div>
+	<div ><button  id="sv2" style="width:150px;margin-top:4px;"  onclick=';'>Sauvegarder Select.</button></div>
+	<div ><hr/> </div>
+	<div  style="text-align:center;"><img  id="refresh" alt='wam2' src="./images/refresh.svg" style="width:32px"/> </div>
+	<div  style="text-align:center;"><img  id="wam2" alt='wam2' src="./images/png/wam2.png" style="width:32px"/> </div>
+	<div  style="text-align:center;"/><img id="fx" alt='speaker' src="./images/png/metafx.png"  style="width:32px"/> </div>
+	<div  style="text-align:center;"><img id="readSelect" alt='speaker' src="./images/png/readSelect.png"  style="width:64px"/> </div>
+	<div  style="text-align:center;margin-top:10px;"> Zoom : <input id="zoom" type="number" id="zoom" name="zoom" min="0.0" value="1.0"  step="0.1" style="width:60px;vertical-align: top;" /></div>
+	<div ><hr/> </div>
+	<div  style="text-align:center;"><img  id="undo" alt='wam2' src="./images/png/undo.png" style="width:32px"/><img  id="redo" alt='wam2' src="./images/png/redo.png" style="width:32px"/> </div>
+	<div ><hr/> </div>
+	<div id="screen-log"></div><br/>
+	<div ><hr/> </div>
+	<div style="text-align:center;" ><input  id="sgain" type="range" class="hslider" value='0' step='1' min='-40' max='10' /></div>
+	<div style="text-align:center;" ><input id="tgain" type="number" style="width:40px;" value='0' step='1' min='-40' max='10' /></div>
+	<div id="output" style="display:block;"></div>
+	<div  style="text-align:center;margin-top:10px;"><img id="readSpectro" alt='speaker' src="./images/png/speakers.png"  style="width:32px"/> </div>
+	<hr/>
+	<div ><button id="quit" class="mbutton" style="margin-top:10px;" onclick=';'>Quiter</button></div>
+</div>
+<div id="spectro"  style="position:absolute;top:0px;left:230px;width:800px;height:830px;border:solid 1px red;transform-origin: top left;overflow: scroll;" >
+<div id="spectrozoom"  style="position:absolute;top:0px;left:0px;width:800px;height:600px;transform-origin: top left;" >
+<canvas id="spectrogram" style="position:absolute;top:0px;left:0px;width:786px;height:600px;background-color:#e2ffe2;transform-origin: top left;z-index:0;" ></canvas>
+<div id="selector" style="position:absolute;top:0px;left:0px;width:40px;height:40px;border: 2px dashed #ffffff;display:none;z-index:10;background-color:rgba(255,0,0,0.3);">
+<img id="glef" style="position:absolute;top:10px;left:-5px;width:16px;display:none;" src='./images/png/glef.png' />
+<img id="gtop" style="position:absolute;top:-10px;left:10px;width:16px;display:none;" src='./images/png/gtop.png' />
+<img id="grit" style="position:absolute;top:15px;left:35px;width:16px;display:none;" src='./images/png/grit.png' />
+<img id="gbot" style="position:absolute;top:40px;left:15px;width:16px;display:none;" src='./images/png/gbot.png' />
+<img id="gtol" style="position:absolute;top:-10px;left:-10px;width:16px;display:none;transform:rotate(45deg);" src='./images/png/glef.png' />
+<img id="gtor" style="position:absolute;top:-10px;left:35px;width:16px;display:none;transform:rotate(45deg);" src='./images/png/gtop.png' />
+<img id="gbol" style="position:absolute;top:40px;left:-10px;width:16px;display:none;transform:rotate(45deg);" src='./images/png/gbot.png' />
+<img id="gbor" style="position:absolute;top:40px;left:35px;width:16px;display:none;transform:rotate(45deg);" src='./images/png/grit.png' />
+</div>
+<canvas id="waveForm" style="position:absolute;top:601px;left:0px;width:786px;height:209px;background-color:#000032;transform-origin: top left;z-index:0;" ></canvas>
+</div>
+</div>
+
+<div id="listNewFx"  class="popup"  style="width:180px;height:270px"  >
+	<div id="listNewFxHeader"  class="popupHeader"><b></b></div>
+	<form id="formSelecFx" action="">
+		<span id="selecFx" style="position:absolute;top:40px;left:10px;" >
+		
+		</span>
+		<span  style="position:absolute;top:40px;left:145px;" onclick='fxParam(0);'>
+			<img src="./images/png/clesFx.png" style="width=24px;" alt="">
+		</span>
+	</form>
+	<div style="position:absolute;top:240px;left:90px;" >
+	<button onclick='fxValidAddPlugin();'>Valider</button>
+	</div>
+</div>
+
+<div id="popupParamFx" class="popup" style="position:absolute;top:200px;left:400px;width:350px;height:275px;">
+	<div id="popupParamFxHeader" class="popupHeader"><b></b></div>
+		<div  id='tableParamFx' style="padding:10px;background-color:#a46345;">
+			<table align="center" border="1"  cellpadding="4" cellspacing="0" >
+				
+			</table>
+		</div>
+		
+</div>
+
+<script >
+/*
+7️⃣ Fonction souvent ajoutée dans les éditeurs spectraux
+
+Après la version stable, on ajoute généralement :
+
+spectral erase
+
+spectral gain
+
+spectral copy/paste
+
+harmonic selection
+
+brush spectral
+
+comme dans :
+
+iZotope RX
+
+Adobe Audition
+
+8️⃣ Amélioration UX importante
+
+Ajoute :
+
+Ctrl+Z → undo
+Ctrl+Y → redo
+Ctrl+S → save
+Ctrl+Shift+S → save as
+
+C’est devenu standard.
+
+✅ Si tu veux, je peux aussi te montrer 3 améliorations très puissantes pour un éditeur spectral :
+
+1️⃣ spectral brush temps réel (comme RX)
+2️⃣ détection automatique d’harmoniques
+*/
+let id;
+let obj;
+let zoomScale=1;
+let nselector=0;
+let ratioT=0;
+let ratioF=0;
+let mouseX=0;
+let mouseY=0;
+let numButton=0;
+
+let playStartTime = 0;
+let isPlaying = false;
+
+let popupFontTitreColor='#ffffff';
+
+let channelsBuffers=[];
+let currentChannels=[];
+let selectBuffers=[];
+let gainBuffers=[];
+let wamBuffers=[];
+let fxBuffers=[];
+let undoStack=[];
+let redoStack=[];
+let idxUndo=0;
+
+let objSelect={
+debut:0,
+fin:0,
+Fl:0,
+Fh:0,
+duree:0,
+tableFx:[0, 0, 0, 0, 0, 0, 0],
+tableFxParam:['0?0', '0?0', '0?0', '0?0', '0?0', '0?0', '0?0']
+};
+
+let audioPath="";
+let baseDatatPath="";
+
+let numChannels;
+let numSamples;
+let sampleRate;
+let Duree=0;
+let totalDuration=0;
+let ctx;
+
+let mode=1;
+
+defSelectListeFx();
+
+
+dragElement(document.getElementById("spectrogram"));
+dragElement(document.getElementById("listNewFx"));
+dragElement(document.getElementById("popupParamFx"));
+dragElement(document.getElementById("glef"));
+dragElement(document.getElementById("gtol"));
+dragElement(document.getElementById("gtop"));
+dragElement(document.getElementById("gtor"));
+dragElement(document.getElementById("grit"));
+dragElement(document.getElementById("gbor"));
+dragElement(document.getElementById("gbot"));
+dragElement(document.getElementById("gbol"));
+
+document.getElementById("zoom").addEventListener('input',zoom);
+document.getElementById("sgain").addEventListener('input',sliderGain);
+document.getElementById("tgain").addEventListener('input',nbGain);
+document.getElementById("undo").addEventListener('click',undo);
+document.getElementById("redo").addEventListener('click',redo);
+document.getElementById("couper").addEventListener('click',coupSelect);
+document.getElementById("copy").addEventListener('click',copySelect);
+document.getElementById("coller").addEventListener('click',pasteSelection);
+document.getElementById("insert").addEventListener('click',insertSelection);
+document.getElementById("fadein").addEventListener('click',fadeInSelection);
+document.getElementById("fadeout").addEventListener('click',fadeOutSelection);
+document.getElementById("lissage").addEventListener('click',smoothVolume);
+document.getElementById("refresh").addEventListener('click',restaureBuffers);
+document.getElementById("fx").addEventListener('click',openListeFx);
+document.getElementById("erase").addEventListener('click',eraseSelection);
+document.getElementById("filtre").addEventListener('click',filtreSelection);
+document.getElementById("move").addEventListener('click',moveSelection);
+document.getElementById("readSelect").addEventListener('click',playSelection);
+document.getElementById("wam2").addEventListener('click',wasm);
+document.getElementById("readSpectro").addEventListener('click',playBuffers);
+document.getElementById("sv1").addEventListener('click',saveRenduAudio);
+document.getElementById("sv2").addEventListener('click',saveRenduSelection);
+document.getElementById("quit").addEventListener('click',quiter);
+document.addEventListener('mousemove', logKey);
+
+window.api.receive("fromMain", (data) =>  {
+if (data && typeof data === "object" && data.type) {
+	switch (data.type) {
+		case 'rtWasmHost':
+				const canal = data.canal;
+            const buffer = data.buffer;
+				rtWasmHost(canal, buffer);
+				break;
+	}
+}else{
+		var nsize=data
+		var cmd=data.split(";")
+		switch(cmd[0]){
+				case 'defObjet':
+					id=cmd[1];
+					obj=JSON.parse(cmd[2]);
+					audioPath=cmd[3];
+					baseDatatPath=cmd[4];
+					objSelect.duree=parseFloat(obj.duree);
+					console.log("id",id,obj,mode);
+					defSpectro();
+					break
+				
+				default :
+					
+					
+					break
+		}  
+   } 
+});
+function quiter(){
+	window.api.send("toMain", "closeSpectrEdit");
+}
+async function rtWasmHost(canal,buffer){
+	pushUndoState(gainBuffers);
+	console.log('canal : ',canal,buffer.length,objSelect);
+	mouseX=objSelect.debut;
+	mouseY=objSelect.Fh;
+	gainBuffers=await pasteWam(gainBuffers);
+	//fxBuffers=wamBuffers.map(c => new Float32Array(c));
+	//gainBuffers=wamBuffers.map(c => new Float32Array(c));
+	objSelect.tableFx=["0","0","0","0","0","0","0"];
+	objSelect.tableFxParam=[];
+	var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
+	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });
+	 updateSpectro();
+}
+async function wasm() {
+	console.log("wasm",mode);
+	const appPaths = await window.api.getPaths();
+	window.api.send("toMain", `openSpectWasm;${0};${appPaths.userData}/renduout.wav;${sampleRate};${mode}`);
+	
+}
+
+function pushUndoState(channels) {
+
+    const copy = channels.map(ch => new Float32Array(ch));
+
+    undoStack.push({
+        channels: copy,
+        sampleRate
+    });
+
+    // dès qu'on modifie → redo devient invalide
+    redoStack.length = 0;
+}
+function undo(){
+
+    if (undoStack.length === 0) return;
+
+    const state = undoStack.pop();
+
+    redoStack.push({
+        channels: gainBuffers.map(ch => new Float32Array(ch)),
+        sampleRate
+    });
+
+    gainBuffers = state.channels;
+
+    updateSpectro();
+}
+function redo(){
+
+    if (redoStack.length === 0) return;
+
+    const state = redoStack.pop();
+
+    undoStack.push({
+        channels: gainBuffers.map(ch => new Float32Array(ch)),
+        sampleRate
+    });
+
+    gainBuffers = state.channels;
+
+    updateSpectro();
+}
+function annulSpectrEdit() {
+	window.api.send("toMain", "spatialAnnul;"+spatialId+";"+svSpatial);
+}
+function validSpectrEdit() {
+	window.api.send("toMain", "spatialValid;"+spatialId+";"+svSpatial);
+}
+function sliderGain() {
+	document.getElementById("tgain").value=document.getElementById("sgain").value;
+	const gainDb = parseFloat(document.getElementById("tgain").value);
+	applyGain();
+}
+function nbGain() {
+	document.getElementById("sgain").value=document.getElementById("tgain").value;
+	const gainDb = parseFloat(document.getElementById("tgain").value);
+	applyGain();
+}
+function zoom() {
+	zoomScale=document.getElementById("zoom").value;
+	document.getElementById("spectrozoom").style.transform='scale('+parseFloat(document.getElementById("zoom").value)+')';
+}
+async function applyGain() {
+    await defGain();
+    updateSpectro();
+    wamBuffers=gainBuffers.map(c => new Float32Array(c));
+	 fxBuffers=gainBuffers.map(c => new Float32Array(c));
+}
+async function defGain(){
+    const gainDb = parseFloat(document.getElementById("tgain").value);
+    const gain = Math.pow(10, gainDb / 20);
+	 gainBuffers=gainBuffers.map(c => new Float32Array(c));
+    for (let ch = 0; ch < gainBuffers.length; ch++) {
+        const buf = gainBuffers[ch];
+        for (let i = 0; i < buf.length; i++) {
+            buf[i] *= gain;
+        }
+    }
+    var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+    await window.api.saveAudioBuffer({
+        filePath: outPath,
+        buffer: { sampleRate, channels: gainBuffers }
+    });
+}
+async function playBuffers() {
+    var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+    await window.api.send("toMain", 'playDirectFile;0;'+outPath);
+    playStartTime = performance.now();
+    isPlaying = true;
+
+    updatePlayhead();
+}
+async function playSelection() {
+		 
+		 if(objSelect.tableFx[0]==0 || objSelect.tableFx[0]=="" ){
+		 	selectBuffers=copySegment(gainBuffers, objSelect.debut,objSelect.fin);
+		 }
+		 obj.tableFx[0]="BandePass";
+		 obj.tableFxParam[0]="0.00?"+Math.floor(objSelect.Fl)+"/0.00?"+Math.floor(objSelect.Fh);
+		 selectBuffers = await applyFxBuffers(obj,numChannels, selectBuffers,selectBuffers[0].length,sampleRate);
+
+		 const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav"); 
+	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  selectBuffers } });
+	 
+	 //await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:fxBuffers} }); 
+	 window.api.send("toMain", 'playDirectFile;0;'+outPath);
+}
+let playheadSample = 0;
+function drawPlayhead() {
+
+    const canvas = document.getElementById("waveForm");
+    const ctx = canvas.getContext("2d");
+
+    const offsetX = 60;
+    const width = canvas.width;
+    const height = canvas.height;
+
+    if (!gainBuffers) return;
+
+    const totalSamples = gainBuffers[0].length;
+
+    const x = offsetX + (playheadSample / totalSamples) * (width - offsetX);
+
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+}	
+function updatePlayhead() {
+	 const totalSamples = gainBuffers[0].length;
+    if (!isPlaying) return;
+
+    const elapsed = (performance.now() - playStartTime) / 1000;
+
+    playheadSample = Math.floor(elapsed * sampleRate);
+    drawWaveform();
+	 if (playheadSample > totalSamples) {
+	    playheadSample = totalSamples;
+	    isPlaying = false;
+	}
+    requestAnimationFrame(updatePlayhead);
+}
+let screenLog = document.getElementById('screen-log');
+function yToFrequency1(y) {
+    const normY = y / 600;
+    const logMax = Math.log10(sampleRate / 2);
+    const logMin = Math.log10(20);
+    const logFreq = logMax - normY * (logMax - logMin);
+    let freq=Math.pow(10, logFreq);
+    if(freq<20){
+    	freq=20;
+    }
+    return freq
+}
+function yToFrequency(y) {
+
+    // position réelle dans le spectrogramme
+    const yTotal = (y + scrollDemo.scrollTop) / zoomScale;
+
+    const logMin = Math.log10(20);
+    const logMax = Math.log10(sampleRate / 2);
+
+    const ratio = yTotal / canvas.height;
+
+    const logF = logMax - ratio * (logMax - logMin);
+
+    return Math.pow(10, logF);
+}
+function xToTime(x) {
+	 const ratioT=Duree/726;
+    const marginDisplay = 60 * zoomScale;
+    var posX =(x - 290 + scrollDemo.scrollLeft - (marginDisplay - 60))/ zoomScale;
+    if(posX<0){
+		posX=0;
+	 }
+	 if(posX>726 * zoomScale){
+		posX=726 * zoomScale;
+	 }
+    var time=posX* ratioT;
+
+    return time;
+}
+
+function timeToX(time) {
+
+    const ratioT = Duree / 726;
+    const marginDisplay = 60 * zoomScale;
+
+    var posX = time / ratioT;
+
+    if (posX < 0) posX = 0;
+    if (posX > 726) posX = 726;
+
+    var x = posX * zoomScale
+          + 290
+          - scrollDemo.scrollLeft
+          + (marginDisplay - 60);
+
+    return x;
+}
+const logMin = Math.log10(20);
+const logMax = Math.log10(sampleRate/2);
+
+function freqToY(freq) {
+    const logF = Math.log10(freq);
+    const ratio = (Math.log10(sampleRate/2) - Math.log10(freq)) / (Math.log10(sampleRate/2) - Math.log10(20));
+    return ratio * canvas.height*zoomScale;
+}
+function updateSelection(e) {
+    const sel = document.getElementById("selector");
+    const left   = (sel.offsetLeft*zoomScale)+230+ scrollDemo.scrollLeft;
+    const top    = (sel.offsetTop*zoomScale)+ scrollDemo.scrollTop;
+    const width  = sel.offsetWidth*zoomScale;
+    const height = sel.offsetHeight*zoomScale;
+    objSelect.debut=xToTime(left);
+    objSelect.fin=xToTime(left + width);
+    objSelect.Fh = yToFrequency(top);
+    objSelect.Fl = yToFrequency(top+height);
+    console.log('selectObj',objSelect)
+}
+
+function logKey(e) {
+var max=725;
+var maxf=600;
+	const rect = canvas.getBoundingClientRect();
+	var max=rect.left+rect.width;
+	const marginDisplay = 60 * zoomScale;
+	var posX =(e.clientX - 290 + scrollDemo.scrollLeft - (marginDisplay - 60))/ zoomScale;
+	var posY=e.clientY;
+	if(posY<0){
+		posY=0;
+	}
+	if(posY>maxf*zoomScale){
+		posY=maxf*zoomScale;
+	}
+	
+  screenLog.innerText = `
+    Screen X/Y: ${e.screenX}, ${e.screenY}
+    Screen X/Y: ${e.clientX}, ${e.clientY}
+    Durée: ${Duree.toFixed(2)}
+    Pos(sd):${xToTime(e.clientX).toFixed(2)}
+    Freq:${yToFrequency(posY).toFixed(2)}`;
+   
+}
+
+const scrollDemo = document.querySelector("#spectro");
+scrollDemo.addEventListener("scroll", event => {
+            output.innerHTML = `scrollTop: ${Math.floor(scrollDemo.scrollTop)} <br>
+                                scrollLeft: ${Math.floor(scrollDemo.scrollLeft)} `;
+        }, { passive: true });
+
+function dureeReelle() {
+	var duree=parseFloat(obj.duree);
+	var lengthSec= (duree*(obj.fin-obj.debut))/obj.transposition;
+	return lengthSec
+}
+function newSelector(e){
+		const sel = document.getElementById("selector");
+		document.getElementById("selector").style.top=(((e.clientY)-18+scrollDemo.scrollTop)/zoomScale)+"px";
+		document.getElementById("selector").style.left=((e.clientX-238+scrollDemo.scrollLeft)/zoomScale)+"px";
+		document.getElementById("selector").style.width=(20*zoomScale)+"px";
+		document.getElementById("selector").style.height=(20*zoomScale)+"px";
+		document.getElementById("selector").style.borderWidth=(2/zoomScale)+"px";
+		document.getElementById("selector").style.display="block";
+		
+    	document.getElementById("glef").style="position:absolute;top:10px;left:-5px;width:16px;display:none;";
+		document.getElementById("gtop").style="position:absolute;top:-10px;left:10px;width:16px;display:none;";
+		document.getElementById("grit").style="position:absolute;top:15px;left:35px;width:16px;display:none;";
+		document.getElementById("gbot").style="position:absolute;top:40px;left:15px;width:16px;display:none;";
+		document.getElementById("gtol").style="position:absolute;top:-10px;left:-10px;width:16px;display:none;transform:rotate(45deg);";
+		document.getElementById("gtor").style="position:absolute;top:-10px;left:35px;width:16px;display:none;transform:rotate(45deg);";
+		document.getElementById("gbol").style="position:absolute;top:40px;left:-10px;width:16px;display:none;transform:rotate(45deg);";
+		document.getElementById("gbor").style="position:absolute;top:40px;left:35px;width:16px;display:none;transform:rotate(45deg);";
+		nselector=1;
+}
+function closeSelector() {
+ nselector=0;
+ document.getElementById("selector").style.display="none";
+}
+	 
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "Header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+	  	elmnt.onmousedown = dragMouseDown;
+ 
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(elmnt.id,e.target.id)
+    
+    
+    if(e.target.id=="spectrogram" && e.button==0){
+    	document.getElementById("selector").style.display="none";
+    	nselector=0;
+	  	newSelector(e);
+  		elmnt=document.getElementById("selector");
+  		numButton=0;
+    }
+    if(e.target.id=="spectrogram" && e.button==2){
+    	mouseX=parseFloat(xToTime(e.clientX).toFixed(2));
+    	mouseY=parseFloat(yToFrequency(e.clientY).toFixed(2));
+    	console.log("mouse",e.button,mouseX,mouseY);
+    	numButton=2;
+    }
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    
+    
+    
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+
+  }
+	function elementDrag(e) {
+  	 //elmnt.style.cursor="move";
+    e = e || window.event;
+    e.preventDefault();
+    e.stopPropagation();
+    const sel = document.getElementById("selector");
+    const ratioT = Duree / 726;
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    
+    var dx=elmnt.offsetLeft - pos1;
+    var dy=elmnt.offsetTop - pos2;
+	
+    if(e.target.id=="selector"){
+    	document.getElementById("selector").style.height=(parseInt(elmnt.style.height) - pos2)  + "px";
+    	document.getElementById("selector").style.width =(parseInt(elmnt.style.width) - pos1) + "px";
+    	document.getElementById("glef").style.top =((parseInt(document.getElementById("selector").style.height)-10)/2) + "px";
+    	document.getElementById("gtop").style.left =((parseInt(document.getElementById("selector").style.width)-10)/2) + "px";
+    	document.getElementById("grit").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("grit").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbot").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-20)/2) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbol").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    }
+    if(e.target.id=="glef"){
+		document.getElementById("selector").style.left =(parseInt(document.getElementById("selector").style.left)-pos1) + "px";
+    	document.getElementById("selector").style.width =(parseInt(document.getElementById("selector").style.width)+pos1) + "px";
+    	document.getElementById("gtop").style.left =((parseInt(document.getElementById("selector").style.width)-10)/2) + "px";
+    	document.getElementById("grit").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-15)/2) + "px";
+    }
+    if(e.target.id=="gtop"){
+    	document.getElementById("selector").style.top =(parseInt(document.getElementById("selector").style.top)-pos2) + "px";
+    	document.getElementById("selector").style.height =(parseInt(document.getElementById("selector").style.height)+pos2) + "px";
+    	document.getElementById("glef").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("gbol").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("grit").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("gbot").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-15)/2) + "px";
+    }
+    if(e.target.id=="grit"){
+    	document.getElementById("selector").style.width =(parseInt(document.getElementById("selector").style.width)-pos1) + "px";
+    	document.getElementById("gtop").style.left =((parseInt(document.getElementById("selector").style.width)-10)/2) + "px";
+    	document.getElementById("grit").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-15)/2) + "px";
+    }
+    if(e.target.id=="gbot"){
+    	document.getElementById("selector").style.height =(parseInt(document.getElementById("selector").style.height)-pos2) + "px";
+    	document.getElementById("gbot").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbol").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("grit").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("glef").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    }
+    if(e.target.id=="gtol"){
+    	document.getElementById("selector").style.left =(parseInt(document.getElementById("selector").style.left)-pos1) + "px";
+    	document.getElementById("selector").style.width =(parseInt(document.getElementById("selector").style.width)+pos1) + "px";
+    	document.getElementById("selector").style.top =(parseInt(document.getElementById("selector").style.top)-pos2) + "px";
+    	document.getElementById("selector").style.height =(parseInt(document.getElementById("selector").style.height)+pos2) + "px";
+    	document.getElementById("glef").style.top =((parseInt(document.getElementById("selector").style.height)-10)/2) + "px";
+    	document.getElementById("gtop").style.left =((parseInt(document.getElementById("selector").style.width)-10)/2) + "px";
+    	document.getElementById("grit").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-15)/2) + "px";
+    	document.getElementById("grit").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("gbot").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbol").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    }
+    if(e.target.id=="gtor"){
+    	document.getElementById("selector").style.width =(parseInt(document.getElementById("selector").style.width)-pos1) + "px";
+    	document.getElementById("selector").style.top =(parseInt(document.getElementById("selector").style.top)-pos2) + "px";
+    	document.getElementById("selector").style.height =(parseInt(document.getElementById("selector").style.height)+pos2) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("glef").style.top =((parseInt(document.getElementById("selector").style.height)-10)/2) + "px";
+    	document.getElementById("gtop").style.left =((parseInt(document.getElementById("selector").style.width)-10)/2) + "px";
+    	document.getElementById("grit").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-15)/2) + "px";
+    	document.getElementById("grit").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("gbot").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbol").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    }
+    if(e.target.id=="gbor"){
+    	document.getElementById("selector").style.width =(parseInt(document.getElementById("selector").style.width)-pos1) + "px";
+    	document.getElementById("selector").style.height =(parseInt(document.getElementById("selector").style.height)-pos2) + "px";
+    	document.getElementById("glef").style.top =((parseInt(document.getElementById("selector").style.height)-10)/2) + "px";
+    	document.getElementById("gtop").style.left =((parseInt(document.getElementById("selector").style.width)-10)/2) + "px";
+    	document.getElementById("grit").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("grit").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-15)/2) + "px";
+    	document.getElementById("gbot").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbol").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    }
+    if(e.target.id=="gbol"){
+    	document.getElementById("selector").style.width =(parseInt(document.getElementById("selector").style.width)+pos1) + "px";
+    	document.getElementById("selector").style.height =(parseInt(document.getElementById("selector").style.height)-pos2) + "px";
+    	document.getElementById("selector").style.left =(parseInt(document.getElementById("selector").style.left)-pos1) + "px";
+    	document.getElementById("glef").style.top =((parseInt(document.getElementById("selector").style.height)-10)/2) + "px";
+    	document.getElementById("gtop").style.left =((parseInt(document.getElementById("selector").style.width)-10)/2) + "px";
+    	document.getElementById("grit").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("grit").style.top =((parseInt(document.getElementById("selector").style.height)-20)/2) + "px";
+    	document.getElementById("gtor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbot").style.left =((parseInt(document.getElementById("selector").style.width)-15)/2) + "px";
+    	document.getElementById("gbot").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    	document.getElementById("gbor").style.left =((parseInt(document.getElementById("selector").style.width)-10)) + "px";
+    	document.getElementById("gbol").style.top =((parseInt(document.getElementById("selector").style.height)-10)) + "px";
+    }
+    if(e.target.id.substring(0,4)=="list" ||  e.target.id.substring(0,5)=="popup"){
+      elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+		elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 }
+	  if (elmnt.id.substring(0,2)=="fx"){
+				var px=elmnt.offsetLeft - pos1
+				var py=elmnt.offsetTop - pos2	
+	
+				if(px<0){
+					px=0
+				}
+				if(px>200){
+					px=200
+				}
+				if (elmnt.id.substring(0,3)=="fx0"){
+					px=0
+				}
+				if(parseInt(elmnt.id.substring(2,3))>0){
+					var point=elmnt.id.substring(2,3)-1
+					if(px<parseFloat(document.getElementById("fx"+point+elmnt.id.substring(3,4)).style.left)){
+						px=parseFloat(document.getElementById("fx"+point+elmnt.id.substring(3,4)).style.left)+4
+					}
+				}
+				if(py<0){
+					py=0
+				}
+				if(py>60){
+					py=60
+				}
+				var relative=objSelect.duree
+				var inp=elmnt.parentNode.id
+				var rp=document.getElementById("Y"+inp).max-((document.getElementById("Y"+inp).max-document.getElementById("Y"+inp).min))*(py/60)
+				var nbv=document.getElementById("Y"+inp).step.toString().split(".");
+				
+				if(nbv.length>1){
+					document.getElementById("Y"+inp).value=parseFloat(rp).toFixed(nbv[1].length)
+				}else{
+					document.getElementById("Y"+inp).value=parseInt(rp)
+				}
+				document.getElementById("X"+inp).value=((px/200)*relative).toFixed(2)
+				elmnt.title=elmnt.id+":"+document.getElementById("Y"+inp).value
+				elmnt.style.top = py+'px'
+				elmnt.style.left = px+'px'
+				
+				updateFxAutomation(elmnt)
+	    	}
+  } 
+
+async  function closeDragElement(e) {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+    elmnt.style.cursor="default";
+    
+   
+    document.getElementById("glef").style.display='block';
+    	document.getElementById("gtop").style.display='block';
+    	document.getElementById("grit").style.display='block';
+    	document.getElementById("gbot").style.display='block';
+    	document.getElementById("gtol").style.display='block';
+    	document.getElementById("gtor").style.display='block';
+    	document.getElementById("gbol").style.display='block';
+    	document.getElementById("gbor").style.display='block';
+    	
+    	//elmnt=document.getElementById("spectrogram");
+		if(numButton==0){
+	    	updateSelection(e);
+		   await defObjSelect();
+		}
+  }
+}
+
+function initWaveformCanvas() {
+
+    const canvas = document.getElementById("waveForm");
+
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+}
+
+function drawWaveform() {
+
+    const canvas = document.getElementById("waveForm");
+    const ctx = canvas.getContext("2d");
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const offsetX = 60; // décalage à gauche
+
+    ctx.clearRect(0, 0, width, height);
+
+    if (!gainBuffers || gainBuffers.length === 0) return;
+
+    const channel = gainBuffers[0];
+
+    const drawWidth = width - offsetX;
+    const step = Math.ceil(channel.length / drawWidth);
+
+    ctx.beginPath();
+    ctx.strokeStyle = "#fa1b30";
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x < drawWidth; x++) {
+
+        const start = x * step;
+        const end = Math.min(start + step, channel.length);
+
+        let min = 1;
+        let max = -1;
+
+        for (let i = start; i < end; i++) {
+            const val = channel[i];
+            if (val < min) min = val;
+            if (val > max) max = val;
+        }
+
+        const y1 = (1 - max) * height * 0.5;
+        const y2 = (1 - min) * height * 0.5;
+
+        ctx.moveTo(x + offsetX, y1);
+        ctx.lineTo(x + offsetX, y2);
+    }
+
+    ctx.stroke();
+    
+    drawPlayhead();
+}
+// --------------------------------------------------------------------------------------------------------------------
+//																			Audio
+// --------------------------------------------------------------------------------------------------------------------
+function mixToMono(channels) {
+    if (channels.length === 0) return null;
+
+    const length = channels[0].length;
+    const out = new Float32Array(length);
+
+    for (let i = 0; i < length; i++) {
+        let sum = 0;
+
+        for (let c = 0; c < channels.length; c++) {
+            sum += channels[c][i];
+        }
+
+        out[i] = sum / channels.length; // moyenne → évite clipping
+    }
+
+    return out;
+}
+function copySegment(channels, startSec, endSec) {
+
+    const startSample = Math.floor(startSec * sampleRate);
+    const endSample   = Math.floor(endSec * sampleRate);
+
+    const length = endSample - startSample;
+    if (length <= 0) throw new Error("Invalid time range");
+
+    return channels.map(channel => {
+        const src = new Float32Array(channel); // conversion si Float64
+        return src.slice(startSample, endSample);
+    });
+}
+const canvas = document.getElementById("spectrogram");
+
+async function defSpectro() {
+	 const filePath =window.api.joinPath(`${audioPath}`,obj.file);
+	 const rt = await window.api.loadBuffers(filePath);
+    if (!rt || !Array.isArray(rt.channels) || rt.channels.length === 0) {
+        throw new Error("loadBuffers: aucun canal renvoyé par preload");
+    }
+    numChannels = rt.numChannels;
+    numSamples = rt.numSamples;
+    sampleRate = rt.sampleRate;
+    Duree=numSamples/sampleRate;
+    // Clone des buffers pour traitement
+    currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
+    gainBuffers = currentChannels.map(c => new Float32Array(c));
+    console.log("length",rt.numChannels,numSamples,rt.sampleRate,currentChannels);
+    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  gainBuffers  } });
+	 initWaveformCanvas();
+	 updateSpectro();
+	 drawWaveform();
+}
+async function restaureBuffers() {
+	gainBuffers = currentChannels.map(c => new Float32Array(c));
+	var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+    await window.api.saveAudioBuffer({
+        filePath: outPath,
+        buffer: { sampleRate, channels: gainBuffers }
+    });
+	await updateSpectro();
+
+}
+async function updateSpectro() {
+	var nbuffer=await mixToMono(gainBuffers);
+	 var rawFrames=await window.api.stft(nbuffer, 2048, 512, sampleRate);
+	 var sf = convertFrames(rawFrames, 2048);
+	 totalDuration=numSamples/sampleRate;
+	 ctx = canvas.getContext("2d");
+	 drawSoxClone (ctx,sf, sampleRate, 2048);
+	 drawWaveform();
+}
+async function defObjSelect() {
+    if(document.getElementById("selector").style.display=="block"){
+		selectBuffers=copySegment(gainBuffers, objSelect.debut,objSelect.fin);
+		 obj.tableFx[0]="BandePass";
+		 obj.tableFxParam[0]="0.00?"+Math.floor(objSelect.Fl)+"/0.00?"+Math.floor(objSelect.Fh);
+		 selectBuffers = await applyFxBuffers(obj,numChannels, selectBuffers ,selectBuffers[0].length,sampleRate);
+	    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  selectBuffers } });
+    }
+}
+
+function defSelectListeFx(){
+	var txt=""
+	for(let j=0;j<7;j++){
+		txt=txt+"<span style='position:absolute;top:"+(40+(28*j))+"px;left:10px;' ><select id='selecFx"+j+"' size='1' value='0' onchange='fxOnChange("+j+",value);'>"
+		for(let i in listeFx){
+			txt=txt+"<option value='"+listeFx[i].name+"'>"+listeFx[i].name+"</option>"
+		}
+		txt=txt+"</select></span>"
+		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width=24px;'  onclick='fxParam("+j+");'></span>"
+	}
+	document.getElementById("formSelecFx").innerHTML=txt
+}
+function selectElement(id, valueToSelect) {    
+    let element = document.getElementById(id);
+    element.value = valueToSelect;
+}
+async function fxValidAddPlugin(filtre){
+	pushUndoState(gainBuffers);
+	document.getElementById("listNewFx").style.display="none"
+	fxBuffers= await applyFxBuffers(objSelect,numChannels,selectBuffers,selectBuffers[0].length,sampleRate);
+	selectBuffers=fxBuffers.map(c => new Float32Array(c));
+	gainBuffers= await pasteFx();
+	console.log("gainBuffers",gainBuffers)
+     updateSpectro();
+    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
+	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });
+}
+function fxParam(id) {
+	idFxParam=id
+	var content=listeFx[objSelect.tableFx[id]].interface
+	var wd=listeFx[objSelect.tableFx[id]].width
+	var wh=listeFx[objSelect.tableFx[id]].height
+	openPopup(objSelect.tableFx[id],400,200,wd,wh,0,content)
+	var nt=objSelect.tableFx[id]
+	var greffon=objSelect.tableFx[idFxParam]
+	document.getElementById('popup'+nt).style.backgroundColor='#a46345'
+	drawFxAutomation(greffon)
+	
+	var tbdefaut=listeFx[greffon].label.split(',');
+	
+	for(j=0;j<tbdefaut.length;j++){
+		document.getElementById(tbdefaut[j]).addEventListener("mousedown", createFxPoint);
+	}
+}
+function fxOnChange(id,filtre) {
+	idFxParam=id
+	objSelect.tableFx[id]=listeFx[filtre].name;
+	objSelect.tableFxParam[idFxParam]=listeFx[filtre].defaut
+}
+function openListeFx() {
+	document.getElementById("listNewFx").style.display="block"
+	document.getElementById("listNewFx").style.backgroundColor='#ffdea4'
+	for(let j=0;j<7;j++){
+		selectElement("selecFx"+j,objSelect.tableFx[j] );
+	}
+}
+function drawFxAutomation(greffon) {
+	var relative=objSelect.duree;
+	var txt="";
+	var txt1="<line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' />"
+	var index=objSelect.tableFx.indexOf(greffon)
+	var fx=objSelect.tableFxParam[index]
+	var fxParam=fx.split("/")
+	var fxDefMax=listeFx[greffon].max.split(",")
+	var fxDefMin=listeFx[greffon].min.split(",")
+	var tableLabel=listeFx[greffon].label.split(',')
+	var n=0;
+	for(i=n;i<fxParam.length;i++){
+		var mx=parseFloat(fxDefMax[i])-parseFloat(fxDefMin[i])
+		var h=60-(60*(-parseFloat(fxDefMin[i])/mx))
+		var npoints=fxParam[i].split("&")
+		var r0;
+		var t0;
+		for(j=0;j<npoints.length;j++){
+			if(j==0){
+				var cd0=npoints[0].split("?")
+				r0=(h-((60/mx)*parseFloat(cd0[1])))-4;
+				t0=0;
+				document.getElementById('Y'+tableLabel[i]).value=cd0[1];
+			}else{
+				var cd0=npoints[j-1].split("?")
+				t0=cd0[0]*(200/relative)
+			}
+			r0=(h-((60/mx)*parseFloat(cd0[1])))-4
+			var cd=npoints[j].split("?")
+			r=(h-((60/mx)*parseFloat(cd[1])))-4
+			t=cd[0]*(200/relative)
+			if(j==0 && npoints.length==1){
+				txt1=txt1+"<line  x1='0' y1='"+(r0+2)+"' x2='200' y2='"+(r0+2)+"' strocke-width='2' stroke='#434343' />"
+			}else{
+				if(j==npoints.length-1 && r<200){
+					txt1=txt1+"<line  x1='"+t0+"' y1='"+(r0+2)+"' x2='"+t+"' y2='"+(r+2)+"' strocke-width='2' stroke='#434343' />"
+					txt1=txt1+"<line  x1='"+t+"' y1='"+(r+2)+"' x2='200' y2='"+(r+2)+"' strocke-width='2' stroke='#434343' />"
+				}else{
+					txt1=txt1+"<line  x1='"+t0+"' y1='"+(r0+2)+"' x2='"+t+"' y2='"+(r+2)+"' strocke-width='2' stroke='#434343' />"
+				}
+			}
+		//console.log("id","fx"+j+i,"j",j,'y1',r0+2,"y2",r+2)
+		txt=txt+"<div id='fx"+j+i+"' style='position:absolute;top:"+r+"px;left:"+t+"px;width:5px;height:5px;background-color:#f100fa;' title='fx"+j+i+":"+cd[1]+"'></div>"
+		document.getElementById(tableLabel[i]).innerHTML=""
+		document.getElementById(tableLabel[i]).innerHTML="<svg>"+txt1+"</svg>"+txt
+		}
+		
+		txt="";
+		txt1="<line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' />"
+	}
+	var tbdiv=document.getElementById(tableLabel[0]).parentNode.parentNode.parentNode.getElementsByTagName('div')
+	for(i=0;i<tbdiv.length;i++){
+		if(tbdiv[i].id.substring(0,2)=='fx'){
+			dragElement(tbdiv[i])
+		}
+	}
+}
+function createFxPoint(e) {
+	if(e.button==2){
+	var dest=e.target.parentNode
+	var txt="";
+	var nbdiv=dest.getElementsByTagName('div').length
+	var dupnode=document.createElement('div');
+	var greffon=e.target.parentNode.parentNode.parentNode.parentNode.parentNode.id
+	var tableLabel=listeFx[greffon].label.split(',')
+	var index2=tableLabel.indexOf(e.target.parentNode.id)
+	dupnode.setAttribute("id",'fx'+nbdiv+index2);
+	dupnode.setAttribute("title",'fx'+nbdiv+index2+":");
+	var posx=parseFloat(document.getElementById('fx'+(nbdiv-1)+index2).style.left)+4
+	var st='position:absolute;top:30px;left:'+posx+'px;width:5px;height:5px;background-color:#f100fa;'
+	dupnode.setAttribute("style",st);
+	dest.appendChild(dupnode);
+	dragElement(dupnode)
+	updateFxAutomation(dupnode)
+	}
+}
+function updateFxAutomation(obj) {
+	var liste=objSelect.tableFxParam
+	var greffon=obj.parentNode.parentNode.parentNode.parentNode.parentNode.id
+	var index=objSelect.tableFx.indexOf(greffon)
+	var fxParam=liste[index].split("/")
+	var tableLabel=listeFx[greffon].label.split(',')
+	var index2=tableLabel.indexOf(obj.parentNode.id)
+	var FxparamValue= fxParam[index2].split("&")
+	var listPoints=obj.parentNode.getElementsByTagName('div')
+	txt="<line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' />"
+	for(i=1;i< listPoints.length;i++){
+		txt=txt+"<line  x1="+(parseFloat(listPoints[i-1].style.left)+3)+" y1="+(parseFloat(listPoints[i-1].style.top)+3)+" x2="+parseFloat(listPoints[i].style.left)+" y2="+(parseFloat(listPoints[i].style.top)+3)+" strocke-width='2' stroke='#434343' />"
+	}
+	if(parseFloat(listPoints[listPoints.length-1].style.left)<200){
+		txt=txt+"<line  x1="+(parseFloat(listPoints[listPoints.length-1].style.left)+3)+" y1="+(parseFloat(listPoints[listPoints.length-1].style.top)+3)+" x2='200' y2="+(parseFloat(listPoints[listPoints.length-1].style.top)+3)+" strocke-width='2' stroke='#434343' />"
+	}
+	var dest=obj.parentNode.getElementsByTagName('svg')
+	dest[0].innerHTML=txt
+}
+function defautFxParam(NameGreffon) {
+	var id=objSelect.tableFx.indexOf(NameGreffon)
+	var greffon=objSelect.tableFx[id]
+	var defaut=listeFx[objSelect.tableFx[id]].defaut
+	objSelect.tableFxParam[id]=defaut;
+	drawFxAutomation(NameGreffon)
+}
+function annulFxParam(title) {
+	closePopup(title)
+}
+function validFxParam(greffon) {
+	var tableLabel=listeFx[greffon].label.split(',')
+	var npoints;
+	var txt=""
+	var rw;
+	var nduree;
+	var relative;
+	for(i=0;i<tableLabel.length;i++){
+		npoints=document.getElementById(tableLabel[i]).getElementsByTagName('div')
+		for(j=0;j<npoints.length;j++){
+			var tbmin=listeFx[greffon].min.split(",")
+			var tbmax=listeFx[greffon].max.split(",")
+			
+			var vy=parseFloat(npoints[j].title.substring(5))
+			var nbv=document.getElementById("Y"+npoints[j].parentNode.id).step.toString().split(".");
+				if(nbv[1]){
+					vy=vy.toFixed(nbv[1].length)
+				}else{
+					vy=parseInt(vy)
+				}
+			var vx=((parseFloat(npoints[j].style.left)/200)*objSelect.duree).toFixed(2)
+			txt=txt+vx+"?"+vy+"&"
+		}
+		txt = txt.substring(0, txt.length - 1);
+		txt=txt+"/"
+	}
+	txt = txt.substring(0, txt.length - 1)
+	var index=objSelect.tableFx.indexOf(greffon)
+	objSelect.tableFxParam[index]=txt
+	closePopup(greffon)
+	console.log(objSelect)
+}
+
+async function applyFxBuffers(obj,numChannels,buffers,numSamples,sampleRate) {
+	
+	console.log("listeFx",obj,obj.tableFx)
+    // ----- WAM / GREFFONS -----
+    const fxSlots = obj.tableFx || [];
+    const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
+console.log("Slots", obj,validSlots)
+    const blockSize = 1024;
+    let current = buffers.map(c => new Float32Array(c));
+	 const processedChannels = new Array(numChannels);
+    // Import faustwasm once
+    const appPaths = await window.api.getPaths();
+    const faust=window.api.joinPath(window.api.resources,"@grame","faustwasm","dist","esm","index.js");
+    console.log("faust",appPaths.basedir,faust)
+    const faustPkg = await import(`file://${faust}`);
+    const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
+    const faustModule = await instantiateFaustModuleFromFile(`${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`);
+    const libFaust = new LibFaust(faustModule);
+    const compiler = new FaustCompiler(libFaust);
+
+    for (let slotIndex = 0; slotIndex < validSlots.length; slotIndex++) {
+        const fxKey = validSlots[slotIndex];
+        const fxDesc = listeFx[fxKey];
+        const dspName = fxDesc.greffon;
+        let processor = null;
+        let paramsPaths = [];
+
+        try {
+            const generator = new FaustMonoDspGenerator();
+            let dspSource = await window.api.readFxFile(`./greffons/${dspName}-wasm/${dspName}.dsp`);
+            if (dspSource instanceof Uint8Array || dspSource instanceof ArrayBuffer) {
+                dspSource = new TextDecoder().decode(dspSource);
+            }
+
+            await generator.compile(compiler, dspName, dspSource, "");
+            processor = await generator.createOfflineProcessor(sampleRate, blockSize);
+            
+            // récupère les paramètres WAM
+            const paramDest = processor.getParams();
+            console.log("getParams",`./greffons/${dspName}-wasm/${dspName}.dsp`,paramDest)
+            if (paramDest && paramDest.length > 0) {
+                paramsPaths = paramDest.map(p => p.path || p);
+                const bypassPath = paramsPaths.find(p => p.toLowerCase().includes("bypass"));
+					if (bypassPath) {
+					    try { processor.setParamValue(bypassPath, 0); } catch(e){}
+					}
+            }
+        } catch (err) {
+            console.warn(`[pipeline] DSP compilation failed for slot ${slotIndex} → passthrough`, err);
+            processor = null;
+        }
+
+        // ----- Parse automation -----
+        const tableFxParam = obj.tableFxParam || [];
+        const fxParamString = tableFxParam[slotIndex] || "";
+        const paramBlocks = fxParamString.split("/").map(blockStr => {
+            if (!blockStr) return [];
+            return blockStr.split("&").map(seg => {
+                const [t, v] = seg.split("?");
+                return { time: parseFloat(t||0), value: parseFloat(v||0) };
+            }).sort((a,b)=>a.time-b.time);
+        });
+
+        // ----- Traitement multi-canaux -----
+        
+
+        for (let ch = 0; ch < numChannels; ch++) {
+           const inBuf = current[ch];
+            const outBuf = new Float32Array(numSamples);
+
+            for (let offset = 0; offset < numSamples; offset += blockSize) {
+                const len = Math.min(blockSize, numSamples - offset);
+                const t0 = offset / sampleRate;
+                
+                // --- Automation WAM ---
+                for (let pIndex = 0; pIndex < paramsPaths.length; pIndex++) {
+                    const path = paramsPaths[pIndex];
+                    const events = paramBlocks[pIndex] || [];
+                    if (!events.length) continue;
+
+                    let val = events[0].value;
+                    if (t0 <= events[0].time) val = events[0].value;
+                    else if (t0 >= events[events.length-1].time) val = events[events.length-1].value;
+                    else {
+                        for (let i = 0; i < events.length-1; i++) {
+                            const a = events[i], b = events[i+1];
+                            if (t0 >= a.time && t0 < b.time) {
+                                const frac = (t0 - a.time)/(b.time - a.time);
+                                val = a.value + frac*(b.value - a.value);
+                                break;
+                            }
+                        }
+                    }
+                    try { processor.setParamValue(path, val); } catch(e){}
+                }
+
+                // --- Process block ---
+                const sliceIn = inBuf.subarray(offset, offset+len);
+                let blockOut = sliceIn;
+                if (processor) {
+					    if (!validSlots[slotIndex].bypass) {   // ← ICI
+				            const tmp = processor.render([sliceIn], len);
+				            blockOut = tmp[0];
+				        } else {
+				            blockOut = sliceIn;  // bypass logiciel
+				        }
+    
+    
+						}
+
+                outBuf.set(blockOut, offset);
+            }
+            
+
+            processedChannels[ch] = outBuf;
+        }
+        
+        // mise à jour pour le slot suivant
+       current = processedChannels.map(c => new Float32Array(c));
+    }
+    
+    return current;
+}
+
+function convertFrames(frames, fftSize) {
+
+    const bins = fftSize / 2;
+    const out = [];
+
+    for (let f of frames) {
+
+        const spectrum = f.spectrum;
+        const mags = new Float32Array(bins);
+
+        for (let i = 0; i < bins; i++) {
+            const re = spectrum[2*i];
+            const im = spectrum[2*i + 1];
+            mags[i] = Math.sqrt(re*re + im*im);
+        }
+
+        out.push(mags);
+    }
+
+    return out;
+}
+
+function drawSpectrogram(ctx,frames) {
+canvas.style.width = "1000px";
+canvas.style.height = "600px";
+    const width = frames.length;
+    const height = frames[0].length;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+
+    const minDb = -100;
+    const maxDb = 0;
+
+    for (let x = 0; x < width; x++) {
+
+        const frame = frames[x];
+
+        for (let y = 0; y < height; y++) {
+
+            const mag = frame[y];
+
+            // conversion en dB
+            const db = 20 * Math.log10(mag + 1e-12);
+
+            // normalisation 0..1
+            const norm = (db - minDb) / (maxDb - minDb);
+            const v = Math.max(0, Math.min(1, norm));
+
+            const color = colormap(v);
+
+            // inversion verticale (grave en bas)
+            const index = ((height - y - 1) * width + x) * 4;
+
+            data[index]     = color.r;
+            data[index + 1] = color.g;
+            data[index + 2] = color.b;
+            data[index + 3] = 255;
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+}
+function colormap(v) {
+    const r = Math.min(255, v * 512);
+    const g = Math.min(255, Math.max(0, (v - 0.5) * 512));
+    const b = Math.min(255, (1 - v) * 300);
+    return { r, g, b };
+}
+
+function soxColor(v) {
+
+    v = Math.max(0, Math.min(1, v));
+
+    let r=0,g=0,b=0;
+
+    if (v < 0.25) {
+        b = 255 * (v / 0.25);
+    }
+    else if (v < 0.5) {
+        g = 255 * ((v - 0.25) / 0.25);
+        b = 255;
+    }
+    else if (v < 0.75) {
+        r = 255 * ((v - 0.5) / 0.25);
+        g = 255;
+        b = 255 - 255 * ((v - 0.5) / 0.25);
+    }
+    else {
+        r = 255;
+        g = 255;
+        b = 255 * ((v - 0.75) / 0.25);
+    }
+
+    return {r,g,b};
+}
+function drawSoxStyle(ctx,frames, sampleRate, fftSize) {
+
+    const width = frames.length;
+    const height = 700; // hauteur fixe pour interpolation
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+
+    const minDb = -120;
+    const maxDb = 0;
+
+    const minFreq = 20;
+    const maxFreq = sampleRate / 2;
+
+    const logMin = Math.log10(minFreq);
+    const logMax = Math.log10(maxFreq);
+
+    for (let x = 0; x < width; x++) {
+
+        const frame = frames[x];
+
+        for (let y = 0; y < height; y++) {
+
+            const normY = 1 - y / height;
+            const logFreq = logMin + normY * (logMax - logMin);
+            const freq = Math.pow(10, logFreq);
+
+            const bin = Math.floor(freq * fftSize / sampleRate);
+
+            if (bin < 0 || bin >= frame.length) continue;
+
+            const mag = frame[bin];
+            const db = 20 * Math.log10(mag + 1e-15);
+
+            const norm = (db - minDb) / (maxDb - minDb);
+            const v = Math.max(0, Math.min(1, norm));
+
+            const color = soxColor(v);
+
+            const index = (y * width + x) * 4;
+
+            data[index] = color.r;
+            data[index+1] = color.g;
+            data[index+2] = color.b;
+            data[index+3] = 255;
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+}
+function magToDb(mag) {
+    const eps = 1e-15;
+    return 20 * Math.log10(mag + eps);
+}
+function drawScientificSpectrogram(ctx,frames, sampleRate, fftSize) {
+
+    const width = frames.length;
+    const height = fftSize / 2;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+
+    const minDb = -100;
+    const maxDb = 0;
+
+    for (let x = 0; x < width; x++) {
+
+        const frame = frames[x];
+
+        for (let bin = 0; bin < height; bin++) {
+
+            const mag = frame[bin];
+            const db = magToDb(mag);
+
+            const norm = (db - minDb) / (maxDb - minDb);
+            const v = Math.max(0, Math.min(1, norm));
+
+            // grayscale scientifique
+            const intensity = Math.floor(v * 255);
+
+            const y = height - bin - 1;
+            const index = (y * width + x) * 4;
+
+            data[index] = intensity;
+            data[index+1] = intensity;
+            data[index+2] = intensity;
+            data[index+3] = 255;
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+}
+function soxColormap(v) {
+    // Dégradé SoX, blanc très limité
+    const stops = [
+        {p:0.00, c:[0,0,50]},       // bleu profond
+        {p:0.15, c:[20,0,60]},
+        {p:0.30, c:[60,0,120]},
+        {p:0.45, c:[120,0,200]},
+        {p:0.60, c:[200,0,120]},
+        {p:0.75, c:[255,0,0]},
+        {p:0.90, c:[255,180,0]},
+        {p:0.995, c:[255,255,255]},  // blanc quasi seulement aux pics extrêmes
+        {p:1.00, c:[255,255,255]}
+    ];
+
+    for (let i = 0; i < stops.length - 1; i++) {
+        const s0 = stops[i];
+        const s1 = stops[i + 1];
+        if (v >= s0.p && v <= s1.p) {
+            const t = (v - s0.p) / (s1.p - s0.p);
+            return {
+                r: s0.c[0] + (s1.c[0] - s0.c[0]) * t,
+                g: s0.c[1] + (s1.c[1] - s0.c[1]) * t,
+                b: s0.c[2] + (s1.c[2] - s0.c[2]) * t
+            };
+        }
+    }
+    return {r:0, g:0, b:50};
+}
+
+function drawSoxClone(ctx, frames, sampleRate, fftSize) {
+    const width = 786;
+    const height = 600;
+    const marginLeft = 60; // espace pour les labels
+
+    canvas.width = width;
+    canvas.height = height;
+
+    // Fond bleu profond
+    ctx.fillStyle = 'rgb(0,0,50)';
+    ctx.fillRect(0, 0, width, height);
+
+    const imageData = ctx.createImageData(width - marginLeft, height);
+    const data = imageData.data;
+
+    const minDb = -120;
+    const maxDb = -50;
+    const minFreq = 20;
+    const maxFreq = sampleRate / 2;
+    const logMin = Math.log10(minFreq);
+    const logMax = Math.log10(maxFreq);
+
+    // Dessiner le spectrogramme
+    for (let x = 0; x < width - marginLeft; x++) {
+        const frameIndex = Math.floor(x * frames.length / (width - marginLeft));
+        const spectrum = frames[frameIndex];
+        if (!spectrum) continue;
+
+        for (let y = 0; y < height; y++) {
+            const normY = y / height; // basses en bas
+            const logFreq = logMax - normY * (logMax - logMin);
+            const freq = Math.pow(10, logFreq);
+
+            const binFloat = freq * fftSize / sampleRate;
+            const k0 = Math.floor(binFloat);
+            const k1 = Math.min(k0 + 1, spectrum.length - 1);
+            const t = binFloat - k0;
+
+            if (k0 < 0 || k1 >= spectrum.length) continue;
+
+            let mag = spectrum[k0] * (1 - t) + spectrum[k1] * t;
+            mag /= fftSize;
+            mag *= 2; // Hann approx
+
+            let db = 20 * Math.log10(mag + 1e-15);
+            let norm = (db - minDb) / (maxDb - minDb);
+				norm = Math.max(0, Math.min(1, norm));
+				
+				// contraste plus doux
+				norm = Math.pow(norm, 0.8);
+				
+				// assombrissement global
+				norm *= 0.90;
+
+            const color = soxColormap(norm);
+            const index = (y * (width - marginLeft) + x) * 4;
+            data[index]     = color.r;
+            data[index + 1] = color.g;
+            data[index + 2] = color.b;
+            data[index + 3] = 255;
+        }
+    }
+
+    // Placer le spectrogramme avec marge
+    ctx.putImageData(imageData, marginLeft, 0);
+
+    // Dessiner les labels de fréquence correctement alignés
+    ctx.fillStyle = 'white';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+
+    const freqsToLabel = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+    freqsToLabel.forEach(f => {
+        if (f < minFreq || f > maxFreq) return;
+        const logF = Math.log10(f);
+        const y = height * (logMax - logF) / (logMax - logMin); // ✅ 20 Hz en bas, 20000 Hz en haut
+        ctx.fillText(`${f} Hz`, marginLeft - 5, y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.beginPath();
+        ctx.moveTo(marginLeft, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+    });
+}
+
+async function eraseSelection(){
+	 pushUndoState(gainBuffers);
+    gainBuffers = await window.api.eraseSelection(gainBuffers,sampleRate,objSelect);
+    cutSelection(objSelect.fin-0.05, objSelect.fin);
+       
+    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
+	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });
+	 updateSpectro();
+}
+async function filtreSelection(){
+	 pushUndoState(gainBuffers);
+    currentChannels=await window.api.filtreSelection(currentChannels,sampleRate,objSelect);
+    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
+    gainBuffers=currentChannels.map(c => new Float32Array(c));
+	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels} });
+	 updateSpectro();
+}
+async function moveSelection(){
+	 pushUndoState(gainBuffers);
+    currentChannels=await  pasteSelectionFFT();
+    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
+    gainBuffers=currentChannels.map(c => new Float32Array(c));
+	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels} });
+	 updateSpectro();
+}
+
+async function pasteSelectionFFT() {
+    if (!currentChannels || currentChannels.length === 0) return;
+
+    const numChannels = currentChannels.length;
+    const totalLength = currentChannels[0].length;
+
+    const ln = objSelect.fin - objSelect.debut;
+    const selectionLength = Math.floor(ln * sampleRate);
+
+    const startSample = Math.floor(mouseX * sampleRate);
+    if (startSample >= totalLength) return;
+
+    const fTarget = mouseY;
+
+    // 1️⃣ Extraction
+    const selection = gainBuffers.map(ch =>
+        new Float32Array(
+            ch.subarray(0, Math.min(selectionLength, ch.length))
+        )
+    );
+
+    // 2️⃣ Bandpass
+    const objBandpass = {
+        tableFx: ["bandpass"],
+        tableFxParam: [`0.00?${objSelect.Fl}/0.00?${objSelect.Fh}`]
+    };
+
+    const bandpassBuffers = await applyFxBuffers(
+        objBandpass,
+        numChannels,
+        selection,
+        selection[0].length,
+        sampleRate
+    );
+
+    // 3️⃣ Spectral shift
+    const shiftedBuffers = await window.api.spectralShift(
+        bandpassBuffers,
+        sampleRate,
+        0,
+        bandpassBuffers[0].length,
+        fTarget,
+        objSelect
+    );
+
+    // 4️⃣ Copie
+    const outChannels = currentChannels.map(ch => new Float32Array(ch));
+
+    for (let ch = 0; ch < numChannels; ch++) {
+
+        const insertLength = Math.min(
+            shiftedBuffers[ch].length,
+            totalLength - startSample
+        );
+
+        if (insertLength <= 0) continue;
+
+        // 👉 fade court uniquement sur la zone injectée
+        const fadeSamples = Math.min(256, Math.floor(insertLength / 4));
+
+        for (let i = 0; i < insertLength; i++) {
+
+            let gain = 1;
+
+            // fade-in
+            if (i < fadeSamples) {
+                gain = i / fadeSamples;
+            }
+            // fade-out
+            else if (i > insertLength - fadeSamples) {
+                gain = (insertLength - i) / fadeSamples;
+            }
+
+            outChannels[ch][startSample + i] += shiftedBuffers[ch][i] * gain;
+        }
+    }
+
+    return outChannels;
+}
+async function pasteWam(buffers) {
+    if (!currentChannels || currentChannels.length === 0) return;
+
+    const numChannels = currentChannels.length;
+    const totalLength = currentChannels[0].length;
+
+    const ln = objSelect.fin - objSelect.debut;
+    const selectionLength = Math.floor(ln * sampleRate);
+
+    const startSample = Math.floor(mouseX * sampleRate);
+    if (startSample >= totalLength) return;
+
+    const fTarget = objSelect.Fh;
+
+    // 1️⃣ Extraction
+    const selection = fxBuffers.map(ch =>
+        new Float32Array(
+            ch.subarray(0, Math.min(selectionLength, ch.length))
+        )
+    );
+
+    // 3️⃣ Spectral shift
+    const wamedBuffers = await window.api.spectralShift(
+        buffers,
+        sampleRate,
+        0,
+        currentChannels[0].length,
+        fTarget,
+        objSelect
+    );
+
+    // 4️⃣ Copie
+    const outChannels = gainBuffers.map(ch => new Float32Array(ch));
+
+    for (let ch = 0; ch < numChannels; ch++) {
+
+        const insertLength = Math.min(
+            wamedBuffers[ch].length,
+            totalLength - startSample
+        );
+
+        if (insertLength <= 0) continue;
+
+        // 👉 fade court uniquement sur la zone injectée
+        const fadeSamples = Math.min(256, Math.floor(insertLength / 4));
+
+        for (let i = 0; i < insertLength; i++) {
+
+            let gain = 1;
+
+            // fade-in
+            if (i < fadeSamples) {
+                gain = i / fadeSamples;
+            }
+            // fade-out
+            else if (i > insertLength - fadeSamples) {
+                gain = (insertLength - i) / fadeSamples;
+            }
+
+            outChannels[ch][startSample + i] += wamedBuffers[ch][i] * gain;
+        }
+    }
+
+    //currentChannels = outChannels;
+    return outChannels;
+}
+async function pasteFx() {
+    if (!currentChannels || currentChannels.length === 0) return;
+
+    const numChannels = currentChannels.length;
+    const totalLength = currentChannels[0].length;
+
+    const ln = objSelect.fin - objSelect.debut;
+    const selectionLength = Math.floor(ln * sampleRate);
+
+    const startSample = Math.floor(mouseX * sampleRate);
+    if (startSample >= totalLength) return;
+
+    const fTarget = mouseY;
+
+    // 1️⃣ Extraction
+    const selection = fxBuffers.map(ch =>
+        new Float32Array(
+            ch.subarray(0, Math.min(selectionLength, ch.length))
+        )
+    );
+
+    // 3️⃣ Spectral shift
+    let fxedBuffers = await window.api.spectralShift(
+        fxBuffers,
+        sampleRate,
+        0,
+        currentChannels[0].length,
+        fTarget,
+        objSelect
+    );
+    // 4️⃣ Copie
+	 obj.tableFx[0]="BandePass";
+		 obj.tableFxParam[0]="0.00?"+Math.floor(objSelect.Fl)+"/0.00?"+Math.floor(objSelect.Fh);
+		 fxedBuffers = await applyFxBuffers(obj,numChannels, fxedBuffers ,selectBuffers[0].length,sampleRate);    
+    
+    const outChannels = gainBuffers.map(ch => new Float32Array(ch));
+
+    for (let ch = 0; ch < numChannels; ch++) {
+
+        const insertLength = Math.min(
+            fxedBuffers[ch].length,
+            totalLength - startSample
+        );
+
+        if (insertLength <= 0) continue;
+
+        // 👉 fade court uniquement sur la zone injectée
+        const fadeSamples = Math.min(256, Math.floor(insertLength / 4));
+
+        for (let i = 0; i < insertLength; i++) {
+
+            let gain = 1;
+
+            // fade-in
+            if (i < fadeSamples) {
+                gain = i / fadeSamples;
+            }
+            // fade-out
+            else if (i > insertLength - fadeSamples) {
+                gain = (insertLength - i) / fadeSamples;
+            }
+
+            outChannels[ch][startSample + i] += fxedBuffers[ch][i] * gain;
+        }
+    }
+    //currentChannels = outChannels;
+    return outChannels;
+}
+async function copySelect() {
+	selectBuffers=copySegment(gainBuffers, objSelect.debut, objSelect.fin);
+	var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
+	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: selectBuffers} });
+}
+async function coupSelect() {
+  pushUndoState(gainBuffers);
+  cutSelection(objSelect.debut, objSelect.fin);
+  numSamples =  gainBuffers[0].length;
+  Duree=numSamples/sampleRate;
+  selectBuffers=gainBuffers.map(c => new Float32Array(c));
+  updateSpectro();
+}
+function cutSelection(t0, t1) {
+	const startSample = Math.max(0, Math.floor(t0 * sampleRate));
+	const endSample = Math.floor(t1 * sampleRate);
+	const insertLength = endSample-startSample;
+	console.log(startSample,endSample,gainBuffers)
+
+	if (endSample <= startSample) return gainBuffers;
+
+  for (let ch = 0; ch < gainBuffers.length; ch++) {
+    const data = gainBuffers[ch];
+    const length = data.length;
+
+    const safeStart = Math.min(startSample, length);
+    const safeEnd   = Math.min(endSample, length);
+    const cutLength = safeEnd - safeStart;
+
+    if (cutLength <= 0) continue;
+
+    const newLength = length - cutLength;
+    const newData = new Float32Array(newLength);
+
+    // Partie avant sélection
+    newData.set(data.subarray(0, safeStart), 0);
+
+    // Partie après sélection
+    newData.set(
+      data.subarray(safeEnd),
+      safeStart
+    );
+
+    gainBuffers[ch] = newData;
+  }
+ 
+  numSamples =  gainBuffers[0].length;
+  Duree=numSamples/sampleRate;
+}
+async function pasteSelection() {
+  pushUndoState(gainBuffers);
+
+  if (!gainBuffers || !gainBuffers.length || !selectBuffers) return;
+
+  const pasteSample = Math.max(0, Math.floor(mouseX * sampleRate));
+  const numChannels = gainBuffers.length;
+
+  const FADE = 128; // ~3 ms à 44.1kHz
+
+  for (let ch = 0; ch < numChannels; ch++) {
+
+    const dest = gainBuffers[ch];
+    const src  = selectBuffers[Math.min(ch, selectBuffers.length - 1)];
+
+    const destLen = dest.length;
+    const srcLen  = src.length;
+
+    const safePaste = Math.min(pasteSample, destLen);
+
+    const newLen = destLen + srcLen;
+    const newData = new Float32Array(newLen);
+
+    // ---- partie avant insertion
+    newData.set(dest.subarray(0, safePaste), 0);
+
+    // ---- insertion
+    newData.set(src, safePaste);
+
+    // ---- partie après
+    newData.set(dest.subarray(safePaste), safePaste + srcLen);
+
+    // ==========================
+    // CROSSFADE ANTI-CLIC
+    // ==========================
+
+    const fade = Math.min(FADE, srcLen, safePaste);
+
+    // crossfade début
+    for (let i = 0; i < fade; i++) {
+
+      const t = i / fade;
+
+      const destSample = dest[safePaste - fade + i];
+      const srcSample  = src[i];
+
+      newData[safePaste - fade + i] =
+          destSample * (1 - t) +
+          srcSample * t;
+    }
+
+    // crossfade fin
+    const tailFade = Math.min(FADE, srcLen, destLen - safePaste);
+
+    for (let i = 0; i < tailFade; i++) {
+
+      const t = i / tailFade;
+
+      const srcSample  = src[srcLen - tailFade + i];
+      const destSample = dest[safePaste + i];
+
+      newData[safePaste + srcLen - tailFade + i] =
+          srcSample * (1 - t) +
+          destSample * t;
+    }
+
+    gainBuffers[ch] = newData;
+  }
+
+  numSamples = gainBuffers[0].length;
+  Duree = numSamples / sampleRate;
+
+  updateSpectro();
+
+  const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+
+  await window.api.saveAudioBuffer({
+    filePath: outPath,
+    buffer: { sampleRate, channels: gainBuffers }
+  });
+}
+async function insertSelection2() {
+  const pasteSample = Math.max(0, Math.floor(mouseX*sampleRate));
+  const filePath = await window.api.audioSelect();
+  console.log("insertAudioSel",mouseX,filePath)
+	 const audioSel = await window.api.loadBuffers(filePath);
+    if (!audioSel || !Array.isArray(audioSel.channels) || audioSel.channels.length === 0) {
+        throw new Error("loadBuffers: aucun canal renvoyé par preload");
+    }
+
+    selectBuffers = audioSel.channels.map(chAb => new Float32Array(chAb));
+    const insertLen = selectBuffers[0].length;
+  const numChannels = currentChannels.length;
+
+  for (let ch = 0; ch < numChannels; ch++) {
+
+      const dest = currentChannels[ch];
+      const src  = selectBuffers[Math.min(ch, selectBuffers.length - 1)];
+
+      const destLen = dest.length;
+      const safePaste = Math.min(pasteSample, destLen);
+
+      const newData = new Float32Array(destLen + insertLen);
+
+      // avant insertion
+      newData.set(dest.subarray(0, safePaste), 0);
+
+      // audio inséré
+      newData.set(src, safePaste);
+
+      // reste du buffer
+      newData.set(dest.subarray(safePaste), safePaste + insertLen);
+
+      gainBuffers[ch] = newData;
+  }
+  numSamples =  gainBuffers[0].length;
+  Duree=numSamples/sampleRate;
+  updateSpectro();
+   const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+
+  await window.api.saveAudioBuffer({
+    filePath: outPath,
+    buffer: { sampleRate, channels: gainBuffers }
+  });
+}
+async function insertSelection() {
+  idxUndo=idxUndo+1;
+  undoBuffers[idxUndo]=gainBuffers.map(c => new Float32Array(c));
+  const pasteSample = Math.max(0, Math.floor(mouseX*sampleRate));
+  const filePath = await window.api.audioSelect();
+  console.log("insertAudioSel",mouseX,filePath)
+	 const audioSel = await window.api.loadBuffers(filePath);
+    if (!audioSel || !Array.isArray(audioSel.channels) || audioSel.channels.length === 0) {
+        throw new Error("loadBuffers: aucun canal renvoyé par preload");
+    }
+
+    selectBuffers = audioSel.channels.map(chAb => new Float32Array(chAb));
+    const insertLen = selectBuffers[0].length;
+  const numChannels = currentChannels.length;
+
+  const FADE = 128;
+
+  for (let ch = 0; ch < numChannels; ch++) {
+
+    const dest = currentChannels[ch];
+    const src  = selectBuffers[Math.min(ch, selectBuffers.length - 1)];
+
+    const destLen = dest.length;
+    const srcLen  = src.length;
+
+    const safePaste = Math.min(pasteSample, destLen);
+
+    const newData = new Float32Array(destLen + srcLen);
+
+    // avant insertion
+    newData.set(dest.subarray(0, safePaste), 0);
+
+    // insertion
+    newData.set(src, safePaste);
+
+    // après
+    newData.set(dest.subarray(safePaste), safePaste + srcLen);
+
+    // -------- CROSSFADE --------
+
+    const fade = Math.min(FADE, srcLen, safePaste);
+
+    // début
+    for (let i = 0; i < fade; i++) {
+
+      const t = i / fade;
+
+      const destSample = dest[safePaste - fade + i];
+      const srcSample  = src[i];
+
+      newData[safePaste - fade + i] =
+        destSample * (1 - t) + srcSample * t;
+    }
+
+    // fin
+    const tailFade = Math.min(FADE, srcLen, destLen - safePaste);
+
+    for (let i = 0; i < tailFade; i++) {
+
+      const t = i / tailFade;
+
+      const srcSample  = src[srcLen - tailFade + i];
+      const destSample = dest[safePaste + i];
+
+      newData[safePaste + srcLen - tailFade + i] =
+        srcSample * (1 - t) + destSample * t;
+    }
+
+    gainBuffers[ch] = newData;
+  }
+
+  numSamples = currentChannels[0].length;
+  Duree = numSamples / sampleRate;
+
+  updateSpectro();
+   const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+
+  await window.api.saveAudioBuffer({
+    filePath: outPath,
+    buffer: { sampleRate, channels: gainBuffers }
+  });
+}
+function fadeInSelection() {
+	fadeInSelect(objSelect.debut, objSelect.fin);
+}
+function fadeOutSelection() {
+	fadeOutSelect(objSelect.debut, objSelect.fin);
+}
+async function fadeInSelect(t0, t1) {
+  if (!gainBuffers || !gainBuffers.length) return;
+  pushUndoState(gainBuffers);
+  const startSample = Math.max(0, Math.floor(t0 * sampleRate));
+  const endSample   = Math.min(gainBuffers[0].length, Math.floor(t1 * sampleRate));
+  const fadeLength  = endSample - startSample;
+  for (let ch = 0; ch < gainBuffers.length; ch++) {
+    const buf = gainBuffers[ch];
+    if (fadeLength <= 0) continue;
+    for (let i = 0; i < fadeLength; i++) {
+      const idx = startSample + i;
+      buf[idx] *= i / fadeLength;
+    }
+  }
+  // Sauvegarde optionnelle
+  const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+  await window.api.saveAudioBuffer({
+    filePath: outPath,
+    buffer: { sampleRate, channels: gainBuffers }
+  });
+
+  updateSpectro();
+}
+async function fadeOutSelect(t0, t1) {
+  if (!gainBuffers || !gainBuffers.length) return;
+  pushUndoState(gainBuffers);
+  for (let ch = 0; ch < gainBuffers.length; ch++) {
+    const buf = gainBuffers[ch];
+    const startSample = Math.max(0, Math.floor(t0 * sampleRate));
+    const endSample   = Math.min(buf.length, Math.floor(t1 * sampleRate));
+    const fadeLength  = endSample - startSample;
+
+    if (fadeLength <= 0) continue;
+
+    for (let i = 0; i < fadeLength; i++) {
+      const idx = startSample + i;
+      buf[idx] *= 1 - (i / fadeLength); // décroissance
+    }
+  }
+  
+  const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+  await window.api.saveAudioBuffer({
+    filePath: outPath,
+    buffer: { sampleRate, channels: gainBuffers }
+  });
+
+  updateSpectro();
+}
+
+function computeSlidingRMS(buffer, windowSize) {
+
+    const half = Math.floor(windowSize / 2);
+    const rms = new Float32Array(buffer.length);
+
+    let sum = 0;
+
+    // première fenêtre
+    for (let i = 0; i < windowSize && i < buffer.length; i++) {
+        sum += buffer[i] * buffer[i];
+    }
+
+    for (let i = 0; i < buffer.length; i++) {
+
+        rms[i] = Math.sqrt(sum / windowSize);
+
+        const remove = i - half;
+        const add = i + half + 1;
+
+        if (remove >= 0)
+            sum -= buffer[remove] * buffer[remove];
+
+        if (add < buffer.length)
+            sum += buffer[add] * buffer[add];
+    }
+
+    return rms;
+}
+function findZeroCrossing(buffer, index, direction = 1, maxOffset = 64) {
+    // direction = 1 : vers la droite, -1 : vers la gauche
+    let i = index;
+    const len = buffer.length;
+    let lastSign = Math.sign(buffer[i]);
+
+    for (let offset = 0; offset < maxOffset; offset++) {
+        i += direction;
+        if (i <= 0 || i >= len - 1) break;
+        const sign = Math.sign(buffer[i]);
+        if (sign !== lastSign && sign !== 0) return i; // zéro crossing trouvé
+        lastSign = sign;
+    }
+    return index; // pas trouvé, on reste sur l’index original
+}
+function smoothVolumeLog(buffer, startSample, endSample, windowSize = 128, fadeSamples = 64, zcOffset = 64) {
+    const out = new Float32Array(buffer);
+    const eps = 1e-12;
+
+    // 1️⃣ trouver zéro crossing proche
+    const startZC = findZeroCrossing(buffer, startSample, -1, zcOffset);
+    const endZC = findZeroCrossing(buffer, endSample, 1, zcOffset);
+
+    // 2️⃣ RMS glissant
+    const rms = computeSlidingRMS(buffer, windowSize);
+
+    const startAmp = Math.max(rms[startZC], eps);
+    const endAmp = Math.max(rms[endZC], eps);
+
+    const startDB = 20 * Math.log10(startAmp);
+    const endDB = 20 * Math.log10(endAmp);
+
+    const length = endZC - startZC;
+
+    // 3️⃣ lissage principal
+    for (let i = 0; i <= length; i++) {
+        const idx = startZC + i;
+        const t = i / length;
+        const targetDB = startDB + t * (endDB - startDB);
+        const targetAmp = Math.pow(10, targetDB / 20);
+        const currentAmp = Math.max(rms[idx], eps);
+        const gain = targetAmp / currentAmp;
+        out[idx] = buffer[idx] * gain;
+    }
+
+    // 4️⃣ Crossfade début
+    const fadeStartIn = Math.max(startZC - fadeSamples, 0);
+    for (let i = fadeStartIn; i < startZC; i++) {
+        const t = (i - fadeStartIn) / (startZC - fadeStartIn);
+        out[i] = buffer[i] * (1 - t) + out[i] * t;
+    }
+
+    // 5️⃣ Crossfade fin
+    const fadeEndOut = Math.min(endZC + fadeSamples, buffer.length - 1);
+    for (let i = endZC + 1; i <= fadeEndOut; i++) {
+        const t = (i - endZC) / (fadeEndOut - endZC);
+        out[i] = out[i] * (1 - t) + buffer[i] * t;
+    }
+
+    return out;
+}
+async function smoothVolume() {
+	 pushUndoState(gainBuffers);
+    const startSample = Math.floor(objSelect.debut * sampleRate);
+    const endSample   = Math.floor(objSelect.fin * sampleRate);
+
+    gainBuffers = gainBuffers.map(ch =>
+        smoothVolumeLog(ch, startSample, endSample, 128,128,128)
+    );
+
+    updateSpectro();
+
+    const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+
+    await window.api.saveAudioBuffer({
+        filePath: outPath,
+        buffer: {
+            sampleRate,
+            channels: gainBuffers
+        }
+    });
+}
+async function saveRenduAudio() {
+
+    if (!gainBuffers || gainBuffers.length === 0) {
+        console.warn("Aucun audio à sauvegarder");
+        return;
+    }
+
+    try {
+
+        const filePath = await window.api.showSaveDialog();
+
+        if (!filePath) return; // utilisateur annule
+
+        await window.api.saveAudioBuffer({
+            filePath: filePath,
+            buffer: {
+                sampleRate: sampleRate,
+                channels: gainBuffers
+            }
+        });
+
+        console.log("Audio sauvegardé :", filePath);
+
+    } catch (err) {
+        console.error("Erreur sauvegarde :", err);
+    }
+}
+async function saveRenduSelection() {
+
+    if (!selectBuffers || selectBuffers.length === 0) {
+        console.warn("Aucun audio à sauvegarder");
+        return;
+    }
+
+    try {
+
+        const filePath = await window.api.showSaveDialog();
+
+        if (!filePath) return; // utilisateur annule
+
+        await window.api.saveAudioBuffer({
+            filePath: filePath,
+            buffer: {
+                sampleRate: sampleRate,
+                channels: selectBuffers
+            }
+        });
+
+        console.log("Audio sauvegardé :", filePath);
+
+    } catch (err) {
+        console.error("Erreur sauvegarde :", err);
+    }
+}
+
+</script>
+</body>
+</html>

@@ -5,10 +5,24 @@ var mainwinheight=894
 let baseDatatPath=""
 
 window.api.send("toMain", "basePath")
-const tableLang=[]
+
+const tableLang=[];
+
+const AppContext = {
+  paths: null
+};
+async function initApp() {
+  AppContext.paths = await window.api.getPaths();
+  console.log("paths loaded", AppContext.paths);
+}
+(async () => {
+await initApp(); 
+ console.log(AppContext)
+})();
+
 
 function importUconfig() {
-   var name=baseDatatPath+'config.js'
+   var name=window.api.joinPath(baseDatatPath,'config.js');
    var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -685,6 +699,23 @@ window.api.receive("fromMain", (data) => {
 			case 'defSpatMass':
 				defSpatMass();
 				break
+			case 'defSpectrEdit':
+				defSpectrEdit();
+				break
+			case 'defTrajectory':
+				var id=cmd[1];
+				console.log(`obj spatial ${data}`);
+				var table=JSON.parse(cmd[2]);
+				
+				tableObjet[id].spX=table.spX;
+				tableObjet[id].spY=table.spY;
+				tableObjet[id].spZ=table.spZ;
+				tableObjet[id].spT=table.spT;
+				for(let i=0;i<table.spX.length;i++){
+					tableObjet[id].spD[i]=1;
+				}
+				console.log("id",cmd[1],table,table.spX,tableObjet[id]);
+				break;
 			case 'createSpatialPoint':
 				createSpatialPoint(cmd[1],cmd[2],cmd[3])
 				break
@@ -692,8 +723,11 @@ window.api.receive("fromMain", (data) => {
 				openListeFx()
 				break
 			case 'openStudio':
-				vueStudio=1
-				break
+				vueStudio=1;
+				break;
+			case 'studioEnd':
+				vueStudio=0;
+				break;
 			case 'defSelectImg':
 				defSelectImg(cmd[1])
 				break
@@ -710,7 +744,7 @@ window.api.receive("fromMain", (data) => {
 				exportIntv()
 				break
 			case 'exportObj':
-				exportObjAudio();
+				exportObjAudio(0);
 				break
 			case 'exportGrp':
 				exportGrp()
@@ -760,13 +794,19 @@ window.api.receive("fromMain", (data) => {
 				break
 			case 'playStop':
 				console.log("playStop");
-				playerStat=0;
-				document.getElementById("renderPlay").src="./images/png/lecture.png";
-				/*
+				if(playerStat==1){
+					document.getElementById("renderPlay").src="./images/png/lecture.png";
+					//playerStat=0;
+					if(timer){
+						clearTimeout(timer);
+					}
+					document.getElementById("renderPos").value=0;
+				}
+	 	
+				document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
 				if(timer){
 					clearTimeout(timer);
 				}
-				*/
 				break
 			case 'processAudio':
 				const processedBufferData = JSON.parse(cmd[1]);
@@ -920,7 +960,7 @@ function selectBkgObj(e){
      	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+tableBuffer[tableObjet[objActif].bufferId].buffer.numberOfChannels+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
      	 	}	
 	      window.api.send("toMain", ntxt );
-	      
+	      console.log("ntxt",ntxt)
      	}
      	if (e.target.parentNode.id.substring(0,5)=="objet"){
      		if(e.target.parentNode.id!="space"){
@@ -946,7 +986,7 @@ function selectBkgObj(e){
 		     	 	}else{
 		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+tableBuffer[tableObjet[objActif].bufferId].buffer.numberOfChannels+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 		     	 	}
-		     	 	
+		     	 	console.log("ntxt",ntxt)
 	     	 	}
 	     	 	if(tableObjet[objActif].class==3){
 		     	 	var ntxt="openSymbParam;"+id+";"+lang+";"+objetGrapĥToString(objActif)+";"+tableObjet[objActif].type
@@ -955,6 +995,7 @@ function selectBkgObj(e){
 	   	}
 	   	
      	}
+     	
      	if (e.target.parentNode.parentNode.id.substring(0,5)=="objet"){
      		/*
      		if(selectObj && selectObj!=e.target.parentNode.parentNode.id){
@@ -972,13 +1013,14 @@ function selectBkgObj(e){
 	     	 	nselector=0
 	      	grpSelect=0;
 	      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
-	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
+	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}else{
-	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+objetParamsToString(objActif)+";"+tableObjet[objActif].canaux+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
+	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";"+tableObjet[objActif].canaux+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}
 	     	 	window.api.send("toMain", 'objGraphValid')
 
 		      window.api.send("toMain", ntxt );
+		      console.log("ntxt",ntxt)
 	      }else{
 	      	window.api.send("toMain", 'objParamChange')
 	      	objActif=id
@@ -986,13 +1028,15 @@ function selectBkgObj(e){
 	     	 	nselector=0
 	      	grpSelect=0
 	      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
-	     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
+	     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}else{
-	     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+tableBuffer[tableObjet[objActif].bufferId].buffer.numberOfChannels+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
+	     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}	
 		      window.api.send("toMain", ntxt );
 	      }
+	      
      	}
+     	console.log( tableObjet[objActif],ntxt)
      	if (e.target.parentNode.parentNode.parentNode.id.substring(0,5)=="objet"){
      		if(selectObj!=e.target.parentNode.parentNode.parentNode.id){
      			selectObj=e.target.parentNode.parentNode.parentNode.id;
@@ -1007,9 +1051,9 @@ function selectBkgObj(e){
       	grpSelect=0
       	if(tableObjet[objActif].class==1){
 	      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
-	     	 		var ntxt="openObjetParam;"+id+";"+objetGrapĥToString(objActif)+";"+tableObjet[objActif].type+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
+	     	 		var ntxt="openObjetParam;"+id+";"+JSON.stringify(tableObjet[objActif])+";"+tableObjet[objActif].type+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}else{
-	     	 		var ntxt="openObjetParam;"+id+";"+objetGrapĥToString(objActif)+";"+tableObjet[objActif].type+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
+	     	 		var ntxt="openObjetParam;"+id+";"+JSON.stringify(tableObjet[objActif])+";"+tableObjet[objActif].type+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value)
 	     	 	}
 	     	 }
      	 	if(tableObjet[objActif].class==3){
@@ -1017,7 +1061,7 @@ function selectBkgObj(e){
 	     	}					
 	      window.api.send("toMain",ntxt );
      	}
-     	console.log( tableObjet[objActif],ntxt)
+     	
      	if(e.target.id.substring(0,3)=="grp"){
      		selectObj=e.target.id;
    		objActif=parseInt(selectObj.substring(3));
@@ -1147,12 +1191,12 @@ txt5=txt5+","+rubberband
 window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt2+";"+txt3+";"+txt4+";"+txt5)
 }
 function objetParamsToString(id) {
-	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].fadeOut+":"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width+":"+tableObjet[id].reverse
+	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width+":"+tableObjet[id].reverse+";"+tableObjet[id].rmsdb
 	
 	return txt
 }
 function preDefToString(id) {
-	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].fadeOut+";"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].liste+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width
+	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].liste+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width
 	
 	return txt
 }
@@ -1439,37 +1483,7 @@ function uena(chn) {
   return window.btoa(unescape(encodeURIComponent(chn)));
 }
 
-function loadSoundTableBuffer(id,url) {
-    var request = new XMLHttpRequest();
-    request.open('GET', url, true);
-    request.responseType = 'arraybuffer';
-    request.onload = function() {
-      contextAudio.decodeAudioData(request.response, function(buffer) {
-        
-        //document.getElementById("paramDuree").innerHTML="Durée : "+buffer.duration.toFixed(2)+"s";
-        //document.getElementById("paramCanaux").innerHTML="Canaux : "+buffer.numberOfChannels;
-        tableObjet[id].duree = buffer.duration;
-        tableObjet[id].fin=1;
-        tableObjet[id].debut=0;
-        var pathnom=url.split('/')
-        	tableObjet[id].file=pathnom[pathnom.length-1]
-        
-       var hasKey = -1;
-       var hasKey =tableBuffer.findIndex(elem => elem.name === pathnom[pathnom.length-1]);
-		 
-		 if(hasKey>-1){
-		 	tableObjet[id].bufferId=hasKey;
-		 	window.api.send("toMain", "fileAudioParam;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels )
-        }else{
-         tableBuffer.push({name:pathnom[pathnom.length-1],buffer:buffer});
-        	tableObjet[id].bufferId=tableBuffer.length-1;
-        	window.api.send("toMain", "fileAudioParam;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels )
-         								
-        }
-      });
-    }
-    request.send();
-}
+
 async function importMulti(url,c,d){
 	var request = new XMLHttpRequest();
     request.open('GET', url, true);
@@ -1488,24 +1502,11 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 	tableObjet[id].duree = d;
    tableObjet[id].fin=1;
    tableObjet[id].debut=0;
-   tableObjet[id].file=dir+"/"+base;
+   //tableObjet[id].file=dir+"/"+base;
+   tableObjet[id].file=base;
    tableObjet[id].canaux=parseInt(c);
-	console.log("c",c)
-    var hasKey = -1;
-    var hasKey =tableBuffer.findIndex(elem => elem.name === base);
-	 const outputBaseDir =base.replace(/\.wav$/, "");
-	 if(hasKey>-1){
-	 	tableObjet[id].bufferId=hasKey;
-	 	window.api.send("toMain", "fileAudioParam;"+id+";"+base+";"+d+";"+c)
-     }else{
-     	for(i=1;i<parseInt(c)+1;i++){
-      	await importMulti(dir+"/"+outputBaseDir+"/chan"+i+".wav",c,d);
-      }
-     	tableObjet[id].bufferId=tableBuffer.length-1;
-     	console.log("tableBuffer",tableBuffer,tableObjet)
-     	window.api.send("toMain", "fileAudioParam;"+id+";"+base+";"+d+";"+c)
-      								
-     }  
+	console.log("c",tableObjet[id],c)
+   window.api.send("toMain", "fileAudioParam;"+id+";"+base+";"+d+";"+c)
 }
 function loadPreDefSound(id,url) {
     var request = new XMLHttpRequest();
@@ -1686,7 +1687,8 @@ function audioEnv(id,ev,x) {
 	tableObjet[id].envX[ev]=parseFloat(x)
 }
 function defEnv(x) {  
-	tableObjet[objActif].envX=x
+	var nx=JSON.parse(x);
+	tableObjet[objActif].envX=nx
 }
 function preDefEnv(id,ev,x,y) {  
 	for(let i=0;i<tableObjet[id].liste.length;i++){
@@ -2157,6 +2159,10 @@ function symbRotate(id,rotate) {
 }
 function symbColor(id,color) {  
 	tableObjet[id].objColor=color 
+	if(tableObjet[id].type==55){
+		var st='fill:none;stroke-width:0.965223;stroke:'+color+';stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1'
+		document.getElementById("objet"+id).firstChild.firstChild.firstChild.setAttribute("style",st)
+	}
 	if(tableObjet[id].type>77 && tableObjet[id].type<84){
 		var st=style='fill:'+color+';fill-opacity:1;stroke:'+color+';stroke-width:1'
 		document.getElementById("objet"+id).firstChild.firstChild.firstChild.setAttribute("style",st)
@@ -2262,7 +2268,7 @@ function objetBkgHeight(id,h) {
 	document.getElementById(tableObjet[id].id).style.height=tableObjet[id].bkgHeight+"px"
 	document.getElementById(tableObjet[id].id).style.backgroundSize=document.getElementById(tableObjet[id].id).style.width+" "+document.getElementById(tableObjet[id].id).style.height
 	if(tableObjet[id].type==23){
-		console.log(document.getElementById(tableObjet[id].id))
+		//console.log(document.getElementById(tableObjet[id].id))
 		document.getElementById(tableObjet[id].id).firstChild.setAttribute('height',tableObjet[id].bkgHeight)
 		//var bk=document.getElementById(tableObjet[id].id).firstChild.getAttribute('viewBox').split(" ")
 		document.getElementById(tableObjet[id].id).firstChild.style.height=tableObjet[id].bkgHeight
@@ -2366,6 +2372,7 @@ function objetPlGauche(id,ml) {
 			break
 		default:
 			elem.setAttribute('transform',"scale("+tableObjet[id].scaleX+" "+tableObjet[id].scaleY+") translate("+ml+" "+tableObjet[id].margeH+")")
+			
 			break
 	}
 }
@@ -2892,6 +2899,14 @@ function spatialspT(id,pt,T) {
 function spatialspD(id,pt,D) {
 	tableObjet[id].spD[pt]=parseFloat(D);
 }
+function trajectSpatial(id,X,Y,Z,D,T) {
+	tableObjet[id].spX=X;
+	tableObjet[id].spY=Y;
+	tableObjet[id].spZ=Z;
+	tableObjet[id].spT=T;
+	tableObjet[id].spD=D;
+	console.log(tableObjet[id])
+}
 function createSpatialPoint(id,pt,t){
 	tableObjet[id].spX[pt]=0
 	tableObjet[id].spY[pt]=0
@@ -2902,7 +2917,9 @@ function createSpatialPoint(id,pt,t){
 function defSpatMass() {
 	window.api.send("toMain", "openSpatMass;"+objActif+";"+JSON.stringify(tableObjet[objActif]))
 }
-
+function defSpectrEdit() {
+	window.api.send("toMain", "openSpectrEdit;"+objActif+";"+tableObjet[objActif].file+";"+JSON.stringify(tableObjet[objActif]))
+}
 function openStudio() {
 	if(typeof objActif !== typeof undefined  && objActif!==1048576){
 		var id=objActif
@@ -3199,35 +3216,46 @@ function fxParamModifBB(ref1,ref2) {
 }
 //document.getElementById("zoomWaveForm").addEventListener('input',waveFormZoom);
 
-function waveSvgForm(pos,zoom) {
+async function waveSvgForm(pos,zoom) {
 	document.getElementById("canvas").style.display="block"
-	var w=200*zoom
+	var w=200*zoom;
+	document.getElementById("dfWave").firstChild.firstChild.innerHTML="";
 	//document.getElementById("canvas").firstChild.nextSibling.firstChild.setAttribute('width',w)
-	var nbuf=defAudioObjet(objActif)
+	//var nbuf=defAudioObjet(objActif)
+	const filePath = window.api.joinPath(`${paramProjet.audioPath}`,tableObjet[objActif].file);
+    const dir = await rdDirName(filePath);
+    let baseName = await rdBaseName(filePath)
+    baseName=baseName.split(".")[0];
+    const nPath = `${dir}/tmp/${tableObjet[objActif].id}-fx.wav`;
+   // const def=await readSimpleAudioA(objActif,1);
+    setTimeout(() => {}, 2000);
+    const rt = await window.api.loadBuffers(nPath);
+    const numChannels = rt.numChannels;
+    let numSamples = rt.numSamples;
+    const sampleRate = rt.sampleRate;
+	 console.log("length",numSamples);
+    // Clone des buffers pour traitement
+    let currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
+    const monoBuffer = await mixToMono(currentChannels);
+    var audioBuffer = contextAudio.createBuffer(numChannels,numSamples,sampleRate);
+    audioBuffer.getChannelData(0).set(monoBuffer);
+    drawSvgWaveform(audioBuffer, canvas, pos = 0.2, zoom=1);
 }
 function waveFormZoom() {
 	var z=parseFloat(document.getElementById("zoomWaveForm").value)
-	waveSvgForm(0.5,z)
+	waveSvgForm(0.2,z)
 }
 function saveWaveForm() {
-	
-	//document.getElementById("dfWave").firstChild.setAttribute("height",400)
-	//document.getElementById("dfWave").firstChild.setAttribute("viewBox","0 0 600 400")
 	var doc=document.getElementById("dfWave").innerHTML
-	//console.log(document.getElementById("dfWave").firstChild,doc)
 	doc=btoa(doc)
-	window.api.send("toMain", "saveSvg;"+doc)
+	window.api.send("toMain", "saveVueSvg;"+doc)
 }
 function closeWaveForm(){
 	document.getElementById("canvas").style.display="none"
 }
 function waveFormH() {
 	var z=parseFloat(document.getElementById("zHWaveForm").value)
-	//var zx=parseFloat(document.getElementById("zoomWaveForm").value)
-	//document.getElementById("canvas").firstChild.setAttribute("transform","scale(1 "+z+")")
-	
-	document.getElementById("dfWave").firstChild.firstChild.setAttribute("transform","translate(0 50) scale(1 "+(z)+")");
-	//console.log("z",z,document.getElementById("canvas").firstChild.firstChild)
+	document.getElementById("dfWave").firstChild.setAttribute("transform","scale(1 "+z+")")
 }
 //document.getElementById("waveFormColor").addEventListener("input", updateFirst, false);
 document.getElementById("waveFormColor").addEventListener("change",  waveFormColor, false);
@@ -3238,8 +3266,8 @@ function waveFormColor(e) {
     p.setAttribute('fill',e.target.value)
   });
 } 
-function spectrogram(){
-	exportAudioObjet(objActif)
+async function spectrogram(){
+	await readSimpleAudioA(objActif,1);
 	var objpath=paramProjet.audioPath+"exports/"+tableObjet[objActif].id+".wav"
 	if(paramProjet.audioPath && tableObjet[objActif].file){
 		window.api.send("toMain", "vueSpectrogram;"+objpath)
@@ -3247,17 +3275,19 @@ function spectrogram(){
 }
 
 function host(){
-	exportAudioObjet(objActif,0)
+	//exportAudioObjet(objActif,0)
+	exportObjAudio(1)
 	var objpath=paramProjet.audioPath+"exports/"+tableObjet[objActif].id+".wav"
 	if(paramProjet.audioPath && tableObjet[objActif].file){
 		window.api.send("toMain", "openHost;"+tableObjet[objActif].id+";"+objpath)
 	}
 }
 function openRead3D() {
+	console.log("cmdDaw",cmdDaw)
 	if(grpSelect==1){
 		exportSelect()
 	}else{
-		window.api.send("toMain", "read3D")
+		window.api.send("toMain", "read3D;"+cmdDaw)
 	}
 }
 

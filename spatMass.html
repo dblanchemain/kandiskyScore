@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-12-20T16:03:09+0100" />
+<meta name="date" content="2026-03-02T19:01:57+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -91,8 +91,9 @@ dragElement(document.getElementById("renderAudio"));
 
 defSelectInFx();
 defSelectOutFx();
+let mode=0;
 
-
+let audioPath="";
 
 function exit() {
 	window.api.send("toMain", "closeMassPath");
@@ -126,8 +127,10 @@ if (args && typeof args === "object" && args.type) {
 	var cmd=args.split(";")
 	switch(cmd[0]){
 			case 'openSpatMass':
-				const id=cmd[1]
-				const obj = JSON.parse(cmd[2]);
+				const id=cmd[1];
+				audioPath=cmd[2]
+				const obj = JSON.parse(cmd[3]);
+				mode=parseInt(cmd[4]);
 				console.log("id",id,"obj",obj);
 				defObjet(id,obj);
 				break;
@@ -165,7 +168,8 @@ let tableObjOut=[];
 let currentChannels =[];
 let saveChannels=[];
 async function defObjet(id,obj) {
-	filePath = obj.file;
+	filePath =window.api.joinPath(audioPath, obj.file);
+	console.log("file",filePath);
    const dir = rdDirName(filePath);
    const baseName = rdBaseName(filePath).split(".")[0];
    const inPath = `${dir}/${baseName}.wav`;
@@ -810,9 +814,9 @@ async function applyFxBuffersMono(obj, currentBuffer, numSamples, sampleRate) {
     const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
 
     const blockSize = 1024;
-
+	 const appPaths = await window.api.getPaths();
     // ----- Faust -----
-    const faustPkg = await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+    const faustPkg = await import(`${appPaths.basedir}/resources/@grame/faustwasm/dist/esm/index.js`);
     const {
         instantiateFaustModuleFromFile,
         LibFaust,
@@ -821,7 +825,7 @@ async function applyFxBuffersMono(obj, currentBuffer, numSamples, sampleRate) {
     } = faustPkg;
 
     const faustModule = await instantiateFaustModuleFromFile(
-        "./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js"
+        `${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`
     );
 
     const libFaust = new LibFaust(faustModule);
@@ -996,8 +1000,9 @@ async function spkInput() {
 	console.log("selectInput",this.id);
 	inActif=this.id.substring(5);
 	readInput(this.id);
-	await window.api.saveAudioBuffer({ filePath: "renduout.wav", buffer: { sampleRate, channels: [currentChannels[inActif]] } });
-	window.api.send("toMain", 'wasmSpectrogram;renduout.wav');
+	const appPaths = await window.api.getPaths();
+	await window.api.saveAudioBuffer({ filePath: `${appPaths.userData}/renduout.wav`, buffer: { sampleRate, channels: [currentChannels[inActif]] } });
+	window.api.send("toMain", `wasmSpectrogram;${appPaths.userData}/renduout.wav`);
 }
 function fxOut() {
 	console.log("fxOnput",this.id);
@@ -1013,8 +1018,9 @@ async function spkOut() {
 	console.log("selectOutput",this.id);
 	outActif=this.id.substring(6);
 	var buf= await readOutput(this.id,0);
-	await window.api.saveAudioBuffer({ filePath: "renduout.wav", buffer: { sampleRate, channels: [buf] } });
-	window.api.send("toMain", 'wasmSpectrogram;renduout.wav');
+	const appPaths = await window.api.getPaths();
+	await window.api.saveAudioBuffer({ filePath: `${appPaths.userData}/renduout.wav`, buffer: { sampleRate, channels: [buf] } });
+	window.api.send("toMain", `wasmSpectrogram;${appPaths.userData}/renduout.wav`);
 }
 function defSelectInFx(){
 	var txt=""
@@ -1247,7 +1253,7 @@ function player() {
 function annulAudio(){
 	document.getElementById("renderAudio").style.display="none";
 }
-function saveRenduAudio(duree,file){
+async function saveRenduAudio(duree,file){
 dureePlayer = duree;
 console.log("duree",duree);
 	var a;
@@ -1260,7 +1266,8 @@ console.log("duree",duree);
 	a.id="rubber";
 	}
   //const fileName = file.split(/[\\/]/).pop(); 
-  a.href = "renduout.wav"//URL.createObjectURL(rwav);
+  const appPaths = await window.api.getPaths();
+  a.href = `${appPaths.userData}/renduout.wav`//URL.createObjectURL(rwav);
   a.download = file;
   a.textContent = 'Sauvegarder le fichier audio';
   a.style.display = 'inline-block';
@@ -1270,7 +1277,7 @@ console.log("duree",duree);
   a.style.color = 'white';
   a.style.borderRadius = '6px';
   a.style.textDecoration = 'none';
-  window.api.send("toMain", 'wasmSpectrogram;renduout.wav');
+  window.api.send("toMain", `wasmSpectrogram;${appPaths.userData}/renduout.wav`);
 }
 async function readMasterOutput() {
 	var nbOut=parseInt(document.getElementById("nbc").value);
@@ -1280,8 +1287,9 @@ async function readMasterOutput() {
 		masterChannels[i]=await readOutput("spkOut"+i,1);
 	}
 	console.log(masterChannels);
-	await window.api.saveAudioBuffer({ filePath: "renduout.wav", buffer: { sampleRate, channels: masterChannels } });
-	saveRenduAudio(numSamples/sampleRate,"renduout.wav");
+	const appPaths = await window.api.getPaths();
+	await window.api.saveAudioBuffer({ filePath: `${appPaths.userData}/renduout.wav`, buffer: { sampleRate, channels: masterChannels } });
+	saveRenduAudio(numSamples/sampleRate,`${appPaths.userData}/renduout.wav`);
 }
 
 async function wasm() {
@@ -1291,10 +1299,11 @@ async function wasm() {
         curChannel = await reverseMonoBufferFloat32(curChannel);
     }
    curChannel = await applyFxBuffersMono(tableObjIn[inActif],curChannel,numSamples,sampleRate);
-   
+   const appPaths = await window.api.getPaths();
    console.log(curChannel);
-	await window.api.saveAudioBuffer({ filePath: "renduout.wav", buffer: { sampleRate, channels: curChannel } });
-	window.api.send("toMain", "openMassWasm;"+inActif+";renduout.wav;"+sampleRate);
+   const mode=0;
+	await window.api.saveAudioBuffer({ filePath: `${appPaths.userData}/renduout.wav`, buffer: { sampleRate, channels: curChannel } });
+	window.api.send("toMain", `openMassWasm;${inActif};${appPaths.userData}/renduout.wav;${sampleRate};${mode}`);
 	
 }
 async function rtWasmHost(canal,buffer){

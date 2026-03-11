@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-03-26T10:27:00+0100" />
+<meta name="date" content="2026-01-04T16:53:21+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -33,11 +33,13 @@ window.api.receive("fromMain", (data) => {
 <div  id="svgZoom" style="width:100%;height:32px;background-color:#e2e2e2;"><span style="margin-left:130px;">Zoom : </span><input  id="objZoom" style="width:64px;height:18px;" type="number"  value="1" min="0.01" max="10" step="0.01" />
 		<button id="lbvalid" onclick='svgAs();' style.='margin-left:30px'><img  style="width:18px;height:18px;;margin-top:4px;" src="./images/png/floppy.png" alt="Save" onclick="saveSpectro(path)"></button><button id="lbvalid" onclick='spectroAnnul();'>Annul</button>
 		</div>
-<div>
+<table><tbody><tr><td>
 <img  style="width:600px;height:500px;" id="spectro" src="" alt="Spectrogram">
-</div>
-<div id="info" style="color:#000000;">
-</div>
+</td>
+<td id="info" style="color:#000000;padding:20px;">
+</td>
+</tbody>
+</table>
 <script >
 document.getElementById("objZoom").addEventListener('input',defZoom);
 function aenu(chn) {

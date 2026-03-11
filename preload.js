@@ -1,11 +1,17 @@
 // preload.js
 
-
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer} = require('electron');
 const path = require('path');
+const fs = require('fs/promises');
+
 // Toutes les API Node.js sont disponibles dans le processus de préchargement.
 // Il a la même sandbox qu'une extension Chrome.
 
+const isDev = process.resourcesPath.includes('node_modules/electron');
+const resourcesPath = isDev
+  ? path.join(process.cwd(), 'resources')
+  : process.resourcesPath;
+  
 contextBridge.exposeInMainWorld(
 "api", {
         send: (channel, data) => {
@@ -42,7 +48,16 @@ contextBridge.exposeInMainWorld(
                 ipcRenderer.send(channel,'saveAudio',...args)
             }
         },
-  	 loadFile: (filePath) =>ipcRenderer.invoke("loadFile", filePath),
+    spectralShift: (buffers, sampleRate, start, end, fTarget, objSelect) =>
+        ipcRenderer.invoke('spectralShift', buffers, sampleRate, start, end, fTarget, objSelect),
+    eraseSelection: (currentChannels,sampleRate,objSelect) => {
+        return ipcRenderer.invoke('eraseSelection',currentChannels,sampleRate,objSelect);},
+    filtreSelection: (buffers,sampleRate,objSelect) => {
+        return ipcRenderer.invoke('filtreSelection',buffers,sampleRate,objSelect);},
+   frequencyShift: (buffers, sr, start, end, objSelect, mouseY) =>
+    ipcRenderer.invoke('frequencyShift', buffers, sr, start, end, objSelect, mouseY),
+    showSaveDialog: () => ipcRenderer.invoke("showSaveDialog"),
+    loadFile: (filePath) =>ipcRenderer.invoke("loadFile", filePath),
   	 saveAudioBuffer: (...args) => ipcRenderer.invoke("save-audio-buffer", ...args),
     mergeWithSox: (output, inputs) =>
         ipcRenderer.invoke("runSoxMerge", output, inputs),
@@ -52,7 +67,8 @@ contextBridge.exposeInMainWorld(
 
     loadFileAsArrayBuffer: (filePath) =>
         ipcRenderer.invoke("loadAB", filePath),
-
+	 audioSelect: () =>
+        ipcRenderer.invoke("audioSelect"),
     infoFile: (filePath) =>
         ipcRenderer.invoke("infoFile", filePath),
 	 renderGroupWidthSoX: (lsgrp,tbobjets,start) =>
@@ -62,12 +78,19 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("saveAudioTempo", { filePath, arrayBuffer }),
     // File I/O
 	 readFxFile: (relativePath) => ipcRenderer.invoke('readFxFile', relativePath),
-
-    
+	 stft: (buffer, fftSize, hopSize, sampleRate)=>
+        ipcRenderer.invoke("stft",buffer, fftSize, hopSize, sampleRate),
+    extractSpectralRectangle: (args,buffers) =>
+        ipcRenderer.invoke('extractSpectralRectangle', args,buffers),
     readFile: (filePath) =>
         ipcRenderer.invoke('readFile', filePath),
 
     saveFile: (filename, data) =>
         ipcRenderer.invoke("saveFile", { filename, data }),
+    resources: resourcesPath,
+  	 getPaths: () => ipcRenderer.invoke('get-app-paths'),
+  	 joinPath: (...args) => path.join(...args),
+  	 loadBuffersMultichannel: (path) =>
+    ipcRenderer.invoke("load-buffers-multichannel", path)
     }
 )

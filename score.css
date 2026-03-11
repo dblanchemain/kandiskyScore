@@ -186,6 +186,9 @@ color:#ffffff;
 .selector{
 	border:1px dashed black;
 }
+.selector2{
+	border:2px dashed #ffffff;
+}
 .popupHeader{
 	margin:0px;
 	padding-top:4px;

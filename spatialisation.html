@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2024-08-20T17:17:39+0200" />
+<meta name="date" content="2025-12-26T18:23:34+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -22,7 +22,7 @@
 	<div id="spaceCur4" style="position:absolute;width:10px;height:10px;background-color:#f1b30a;top:445px;left:445px;"></div>
 	</div>
 	<div style="width:400px;margin-top:20px;margin-left:10px;">X : <input id="curX" type="number" style="width:60px;" value="0"  min="-1" max="1" step="0.01" /> Y : <input id="curY" type="number" style="width:60px;" value="0" min="-1" max="1" step="0.01" /> Z : <input id="curZ"  type="number" style="width:60px;" value="0"  min="-1" max="1" step="0.01" /> D : <input id="curD" type="number" style="width:60px;" value="1"  min="0" max="1" step="0.01" /></div>
-	<span style="position:absolute;top:650px;left:50px;"><img id="studio3D" style="width: 35px; " alt="Studio 3D" title="Studio 3D" src="./images/png/sphereRot.png"  onclick='studio3D();'/><img id="pt3D" style="width: 35px;margin-left:8px;" alt="Points 3D"  src="./images/png/mpoints.png"  onclick='trajectoire();' /></span><span  style="position:absolute;top:655px;left:400px;"><button onclick='defautSpacialisation();'>Defaut</button> <button  style="margin-left:40px" onclick='validSpacialisation();'>Ok</button></span>
+	<span style="position:absolute;top:650px;left:50px;"><img id="studio3D" style="width: 35px; " alt="Studio 3D" title="Studio 3D" src="./images/png/sphereRot.png"  onclick='studio3D();'/><img id="pt3D" style="width: 35px;margin-left:8px;" alt="Points 3D"  src="./images/png/mpoints.png"  onclick='trajectoire();' /><img id="traject" style="width: 35px;height: 35px;margin-left:8px;" alt="Points 3D"  src="./images/png/trajectory.png"  onclick='selectTrajectoire();' /></span><span  style="position:absolute;top:655px;left:400px;"><button onclick='defautSpacialisation();'>Defaut</button> <button  style="margin-left:40px" onclick='validSpacialisation();'>Ok</button></span>
 	</div>	
 </div>
 <script >
@@ -68,6 +68,20 @@ window.api.receive("fromMain", (data) => {
 				break
 			case 'openStudio3D':
 				winStudio3D=1
+				break;
+			case 'defTrajectory':
+				var id=cmd[1];
+				console.log(`obj spatial ${data}`);
+				var table=JSON.parse(cmd[2]);
+				console.log("id",cmd[1],table,table.spX);
+				spX=table.spX;
+				spY=table.spY;
+				spZ=table.spZ;
+				spT=table.spT;
+				for(let i=0;i<spX.length;i++){
+					spD[i]=1;
+				}
+				defSpacialisation();
 				break
 			default :
 				
@@ -83,7 +97,16 @@ function validSpacialisation() {
 	window.api.send("toMain", "spatialValid;"+spatialId+";"+svSpatial)
 }
 function defautSpacialisation() {
-	
+	spX=[];
+	spY=[];
+	spZ=[];
+	spT=[];
+	spD=[];
+	spX[0]=0;
+	spY[0]=0;
+	spZ[0]=0;
+	spT[0]=0;
+	spD[0]=1;
 }
 function defSpatial(tt,tx,ty,tz,d,g) {
 	var tbt=tt.split(",")
@@ -395,6 +418,9 @@ function spatialspT(pt,T) {
 }
 function studio3D() {
 	window.api.send("toMain", "openStudio3d;"+spX+";"+spY+";"+spZ+";"+gain)
+}
+function selectTrajectoire() {
+	window.api.send("toMain", "createTrajectory;"+spatialId)
 }
 </script>
 </body>
