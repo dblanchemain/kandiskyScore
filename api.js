@@ -547,7 +547,6 @@ function openPopup(title,x,y,width,height,padding,content) {
 	document.getElementById('popup'+title+"Header").innerHTML="<b>"+title+"</b>"
 	document.getElementById('popupContent'+title).innerHTML=content
 	document.getElementById('popup'+title).style.display='block';
-	console.log(dupnode)
 }
 function closePopup(title) {
 	document.getElementById('popup'+title).style.display='none';
@@ -569,6 +568,95 @@ function fxDefParam(id,param) {
 //*******************************************************************************************************
 //														Audio
 //*******************************************************************************************************
+/**
+ * Calcule le RMS et le niveau en dB d'un tableau de samples audio
+ * @param {Float32Array|number[]} samples - tableau d'échantillons (valeurs entre -1 et 1)
+ * @param {number} gain - gain linéaire à appliquer (par défaut 1)
+ * @returns {number} niveau en dB
+ */
+function rmsToDb(samples, gain = 1) {
+    if (!samples || samples.length === 0) return -Infinity;
+
+    // Calcul du RMS
+    let sumSquares = 0;
+    for (let i = 0; i < samples.length; i++) {
+        sumSquares += samples[i] * samples[i];
+    }
+    const rms = Math.sqrt(sumSquares / samples.length);
+
+    // Appliquer le gain et convertir en dB
+    const rmsWithGain = rms * gain;
+    const db = 20 * Math.log10(rmsWithGain);
+
+    return db;
+}
+/**
+ * Calcule le RMS et le niveau en dB d'un AudioBuffer Web Audio
+ * @param {AudioBuffer} audioBuffer - AudioBuffer contenant les pistes
+ * @param {number} gain - gain linéaire à appliquer (optionnel, défaut 1)
+ * @returns {number} Niveau moyen en dB
+ */
+function getRmsDbFromAudioBuffer(audioBuffer, gain = 1) {
+    if (!audioBuffer) return -Infinity;
+
+    let sumSquares = 0;
+    let totalSamples = 0;
+
+    // Parcourir toutes les pistes
+    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+        const samples = audioBuffer.getChannelData(channel);
+        totalSamples += samples.length;
+
+        for (let i = 0; i < samples.length; i++) {
+            sumSquares += samples[i] * samples[i];
+        }
+    }
+
+    if (totalSamples === 0) return -Infinity;
+
+    // Calcul du RMS
+    const rms = Math.sqrt(sumSquares / totalSamples);
+
+    // Appliquer le gain et convertir en dB
+    const rmsWithGain = rms * gain;
+    const db = 20 * Math.log10(rmsWithGain);
+
+    return db;
+}
+/**
+ * Calcule le RMS et le niveau en dB pour chaque piste d'un AudioBuffer
+ * @param {AudioBuffer} audioBuffer - AudioBuffer contenant les pistes
+ * @param {number} gain - gain linéaire à appliquer à chaque piste (optionnel, défaut 1)
+ * @returns {Array} tableau d'objets { channel: numéro, rms: RMS linéaire, db: niveau en dB }
+ */
+function getRmsDbPerChannel(audioBuffer, gain = 1) {
+    if (!audioBuffer) return [];
+
+    const results = [];
+
+    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+        const samples = audioBuffer.getChannelData(channel);
+        if (!samples || samples.length === 0) {
+            results.push({ channel, rms: 0, db: -Infinity });
+            continue;
+        }
+
+        // Calcul du RMS
+        let sumSquares = 0;
+        for (let i = 0; i < samples.length; i++) {
+            sumSquares += samples[i] * samples[i];
+        }
+        const rms = Math.sqrt(sumSquares / samples.length);
+
+        // Appliquer le gain et convertir en dB
+        const rmsWithGain = rms * gain;
+        const db = 20 * Math.log10(rmsWithGain);
+
+        results.push({ channel, rms, db });
+    }
+
+    return results;
+}
 function lastAudio() {
 	var lmax=-1;
 	var iref=0;

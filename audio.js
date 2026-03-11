@@ -21,12 +21,17 @@ var compteur=0
 var tempoFoo=[]
 var curTempo=0;
 let dureePlayer=0;
+let tableListSource=[];
+let timer;
+
 
 document.getElementById("simpleSpeaker").addEventListener('click',readSimpleAudio)
+document.getElementById("actualiseObj").addEventListener('click',actualiseObjets)
 document.getElementById("inpTempo").addEventListener('input',inpTempo);
 document.getElementById("sliderTempo").addEventListener('input',sliderTempo);
 document.getElementById("renderPlay").addEventListener('click',player);
 
+let maxDuree=0;
 
 function readPart(){
 	let nbp=0;
@@ -34,7 +39,7 @@ function readPart(){
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
 			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
-				if (tableObjet[i].class==1 && tableObjet[i].type<24) {
+				if (tableObjet[i].class==1 && tableObjet[i].type<23) {
 					lsgrp.push(i);
 				}
 			}
@@ -43,14 +48,31 @@ function readPart(){
 	
 	if(playerStat==0){
 		playerStat=1;
-		renderPartAudio(0);
+		defStudioSrc(lsgrp);
+	   console.log("table",lsgrp,tableListSource,tableListSource[0].etat,tableListSource[0].start);
+		 maxDuree=0;
+		 for(i=0;i<tableListSource.length;i++){
+			 var obj=tableObjet[tableListSource[i].obj];
+			 var m=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
+			 m=m+(obj.posX/18);
+			 if(m>maxDuree){
+			 	maxDuree=m;
+			 }
+		 }
+		console.log("maxduree",maxDuree); 
+		curTempo=0;
+		foo() 
+		 
+
+		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M5,40 L5,0 M25,0 L25,40');
+		//renderPartAudio(0);
 		
 	}else{
-		//document.getElementById("play3").src="./images/png/read.png";
+		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
 		playerStat=0;
-		clearTimeout(timer);
+		//clearTimeout(timer);
 		//multiStop();
-		document.getElementById("renduWav").pause();
+		window.api.send("toMain", 'killPlay');
 		if(vueStudio==1 ){
 			window.api.send("toMain", "endEvtAudio;")
 		}
@@ -146,21 +168,40 @@ function foo() {
 		 document.getElementById("compteurM").innerHTML = mt+" : ";
 		 document.getElementById("compteurS").innerHTML = st;
 		 points=0;
-
+		 
+		 for(i=0;i<tableListSource.length;i++){
+			if(tableListSource[i].etat==0 && tableListSource[i].start<parseFloat(document.getElementById("barVerticale").style.left)/18){
+				var obj=tableObjet[tableListSource[i].obj];
+				var outPath=window.api.joinPath(`${paramProjet.audioPath}`,'tmp',`${obj.id}-fx.wav`);
+				 tableListSource[i].etat=1;
+				const options = {
+			    pitchSemitones: obj.detune,  // équivalent à -500 cents
+			    speedFactor: obj.transposition,       // speed 2x
+			    gain: obj.gain,
+			    startSec: obj.debut,
+			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
+				 };
+				 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
+				 const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
+				 var cmd=outPath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade 
+		 		window.api.send("toMain", 'playDirectFile;1;'+cmd);
+		 		console.log("obj",obj.id,options,cmd)
+		 	}
+		 }		
+		 
 		 if(vueStudio==1 ){
+		 	
 		 	for(i=0;i<tableListSource.length;i++){
-			 	if(tableListSource[i].etat==0 && tableListSource[i].start<parseInt(document.getElementById("barVerticale").style.left)+9){
-			 		tableListSource[i].etat=1
-			 		//console.log('date',Date.now()-compteur)
-			 		console.log("create",i,tableListSource[i].start,parseInt(document.getElementById("barVerticale").style.left))
-			 		cmd="obj"+i+";"+tableListSource[i].posX+";"+tableListSource[i].posY+";"+tableListSource[i].scale+";"+tableListSource[i].width+";"+tableListSource[i].zindex+";"+tableListSource[i].image;
+			 	if(tableListSource[i].etat==1 && tableListSource[i].start<parseFloat(document.getElementById("barVerticale").style.left)/18){
+			 		tableListSource[i].etat=2;
+			 		cmd="obj"+i+";"+tableListSource[i].x+";"+tableListSource[i].y+";"+tableListSource[i].z+";"+tableListSource[i].w+";"+tableListSource[i].index+";"+tableListSource[i].img;
+					console.log("createEvtAudio",cmd)					
 					window.api.send("toMain", "createEvtAudio;"+cmd)
 			 	}
 		 	}
 		 	for(i=0;i<tableListSource.length;i++){
-			 	if(tableListSource[i].etat==1 && tableListSource[i].end<parseInt(document.getElementById("barVerticale").style.left)+9){
-			 		console.log("del",i,tableListSource[i].end,parseInt(document.getElementById("barVerticale").style.left))
-			 		tableListSource[i].etat=2
+			 	if(tableListSource[i].etat==2 && tableListSource[i].end<parseFloat(document.getElementById("barVerticale").style.left)/18){
+			 		tableListSource[i].etat=3;
 			 		window.api.send("toMain", "delEvtAudio;obj"+i)
 			 	}
 		 	}
@@ -168,17 +209,104 @@ function foo() {
 		 }
 	//}
 	// console.log('time',document.getElementById("renduWav").currentTime)
-	
+
 	 
 	 if(parseFloat(document.getElementById("barVerticale").style.left)>tempoFoo[curTempo].X){
 	 	//document.getElementById("renduWav").playbackRate =tempoFoo[curTempo].Y/60;
 	 	document.getElementById("tempo").value=tempoFoo[curTempo].Y.toFixed(2)
 	 	 curTempo++;
 	 }
-//console.log('curTempo',curTempo,tempoFoo)
-    	timer=setTimeout(foo, delay);
+	 
+		 if(parseFloat(document.getElementById("barVerticale").style.left)/18<maxDuree){
+	    	timer=setTimeout(foo, delay);
+	    }
     }
 }
+
+function foo2() {	
+	var nb=240/(dureePlayer*3000);
+	document.getElementById("renderPos").value=parseFloat(document.getElementById("renderPos").value)+nb;
+	var delay=81;
+	if(document.getElementById("renderPos").value<240){
+		timer=setTimeout(foo2, delay);
+	}else{
+		window.api.send("toMain", 'killPlay')
+	}
+}
+function defStudioSrc(lsgrp) {
+	tableListSource=[];
+	for (let i=0;i<lsgrp.length;i++){
+		var graph=defTypeDb(tableObjet[lsgrp[i]].rmsdb);
+		var obj=tableObjet[lsgrp[i]];
+		var startSec=obj.debut;
+	   var lengthSec= (obj.duree*obj.fin)-(obj.duree*obj.debut);
+	   var numSamples=obj.duree*contextAudio.sampleRate;
+	   const startSample = Math.floor(startSec * contextAudio.sampleRate);
+      const endSample = Math.min(Math.floor((startSec + lengthSec) * contextAudio.sampleRate), numSamples);
+      const trimmedLength = endSample - startSample;
+		const renderedLength = Math.floor(trimmedLength /obj.transposition);
+		const rduree=renderedLength/contextAudio.sampleRate;
+		var ntime=obj.posX/18;
+		for(let j=0;j<obj.spT.length;j++){
+			var npoint={};
+			var npz=(1.4-obj.spZ[j])/2;
+			npoint.start=ntime+(obj.spT[j]*rduree);
+			if(obj.spT[j+1]){
+				npoint.end=ntime+(obj.spT[j+1]*rduree);
+			}else{
+				npoint.end=ntime+(renderedLength/contextAudio.sampleRate) ;
+			}
+			npoint.obj=lsgrp[i];
+			npoint.x=obj.spX[j];
+			npoint.y=obj.spY[j];
+			npoint.etat=0;
+			npoint.z=npz;
+			npoint.w=graph.wd*npz;
+			npoint.img=graph.img;
+			npoint.index=Math.round((npz*100)+1);
+			tableListSource.push(npoint);
+		}
+		console.log(obj,tableListSource)
+	}
+	
+}
+function defTypeDb(objDb) {
+	var lscale2=2	
+	if (objDb<-40){
+		var ws=30*lscale2;
+		var im="./images/png/path4484.png";
+	}
+	if (objDb>=-39 && objDb<-32){
+		var ws=35*lscale2;
+		var im="./images/png/path4488.png";
+	} 
+	if (objDb>=-31 && objDb<-24){
+		var ws=40*lscale2;
+		var im="./images/png/path4487.png";
+	}
+	if (objDb>=-23 && objDb<-16){
+		var ws=50*lscale2;
+		var im="./images/png/path4486.png";
+	}
+	if (objDb>=-15 && objDb<-8){
+		var ws=60*lscale2;
+		var im="./images/png/path4489.png";
+	}
+	if (objDb>=-8 && objDb<-2){
+		var ws=70*lscale2;
+		var im="./images/png/path4490.png";
+	}
+	if (objDb>=-2.0){
+		var ws=80*lscale2;
+		var im="./images/png/path4485.png";
+	}
+	var rt={
+		wd:ws,
+		img:im
+	}
+	return rt;
+}
+
 function defTime(elem) {
 	tmp=((parseInt(document.getElementById(elem).style.left)/zoomScale)*(720/12960))+1;
 	if(elem=="barDebut"){
@@ -211,103 +339,8 @@ function defTime(elem) {
 	 document.getElementById("compteurS").innerHTML = st;
 	return tmp
 }
-function convertAudioBufferToBlob(audioBuffer) {
 
-    var channelData = [],
-      totalLength = 0,
-      channelLength = 0;
-
-    for (var i = 0; i < audioBuffer.numberOfChannels; i++) {
-      channelData.push(audioBuffer.getChannelData(i));
-      totalLength += channelData[i].length;
-      if (i == 0) channelLength = channelData[i].length;
-    }
-
-    // interleaved
-    const interleaved = new Float32Array(totalLength);
-
-    for (
-      let src = 0, dst = 0;
-      src < channelLength;
-      src++, dst += audioBuffer.numberOfChannels
-    ) {
-      for (var j = 0; j < audioBuffer.numberOfChannels; j++) {
-        interleaved[dst + j] = channelData[j][src];
-      }
-    }
-
-    // get WAV file bytes and audio params of your audio source
-    const wavBytes = this.getWavBytes(interleaved.buffer, {
-      isFloat: true, // floating point or 16-bit integer
-      numChannels:2,
-      sampleRate: contextAudio.sampleRate,
-    });
-    const wav = new Blob([wavBytes], { type: "audio/wav" });
-    return wav
-  }
-  function getWavBytes(buffer, options) {
-  const type = options.isFloat ? Float32Array : Uint16Array
-  const numFrames = buffer.byteLength / type.BYTES_PER_ELEMENT
-
-  const headerBytes = getWavHeader(Object.assign({}, options, { numFrames }))
-  const wavBytes = new Uint8Array(headerBytes.length + buffer.byteLength);
-
-  // prepend header, then add pcmBytes
-  wavBytes.set(headerBytes, 0)
-  wavBytes.set(new Uint8Array(buffer), headerBytes.length)
-
-  return wavBytes
-}
-function getWavHeader(options) {
-  const numFrames =      options.numFrames
-  const numChannels =    options.numChannels || 2
-  const sampleRate =     options.sampleRate || contextAudio.sampleRate
-  const bytesPerSample = options.isFloat? 4 : 2
-  const format =         options.isFloat? 3 : 1
-
-  const blockAlign = numChannels * bytesPerSample
-  const byteRate = sampleRate * blockAlign
-  const dataSize = numFrames * blockAlign
-
-  const buffer = new ArrayBuffer(44)
-  const dv = new DataView(buffer)
-
-  let p = 0
-
-  function writeString(s) {
-    for (let i = 0; i < s.length; i++) {
-      dv.setUint8(p + i, s.charCodeAt(i))
-    }
-    p += s.length
-  }
-
-  function writeUint32(d) {
-    dv.setUint32(p, d, true)
-    p += 4
-  }
-
-  function writeUint16(d) {
-    dv.setUint16(p, d, true)
-    p += 2
-  }
-
-  writeString('RIFF')              // ChunkID
-  writeUint32(dataSize + 36)       // ChunkSize
-  writeString('WAVE')              // Format
-  writeString('fmt ')              // Subchunk1ID
-  writeUint32(16)                  // Subchunk1Size
-  writeUint16(format)              // AudioFormat https://i.stack.imgur.com/BuSmb.png
-  writeUint16(numChannels)         // NumChannels
-  writeUint32(sampleRate)          // SampleRate
-  writeUint32(byteRate)            // ByteRate
-  writeUint16(blockAlign)          // BlockAlign
-  writeUint16(bytesPerSample * 8)  // BitsPerSample
-  writeString('data')              // Subchunk2ID
-  writeUint32(dataSize)            // Subchunk2Size
-
-  return new Uint8Array(buffer)
-}
-function readSimpleAudio() {
+async function readSimpleAudio() {
 	console.log("read speaker",tableObjet[objActif],objActif)
 	if(playerStat==0){
 		sourceStat=1;
@@ -320,21 +353,35 @@ function readSimpleAudio() {
 		    if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
 		    
 		    const filePath = obj.file;
-		    const dir = rdDirName(filePath);
-		    const baseName = rdBaseName(filePath).split(".")[0];
-		    const outPath = `${dir}/${baseName}-fx.wav`;
+		    const dir = await rdDirName(filePath);
+		    let baseName = await rdBaseName(filePath);
+		    baseName=baseName.split(".")[0];
+		    let outPath ="";
+		    outPath=window.api.joinPath(`${paramProjet.audioPath}`,'tmp',`${obj.id}-fx.wav`);
+		    console.log('baseName',dir,baseName,outPath)
+		    const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
+		    const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
 		    const options = {
 			    pitchSemitones: obj.detune,  // équivalent à -500 cents
 			    speedFactor: obj.transposition,       // speed 2x
 			    gain: obj.gain,
 			    startSec: obj.debut,
+			    fade:defFade,
 			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
 				 };
 				 console.log("read speaker opt",options)
 				 document.getElementById("barVerticale").style.left=((tableObjet[objActif].posX-4)*zoomScale)+"px";
 				 defTime("barVerticale");
+				 if(vueStudio==1 ){
+					defStudioSrc([objActif]);
+				 }
+				 lsgrp=[];
+				 lsgrp[0]=objActif;
+				 defStudioSrc(lsgrp);
+				 maxDuree=durationAfterSpeed+(obj.posX/18);
+				 console.log("maxDuree",maxDuree)
 	  			 foo();
-			 window.api.send("toMain", 'playDirectFile;'+outPath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
+			 window.api.send("toMain", 'playDirectFile;0;'+outPath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade );
 	  				
 			//spatialiseObjet(objActif,"spline");
 			}else if(grpSelect==1 ||  tableObjet[objActif].class==4){
@@ -419,11 +466,16 @@ function player() {
 	 };
 	 console.log("player",filePath,"duree",dureePlayer,parseFloat(document.getElementById("renderPos").value),options);
 	 document.getElementById("renderPlay").src="./images/png/pauseLect.png";
-	 window.api.send("toMain", 'playDirectFile;'+filePath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
+	 foo2();
+	 window.api.send("toMain", 'playDirectFile;0;'+filePath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
 	 
 	 }else{
 	 	playerStat=0;
 	 	document.getElementById("renderPlay").src="./images/png/lecture.png";
+	 	document.getElementById("renderPos").value=0;
+	 	if(timer){
+			clearTimeout(timer);
+		}
 	 	window.api.send("toMain", 'killPlay')
 	 }
 }
@@ -463,18 +515,33 @@ function arrayBufferToAudioBuffer(audioContext, buf, numChannels, numSamples, sa
 }
 
 
-function rdDirName(path) {
-	const ndir=path.split("/");
+async function rdDirName(path) {
+	const appPaths = await window.api.getPaths();
 	let dir="";
-	for(i=0;i<ndir.length-1;i++){
-		dir=dir+ndir[i]+"/"
+	if(appPaths.os=="win32"){
+		const ndir=path.split("\\");
+		for(i=0;i<ndir.length-1;i++){
+			dir=dir+ndir[i]+"\\"
+		}
+	}else{
+		const ndir=path.split("/");
+		for(i=0;i<ndir.length-1;i++){
+			dir=dir+ndir[i]+"/"
+		}
 	}
 	dir=dir.substring(0, dir.length - 1);
 	return dir;
 }
-function rdBaseName(path) {
-	const ndir=path.split("/");
-	const baseName=ndir[ndir.length-1]
+async function rdBaseName(path) {
+	const appPaths = await window.api.getPaths();
+	let baseName="";
+	if(appPaths.os=="win32"){
+		const ndir=path.split("\\");
+		baseName=ndir[ndir.length-1];
+	}else{
+		const ndir=path.split("/");
+		baseName=ndir[ndir.length-1];
+	}
 	return baseName;
 }
 
@@ -619,6 +686,7 @@ let peak=[]
 
 function saveRenduAudio(duree,file){
 dureePlayer = duree;
+playerStat=0;
 console.log("duree",duree,file);
 	var a;
 	document.getElementById("renderAudio").style.display="block";
@@ -641,12 +709,15 @@ console.log("duree",duree,file);
   a.style.borderRadius = '6px';
   a.style.textDecoration = 'none';
 }
+
 async function renderObjAudio(){
 	var lsgrp=[];
 	lsgrp.push(objActif);
 	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX);
-	console.log("retour",rt.mixDuration,rt.output);
-	saveRenduAudio(rt.mixDuration,rt.output);
+	console.log("retour",rt.duration,rt.output);
+	 
+	saveRenduAudio(rt.duration,rt.output);
+	
 }
 
 function renderGrpAudio3(ngrp){
@@ -674,42 +745,19 @@ function renderGrpAudio3(ngrp){
 	var base=tableObjet[lsgrp[0]].posX;
 	console.log("base",base);
 	document.getElementById("barVerticale").style.left=(tableObjet[lsgrp[0]].posX-8)+"px";
-	tempoMap[0]={
-			x:0,
-			y:indDebut.Y/60
-			}
-			console.log("tempoMap",lsgrp,indDebut,indFin,nfin,j)
-			i++;
-	while(tempoPoints[j].X<indFin.X){
-		console.log("tempoMap",j,indDebut.X,(tempoPoints[j].X-base)/18,(240-(parseFloat(tempoPoints[j].Y)/0.4167)))
-		if(tempoPoints[j].X>indDebut.X){
-		tempoMap[i]={
-			x:(parseFloat(tempoPoints[j].X)-base)/18,
-			y:(240-(parseFloat(tempoPoints[j].Y)/0.4167))/60
-			}
-			i++;
-		 }
-			j++;
-	}
-	tempoMap[i]={
-			x:(parseFloat(indFin.X)-base)/18,
-			y:indFin.Y/60
-			}
-	i++;
-	
 	(async () => {
 		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
 		console.log("retour",rt);
-		saveRenduAudio(rt.mixDuration,rt.output);
+		saveRenduAudio(rt.duration,rt.output);
 	})();
 }
 function renderIntervalleAudio(){
 	var lsgrp=[];
 	var tempoMap=[];
-	var deb=parseFloat(document.getElementById("barDebut").style.left)+36;
-	var fin=parseFloat(document.getElementById("barFin").style.left);
+	var deb=(parseFloat(document.getElementById("barDebut").style.left)+36)/zoomScale;
+	var fin=parseFloat(document.getElementById("barFin").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
-		if(tableObjet[i].etat==1 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
+		if(tableObjet[i].etat==1  && tableObjet[i].type<23 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
 			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
 				lsgrp.push(i);
 			}
@@ -722,49 +770,31 @@ function renderIntervalleAudio(){
 	// window.api.send("toMain", "renderGroupSoX;"+lsgrp+";"+JSON.stringify(tableObjet)+";"+tableObjet[0].posX);
 	(async () => {
 		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb);
-		console.log("retour",rt.duree,rt.path);
-		saveRenduAudio(rt.mixDuration,rt.output);
+		console.log("retour",rt.duration,rt.output);
+		saveRenduAudio(rt.duration,rt.output);
 	})();
 }
 async function renderPartAudio(mode){
 	var lsgrp=[];
-	var startx=parseFloat(document.getElementById("barVerticale").style.left);
+	var lstate=[];
+	var startx=parseFloat(document.getElementById("barVerticale").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
 			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
-				if (tableObjet[i].class==1 && tableObjet[i].type<24 && tableObjet[i].posX>startx) {
+				if (tableObjet[i].class==1 && tableObjet[i].type<23 && tableObjet[i].posX>startx) {
 					lsgrp.push(i);
+					lstate.push(0);
 				}
 			}
 		}
 	}
 	console.log(lsgrp);
-	
 	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx);
 	console.log("retour",rt);
 	var start=startx/18;
-	var end=rt.mixDuration-start;
-	console.log("read start",start,rt.mixDuration,end)
-	
-	var tempoMap=[]
-	for(i=0;i<tempoPoints.length;i++){
-		tempoMap[i]={
-			x:parseFloat(tempoPoints[i].X)/18,
-			y:(240-(parseFloat(tempoPoints[i].Y)/0.4167))/60
-			}
-	}
-	console.log("tempoMap",tempoPoints,tempoMap);
-	//console.warn("TYPE console.log =", typeof console.log);
-		
-		if(mode==0){
-			console.log("read");
-			defTime("barVerticale");
-	  		foo();
-			window.api.send("toMain", 'playDirectFile;'+rt.output+";"+"pitch 0 speed 1 vol 1 trim 0 "+rt.mixDuration);
-			
-		}else{
-			saveRenduAudio(rt.mixDuration,rt.output);
-		}
+	var end=rt.duration-start;
+	console.log("read start",start,rt.duration,end,rt.output)
+	saveRenduAudio(rt.duration+start,rt.output);
 }
 
 function defSourceEnveloppe(id, nduree, gainNode, dtime) {
@@ -1063,10 +1093,13 @@ async function readSimpleAudioA(id,mode) {
     console.time()
     if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
 	 document.getElementById("loading").style.display="block";
-    const filePath = obj.file;
-    const dir = rdDirName(filePath);
-    const baseName = rdBaseName(filePath).split(".")[0];
-    const outPath = `${dir}/${baseName}-fx.wav`;
+    const filePath =window.api.joinPath(`${paramProjet.audioPath}`,obj.file);
+    const dir = await rdDirName(filePath);    
+    let baseName = await rdBaseName(filePath);
+    baseName=baseName.split(".")[0];
+    console.log('baseName',dir,baseName)
+
+    const outPath = window.api.joinPath(`${paramProjet.audioPath}`,"tmp",`${obj.id}-fx.wav`);
 
     console.log("[pipeline] readSimpleAudioA start", { filePath, outPath });
 
@@ -1081,7 +1114,11 @@ async function readSimpleAudioA(id,mode) {
 	 console.log("length",numSamples);
     // Clone des buffers pour traitement
     let currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
-
+    var nbrms=0;
+    for(let i=0;i<numChannels;i++){
+    	nbrms=nbrms+rmsToDb(currentChannels[i],tableObjet[id].gain);
+    }
+	 tableObjet[id].rmsdb=nbrms/numChannels;
     // ----- REVERSE -----
     if (obj.reverse) {
         currentChannels = await reverseMultiBuffersFloat32(currentChannels);
@@ -1118,26 +1155,34 @@ async function readSimpleAudioA(id,mode) {
 	 currentChannels = await applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate) 
 	 const monoBuffer = await mixToMono(currentChannels);
 	 
-	  await window.api.saveAudioBuffer({
-        filePath: "renduin.wav",
+	  
+	 
+	 if(tempoPoints.length>2){
+	 	 await window.api.saveAudioBuffer({
+        filePath: window.api.joinPath(`${baseDatatPath}`,"renduin.wav"),
         buffer: { sampleRate, channels: [monoBuffer] }
-    });
-	 
-	 
-	 const tempoMap = await createTempoMap(id);
-	 const info = {
-	 	id:id,
-	 	mode:mode,
-      sampleRate:sampleRate,
-      channels: 1,
-      length: numSamples,
-      duration: numSamples*sampleRate,
-      tempoMap,
-    };
-
+   	 });
+		 const tempoMap = await createTempoMap(id);
+		 const info = {
+		 	id:id,
+		 	mode:mode,
+	      sampleRate:sampleRate,
+	      channels: 1,
+	      length: numSamples,
+	      duration: numSamples*sampleRate,
+	      tempoMap,
+	    };
+	  console.log("[pipeline] saved →rubber");
     window.api.send("toMain", "processAudio;" + JSON.stringify(info));
-	 
-    console.log("[pipeline] saved →", "renduout.wav");
+	 }else{
+	 	await window.api.saveAudioBuffer({
+        filePath: window.api.joinPath(`${baseDatatPath}`,"renduout.wav"),
+        buffer: { sampleRate, channels: [monoBuffer] }
+   	 });
+   	 await postRubberband(id,mode,window.api.joinPath(`${baseDatatPath}`,"renduout.wav"));
+   	 console.log("[pipeline] saved → no rubber");
+	 }
+    
     return true;
 }
 async function endTrim(renderedBuffer, nsecondes) {
@@ -1166,10 +1211,12 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
     const blockSize = 1024;
 
     // Import faustwasm once
-    
-    const faustPkg = await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+    const appPaths = await window.api.getPaths();
+    const faust=window.api.joinPath(window.api.resources,"@grame","faustwasm","dist","esm","index.js");
+    console.log("faust",appPaths.basedir,faust)
+    const faustPkg = await import(`file://${faust}`);
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
-    const faustModule = await instantiateFaustModuleFromFile("./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js");
+    const faustModule = await instantiateFaustModuleFromFile(`${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`);
     const libFaust = new LibFaust(faustModule);
     const compiler = new FaustCompiler(libFaust);
 
@@ -1265,10 +1312,11 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
 
 async function loadLayoutJSON(layoutName) {
 	console.log("layoutName",layoutName)
-    if (!layoutName) throw new Error("layoutName missing");
-    const buf = await window.api.readFile(`./Dsp/${layoutName}.json`);
-    const txt = new TextDecoder("utf-8").decode(buf);
-    return JSON.parse(txt);
+  const appPaths = await window.api.getPaths();
+		  const buf = await window.api.readFile(`${appPaths.basedir}/resources/Dsp/${layoutName}.json`);
+		  console.log("layoutPath",`${appPaths}/resources/Dsp/${layoutName}.json`)
+    	  const txt = new TextDecoder("utf-8").decode(buf);
+    	  return JSON.parse(txt);  
 }
 function interpolate(times, values, t, type = "linear") {
     if (!times || !times.length) return values && values[0] || 0;
@@ -1341,11 +1389,12 @@ async function createLayout(layout, numChannels) {
     const dspSource = generateSpatDSP(layoutJSON, numChannels);
 	 const NP = layoutJSON.speakers.length;
     // ===== INIT FAUST & COMPILE DSP =====
+    const appPaths = await window.api.getPaths();
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } =
-        await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+        await import(`${appPaths.basedir}/resources/@grame/faustwasm/dist/esm/index.js`);
 
     const faustModule = await instantiateFaustModuleFromFile(
-        "./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js"
+        `${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`
     );
 
     const libFaust = new LibFaust(faustModule);
@@ -1442,7 +1491,7 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
 async function spatialise(id,filePath,interpType="linear") {
 	 const obj = tableObjet[id];
     const baseName = rdBaseName(filePath).split(".")[0];
-    const outPath = `${rdDirName(filePath)}/${baseName}-fx.wav`;
+    const outPath = `${rdDirName(filePath)}/tmp/${obj.id}-fx.wav`;
 
     // ===== LOAD AUDIO BUFFERS =====
     const rt = await window.api.loadBuffers(filePath);
@@ -1457,10 +1506,10 @@ async function spatialise(id,filePath,interpType="linear") {
 
     // ===== INIT FAUST & COMPILE DSP =====
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } =
-        await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+        await import("./resources/@grame/faustwasm/dist/esm/index.js");
 
     const faustModule = await instantiateFaustModuleFromFile(
-        "./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js"
+        "./resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js"
     );
 
     const libFaust = new LibFaust(faustModule);
@@ -1534,11 +1583,9 @@ async function spatialise(id,filePath,interpType="linear") {
 }
 
 async function postRubberband(id,mode,file) {
-	const response = await fetch(file);
-  	const arrayBuffer = await response.arrayBuffer();
-
+	const buffer = await window.api.readFile(file);
   	// Décode les données en AudioBuffer via Web Audio API
-  	const audioBuffer = await contextAudio.decodeAudioData(arrayBuffer);				
+  	const audioBuffer = await contextAudio.decodeAudioData(buffer);				
 	console.log("audioBuffer",file,audioBuffer.length);
 	const numChannels = audioBuffer.numberOfChannels;
    const numSamples = audioBuffer.length;
@@ -1572,34 +1619,42 @@ async function postRubberband(id,mode,file) {
 	
    console.log("renderedBuffer",id,renderedBuffer.length,renderedBuffer.numberOfChannels);
 	const currentChannels = [new Float32Array(renderedBuffer.getChannelData(0))];
-	 const obj = tableObjet[id];
-	const filePath = obj.file;
-    const dir = rdDirName(filePath);
-    const baseName = rdBaseName(filePath).split(".")[0];
-    let outPath = `${dir}/${baseName}-fx.wav`;
+	const obj = tableObjet[id];
+	const filePath=window.api.joinPath(`${paramProjet.audioPath}`,obj.file);
+    const dir = await rdDirName(filePath);
+    let baseName = await rdBaseName(filePath);
+    baseName = baseName.split(".")[0];
+    let outPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-fx.wav`);
     if(mode==0){
 	   await spatialiseBuffer(id,outPath, numChannels, trimmedLength, sampleRate , currentChannels, interpType = "linear");
 	   console.timeEnd()
-	   console.log("[pipeline] saved →", outPath);
+	   console.log("[pipeline] saved →spatialised", outPath);
     }else{
-    	outPath = `${dir}/exports/${tableObjet[id].id}.wav`;
+    	outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
     	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
     	document.getElementById("loading").style.display="none";
    	console.log("[no spatialiseObjet] File save:", outPath);
    	exportCompteur++;
    	console.log("exportTable",exportCompteur,exportTable)
    	if(exportCompteur<exportTable.length){
-   	await readSimpleAudioA(exportTable[exportCompteur],1);
+   		document.getElementById("sliderLParam").style.width=(Math.floor((exportCompteur/exportTable.length)*100))+"%";
+   		await readSimpleAudioA(exportTable[exportCompteur],1);
+   	}else{
+   		document.getElementById("sliderLParam").style.width="100%";
+   		document.getElementById("popupLoader").style.display="none";
    	}
     }
 }
 
-async function exportObjAudio(){
+async function exportObjAudio(mode){
 	var lsgrp=[];
 	lsgrp.push(objActif);
 	await readSimpleAudioA(objActif,1);
-	exportToSeq(lsgrp);
+	if(mode==0){
+		exportToSeq(lsgrp);
+	}
 }
+
 let exportTable=[];
 let exportCompteur=0;
 async function exportIntv(){
@@ -1610,7 +1665,9 @@ async function exportIntv(){
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
 			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
-				lsgrp.push(i);
+				if( tableObjet[i].type<23 ){
+					lsgrp.push(i);
+				}
 			}
 		}
 	}
@@ -1643,18 +1700,23 @@ async function exportGrp(){
 }
 async function exportPart(){
 	var tempoMap=[];
-	if(grpSelect==1){
-		grp=[].concat(preservSelect);
-		document.getElementById("barVerticale").style.left=document.getElementById("grpSelect").style.left;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
-		grp=[].concat(tableObjet[objActif].liste);
-		document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
+	var lsgrp=[];
+	for(i=0;i<tableObjet.length;i++){
+		if(tableObjet[i].etat==1 && tableObjet[i].mute==0){
+			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+				if( tableObjet[i].type<23 ){
+					lsgrp.push(i);
+				}
+			}
 		}
+	}
 	lsgrp.sort(function (a, b) {
    return tableObjet[a].posX - tableObjet[b].posX;
    });
 	exportTable=lsgrp;
 	exportCompteur=0;
+	document.getElementById("sliderLParam").style.width="0%";
+	document.getElementById("popupLoader").style.display="block";
 	await readSimpleAudioA(lsgrp[0],1);
 	exportToSeq(lsgrp);
 }
@@ -1687,6 +1749,30 @@ function exportToSeq(refGrp){
 }
 
 // ***********************************************************************************************************************
+async function actualiseObjets(){
+	var lsgrp=[];
+	for(i=0;i<tableObjet.length;i++){
+		if(tableObjet[i].etat==1 && tableObjet[i].mute==0){
+			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+				if( tableObjet[i].type<23 ){
+					lsgrp.push(i);
+				}
+			}
+		}
+	}
+   console.log(lsgrp)
+	document.getElementById("sliderLParam").style.width="0%";
+	document.getElementById("popupLoader").style.display="block";
+	var nb=100/lsgrp.length;
+	for (let i=0;i<lsgrp.length;i++){
+		await readSimpleAudioA(lsgrp[i],0);
+		document.getElementById("sliderLParam").style.width=((i+1)*nb)+"%";
+	}
+	if(parseFloat(document.getElementById("sliderLParam").style.width)>99){
+		document.getElementById("popupLoader").style.display="none";
+		}
+}
+// -----------------------------------------------------------------------------------------------------------------------
 
 
 function appendBuffer(context,buffer1, buffer2,audioRate) {

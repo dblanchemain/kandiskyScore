@@ -4,7 +4,7 @@ function drawSvgWaveform (audioBuffer, canvas, pos = 0.5, zoom=1) {
 
   const fillStyle  = document.getElementById("waveFormColor").value
 	var width=600
-	var height=300
+	var height=600
   // calculate displayed part of audio 
   // and slice audio buffer to only process that part
   const bufferLength = audioBuffer.length
@@ -36,6 +36,6 @@ function drawSvgWaveform (audioBuffer, canvas, pos = 0.5, zoom=1) {
   }
  
   document.getElementById("dfWave").firstChild.firstChild.innerHTML=txt
-  //console.log(document.getElementById("dfWave").firstChild.firstChild)
   document.getElementById("dfWave").firstChild.setAttribute("width",600*zoom)
+  console.log(document.getElementById("dfWave").firstChild)
 }
