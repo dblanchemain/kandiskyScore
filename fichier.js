@@ -44,6 +44,7 @@ function defObjGrp(id,nbobjets,cla) {
 		if(parseInt(id.type)==13){
 			txt=txt+"		<buffer2 value='"+id.buffer2+"'></buffer2>\n";
 		}
+		txt=txt+"		<canaux value='"+id.canaux+"'></canaux>\n"
 		txt=txt+"		<class value='"+cla+"'></class>\n"
 		if(cla==1 || cla==2){
 			txt=txt+"		<convolver value='"+id.convolver+"'></convolver>\n";
@@ -53,9 +54,8 @@ function defObjGrp(id,nbobjets,cla) {
 		<debut value='"+id.debut+"'></debut>\n\
 		<detune value='"+id.detune+"'></detune>\n\
 		<duree value='"+id.duree+"'></duree>\n\
-		<envtype value='"+id.envType+"'></envtype>\n\
+		<fadein value='"+id.fadeIn+"'></fadein>\n\
 		<envx value='"+id.envX+"'></envx>\n\
-		<envy value='"+id.envY+"'></envy>\n\
 		<etat value='1'></etat>\n\
 		<file value='"+id.file+"'></file>\n\
 		<fin value='"+id.fin+"'></fin>\n\
@@ -84,6 +84,7 @@ function defObjGrp(id,nbobjets,cla) {
 			txt=txt+"		<r value='"+id.r+"'></r>\n";
 		}
 		txt=txt+"<reverse value='"+id.reverse+"' ></reverse>\n"
+		txt=txt+"<rmsdb value='"+id.rmsdb+"' ></rmsdb>\n"
 		if(parseInt(id.type)==23){
 		txt=txt+"		   	        <rotation value='"+id.rotate+"'></rotation>\n";
 		}
@@ -258,28 +259,6 @@ function defProjetConf(txt) {
 	<svggrille value='"+paramProjet.svgGrille+"'></svggrille>\n\
 	<svgseconde value='"+paramProjet.svgSeconde+"'></svgseconde>\n\
 	</general>\n";
-	txt=txt+"<spatialisation>\n\
-	<lforwardx value='"+paramSpace.lForwardX+"'></lforwardx>\n\
-	<lforwardy value='"+paramSpace.lForwardY+"'></lforwardy>\n\
-	<lforwardz value='"+paramSpace.lForwardZ+"'></lforwardz>\n\
-	<lupx value='"+paramSpace.lUpX+"'></lupx>\n\
-	<lupy value='"+paramSpace.lUpY+"'></lupy>\n\
-	<lupz value='"+paramSpace.lUpZ+"'></lupz>\n\
-	<lposx value='"+paramSpace.lPosX+"'></lposx>\n\
-	<lposy value='"+paramSpace.lPosY+"'></lposy>\n\
-	<lposz value='"+paramSpace.lPosZ+"'></lposz>\n\
-	<pmodel value='"+paramSpace.PModel+"'></pmodel>\n\
-	<dmodel value='"+paramSpace.DModel+"'></dmodel>\n\
-	<refd value='"+paramSpace.refD+"'></refd>\n\
-	<maxd value='"+paramSpace.maxD+"'></maxd>\n\
-	<rolf value='"+paramSpace.rolF+"'></rolf>\n\
-	<coneia value='"+paramSpace.coneIA+"'></coneia>\n\
-	<coneoa value='"+paramSpace.coneOA+"'></coneoa>\n\
-	<coneog value='"+paramSpace.coneOG+"'></coneog>\n\
-	<orx value='"+paramSpace.orX+"'></orx>\n\
-	<ory value='"+paramSpace.orY+"'></ory>\n\
-	<orz value='"+paramSpace.orZ+"'></orz>\n\
-	</spatialisation>\n"
 	txt=txt+"<interface>\n\
 	<palettebkg value='"+paletteBkg+"'></palettebkg>\n\
  	<fontpalette value='"+fontPalette+"'></fontpalette>\n\
@@ -379,19 +358,6 @@ function saveProjetA(t,offset,tabgrp){
 	var ntable=[]
 	ntable=structuredClone(tabgrp)
 	
-	txt=txt+"<audioliste value='"
-	for(let i=0;i<ntable.length;i++){
-		if(ntable[i].class==1){
-			if(ntable[i].file!=""){
-				txt=txt+tableBuffer[ntable[i].bufferId].name+","
-			}
-		}
-	}
-	if(txt.substring(txt.length - 1)==","){
-		txt = txt.substring(0, txt.length - 1);
-	}
-	txt=txt+"'></audioliste>\n"
-	
 	for(let i=0;i<ntable.length;i++){
 		
 		if(ntable[i].etat==1 && (ntable[i].class==2 || ntable[i].class==4)){
@@ -480,7 +446,7 @@ function loadProjet(path) {
 	xhttp.open("GET", path, true);
 	xhttp.send();
 }
-function objXmlToScore(id,i) {
+async function objXmlToScore(id,i) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0]
 	var org=obj.getElementsByTagName("objet")[i]
 	tableObjet[id]={
@@ -506,6 +472,7 @@ function objXmlToScore(id,i) {
 		borderHr:org.getElementsByTagName("borderhr")[0].getAttribute("value"),
 		borderHs:org.getElementsByTagName("borderhs")[0].getAttribute("value"),
 		borderHw:parseFloat(org.getElementsByTagName("borderhw")[0].getAttribute("value")),
+		canaux:parseFloat(org.getElementsByTagName("canaux")[0].getAttribute("value")),
 		class:parseInt(org.getElementsByTagName("class")[0].getAttribute("value")),
 		convolver:org.getElementsByTagName("convolver")[0].getAttribute("value"),
 		cx:parseFloat(org.getElementsByTagName("cx")[0].getAttribute("value")),
@@ -513,9 +480,8 @@ function objXmlToScore(id,i) {
 		debut:parseFloat(org.getElementsByTagName("debut")[0].getAttribute("value")),
 		detune:parseFloat(org.getElementsByTagName("detune")[0].getAttribute("value")),
 		duree:parseFloat(org.getElementsByTagName("duree")[0].getAttribute("value")),
-		envType:parseInt(org.getElementsByTagName("envtype")[0].getAttribute("value")),
+		fadeIn:org.getElementsByTagName("fadein")[0].getAttribute("value"),
 		envX:org.getElementsByTagName("envx")[0].getAttribute("value").split(','),
-		envY:org.getElementsByTagName("envy")[0].getAttribute("value").split(','),
 		etat:parseInt(org.getElementsByTagName("etat")[0].getAttribute("value")),
 		file:org.getElementsByTagName("file")[0].getAttribute("value"),
 		fin:parseFloat(org.getElementsByTagName("fin")[0].getAttribute("value")),
@@ -533,6 +499,7 @@ function objXmlToScore(id,i) {
 		objColor:org.getElementsByTagName("objcolor")[0].getAttribute("value"),
 		objOpacity:parseInt(org.getElementsByTagName("objopacity")[0].getAttribute("value")),
 		piste:parseInt(org.getElementsByTagName("piste")[0].getAttribute("value")),
+		rmsdb:parseInt(org.getElementsByTagName("rmsdb")[0].getAttribute("value")),
 		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
 		posY:parseFloat(org.getElementsByTagName("posY")[0].getAttribute("value")),
 		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value")),
@@ -548,7 +515,7 @@ function objXmlToScore(id,i) {
 		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
 		}
 		
-		//console.log(tableObjet[id])
+		console.log(tableObjet[id])
 		var np=tableObjet[id].tableFxParam[0].split("&")
 		var vp=np[0].split(",")
 		
@@ -573,11 +540,8 @@ function objXmlToScore(id,i) {
 		}else{
 			tableObjet[id].transposition=1
 		}
-		for(let i=0;i<7;i++){
+		for(let i=0;i<2;i++){
 			tableObjet[id].envX[i]=parseFloat(tableObjet[id].envX[i])
-		}
-		for(let i=0;i<7;i++){
-			tableObjet[id].envY[i]=parseFloat(tableObjet[id].envY[i])
 		}
 		var trp=org.getElementsByTagName("bkgTrp")[0].getAttribute("value")
 		if(trp=="true"){
@@ -934,7 +898,6 @@ function fileXmlToScore(offset,dx,dy) {
 	nbObjets=offset
 	if(offset==0){
 		defProjetConfig()
-		defSpaceConfig()
 		defInterfaceConfig()
 		defPaletteConfig()
 		configPalette()
@@ -943,14 +906,7 @@ function fileXmlToScore(offset,dx,dy) {
 	}
 	var tmpbuffer=[]
 	if(offset==0){
-	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("audioliste")[0]
-	var tmpv=obj.getAttribute("value")
-		if(tmpv!=""){
-			tmpbuffer=tmpv.split(',')
-			initTableBuffer(0,tmpbuffer,dx,dy)
-		}else{
-			defObjets(0,tmpbuffer,dx,dy)
-		}
+		defObjets(0,tmpbuffer,dx,dy)
 	}
 }
 function drawObj(id) {
@@ -1063,33 +1019,7 @@ function defProjetConfig() {
 	}
 	importConfigProjet()
 }
-function defSpaceConfig() {
-	paramSpace={}
-	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("spatialisation")[0]
-	paramSpace={
-		lForwardX:obj.getElementsByTagName("lforwardx")[0].getAttribute("value"),
-		lForwardY:obj.getElementsByTagName("lforwardy")[0].getAttribute("value"),
-		lForwardZ:obj.getElementsByTagName("lforwardz")[0].getAttribute("value"),
-		lUpX:obj.getElementsByTagName("lupx")[0].getAttribute("value"),
-		lUpY:obj.getElementsByTagName("lupy")[0].getAttribute("value"),
-		lUpZ:obj.getElementsByTagName("lupz")[0].getAttribute("value"),
-		lPosX:obj.getElementsByTagName("lposx")[0].getAttribute("value"),
-		lPosY:obj.getElementsByTagName("lposy")[0].getAttribute("value"),
-		lPosZ:obj.getElementsByTagName("lposz")[0].getAttribute("value"),
-		PModel:obj.getElementsByTagName("pmodel")[0].getAttribute("value"),
-		DModel:obj.getElementsByTagName("dmodel")[0].getAttribute("value"),
-		refD:obj.getElementsByTagName("refd")[0].getAttribute("value"),
-		maxD:obj.getElementsByTagName("maxd")[0].getAttribute("value"),
-		rolF:obj.getElementsByTagName("rolf")[0].getAttribute("value"),
-		coneIA:obj.getElementsByTagName("coneia")[0].getAttribute("value"),
-		coneOA:obj.getElementsByTagName("coneoa")[0].getAttribute("value"),
-		coneOG:obj.getElementsByTagName("coneog")[0].getAttribute("value"),
-		orX:obj.getElementsByTagName("orx")[0].getAttribute("value"),
-		orY:obj.getElementsByTagName("ory")[0].getAttribute("value"),
-		orZ:obj.getElementsByTagName("orz")[0].getAttribute("value")
-	}
-	importConfigSpace()
-}
+
 function defInterfaceConfig() {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("interface")[0]
 	paletteBkg = obj.getElementsByTagName("palettebkg")[0].getAttribute("value")

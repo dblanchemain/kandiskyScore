@@ -46,49 +46,32 @@ function tableObjetToPistes(ntableObjet,i,j){
 	return maxPiste
 }
 
-function exportIntv(){
-	let grp=[];
-	refStorage=[];
-	tablePiste=[]
-	var ntableObjet=[]
-	var posDeb=parseFloat(document.getElementById("barDebut").style.left);
-	var posFin=parseFloat(document.getElementById("barFin").style.left);
+async function exportIntv(){
+	exportTable=[];
+	var deb=parseFloat(document.getElementById("barDebut").style.left)+36;
+	var fin=parseFloat(document.getElementById("barFin").style.left);
 	for(let i=0;i<tableObjet.length;i++){
-		if(tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].class==1 && tableObjet[i].type<24){
-				if(tableObjet[i].posX>posDeb && tableObjet[i].posX<posFin){
-					ntableObjet.push(tableObjet[i])
-				}
+		console.log("intvObj",tableObjet[i],tableObjet[i].posX,deb,fin)
+		if(tableObjet[i].posX> deb && tableObjet[i].posX<fin){
+			exportTable.push(tableObjet[i]);
 		}
 	}
-	/*
-	ntableObjet=refStorage.sort((s1, s2) => {
+	console.log("intv",exportTable)
+	exportTable=exportTable.sort((s1, s2) => {
  		return s1.posX - s2.posX;
 	});
-	*/
-	for(let i=0;i<ntableObjet.length;i++){
-		var id=parseInt(ntableObjet[i].id.substring(5))
-		exportAudioObjet(id,0)
-	}
-	if(ntableObjet[0].id.substring(0,5)=="objet"){
-		var id=parseInt(ntableObjet[0].id.substring(5))
-		tablePiste[1]=id+","
-		tableObjet[id].piste=1
-		maxPiste=1
-		tableObjetToPistes(ntableObjet,1,1)
-		exportToSeq(1,ntableObjet)
-	}
+	await exportAudioObjet(exportTable[0].id.substring(5),0)
+	exportToSeq(1,exportTable)
 }
-function exportObj(){
-	exportAudioObjet(objActif,0)
-	refGrp=[]
-	refGrp.push(tableObjet[objActif])
-	exportToSeq(1,refGrp)
+async function exportObj(){
+	exportTable=[]
+	exportTable.push(tableObjet[objActif])
+	await exportAudioObjet(objActif,0)
+	exportToSeq(1,exportTable)
 }
-function exportGrp(){
+async function exportGrp(){
 	let grp=[];
-	refStorage=[];
-	tablePiste=[]
-	var ntableObjet=[]
+	exportTable=[]
 	if(grpSelect==1){
 		grp=[].concat(preservSelect);
 	}else{
@@ -97,90 +80,46 @@ function exportGrp(){
 		}
 	}
 	for(let i=0;i<grp.length;i++){
-		ntableObjet.push(tableObjet[grp[i]]);
+		exportTable.push(tableObjet[grp[i]]);
 	}
-	/*
-	ntableObjet=refStorage.sort((s1, s2) => {
+	exportTable=exportTable.sort((s1, s2) => {
  		return s1.posX - s2.posX;
 	});
-	*/
-	for(let i=0;i<ntableObjet.length;i++){
-		var id=parseInt(ntableObjet[i].id.substring(5))
-		exportAudioObjet(id,0)
-	}
-	if(ntableObjet[0].id.substring(0,5)=="objet"){
-		var id=parseInt(ntableObjet[0].id.substring(5))
-		tablePiste[1]=id+","
-		tableObjet[id].piste=1
-		maxPiste=1
-		tableObjetToPistes(ntableObjet,1,1)
-		exportToSeq(1,ntableObjet)
-	}
+	await exportAudioObjet(exportTable[0].id.substring(5),0)
+	exportToSeq(1,exportTable)
+	
 }
-function exportSelect(){
-	let grp=[];
-	refStorage=[];
+
+async function exportPart(adm){
 	tablePiste=[]
-	var ntableObjet=[]
-	grp=[].concat(preservSelect);
-	for(let i=0;i<grp.length;i++){
-		ntableObjet.push(tableObjet[grp[i]]);
-	}
-	/*
-	ntableObjet=refStorage.sort((s1, s2) => {
- 		return s1.posX - s2.posX;
-	});
-	*/
-	for(let i=0;i<ntableObjet.length;i++){
-		var id=parseInt(ntableObjet[i].id.substring(5))
-		exportAudioObjet(id,0)
-	}
-	if(ntableObjet[0].id.substring(0,5)=="objet"){
-		var id=parseInt(ntableObjet[0].id.substring(5))
-		tablePiste[1]=id+","
-		tableObjet[id].piste=1
-		maxPiste=1
-		tableObjetToPistes(ntableObjet,1,1)
-		exportToSeq(1,ntableObjet)
-	}
-}
-function exportPart(adm){
-	tablePiste=[]
-	var ntableObjet=[]
+	exportTable=[]
 	for(let i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].class==1 ){
-		ntableObjet[i]=tableObjet[i]
+		exportTable[i]=tableObjet[i]
 		}
 	}
 	
-	ntableObjet=ntableObjet.sort((s1, s2) => {
+	exportTable=exportTable.sort((s1, s2) => {
  		return s1.posX - s2.posX;
 	});
-	
-	console.log("export nb",ntableObjet.length)
-	for(let i=0;i<ntableObjet.length;i++){
-		var id=parseInt(ntableObjet[i].id.substring(5))
-		exportAudioObjet(id,0)
-	}
-	/*
-	if(ntableObjet[0].id.substring(0,5)=="objet"){
-		var id=parseInt(ntableObjet[0].id.substring(5))
-		tablePiste[1]=id+","
-		tableObjet[id].piste=1
-		maxPiste=1
-		tableObjetToPistes(ntableObjet,1,1)
-		if(adm==0){
-			exportToSeq(1,ntableObjet)
-		}
-	}
-	*/
+
 	if(adm==0){
-			exportToSeq(1,ntableObjet)
-		}
+		exportToSeq(1,exportTable)
+	}
 }
 function exportToSeq(type,refGrp){
-	var txt=audioDirectory+"\n"
-	+spat3D+"\n"+spat3DCanaux+"\n";
+	var autoTempo="";
+	var autoGain="";
+	for(i=0;i<tempoPoints.length;i++){
+		autoTempo=autoTempo+((tempoPoints[i].X/18).toFixed(2))+","+(Math.floor(240-tempoPoints[i].Y/0.4167))+";"
+	}
+	console.log("tempo",autoTempo)
+	autoTempo=autoTempo.substring(0,autoTempo.length-1)
+	for(i=0;i<gainPoints.length;i++){
+		autoGain=autoGain+((gainPoints[i].X/18).toFixed(2))+","+((100-gainPoints[i].Y)*0.05).toFixed(2)+";"
+	}
+	autoGain=autoGain.substring(0,autoGain.length-1)
+	var txt=audioDirectory+"\n"+spat3D+"\n"+spat3DCanaux+"\n"+contextAudio.sampleRate+"\n"+autoTempo+"\n"+autoGain+"\n";
 	var nfilesave=[];
 	var ratioT=(720/12960);
 	var offsetPiste=1;

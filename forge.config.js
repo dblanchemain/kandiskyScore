@@ -1,7 +1,7 @@
 module.exports = {
   packagerConfig: {
     asar: true,
-    extraResource: ["resources/bin/"]
+    extraResource: ["resources/bin","resources/Dsp","resources/@grame","resources/images"]
   },
   rebuildConfig: {},
   makers: [

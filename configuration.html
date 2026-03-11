@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-10-24T18:52:10+0200" />
+<meta name="date" content="2026-01-14T16:16:44+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -12,10 +12,11 @@
 <meta http-equiv="expires" content="0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KandiskyScore-Configuration</title>
+
 </head>
 <body>
 <div id="configuration" style="width:840px;height:650px;">
-	<div style="padding:10px;padding-bottom:2px;"><span id="ongletGen" style="background-color:#EAEAEA;width:60px;padding:4px;border:0px solid black;">Générale</span><span id="ongletSpacial" style="background-color:#B4B4B4;width:120px;padding:4px;border:0px solid black;">Spacialisation</span><span id="ongletInterface" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Interface</span><span id="ongletPalette" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Palette</span><span id="ongletExt" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Externes</span></div>
+	<div style="padding:10px;padding-bottom:2px;"><span id="ongletGen" style="background-color:#EAEAEA;width:60px;padding:4px;border:0px solid black;">Générale</span><span id="ongletInterface" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Interface</span><span id="ongletPalette" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Palette</span><span id="ongletExt" style="background-color:#B4B4B4;width:60px;padding:4px;border:0px solid black;">Externes</span></div>
 	<div id="panGen" align="center" style="padding:10px;background-color:#f9f9fd;overflow:auto;height:520px;border:0px solid black;display:block">
 		<table id="tableTranscript" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
 		<tbody>
@@ -29,7 +30,8 @@
 			<tr><td id="dprojet">Dossier du projet  :</td><td colspan="4" ><input id="dossierProjet" style="width:600px;" type="text" value="" /></td></tr>
 			<tr><td id="daudio">Dossier Audio :</td><td colspan="4" ><input id="dossierAudio" style="width:600px;" type="text" value="" /></td></tr>
 			<tr><td id="dimg">Dossier images :</td><td colspan="4" ><input id="dossierImg" style="width:600px;" type="text" value="" /></td></tr>
-			<tr><td id="greffon">Greffon spat3D :</td><td colspan="4" ><input id="greffon3D" style="width:200px;" type="text" value="" /> <input id="spat3DCanaux" style="width:60px;" type="number" value="18" min="2" max="128" step="1" /></td></tr>
+			<tr><td id="greffon">Greffon spat3D :</td><td colspan="4" ><select id="selectGreffon"  >
+			</select><input id="spat3DCanaux" style="width:60px;" type="number" value="18" min="2" max="128" step="1" /></td></tr>
 			<tr><td id="workspace" rowspan="2">Espace de travail </td><td><span id="regle" >Regle (ms/sec) : </span><input  id="spaceRegle" type="checkbox" checked /><span id="mesure"> Mesure : </span><input  id="spaceMesure" type="checkbox"  checked  /><span id="grille"> Grille : </span><input   id="spaceGrille" type="checkbox"  checked  /><span id="spaceS"> Seconde : </span><input   id="spaceSeconde" type="checkbox"  /></td></tr>
 			<tr><td ><span id="width">Dimension Lageur : </span><input  id="spaceWidth" style="width:60px;" type="number" value="" min="" max="" step="10" /><span id="height"> Hauteur : </span><input   id="spaceHeight" type="number" style="width:60px;"  value=""  min="" max="" step="10" /><span id="zoom"> Zoom : </span><input   id="spaceScale" type="number" style="width:60px;"  value="1"  min="" max="" step="0.1" /></td></tr>
 			<tr><td id="svg">SVG </td><td><span id="svgR">Regle (ms/sec) : </span><input  id="svgRegle" type="checkbox"  /><span id="svgM"> Mesure :</span> <input  id="svgMesure" type="checkbox"  /><span id="svgG"> Grille : </span><input   id="svgGrille" type="checkbox"  /><span id="svgS"> Seconde : </span><input   id="svgSeconde" type="checkbox"  /></td></tr>
@@ -37,33 +39,7 @@
 		</table>
 	<div style="position:absolute;top:615px;left:350px;"><button onclick='defautProjet();'>Defaut</button><button style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button onclick='exportProjet();'>Valider</button> <button style="margin-left:50px;" onclick='closeConfigProjet();'>Quitter</button></div>
 	</div>
-	<div id="panSpacial" align="center" style="padding:10px;background-color:#f9f9fd;overflow:auto;height:520px;border:0px solid black;display:none">
-		<table id="auditeur" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
-		<tbody>
-			<tr><td colspan="2" style="text-align:center" >Auditeur <a href="https://developer.mozilla.org/fr/docs/Web/API/AudioListener" target="_blanck" ><img src="./images/png/books-48.png" alt="doc" style="width:32px;"/></a></td><td></td><td  style="text-align:center" colspan="2">Source(s) audio <a href="https://developer.mozilla.org/en-US/docs/Web/API/PannerNode" target="_blanck" ><img src="./images/png/books-48.png" alt="doc" style="width:32px;"/></a></td></tr>
-			<tr><td>Listener ForwardX :</td><td ><input id="listenerForwardX" style="width:60px;" type="number" value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Panning Model : </td><td ><select id="selectPanningModel" size="1"  value="equalpower" onchange="">
-			<option value="equalpower" selected="selected">Equalpower </option>
-			<option value="HRTF" >HRTF</option></select></td></tr>
-			<tr><td>Listener ForwardY :</td><td><input id="listenerForwardY" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1"  /></td><td></td><td>Distance Model : </td><td><select id="selectDistanceModel" size="1"  value="linear" onchange="">
-			<option value="linear">Linear</option>
-			<option value="inverse" selected="selected">Inverse</option>
-			<option value="exponential">Exponential</option>
-			</select></td></tr>
-			<tr><td>Listener ForwardZ :</td><td><input id="listenerForwardZ" style="width:60px;" type="number"   value="-1" min="-1" max="1" step="0.1"  /></td><td></td><td>Ref Distance : </td><td><input  id="refDistance" type="number" style="width:60px;" type="number"  value="1" min="0" max="1000" step="1"  /> </td></tr>
-			<tr><td colspan="2"></td><td></td><td>MaxDistance : </td><td ><input id="maxDistance" style="width:60px;" type="number" value="10000" min="0" max="10000" step="1"  /></td></tr>
-			<tr><td>Listener Up X :</td><td ><input id="listenerUpX" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Rolloff Factor : </td><td ><input id="rolloffFactor" style="width:60px;" type="number" value="1" min="0" max="1" step="0.1"  /></td></tr>
-			<tr><td>Listener Up Y :</td><td><input id="listenerUpY" style="width:60px;" type="number"  value="1" min="-1" max="1" step="0.1" /></td><td></td><td>Cone Inner Angle : </td><td><input  id="coneInnerAngle" style="width:60px;" type="number" value="360" min="0" max="360" step="1"   /> </td></tr>
-			<tr><td>Listener Up Z :</td><td><input id="listenerUpZ" style="width:60px;" type="number"   value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Cone Outer Angle : </td><td><input  id="coneOuterAngle" type="number" style="width:60px;" type="number" value="0" min="0" max="360" step="1"   /> </td></tr>
-			<tr><td colspan="2"></td><td></td><td>Cone Outer Gain : </td><td ><input id="coneOuterGain" style="width:60px;" type="number" value="0" min="0" max="360" step="1"  /></td></tr>
-			<tr><td>listener Position X :</td><td  ><input id="listenerPositionX" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1" /></td><td></td><td colspan="2"></td></tr>
-			<tr><td>listener Position Y :</td><td><input id="listenerPositionY" style="width:60px;" type="number"  value="0" min="-1" max="1" step="0.1"/></td><td></td><td>Orientation X : </td><td><input  id="orientationX" style="width:60px;" type="number" value="1" min="0" max="360" step="1"   /> </td></tr>
-			<tr><td>listener Position Z :</td><td><input id="listenerPositionZ" style="width:60px;" type="number"   value="0" min="-1" max="1" step="0.1" /></td><td></td><td>Orientation Y : </td><td><input  id="orientationY" type="number" style="width:60px;" type="number" value="0" min="0" max="360" step="1"   /> </td></tr>
-			<tr><td colspan="2"></td><td></td><td>Orientation Z : </td><td><input  id="orientationZ" type="number" style="width:60px;" type="number" value="0" min="0" max="360" step="1"   /> </td></tr>
-		</tbody>
-		</table>
-		<div style="position:absolute;top:600px;left:450px;"><button onclick='defautSpace();'>Defaut</button></div>
-	<div style="position:absolute;top:615px;left:450px;"><button style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button onclick='exportSpace();'>Valider</button> <button onclick='closeConfigSpace();'>Quitter</button></div>
-	</div>
+	
 	<div id="panInterface"  style="padding:10px;background-color:#f9f9fd;overflow:auto;height:500px;border:0px solid black;display:none">
 	<div style="margin:20px;" ><span id="lang" >Langue : </span><select id="selectLang" size="1"  value="" onchange="selectLang();">
 			<option value="" ></option>
@@ -213,11 +189,11 @@ function defLang (txt) {
 	interfaceLang ()
 }
 
+window.api.send("toMain", 'readListSpat;/home/dominique/Electron/kandiskyscore-dev/resources/Dsp');
 
 
 function interfaceLang () {
 document.getElementById('ongletGen').innerHTML=tableLang['cfGeneral']
-document.getElementById('ongletSpacial').innerHTML=tableLang['cfSpat']
 document.getElementById('ongletInterface').innerHTML=tableLang['cfInterf']
 document.getElementById('ongletPalette').innerHTML=tableLang['cfPalette']
 //document.getElementById('onglet3D').innerHTML=tableLang['cf3D']
@@ -283,7 +259,6 @@ document.getElementById('spaceS').innerHTML=tableLang['cfSeconde']
 }
 
 document.getElementById("ongletGen").addEventListener('click',defongletGen);
-document.getElementById("ongletSpacial").addEventListener('click',defongletSpacial);
 document.getElementById("ongletInterface").addEventListener('click',defongletInterface);
 document.getElementById("ongletPalette").addEventListener('click',defongletPalette);
 document.getElementById("ongletExt").addEventListener('click',defongletExt);
@@ -303,16 +278,37 @@ console.log(`Received ${data} from renderer process`);
 				importLang('./Local/'+lang+'/configInterf-'+lang+".txt")
 				console.log('tableLang',cmd[6])
 				importProjet(cmd[2])
-				importSpace(cmd[3])
 				importInterface(cmd[4])
 				importPalette(cmd[5])
 				importExterne(cmd[6])
 				configProjet()
-				configSpace()
 				configInterface()
 				configPalette()
 				configExterne()
-				break
+				break;
+			case 'rtSpatList':
+				console.log('tableLang',cmd[1]);
+				var liste=cmd[1].split(',');
+				var txt="";
+				(async () => {
+				const appPaths = await window.api.getPaths();
+				if(appPaths.os=="win32"){
+					for(i=0;i<liste.length;i++){
+					var kl=liste[i].split('\\');
+					var kll=kl[kl.length-1].split(".");
+						txt=txt+"<option value='"+kll[0]+"'>"+kll[0]+"</option>"
+					}
+					
+				}else{
+					for(i=0;i<liste.length;i++){
+					txt=txt+"<option value='"+liste[i]+"'>"+liste[i]+"</option>"
+					}
+				}
+				console.log("greffons",txt)
+				document.getElementById("selectGreffon").innerHTML=txt;
+				document.getElementById('selectGreffon').value;
+				})();
+				break;
 			default :
 				console.log(`Received ${data} from renderer process`);
 				break
@@ -342,12 +338,10 @@ function defInterface() {
 	document.getElementById("clongletBkg").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("clongletActifBkg").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("panGen").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("panInterface").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("panSpacial").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletGen").style.fontSize=popupFontOngletSize;
  	document.getElementById("ongletInterface").style.fontSize=popupFontOngletSize;
  	document.getElementById("tailleFontOnglet").value=parseFloat(popupFontOngletSize);
@@ -355,35 +349,19 @@ function defInterface() {
 function defongletGen(e) {
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panGen").style.display="block";
-	document.getElementById("panInterface").style.display="none";
-	document.getElementById("panSpacial").style.display="none";
-	document.getElementById("panPalette").style.display="none";
-	document.getElementById("panExt").style.display="none";
-}
-function defongletSpacial(e) {
-	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
-	document.getElementById("panSpacial").style.display="block";
-	document.getElementById("panGen").style.display="none";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="none";
 	document.getElementById("panExt").style.display="none";
 }
 function defongletInterface(e) {
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panGen").style.display="none";
-	document.getElementById("panSpacial").style.display="none";
 	document.getElementById("panInterface").style.display="block";
 	document.getElementById("panPalette").style.display="none";
 	document.getElementById("panExt").style.display="none";
@@ -391,11 +369,9 @@ function defongletInterface(e) {
 function defongletPalette(e) {
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panGen").style.display="none";
-	document.getElementById("panSpacial").style.display="none";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="block";
 	document.getElementById("panExt").style.display="none";
@@ -403,11 +379,9 @@ function defongletPalette(e) {
 function defongletExt(e) {
 	document.getElementById("ongletExt").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletSpacial").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
 	document.getElementById("panGen").style.display="none";
-	document.getElementById("panSpacial").style.display="none";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="none";
 	document.getElementById("panExt").style.display="block";
@@ -437,7 +411,7 @@ function defautInterface() {
 	configInterface()
 }
 function configSave() {
-	window.api.send("toMain", 'configSave;'+lang)
+	window.api.send("toMain", 'configSave;'+lang);
 }
 function restoreInterface() {
  paletteBkg="#e2e2e2";
@@ -586,7 +560,7 @@ function defautProjet(){
 		path:"",
 		audioPath:"",
 		imgPath:"",
-		greffon3D:"",
+		greffon3D:"stereo",
 		greffonC:18,
 		regle:'true',
 		mesure:'true',
@@ -602,32 +576,7 @@ function defautProjet(){
 	}
 	configProjet()
 }
-function defautSpace(){
-	paramSpace={}
-		paramSpace={
-		lForwardX:0,
-		lForwardY:0,
-		lForwardZ:-1,
-		lUpX:0,
-		lUpY:1,
-		lUpZ:0,
-		lPosX:0,
-		lPosY:0,
-		lPosZ:0,
-		PModel:'equalpower',
-		DModel:'linear',
-		refD:1,
-		maxD:10000,
-		rolF:1,
-		coneIA:360,
-		coneOA:0,
-		coneOG:0,
-		orX:1,
-		orY:0,
-		orZ:0
-	}
-	configSpace()
-}
+
 function importProjet(txt){
    tableProjet=txt.split(',')
 	paramProjet={
@@ -652,6 +601,10 @@ function importProjet(txt){
 	spaceSeconde:tableProjet[18],
 	svgSeconde:tableProjet[19],
 	}
+	if(tableProjet[7]==""){
+	paramProjet.greffon3D="stereo";
+	paramProjet.greffonC=2;
+	}
 	console.log("configprojet",paramProjet)
 }
 function configProjet(){
@@ -662,7 +615,7 @@ function configProjet(){
 	document.getElementById("dossierProjet").value=paramProjet.path
 	document.getElementById("dossierAudio").value=paramProjet.audioPath
 	document.getElementById("dossierImg").value=paramProjet.imgPath
-	document.getElementById("greffon3D").value=paramProjet.greffon3D
+	document.getElementById("selectGreffon").value=paramProjet.greffon3D
 	document.getElementById("spat3DCanaux").value=paramProjet.greffonC
 	document.getElementById("spaceRegle").checked=false
 	if(paramProjet.regle=="true"){
@@ -708,7 +661,7 @@ function defProjet() {
 	paramProjet.path=document.getElementById("dossierProjet").value
 	paramProjet.audioPath=document.getElementById("dossierAudio").value
 	paramProjet.imgPath=document.getElementById("dossierImg").value
-	paramProjet.greffon3D=document.getElementById("greffon3D").value
+	paramProjet.greffon3D=document.getElementById("selectGreffon").value
 	paramProjet.greffonC=document.getElementById("spat3DCanaux").value
 	paramProjet.regle=false
 	if(document.getElementById("spaceRegle").checked==true){
@@ -746,88 +699,22 @@ function defProjet() {
 		paramProjet.svgSeconde=true
 	}
 }
-function importSpace(txt){
-var tableSpace=txt.split(',')
-	paramSpace={
-		lForwardX:tableSpace[0],
-		lForwardY:tableSpace[1],
-		lForwardZ:tableSpace[2],
-		lUpX:tableSpace[3],
-		lUpY:tableSpace[4],
-		lUpZ:tableSpace[5],
-		lPosX:tableSpace[6],
-		lPosY:tableSpace[7],
-		lPosZ:tableSpace[8],
-		PModel:tableSpace[9],
-		DModel:tableSpace[10],
-		refD:tableSpace[11],
-		maxD:tableSpace[12],
-		rolF:tableSpace[13],
-		coneIA:tableSpace[14],
-		coneOA:tableSpace[15],
-		coneOG:tableSpace[16],
-		orX:tableSpace[17],
-		orY:tableSpace[18],
-		orZ:tableSpace[19]
-	}
-}
-function configSpace(){
-	document.getElementById("listenerForwardX").value=paramSpace.lForwardX
-	document.getElementById("listenerForwardY").value=paramSpace.lForwardY
-	document.getElementById("listenerForwardZ").value=paramSpace.lForwardZ
-	document.getElementById("listenerUpX").value=paramSpace.lUpX
-	document.getElementById("listenerUpY").value=paramSpace.lUpY
-	document.getElementById("listenerUpZ").value=paramSpace.lUpZ
-	document.getElementById("listenerPositionX").value=paramSpace.lPosX
-	document.getElementById("listenerPositionY").value=paramSpace.lPosY
-	document.getElementById("listenerPositionZ").value=paramSpace.lPosZ
-	document.getElementById("selectPanningModel").value=paramSpace.PModel
-	document.getElementById("selectDistanceModel").value=paramSpace.DModel
-	document.getElementById("refDistance").value=paramSpace.refD
-	document.getElementById("maxDistance").value=paramSpace.maxD
-	document.getElementById("rolloffFactor").value=paramSpace.rolF
-	document.getElementById("coneInnerAngle").value=paramSpace.coneIA
-	document.getElementById("coneOuterAngle").value=paramSpace.coneOA
-	document.getElementById("coneOuterGain").value=paramSpace.coneOG
-	document.getElementById("orientationX").value=paramSpace.orX
-	document.getElementById("orientationY").value=paramSpace.orY
-	document.getElementById("orientationZ").value=paramSpace.orZ
-}
-function defSpace(){
-	paramSpace.lForwardX=document.getElementById("listenerForwardX").value
-	paramSpace.lForwardY=document.getElementById("listenerForwardY").value
-	paramSpace.lForwardZ=document.getElementById("listenerForwardZ").value
-	paramSpace.lUpX=document.getElementById("listenerUpX").value
-	paramSpace.lUpY=document.getElementById("listenerUpY").value
-	paramSpace.lUpZ=document.getElementById("listenerUpZ").value
-	paramSpace.lPosX=document.getElementById("listenerPositionX").value
-	paramSpace.lPosY=document.getElementById("listenerPositionY").value
-	paramSpace.lPosZ=document.getElementById("listenerPositionZ").value
-	paramSpace.PModel=document.getElementById("selectPanningModel").value
-	paramSpace.DModel=document.getElementById("selectDistanceModel").value
-	paramSpace.refD=document.getElementById("refDistance").value
-	paramSpace.maxD=document.getElementById("maxDistance").value
-	paramSpace.rolF=document.getElementById("rolloffFactor").value
-	paramSpace.coneIA=document.getElementById("coneInnerAngle").value
-	paramSpace.coneOA=document.getElementById("coneOuterAngle").value
-	paramSpace.coneOG=document.getElementById("coneOuterGain").value
-	paramSpace.orX=document.getElementById("orientationX").value
-	paramSpace.orY=document.getElementById("orientationY").value
-	paramSpace.orZ=document.getElementById("orientationZ").value
-}
-function exportProjet() {
+
+async function exportProjet() {
 defProjet()
-console.log("defprojet",paramProjet)
+const appPaths = await window.api.getPaths();
+console.log("paths",appPaths)
+var layoutName = document.getElementById("selectGreffon").value;
+var dest=window.api.joinPath(`${appPaths.basedir}`,'resources','Dsp',`${layoutName}.json`);
+const buf = await window.api.readFile(dest);
+var txt = new TextDecoder("utf-8").decode(buf);
+var rjson = JSON.parse(txt); 
+document.getElementById("spat3DCanaux").value= rjson.speakers.length;
 var txt=paramProjet.name+","+paramProjet.start+","+paramProjet.end+","+paramProjet.comment+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+paramProjet.greffon3D+","+paramProjet.greffonC+","+paramProjet.regle+","+paramProjet.mesure+","+paramProjet.grille+","+paramProjet.width+","+paramProjet.height+","+paramProjet.zoom+","+paramProjet.svgRegle+","+paramProjet.svgMesure+","+paramProjet.svgGrille+","+paramProjet.spaceSeconde+","+paramProjet.svgSeconde
 
 window.api.send("toMain", 'exportProjet;'+txt)
 }
-function exportSpace() {
-defSpace()
-var txt=paramSpace.lForwardX+","+paramSpace.lForwardY+","+paramSpace.lForwardZ+","+paramSpace.lUpX+","+paramSpace.lUpY+","+paramSpace.lUpZ+","+paramSpace.lPosX+","+paramSpace.lPosY+","+paramSpace.lPosZ+","+paramSpace.PModel+","+paramSpace.DModel+","+paramSpace.refD+","+paramSpace.maxD+","+paramSpace.rolF+","+paramSpace.coneIA+","+paramSpace.coneOA+","+paramSpace.coneOG+","+paramSpace.orX+","+paramSpace.orY+","+paramSpace.orZ
-console.log(paramSpace,txt)
-window.api.send("toMain", 'exportSpace;'+txt)
-}
+
 function exportInterface() {
 defInterface()
 var txt=paletteBkg+":"+ fontPalette+":"+ fontPaletteSize+":"+ separateurPalette+":"+ fontSizeMenu+":"+ bkgInfo+":"+ fontInfoSize+":"+ fontInfoColor+":"+ regleBackground+":"+ regleFontSize+":"+ regleFontColor+":"+ intervalBackground+":"+ intervalFontSize+":"+ fontIntervalColor+":"+ workSpaceBkg+":"+ spaceGrilleOpacity+":"+ colorGrille+":"+ suiveurBkg+":"+ popupTitreBkg+":"+ popupHeaderFontSize+":"+ popupFontTitreColor+":"+ popupFontColor+":"+ popupBkgColor+":"+ popupFontSize+":"+ popupOngletFontColor+":"+ popupFontOngletSize+":"+ popupOngletBkg+":"+ popupOngletActifBkg+":"+lang+":"+ vueSvgBackground+":"+vueSvgFontSize+":"+vueSvgFontColor
