@@ -30,7 +30,7 @@ listeFx["BandePass"]={
    width:380,
    height:210,
    label:'Hpf,Lpf',
-	paramname:'/FILTERS/0x00/HPF_Freq,/FILTERS/0x00/LPF_Freq',
+	paramname:'/bandpass/HPF_Freq,/bandpass/HPF_Freq',
 	greffon:"bandpass",
 	defaut:'0?20/0?1000',
 	min:'20,20',
@@ -159,6 +159,18 @@ listeFx["GrainGenerator"]={
 	min:'0,0,0,0.125,4',
 	max:'1,2,1,4,200'
 }
+listeFx["Highpass"]={
+	name:"Highpass",
+   interface:"<table id='Highpass' align='center' border='1' cellpadding='4' cellspacing='0'  style='background-color:#ffdea4;'><tbody><tr ><td>Highpass</td><td rowspan='2' style='padding-left:10px;width:210px;height:60px'><div id='highpass' style='position:absolute;top:34px;left:164px;width:200px;height:60px;' ><svg><line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' /></svg><div id='fx00' style='position:absolute;top:0px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx00-0.8'></div></div></td></tr><tr><td style='text-align:center'><input id='Xhighpass' style='width:60px;text-align:right;' type='number' value='0' min='20' max='20000' step='1'   oninput=fxParamModifPT('Highpass') /> <input id='Yhighpass' style='width:60px;text-align:right;' type='number' value='0' min='20' max='20000' step='1'   oninput=fxParamModifPV('Highpass',4,-70) /></td></tr></tbody></table><div style='margin-top:10px;margin-left:20px;'><button onclick=defautFxParam('Highpass') >Defaut</button> <button onclick=annulFxParam('Highpass') >Annuler</button> <button onclick=validFxParam('Highpass')>Valider</button></div>",
+   width:380,
+   height:145,
+   label:'highpass',
+   paramname:'/highpass/HPF_Freq',
+	greffon:"highpass",
+	defaut:'0?20',
+	min:'20',
+	max:'20000'
+}
 listeFx["Limitor"]={
 	name:"Limitor",
    interface:"<table id='Limitor' align='center' border='1' cellpadding='4' cellspacing='0'  style='background-color:#ffdea4;'><tbody><tr ><td>Gain(db)</td><td rowspan='2' style='padding-left:10px;width:210px;height:60px'><div id='LimitorGain' style='position:absolute;top:34px;left:164px;width:200px;height:60px;' ><svg><line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' /></svg><div id='fx00' style='position:absolute;top:0px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx00-0.8'></div></div></td></tr><tr><td style='text-align:center'><input id='XLimitorGain' style='width:60px;text-align:right;' type='number' value='0' min='0' max='60' step='0.01'   oninput=fxParamModifPT('LimitorGain') /> <input id='YLimitorGain' style='width:60px;text-align:right;' type='number' value='40' min='-96' max='96' step='0.1'   oninput=fxParamModifPV('LimitorGain',96,-96) /></td></tr></tbody></table><div style='margin-top:10px;margin-left:20px;'><button onclick=defautFxParam('Limitor') >Defaut</button> <button onclick=annulFxParam('Limitor') >Annuler</button> <button onclick=validFxParam('Limitor')>Valider</button></div>",
@@ -170,6 +182,18 @@ listeFx["Limitor"]={
 	defaut:'0?40',
 	min:'-96',
 	max:'96'
+}
+listeFx["Lowpass"]={
+	name:"Lowpass",
+   interface:"<table id='Lowpass' align='center' border='1' cellpadding='4' cellspacing='0'  style='background-color:#ffdea4;'><tbody><tr ><td>Lowpass</td><td rowspan='2' style='padding-left:10px;width:210px;height:60px'><div id='lowpass' style='position:absolute;top:34px;left:164px;width:200px;height:60px;' ><svg><line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' /></svg><div id='fx00' style='position:absolute;top:0px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx00-0.8'></div></div></td></tr><tr><td style='text-align:center'><input id='Xlowpass' style='width:60px;text-align:right;' type='number' value='0' min='20' max='20000' step='1'   oninput=fxParamModifPT('Lowpass') /> <input id='Ylowpass' style='width:60px;text-align:right;' type='number' value='0' min='20' max='20000' step='1'   oninput=fxParamModifPV('Lowpass',4,-70) /></td></tr></tbody></table><div style='margin-top:10px;margin-left:20px;'><button onclick=defautFxParam('Lowpass') >Defaut</button> <button onclick=annulFxParam('Lowpass') >Annuler</button> <button onclick=validFxParam('Lowpass')>Valider</button></div>",
+   width:380,
+   height:145,
+   label:'lowpass',
+   paramname:'/lowpass/HPF_Freq',
+	greffon:"lowpass",
+	defaut:'0?20',
+	min:'20',
+	max:'20000'
 }
 listeFx["Modulation"]={
 	name:"Modulation",
@@ -282,3 +306,16 @@ listeFx["Tremolo"]={
 	min:'0,0.1,0',
 	max:'1,50,100'
 }
+listeFx["Volume"]={
+	name:"Volume",
+   interface:"<table id='Volume' align='center' border='1' cellpadding='4' cellspacing='0'  style='background-color:#ffdea4;'><tbody><tr ><td>Volume(db)</td><td rowspan='2' style='padding-left:10px;width:210px;height:60px'><div id='volume' style='position:absolute;top:34px;left:164px;width:200px;height:60px;' ><svg><line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' /></svg><div id='fx00' style='position:absolute;top:0px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx00-0.8'></div></div></td></tr><tr><td style='text-align:center'><input id='Xvolume' style='width:60px;text-align:right;' type='number' value='0' min='0' max='60' step='0.01'   oninput=fxParamModifPT('Volume') /> <input id='Yvolume' style='width:60px;text-align:right;' type='number' value='0' min='-70' max='10' step='0.1'   oninput=fxParamModifPV('Volume',4,-70) /></td></tr></tbody></table><div style='margin-top:10px;margin-left:20px;'><button onclick=defautFxParam('Volume') >Defaut</button> <button onclick=annulFxParam('Volume') >Annuler</button> <button onclick=validFxParam('Volume')>Valider</button></div>",
+   width:380,
+   height:145,
+   label:'volume',
+   paramname:'/volume/0x00',
+	greffon:"volume",
+	defaut:'0?0',
+	min:'-70',
+	max:'4'
+}
+

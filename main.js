@@ -20,6 +20,8 @@ const path = require('path')
 const fs = require("fs-extra")
 const os = require("os");
 const { existsSync } = require("fs");
+const tkill = require("tree-kill");
+const { WaveFile } = require("wavefile");
 
 const createModule = require('./public/split_wasm.js');
 const createMergeModule = require('./public/merge_wasm.js');
@@ -29,21 +31,25 @@ const WavDecoder = require("wav-decoder");
 const WavEncoder = require("wav-encoder");
 const wav = require("node-wav");
 
+const FFTModule = require('fft.js'); 
+
 var AudioBuffer = require('audiobuffer')
-const { exec, execSync, spawn } = require("child_process");
+const { exec, execSync, spawn , spawnSync} = require("child_process");
 const util = require("util");
 const execAsync = util.promisify(exec);
 
 const baseDir = getBinBaseDir();
 const platform = os.platform();
 let playState=0;
-let playProcess=null;
+let playProcess=new Set();
 
 function getBinBaseDir() {
   return app.isPackaged
     ? path.join(process.resourcesPath, "bin")
     : path.join(__dirname, "resources", "bin");
 }
+
+
 
 function findSoxPath() {
   let localPath;
@@ -78,7 +84,7 @@ function findSoxiPath() {
   let localPath;
   switch (platform) {
     case "win32":
-      localPath = path.join(baseDir, "win", "sox.exe --i ");
+      localPath = path.join(baseDir, "win", "soxi.exe ");
       break;
     case "darwin":
       localPath = path.join(baseDir, "mac", "soxi");
@@ -86,13 +92,14 @@ function findSoxiPath() {
     default:
       localPath = path.join(baseDir, "linux", "soxi");
   }
-
+	console.log("loaclPath",localPath)
   if (existsSync(localPath)) return localPath;
   return "soxi"; // fallback global
 }
 /**
  * Retourne le chemin correct vers le binaire play (local ou global)
  */
+
 function findPlayPath() {
   let localPath;
   switch (platform) {
@@ -109,6 +116,8 @@ function findPlayPath() {
   if (existsSync(localPath)) return localPath;
   return "play"; // fallback global
 }
+
+
 function findRubberbandPath() {
   const baseDir = getBinBaseDir();
   const platform = os.platform();
@@ -125,9 +134,10 @@ function findRubberbandPath() {
       localPath = path.join(baseDir, "linux", "rubberband");
   }
 
-  if (existsSync(localPath)) return `"${localPath}"`;
+  if (existsSync(localPath)) return `${localPath}`;
   return "rubberband"; // fallback global
 }
+
 function getFFmpegPaths() {
   const platform = process.platform;
   const baseDir = getBinBaseDir();
@@ -152,18 +162,71 @@ function getFFmpegPaths() {
 const soxPath = findSoxPath();
 const soxiPath = findSoxiPath();
 const playPath = findPlayPath();
+console.log("playPath",playPath)
 const rubberbandPath = findRubberbandPath();
 const { ffmpegPath, ffplayPath, ffprobePath } = getFFmpegPaths();
 console.log("🎧 Sox détecté :", soxPath,soxiPath,playPath,rubberbandPath,ffmpegPath, ffplayPath, ffprobePath );
 
-async function callRubberbandCLI(rb,id,mode,inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null) {
-  let cmd = rb+` -t ${timeRatio} -p ${pitchSemitones}  --window-long --no-transients --smoothing --no-threads --crisp 4 "${inputPath}" "${outputPath}"`;
+function waitForFile(file, timeout = 4000) {
+  const start = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      try {
+        if (fs.existsSync(file)) {
+          const size = fs.statSync(file).size;
+          if (size > 44) return resolve();
+        }
+
+        if (Date.now() - start > timeout) {
+          return reject(new Error("Timeout waiting for " + file));
+        }
+
+        setTimeout(check, 40);
+      } catch (e) {
+        reject(e);
+      }
+    };
+    check();
+  });
+}
+async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null) {
+
+  const args = [
+    '-t', String(timeRatio),
+    '-p', String(pitchSemitones),
+    '--window-long',
+    '--no-transients',
+    '--smoothing',
+    '--no-threads',
+    inputPath,
+    outputPath
+  ];
+
   if (timeMapPath) {
-    cmd += ` -M "${timeMapPath}"`;
+    args.push('-M', timeMapPath);
   }
-  const { stdout, stderr } = await execAsync(cmd);
-  //if (stderr) console.error("rubberband stderr:", stderr);
-  console.log("Rubberband terminé !");
+
+  const wrb = platform === "win"
+    ? path.join(process.resourcesPath, 'bin', 'win', 'rubberband.exe')
+    : rubberbandPath;
+
+  await new Promise((resolve, reject) => {
+    const proc = spawn(wrb, args, { windowsHide: true, cwd: path.dirname(wrb) });
+
+    //proc.stdout.on('data', d => console.log(d.toString()));
+
+    proc.stderr.on('data', d => console.error(d.toString()));
+
+    proc.on('error', reject);
+    
+    proc.on('close', code => {
+      code === 0 ? resolve() : reject(new Error("Rubberband exit " + code));
+    });
+    
+  });
+  await waitForFile(outputPath);
+
   mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath)
 }
 async function autoRubberbandCLI(rb,inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null,obj) {
@@ -293,16 +356,19 @@ if (fs.existsSync(app.getPath('home')+'/kandiskyscore')) {
 }
 
 
-fs.access(app.getPath('appData')+'/kandiskyscore/config.js', (err) => {
-	   if (err) {
-	      console.log('does not exist')
-			copyFileOutsideOfElectronAsar('./config.js', app.getPath('appData')+'/kandiskyscore/config.js')
-	    } else {
-	      console.log('exists')
-	    }
-   })
+if (fs.existsSync(app.getPath('appData')+'/kandiskyscore/config.js')) {
+	 console.log('config')
+	}else{
+    copyFileOutsideOfElectronAsar('./config.js', app.getPath('appData')+'/kandiskyscore/config.js')
+   }
+if (fs.existsSync(app.getPath('appData')+'/kandiskyscore/menuDefaut.js')) {
+	 console.log('menu exists')
+	}else{
+    copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
+   }
 
-copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
+
+//copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
 const Mn = require(app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
 console.log('copy menuDefaut')
 fs.access(app.getPath('appData')+'/kandiskyscore/Dsp', (err) => {
@@ -337,13 +403,13 @@ let winGraphGrpEtat=0
 let winTrajectoireEtat=0
 let winStudioEtat=0
 let winStudio3DEtat=0
+let winSpectrEditEtat=0
 let winPreDefEtat=0
 let winAideEtat=0
 let newStudioEtat=0
 let winVueStudio3DEtat=0
 let winDocEtat=0
 let winSpectroEtat=0
-let winSvgEtat=0
 let winMediaExplorerEtat=0
 let winImgViewerEtat=0;
 let winHostEtat=0
@@ -351,7 +417,9 @@ let winPro54Etat=0
 let winObxdEtat=0
 let winSpatMassEtat=0
 let winMassWasmEtat=0
-
+let winSpectWamEtat=0
+let winTrajectoryEtat=0
+let winSvgEtat=0;
 let projetName=''
 let projetPath=app.getPath('home')+'/kandiskyscore/projets'
 let audioPath=app.getPath('home')+'/kandiskyscore/projets'
@@ -634,6 +702,25 @@ const template = [
 				click: () => defRetro()  },
       { label: MrenvRet,
 				click: () => defRenvRetro()  },
+		{ type: 'separator' },
+		{ label: 'MetaMass',
+      		click: async () => defSpatMass() },
+      { label: 'SpectrEdit',
+				click: () => defSpectrEdit() },
+		{ label: 'Wam2 Plugins',
+      	submenu: [
+      		{ label: 'host',
+      		click: async () => host() },
+      		{ label: 'Synthétiseur',
+					submenu: [
+						{ label: 'Obxd',
+						click: () => sObxd()},
+		  				{ label: 'Pro24 synth',
+		  				click: () => sPro24()}
+  				]
+				}
+  				]
+      },
       { type: 'separator' },
       { label: Mtempo,
 				click: () => tempoAudio() },
@@ -661,22 +748,6 @@ const template = [
       		click: () => waveForm() },
       { label: 'Spectrogram',
       		click: async () => spectrogram() },
-      { label: 'MetaMass',
-      		click: async () => defSpatMass() },
-      { label: 'Wam2 Plugins',
-      	submenu: [
-      		{ label: 'host',
-      		click: async () => host() },
-      		{ label: 'Synthétiseur',
-					submenu: [
-						{ label: 'Obxd',
-						click: () => sObxd()},
-		  				{ label: 'Pro24 synth',
-		  				click: () => sPro24()}
-  				]
-				}
-  				]
-      },
       { type: 'separator' },
       { label: Mobjetwav,
       		click: () => renduObjet() },
@@ -763,8 +834,6 @@ menuPopup.append(new MenuItem({ type: 'separator' }))
 menuPopup.append(new MenuItem({ label: Mgrouper,
 click: () => menuPopupGrouper()},))
 menuPopup.append(new MenuItem({ label: Mdegrouper,
-click: () => menuPopupDegrouper()},))
-menuPopup.append(new MenuItem({ label: Mregrouper,
 click: () => menuPopupRegrouper()},))
 menuPopup.append(new MenuItem({ label: MtoutDegrouper,
 click: () => menuPopupToutDegrouper()}))
@@ -916,6 +985,37 @@ ipcMain.on("process-audio", async (event, args) => {
 // ****************************************************************************************************************
 //																	Menu principal
 // ****************************************************************************************************************
+function winDefSvg(obj,mode) {
+	if(winSvgEtat==1){
+		winSvg.destroy()
+  			winSvgEtat=0
+	}
+	winSvg = new BrowserWindow({width:800,height:640,alwaysOnTop:false,
+	webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: true,
+            enableRemoteModule: false, // turn off remote
+            preload: path.join(__dirname, 'preload.js')
+        }
+	})
+	winSvg.loadFile('winSvg.html')
+	winSvg.removeMenu();
+	//winSvg.setMenu(menu2)
+	//winSvg.webContents.openDevTools()
+	winSvgEtat=1
+	winSvg.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+ 		winSvg.webContents.send("fromMain", "defSvg;"+obj+";"+mode);
+  		});
+
+	winSvg.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+   e.preventDefault()
+   
+  winSvg.destroy()
+  winSvgEtat=0
+  }) 
+}
+
+
 function newDefStudio() {
 	newStudio.webContents.send("fromMain", 'newStudio');
 }
@@ -931,7 +1031,7 @@ function createStudio() {
 		})
 		newStudio.loadFile('studioCreate.html')
 		newStudio.setMenu(menu2);
-		newStudio.webContents.openDevTools()
+		//newStudio.webContents.openDevTools()
 		newStudioEtat=1
 		
 
@@ -964,12 +1064,10 @@ function createStudio() {
 }
 
 function copyDefautMenu(lang) {
-	fs.copyFile(app.getPath('appData')+'/kandiskyscore'+'/Local/'+lang+'/menu-'+lang+'.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js', (err) => {
-    if (err) 
-        throw err;
-   // console.log('./Local/'+lang+'/menu-'+lang+'.js was copied to ./menuDefaut.js');
+   copyFileOutsideOfElectronAsar('/Local/'+lang+'/menu-'+lang+'.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
+   console.log('./Local/'+lang+'/menu-'+lang+'.js was copied to '+app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
     mainWindow.webContents.send("fromMain", 'configSave;'+lang)
-});
+//});
 }
 const menu = Menu.buildFromTemplate(template)								// construction du menu principal
 Menu.setApplicationMenu(menu)
@@ -1227,11 +1325,11 @@ console.log("blob",buf.size)
 }
 // **************************************************************************************************************
 function saveConfig(txt) {
-	var path=app.getPath('appData')+'/kandiskyscore/config.js'
-	fs.writeFile(path, 
+	var npath=path.join(app.getPath('appData'),'kandiskyscore','config.js');
+	fs.writeFile(npath, 
                    atob(txt), function (err) {
           if (err) throw err;
-          console.log('Saved at',path);
+          console.log('Saved at',npath);
       });
 }
 function saveModifProjet(txt) {
@@ -1293,12 +1391,20 @@ function stdSelect() {
   		newStudio.webContents.send("fromMain", "loadStudio;"+result.filePaths[0]);
 	})
 }
-
-function dspSave(txtHtml,txt,dsp) {
-	console.log("maindsp",txt)
+function getExecutableDir() {
+  if (app.isPackaged) {
+    // PROD : dossier de l'exécutable
+    return path.dirname(process.execPath);
+  } else {
+    // DEV : racine du projet
+    return process.cwd();
+  }
+}
+function dspSave(txtHtml,txt,dsp,fjson) {
+	console.log(app.getAppPath(),getExecutableDir())
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join( app.getPath('appData'), '/kandiskyscore/Dsp/',projetName),
+        defaultPath: path.join( getExecutableDir(), 'resources','Dsp/',projetName),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
         filters: [
@@ -1326,6 +1432,7 @@ function dspSave(txtHtml,txt,dsp) {
             varfile1=path+dfile[0]+".html"
             varfile2=path+dfile[0]+".std"
             varfile3=path+dfile[0]+".dsp"
+            varfile4=path+dfile[0]+".json"
             console.log("dsp file",file.filePath,dfile,varfile1,varfile2,varfile3)
             var ndsp="declare name        \""+dfile[0]+"\";\n"+atob(dsp)
             fs.writeFile(varfile1.toString(), 
@@ -1342,6 +1449,16 @@ function dspSave(txtHtml,txt,dsp) {
                          ndsp, function (err) {
                 if (err) throw err;
                 console.log('Saved dsp!');
+            });
+            ndsp='{ \n\
+	"name":"'+dfile[0]+'",\n\
+	"speakers":[\n';
+	console.log("json",JSON.parse(fjson))
+	ndsp=ndsp+JSON.parse(fjson);
+            fs.writeFile(varfile4.toString(), 
+                        ndsp, function (err) {
+                if (err) throw err;
+                console.log('Saved json!');
             });
         }
     }).catch(err => {
@@ -1397,10 +1514,6 @@ function saveSvgAs(txt) {
                          atob(txt), function (err) {
                 if (err) throw err;
                 console.log('Saved!');
-                if(winSvgEtat==1){
-						winSvg.destroy()
-	  					winSvgEtat=0
-	  				}
             });
         }
     }).catch(err => {
@@ -1645,7 +1758,7 @@ function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
 		})
 		winProjet.loadFile('configuration.html')
 		winProjet.removeMenu();
-		winProjet.webContents.openDevTools()
+		//winProjet.webContents.openDevTools()
 		winProjetEtat=1
 		winProjet.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winProjet.webContents.send("fromMain", "defProjet;"+lang+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6);
@@ -1682,7 +1795,57 @@ function configClose() {
 	winProjet.destroy()
 	winProjetEtat=0
 }
+function spectrEdit(id,fpath,obj) {
+	if(winSpectrEditEtat==0){
+		var npath=path.join(audioPath,fpath);
+		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+app.getPath('home')+'/kandiskyscore/Projets/spectrogram.png', (error, stdout, stderr) => {
+		    if (error) {
+		        console.log(`error: ${error.message}`);
+		        return;
+		    }
+		    if (stderr) {
+		        //console.log(`stderr: ${stderr}`);
+		        //return;
+		    }
+		})
+		winSpectrEdit = new BrowserWindow({width:1040,height:840,alwaysOnTop:false,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winSpectrEdit.loadFile('spectrEdit.html')
+		winSpectrEdit.removeMenu();
+		winSpectrEdit.webContents.openDevTools()
+		winSpectrEditEtat=1
+		winSpectrEdit.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winSpectrEdit.webContents.send("fromMain", "defObjet;"+id+";"+obj+";"+audioPath+";"+app.getPath('userData'));
+  		});
 
+		winSpectrEdit.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winSpectrEdit.destroy()
+	  winSpectrEditEtat=0
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winSpectrEdit.destroy()
+	  winSpectrEditEtat=0
+		console.log('')
+	}
+}
 function winObjetParam(objId,lang,obj,c,t) {
 	if(winConfigEtat==0){
 		winConfig = new BrowserWindow({width:410,height:640,alwaysOnTop:true,
@@ -1695,7 +1858,7 @@ function winObjetParam(objId,lang,obj,c,t) {
 		})
 		winConfig.loadFile('objetParam.html')
 		winConfig.removeMenu();
-		winConfig.webContents.openDevTools()
+		//winConfig.webContents.openDevTools()
 		winConfigEtat=1
 		winConfig.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winConfig.webContents.send("fromMain", "defObjet;"+objId+";"+lang+";"+obj+";"+c+";"+t);
@@ -1736,10 +1899,10 @@ function spatMass(id,obj) {
 		})
 		winSpatMass.loadFile('spatMass.html')
 		winSpatMass.removeMenu();
-		winSpatMass.webContents.openDevTools()
+		//winSpatMass.webContents.openDevTools()
 		winSpatMassEtat=1
 		winSpatMass.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winSpatMass.webContents.send("fromMain", "openSpatMass;"+id+";"+obj);
+    		winSpatMass.webContents.send("fromMain", "openSpatMass;"+id+";"+audioPath+";"+obj+";0");
   		});
 
 		winSpatMass.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -1781,10 +1944,10 @@ function openMassWasm(id,file,rate) {
 		})
 		winMassWasm.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html')
 		winMassWasm.removeMenu();
-		winMassWasm.webContents.openDevTools()
+		//winMassWasm.webContents.openDevTools()
 		winMassWasmEtat=1
 		winMassWasm.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winMassWasm.webContents.send("fromMain", "objsource;"+id+";"+file+";"+rate);
+    		winMassWasm.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";0");
   		});
 
 		winMassWasm.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -1810,36 +1973,49 @@ function openMassWasm(id,file,rate) {
 		console.log('')
 	}
 }
-const menu2 = Menu.buildFromTemplate(template2)
-function winDefSvg(obj,mode) {
-	if(winSvgEtat==1){
-		winSvg.destroy()
-  			winSvgEtat=0
-	}
-	winSvg = new BrowserWindow({width:800,height:640,alwaysOnTop:false,
-	webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: true,
-            enableRemoteModule: false, // turn off remote
-            preload: path.join(__dirname, 'preload.js')
-        }
-	})
-	winSvg.loadFile('winSvg.html')
-	winSvg.removeMenu();
-	//winSvg.setMenu(menu2)
-	winSvg.webContents.openDevTools()
-	winSvgEtat=1
-	winSvg.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
- 		winSvg.webContents.send("fromMain", "defSvg;"+obj+";"+mode);
+function openSpectWasm(id,file,rate,mode) {
+	if(winSpectWamEtat==0){
+		winSpectWam = new BrowserWindow({width:680,height:530,alwaysOnTop:true,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winSpectWam.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html')
+		winSpectWam.removeMenu();
+		//winSpectWam.webContents.openDevTools()
+		winSpectWamEtat=1
+		winSpectWam.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winSpectWam.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";"+mode);
   		});
 
-	winSvg.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-   e.preventDefault()
-   
-  winSvg.destroy()
-  winSvgEtat=0
-  }) 
+		winSpectWam.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+	   e.preventDefault()
+	   
+	  winSpectWam.destroy()
+	  winSpectWamEtat=0;
+	}) 
+	
+	}else{
+		/*
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	  */
+	  //winSpectWam.destroy()
+	  winSpectWamEtat=0
+		console.log('')
+	}
 }
+const menu2 = Menu.buildFromTemplate(template2)
+
 
 function createPreDef(objId,lang,obj) {
 	if(winPreDefEtat==0){
@@ -1900,7 +2076,7 @@ function createWinGraph(id,lang,param,type) {
 		})
 		winGraphObj.loadFile('defgraphObj.html')
 		winGraphObj.removeMenu();
-		winGraphObj.webContents.openDevTools()
+		//winGraphObj.webContents.openDevTools()
 		winGraphObjEtat=1
 		winGraphObj.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphObj.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
@@ -2044,6 +2220,39 @@ function createTrajectoire(id,cmd2) {
 	  })
 	}
 }
+function createTrajectory(id) {
+	if(winTrajectoryEtat==0){
+		winTrajectory = new BrowserWindow({width:600,height:320,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false, // turn off remote
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		})
+		winTrajectory.loadFile('trajectory.html')
+		winTrajectory.removeMenu();
+		//winTrajectory.webContents.openDevTools()
+		winTrajectoryEtat=1
+		winTrajectory.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+    		winTrajectory.webContents.send("fromMain", "trajectory;"+id);
+  		});
+  		winTrajectory.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+		   e.preventDefault()
+		   winTrajectory.destroy()
+		   winTrajectoryEtat=0
+	   })
+	}else{
+		dialog.showMessageBox({
+	    type: 'info',
+	    buttons: [Qok],
+	    cancelId: 1,
+	    defaultId: 0,
+	    title: Qwarning,
+	    detail: AlertWinOpen
+	  })
+	}
+}
 function openStudio(X,Y,Z,gain) {
 	if(winStudioEtat==0){
 		winStudio = new BrowserWindow({width:804,height:604,
@@ -2064,7 +2273,8 @@ function openStudio(X,Y,Z,gain) {
   		winStudio.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
 		   e.preventDefault()
 		   winStudio.destroy()
-		   winStudioEtat=0
+		   winStudioEtat=0;
+		   mainWindow.webContents.send("fromMain", "studioEnd");
 	   })
 	}else{
 		dialog.showMessageBox({
@@ -2175,7 +2385,11 @@ function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
 	    console.log(`response: ${response}`)
 	    if (response) {
 	      winSpatial.destroy()
-	      winSpatialEtat=0
+	      winSpatialEtat=0;
+	      if(winTrajectoryEtat==1){
+				winTrajectoire.destroy();
+				winTrajectoireEtat=0;
+			}
 	    }
 	  })
 	}) 
@@ -2225,10 +2439,10 @@ function mediaExplorer() {
 		})
 		winMediaExplorer.loadFile('./mediaExplorer.html')
 		winMediaExplorer.removeMenu();
-		winMediaExplorer.webContents.openDevTools()
+		//winMediaExplorer.webContents.openDevTools()
 		winMediaExplorerEtat=1
 		winMediaExplorer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winMediaExplorer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+app.getPath('home')+'/kandiskyscore;'+currentProjet);
+    		winMediaExplorer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+path.join(app.getPath('home'),'kandiskyscore')+';'+currentProjet);
   		});
 
 		winMediaExplorer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -2266,7 +2480,7 @@ function imgViewer() {
 		})
 		winImgViewer.loadFile('./imgViewer.html')
 		winImgViewer.removeMenu();
-		winImgViewer.webContents.openDevTools()
+		//winImgViewer.webContents.openDevTools()
 		winImgViewerEtat=1
 		winImgViewer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winImgViewer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+app.getPath('home')+'/kandiskyscore;'+currentProjet);
@@ -2308,7 +2522,7 @@ function winPro54Open() {
 		console.log('winPro54Open')
 		winPro54.loadFile('./Wam2/wam-examples-master/packages/Synthe/Pro54/index.html')
 		winPro54.removeMenu();
-		winPro54.webContents.openDevTools()
+		//winPro54.webContents.openDevTools()
 		winPro54Etat=1
 		winPro54.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winPro54.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
@@ -2350,7 +2564,7 @@ function winObxdOpen() {
 		console.log('winObxdOpen')
 		winObxd.loadFile('./Wam2/wam-examples-master/packages/Synthe/Obxd/index.html')
 		winObxd.removeMenu();
-		winObxd.webContents.openDevTools()
+		//winObxd.webContents.openDevTools()
 		winObxdEtat=1
 		winObxd.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winObxd.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
@@ -2392,10 +2606,10 @@ function winHostOpen(id,objWav) {
 		})
 		winHost.loadFile('./Wam2/wam-examples-master/packages/hostModules/index.html')
 		winHost.removeMenu();
-		winHost.webContents.openDevTools()
+		//winHost.webContents.openDevTools()
 		winHostEtat=1
 		winHost.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winHost.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
+    		winHost.webContents.send("fromMain", "equalizer;"+id+";"+audioPath+";"+objWav);
   		});
 
 		winHost.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -2557,7 +2771,7 @@ function host() {
 function soxSpectrogram(npath) {
 	var txt="";
 	if(winSpectroEtat==0){
-		exec("sox "+npath+"  -n remix 1  spectrogram -x 2000 -o "+app.getPath('home')+'/kandiskyscore/Projets/spectrogram.png', (error, stdout, stderr) => {
+		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+app.getPath('home')+'/kandiskyscore/Projets/spectrogram.png', (error, stdout, stderr) => {
 		    if (error) {
 		        console.log(`error: ${error.message}`);
 		        return;
@@ -2598,7 +2812,7 @@ function soxSpectrogram(npath) {
 				})
 				winSpectro.loadFile('spectrogram.html')
 				winSpectro.removeMenu();
-				winSpectro.webContents.openDevTools()
+				//winSpectro.webContents.openDevTools()
 				winSpectroEtat=1
 				winSpectro.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
 		    		winSpectro.webContents.send("fromMain", "defSpectro;"+app.getPath('home')+'/kandiskyscore/Projets;'+uena(txt)+";"+npath);
@@ -2674,7 +2888,7 @@ function spaceToSvg(path,txt) {
         
 }
 function audioEditor(obj) {
-	var cm=editAudioCmd+" "+app.getPath('home')+'/kandiskyscore/Projets/'+projetName+'/Audios/'+obj
+	var cm=editAudioCmd+" "+obj
 	console.log('cm',cm)
 	exec(cm)
 }
@@ -2709,7 +2923,7 @@ ipcMain.on ("toMain", (event, args) => {
 	let cmd=args.split(';')
 	switch(cmd[0]) {
 		case 'basePath':
-			mainWindow.webContents.send("fromMain", "dconfig;"+app.getPath('appData')+'/kandiskyscore/')
+			mainWindow.webContents.send("fromMain", "dconfig;"+app.getPath('userData'))
 			break
 		case 'defPdf':
 			divToPdf(cmd[1])
@@ -2773,6 +2987,10 @@ ipcMain.on ("toMain", (event, args) => {
 				winTrajectoire.destroy()
 				winTrajectoireEtat=0
 			}
+			if(winTrajectoryEtat==1){
+				winTrajectory.destroy()
+				winTrajectoryEtat=0
+			}
 			winConfig.destroy()
 			winConfigEtat=0;
 			mainWindow.webContents.send("fromMain", "objValid;"+cmd[1])
@@ -2800,10 +3018,6 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'grpAnnul':
 			winGraphGrp.destroy()
 			winGraphGrpEtat=0
-			break
-		case 'preDefValid':
-			winPreDef.destroy()
-			winPreDefEtat=0
 			break
 		case 'objGraphAnnul':
 			mainWindow.webContents.send("fromMain", "objGraphAnnul;"+cmd[1])
@@ -2863,6 +3077,10 @@ ipcMain.on ("toMain", (event, args) => {
 				winStudio3D.destroy()
 	     	   winStudio3DEtat=0
 	      }
+	      if(winTrajectoryEtat==1){
+				winTrajectory.destroy()
+				winTrajectoryEtat=0
+			}
 			break	
 		case 'winSpatial':
 			console.log('winSpatial',cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
@@ -2880,6 +3098,14 @@ ipcMain.on ("toMain", (event, args) => {
 	     	   winStudio3DEtat=0
 	      }
 			break
+		case "createTrajectory":
+			createTrajectory(cmd[1]);
+			break;
+		case "defTrajectory":
+			winSpatial.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2])
+			mainWindow.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2])
+			winConfig.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2])
+			break;
 		case 'audioFileObj':
 			console.log("id1",cmd[1])
 			objetAudio(cmd[1])
@@ -2893,10 +3119,6 @@ ipcMain.on ("toMain", (event, args) => {
 			break
 		case 'saveFxAudio':
 			saveFxAudio(cmd[1],cmd[2])
-			break
-		case 'audioPreDef':
-			console.log("id1",cmd[1])
-			preDefAudio(cmd[1])
 			break
 		case 'fileAudioParam':
 			console.log("id1",cmd[1]);
@@ -3064,7 +3286,7 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'objColor':
 			console.log(`defGraphObj ${args} from renderer process`);
 			winConfig.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2])
-			mainWindow.webContents.send("fromMain", "objNColor;"+cmd[1]+";"+cmd[2])
+			mainWindow.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2])
 			break
 		case 'bkgGrpColor':
 			console.log(`defGraphObj ${args} from renderer process`);
@@ -3319,7 +3541,10 @@ ipcMain.on ("toMain", (event, args) => {
 			mainWindow.webContents.send("fromMain", "spatialspT;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
 			winSpatial.webContents.send("fromMain", "spatialspT;"+cmd[2]+";"+cmd[3])
 			winConfig.webContents.send("fromMain", "spatialspT;"+cmd[2]+";"+cmd[3])
-			break
+			break;
+		case 'trajectSpatial':
+			mainWindow.webContents.send("fromMain", "trajectSpatial;"+cmd[1]+";"+cmd[2])
+			break;
 		case 'openListeFx':
 			mainWindow.webContents.send("fromMain", "openListeFx")
 			break
@@ -3343,6 +3568,7 @@ ipcMain.on ("toMain", (event, args) => {
 			}
 			break
 		case 'createEvtAudio':
+		console.log(`createEvtAudio ${args} from renderer save`);
 			if(winStudioEtat==1){
 				winStudio.webContents.send("fromMain", "createEvtAudio;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]+";"+cmd[5]+";"+cmd[6]+";"+cmd[7])
 				console.log("evt",cmd[1])
@@ -3416,7 +3642,7 @@ ipcMain.on ("toMain", (event, args) => {
 			copyDefautMenu(cmd[1])
 			break
 		case 'saveDsp':
-			dspSave(cmd[1],cmd[2],cmd[3])
+			dspSave(cmd[1],cmd[2],cmd[3],cmd[4])
 			break
 		case 'selectStd':
 			stdSelect()
@@ -3445,6 +3671,7 @@ ipcMain.on ("toMain", (event, args) => {
 	  		}
 			break
 		case 'read3D':
+		console.log(`externe ${args} from renderer process`);
 			mainRead3D()
 			break
 		case 'exportExterne':
@@ -3572,9 +3799,25 @@ ipcMain.on ("toMain", (event, args) => {
 				mtime[i]=ninfo.mtime
 			}
 				console.log("size",fsize,mtime)
-			
-			winMediaExplorer.webContents.send("fromMain", "retReadDir;"+folders+";"+files+";"+fsize+";"+mtime)
-console.log("Sous-dossiers :", folders);
+			winMediaExplorer.webContents.send("fromMain", "retReadDir;"+JSON.stringify({
+			  path: cmd[1],
+			  folders: folders,
+			  files: files,
+			  fsize: fsize,
+			  mtime: mtime
+			}));
+	  		break
+	  	case 'readListSpat':
+		   console.log(`openList ${args} from param`);
+		   var f=[];
+		   const npath = path.join(getExecutableDir(), 'resources', 'Dsp');
+		   var entries=listAudioFiles(npath,'json')
+			for(i=0;i<entries.length;i++){
+				var nf=entries[i].split("/");
+				var nnf=nf[nf.length-1].split('.');
+				f[i]=nnf[0];
+			}
+			winProjet.webContents.send("fromMain", "rtSpatList;"+f)
 	  		break
 	  	case 'readImgsSelect':
 		   console.log(`openObjetParam ${args} from param`);
@@ -3592,9 +3835,9 @@ console.log("Sous-dossiers :", folders);
 	   	
 	   	var totalFrames = length;//4298112 ton WAV
 	   	var durationSec = totalFrames / sampleRate; 
-			var inputPath = path.resolve("./renduin.wav");
-			var outputPath = path.resolve("./renduout.wav");
-			var timeMapPath = path.resolve("./timemap.txt");
+			var inputPath =path.join(app.getPath('userData'),'renduin.wav');
+			var outputPath = path.join(app.getPath('userData'),'renduout.wav');
+			var timeMapPath = path.join(app.getPath('userData'),'timemap.txt');
 
 		(async  () => {
 		  const timemap = await buildSmoothRubberbandTimeMap(tempoMap, sampleRate, duration, length,0.1);
@@ -3607,7 +3850,16 @@ console.log("Sous-dossiers :", folders);
 			if (!result.valid) {
 			  console.error("Timemap invalide :", result.reason);
 			} else { 
-			  await callRubberbandCLI(rubberbandPath,id,mode,inputPath, outputPath, 1.0, 0, timeMapPath);
+			  
+			  try {
+				 await callRubberbandCLI(rubberbandPath,id,mode,inputPath, outputPath, 1.0, 0, timeMapPath);
+				} catch (err) {
+				  console.error("Rubberband failed:", err);
+				  mainWindow.webContents.send(
+				    "fromMain",
+				    "processRubberbandError;" + id + ";" + err.message
+				  );
+				}
 			}
 			})();
      	  break;
@@ -3662,7 +3914,7 @@ console.log("Sous-dossiers :", folders);
 	     	  	if (playProcess) {
 		        killPlay();
 		      }
-	     	  	
+	     	  	var proc ;
 			  if (platform === "win32") {
 				     if (cmd[2] > 0) {
 					      args = [cmd[1], "-d", "trim", cmd[2].toString()];
@@ -3675,24 +3927,26 @@ console.log("Sous-dossiers :", folders);
 			    } else {
 			      args = [cmd[1],"vol", cmd[3].toString()];
 			    }
-			    playProcess = spawn(playPath, args, {
+			    proc = spawn(playPath, args, {
 		        shell: true,
 		        detached: true, // 🔑 crée un groupe de processus
 		      });
+		      playProcess.add(proc);
 				console.log("args :",args);
-		      console.log("PID du lecteur :", playProcess.pid);
+		      console.log("PID du lecteur :", proc.pid);
 		
-		      playProcess.stdout.on("data", (data) =>
+		      proc.stdout.on("data", (data) =>
 		        console.log("stdout:", data.toString())
 		      );
-		      playProcess.stderr.on("data", (data) =>
+		      proc.stderr.on("data", (data) =>
 		        console.error("stderr:", data.toString())
 		      );
 			    
 			  }
-				playProcess.on("exit", (code) => {
+
+				 proc.on("exit", (code) => {
 				      console.log("Lecture terminée, code:", code);
-				      playProcess = null;
+				      playProcess.delete(proc);
 				      if(cmd[4]==1){
 				      	winMediaExplorer.webContents.send("fromMain", "loop");
 				      }
@@ -3700,31 +3954,62 @@ console.log("Sous-dossiers :", folders);
      	  	break;
      	  case "playDirectFile":
 				console.log(`playDirect ${args} from param`);
+				var proc ;
 	     	  	if (playProcess) {
-		        killPlay();
+		        //killPlay();
 		      }
-		      var opt=cmd[2]
-		      var args=[cmd[1],cmd[2]]
-	     	   playProcess = spawn(playPath, args, {
-		        shell: true,
-		        detached: true, // 🔑 crée un groupe de processus
-		      });
-				console.log("args :",args);
-		      console.log("PID du lecteur :", playProcess.pid);
+		      if(winStudioEtat==1){
+					winStudio.webContents.send("fromMain", "endEvtAudio");
+				}
+		      var args=[cmd[2],cmd[3]];
+		      if(os.platform()=="win32"){
+		      	const fileToPlay = cmd[2];
+		      	let soxParams = cmd[3] || "";
+					const extraArgs = soxParams.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+					const args = [fileToPlay, "-t", "waveaudio", "-d", ...extraArgs];
+					const playProcess = spawn(soxPath, args, {
+ 					 shell: false,
+					});
+		      }else{
+		     	   proc = spawn(playPath, args, {
+			        shell: true,
+			        stdio: "ignore",
+			        env: process.env
+			      });
+			      playProcess.add(proc);
+		      }
+				console.log("args :",soxPath,args,playPath,"cmd");
+				if (!proc) {
+				  console.error("Impossible de lancer le lecteur audio");
+				  return;
+				}
+		     if (proc) {
+				  console.log("PID du lecteur :", proc.pid);
+				}
 		
-		      playProcess.stdout.on("data", (data) =>
-		        console.log("stdout:", data.toString())
-		      );
-		      playProcess.stderr.on("data", (data) =>
-		        console.error("stderr:", data.toString())
-		      );
-				playProcess.on("exit", (code) => {
+		      if (proc && proc.stdout) {
+		      	/*
+				  playProcess.stdout.on("data", data =>
+				    console.log("stdout:", data.toString())
+				  );
+				  */
+				}
+
+				if (proc && proc.stderr) {
+				  proc.stderr.on("data", data =>
+				    console.error("stderr:", data.toString())
+				  );
+				}
+				proc.on("exit", (code) => {
 				      console.log("Lecture terminée, code:", code);
-				      playProcess = null;
-				      mainWindow.webContents.send("fromMain", "playStop;");
+				      playProcess.delete(proc);
+				      if(cmd[1]==0){
+				      	mainWindow.webContents.send("fromMain", "playStop;");
+				      }
 				      if(winSpatMassEtat==1){
 				      	winSpatMass.webContents.send("fromMain", "playStop;");
 				      }
+				      
 				    });
      	  	break;
      	  case "killPlay":
@@ -3790,6 +4075,25 @@ console.log("Sous-dossiers :", folders);
 			case "openSpatMass":
 				 spatMass(cmd[1],cmd[2])
 			break;
+			case "openSpectrEdit":
+				console.log(`openSpectrEdit ${args} from param`);
+				 spectrEdit(cmd[1],cmd[2],cmd[3])
+			break;
+			case "closeSpectrEdit":
+				if(winSpectrEditEtat==1){
+					winSpectrEdit.destroy();
+					winSpectrEditEtat=0;
+				}
+				if(winSpectWamEtat==1){
+					winSpectWam.destroy();
+					winSpectWamEtat=0;
+				}
+				winSpectWam
+			break;
+			case "openSpectWasm":
+				console.log(`openObjetParam ${args} from param`);
+				 openSpectWasm(cmd[1],cmd[2],cmd[3],cmd[4]);
+			break;
 			case "openMassWasm":
 				console.log(`openObjetParam ${args} from param`);
 				 openMassWasm(cmd[1],cmd[2],cmd[3]);
@@ -3811,18 +4115,29 @@ console.log("Sous-dossiers :", folders);
 
             case "rtWasmHost": {
                 const canal = args.canal;
+                const mode = args.mode;
                 const buffer = args.buffer;
 
                 console.log(
                     "rtWasmHost reçu",
                     "canal =", canal,
+                    "mode =" ,mode,
                     "buffer =", buffer?.constructor?.name
                 );
-					 winSpatMass.webContents.send("fromMain", {
-    type: "rtWasmHost",
-    canal:canal,
-    buffer: buffer
-});
+                if(mode==0){
+						 winSpatMass.webContents.send("fromMain", {
+						    type: "rtWasmHost",
+						    canal:canal,
+						    buffer: buffer
+					    });
+					 }else{
+					 	winSpectrEdit.webContents.send("fromMain", {
+						    type: "rtWasmHost",
+						    canal:canal,
+						    mode:mode,
+						    buffer: buffer
+					    });
+					 }
                 if (!(buffer instanceof Float32Array)) {
                     console.error("buffer n'est pas un Float32Array");
                     return;
@@ -3854,6 +4169,23 @@ async function rtWasmHost(canal, buffer) {
 function defSpatMass() {
 	mainWindow.webContents.send("fromMain", "defSpatMass;")
 }
+function defSpectrEdit() {
+	mainWindow.webContents.send("fromMain", "defSpectrEdit;")
+}
+ipcMain.handle('get-app-paths', () => {
+  return {
+  	 os:os.platform(),
+    resourcesPath: process.resourcesPath,
+    exe: app.getPath('exe'),
+    home: app.getPath('home'),
+    basedir: app.getAppPath(),
+    userData: app.getPath('userData'),
+    appData: app.getPath('appData'),
+    documents: app.getPath('documents'),
+    temp: app.getPath('temp'),
+    isPackaged: app.isPackaged
+  };
+});
 ipcMain.handle("loadFileAsArrayBuffer", async (event, filePath) => {
   const buf = fs.readFileSync(filePath);
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
@@ -3990,12 +4322,7 @@ ipcMain.handle('load-wasm', async (event, dspName) => {
 ipcMain.handle("save-audio-buffer", async (event, { filePath, buffer }) => {
     try {
         const { sampleRate, channels } = buffer;
-		  console.log("samplerate",sampleRate)
-        // channels = tableau de ArrayBuffer venant du renderer
-        // Convertir en Float32Array pour wav-encoder
-        const floatChannels = channels.map(
-            ch => new Float32Array(ch)
-        );
+        const floatChannels = channels.map(ch => new Float32Array(ch));
 
         const audioData = {
             sampleRate,
@@ -4004,10 +4331,18 @@ ipcMain.handle("save-audio-buffer", async (event, { filePath, buffer }) => {
 
         const wavArrayBuffer = await WavEncoder.encode(audioData);
 
-        await fs.promises.writeFile(
-            filePath,
-            Buffer.from(wavArrayBuffer)
-        );
+        let normalizedPath = path.resolve(filePath);
+        const dir = path.dirname(normalizedPath);
+
+        // créer le dossier parent si nécessaire
+        await fs.promises.mkdir(dir, { recursive: true });
+
+        // ajouter le préfixe Windows uniquement
+        if (os.platform() === "win32") {
+            normalizedPath = `\\\\?\\${normalizedPath}`;
+        }
+
+        await fs.promises.writeFile(normalizedPath, Buffer.from(wavArrayBuffer));
 
         return true;
 
@@ -4072,17 +4407,18 @@ async function splitW64ToWav(inputPath, outputDir, channelCount, prefix = "ch") 
     throw err;
   }
 }
-function killPlay(){
-	const killCmd =
- 		platform === "win32"
-   	? `taskkill /IM sox.exe /F` 
-   	: `pkill -f "${playPath}"`;
-  	  	if (playProcess) {
-        console.log("Arrêt du lecteur en cours");
-        exec(killCmd);
-        playProcess = null;
-        mainWindow.webContents.send("fromMain", "playStop;");
-      }
+
+function killPlay() {
+console.log("KILL ALL AUDIO");
+for (const proc of playProcess) {
+	try {
+	tkill(proc.pid, "SIGKILL");
+	} catch (e) {
+	console.error("Kill error:", e);
+	}
+}
+playProcess.clear();
+mainWindow.webContents.send("fromMain", "playStop;");
 }
  function allocStringSafe(str,Module) {
     const encoder = new TextEncoder();
@@ -4468,6 +4804,7 @@ function listSubfolders(dirPath) {
 function listAudioFiles(dirPath,type) {
   try {
     const entries = fs.readdirSync(dirPath);
+    console.log("liste files :", dirPath,type,entries);
     return entries
       .filter(f => f.endsWith("."+type))
     .map(f => path.join(dirPath, f));
@@ -4534,8 +4871,7 @@ function mainExternes2(txt) {
 }
 function mainRead3D() {
 	if(daw=='reaper'){
-		cmdDaw='/home/dominique/Reaper/reaper_linux_x86_64/REAPER/reaper'
-		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/tmp.rpp'+' '+app.getPath('home')+'/kandiskyscore/Scripts/Reaper/importKandiskyScore2.lua' 
+		cmd=cmdDaw+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','tmp.rpp')+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','importKandiskyScore2.lua');
 	}else{
 		cmdDaw='ardour'
 		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Ardour/tmp/tmp.ardour'
@@ -4566,18 +4902,37 @@ function objetAudio(id) {
 	var audiofile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
+   defaultPath: path.join(app.getPath('home'),'kandiskyscore','Projets'),
 	filters: [
     { name: 'Audios', extensions: ['wav', 'flac', 'ogg', 'aiff'] },
     { name: 'All Files', extensions: ['*'] }
   ]
    }).then(result => {
-   	if(result.canceled==false){
-   		console.log("result.filePaths",result.filePaths[0],id)
+   	if (result.canceled) return;
+   		console.log("result.filePaths",result.filePaths[0],id,soxiPath);
+   		let wsoxi="";
+   		let chans ="";
+		   let rate ="";
+		   let nbsamples = "";
    		rt=result.filePaths[0];
-   		const chans = parseInt(execSync(`soxi -c "${rt}"`).toString().trim(), 10);
-		    const rate = parseInt(execSync(`"${soxPath}" --i -r "${rt}"`).toString().trim(),10);
-		    const nbsamples = parseInt(execSync(`"${soxPath}" --i -s "${rt}"`).toString().trim(),10);
+   		try {
+	   		if(os.platform()=="win32"){
+	   			wsoxi=path.join(baseDir, "win", "sox.exe");
+	   			
+	   			chans = parseInt(execSync(`"${wsoxi}" --i -c "${rt}"`).toString().trim(), 10);
+			    	rate = parseInt(execSync(`"${wsoxi}" --i -r "${rt}"`).toString().trim(),10);
+			   	nbsamples = parseInt(execSync(`"${wsoxi}" --i -s "${rt}"`).toString().trim(),10);
+			   	
+	   		}else{
+		   		chans = parseInt(execSync(`"${soxiPath}" -c "${rt}"`).toString().trim(), 10);
+				   rate = parseInt(execSync(`"${soxiPath}" -r "${rt}"`).toString().trim(),10);
+				   nbsamples = parseInt(execSync(`"${soxiPath}" -s "${rt}"`).toString().trim(),10);
+			    }
+		    } catch (err) {
+			    console.error("soxi failed:", err);
+			    dialog.showErrorBox("Erreur audio", "Impossible de lire le fichier audio.");
+			    return;
+			  }
 		    const dir = path.dirname(rt);
     		const base = path.basename(rt);
     		const outputBaseDir =dir+"/"+path.basename(rt).replace(/\.wav$/, "");
@@ -4590,35 +4945,83 @@ function objetAudio(id) {
    		await splitChannels(rt,outputBaseDir).catch(err => console.error(err));
    			console.timeEnd() 
 
-   		/*
-   		const outputBaseDir =path.basename(rt).replace(/\.wav$/, "");
-   		var dir=path.join(base,outputBaseDir)
-   		const inputDir2 = dir;
-   		const dest=base+"/merged.w64"
-			const outputFile2 = dest
-			console.log("dest",inputDir2,outputFile2)
-			console.time()
-			//await  mergeMulticanal(inputDir2, outputFile2)
-			await mergeToW64(inputDir2, outputFile2)
-			console.timeEnd()
-			console.time()
-			await mixMultichannelAudio(rt,base+"/stereo.wav","mono","pcm24")
-   		
-   		const outpath=result.filePaths[0];
-   		const out = path.basename(outpath).split(".")
-	     	if (!fs.existsSync(out[0])) {
-                fs.mkdirSync(out[0], { recursive: true });
-            }
-            console.time()
-	     	  	await splitW64ToWav(outpath, out[0], 18, "stem");
-	     	  	*/
-	     	  //	console.timeEnd() 
     console.log("🎚️ Fichiers exportés dans :", dir);
    		})();
-   	}
   		
 	})
 }
+ipcMain.handle("load-buffers-multichannel", async (_, path) => {
+  // 1) lecture brute
+  const buffer = fs.readFileSync(path);
+
+  // 2) parsing WAV (PCM / extensible / multicanal OK)
+  const wav = new WaveFile(buffer);
+
+  // 3) conversion float32 (important pour DSP / WAM)
+  wav.toBitDepth("32f");
+
+  // 4) extraction des canaux (déinterleavé)
+  const channels = wav.getSamples(true); 
+  // => [Float32Array, Float32Array, ...]
+
+  const sampleRate = wav.fmt.sampleRate;
+  const length = channels[0].length;
+  const duration = length / sampleRate;
+
+  return {
+    sampleRate,
+    duration,
+    numberOfChannels: channels.length,
+    channels
+  };
+});
+ipcMain.handle('stft', async (event, buffer, fftSize, hopSize, sampleRate) => {
+    const fft = new FFTModule(fftSize);
+
+    const window = new Float32Array(fftSize);
+    for (let i = 0; i < fftSize; i++) {
+        window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+    }
+
+    const frames = [];
+
+    for (let pos = 0; pos + fftSize <= buffer.length; pos += hopSize) {
+
+        const frame = new Float32Array(fftSize);
+        for (let i = 0; i < fftSize; i++) {
+            frame[i] = buffer[pos + i] * window[i];
+        }
+
+        const spectrum = fft.createComplexArray();
+        fft.realTransform(spectrum, frame);
+        fft.completeSpectrum(spectrum);
+
+        frames.push({
+            time: pos / sampleRate,
+            spectrum
+        });
+    }
+
+    return frames;
+});
+
+ipcMain.handle("showSaveDialog", async () => {
+
+    const { canceled, filePath } = await dialog.showSaveDialog({
+        title: "Sauvegarder le rendu audio",
+        defaultPath: "rendu.wav",
+        filters: [
+            { name: "WAV audio", extensions: ["wav"] }
+        ]
+    });
+
+    if (canceled) return null;
+
+    return filePath;
+});
+
+
+
 ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
 
@@ -4632,29 +5035,37 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
             lsgrp = lsgrp.split(",").map(n => Number(n));
         }
     }
+    console.log("audioPath",audioPath)
 	if(lsgrp.length>0){
     const tmpDir = path.join(audioPath, "tmp");
-    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+    //if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
 
     let paddedFiles = [];
     let endTimes = [];
-
+	 let durationAfterSpeed =0;
     let idx = 0;
     for (let i of lsgrp) {
 
         const obj = tableObjet[i];
 
-        const objfile = obj.file;
+        const objfile = path.join(audioPath,obj.file);
         const { dir, name } = path.parse(objfile);
-        const input = path.join(dir, `${name}-fx.wav`);
+        const input = path.join(tmpDir, `${obj.id}-fx.wav`);
 			console.log("sox_dir", input);
         // Position dans la timeline (en secondes)
         const tStart = (obj.posX-start) / 18;
 
         // Durée réelle du fichier
-        const realDuration = parseFloat(
-            execSync(`"${soxiPath}" -D "${input}"`).toString()
-        );
+        let realDuration;
+        if(platform=='win32'){
+        		var wsoxPath = path.join(baseDir, "win", "sox.exe ");
+        		realDuration = parseFloat(
+            execSync(`"${wsoxPath}" --info -D "${input}"`).toString()
+        		);
+        }else{
+        	console.log("soxi",soxiPath)
+	        realDuration = parseFloat(execSync(`"${soxiPath}" -D "${input}"`).toString());
+        }
 
         // Durée demandée après trim
         let trimmedDuration = (obj.fin - obj.debut)*realDuration ;
@@ -4665,7 +5076,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         const speedFactor = obj.transposition || 1;
 
         // Durée finale après speed
-        const durationAfterSpeed = trimmedDuration / speedFactor;
+        durationAfterSpeed = trimmedDuration / speedFactor;
 
         console.log(
             "realDuration=", realDuration,
@@ -4679,50 +5090,74 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const tmpOut = path.join(tmpDir, `object_${idx}.wav`);
         console.log("path", input, tmpOut);
-        var tenv=obj.envX.split(",");
-		  var fade = obj.fadeIn +" "+(durationAfterSpeed*tenv[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-tenv[1]);
+		  var fade = obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
         // -- COMMAND SOX ---------------------------------------------------
-        const cmd = [
-            `"${soxPath}" "${input}" "${tmpOut}"`,
-            `trim ${obj.debut} ${trimmedDuration}`,    // Découpage sûr
-            `pitch ${obj.detune * 100}`,                // Semitones → cents
-            `speed ${speedFactor}`,                     // Stretch temporel
-            `vol ${obj.gain}`,                          // Gain
-            `fade ${fade}`,
-            `pad ${tStart}`                             // Placement timeline
-        ].join(" ");
-
-        console.log("cmd", cmd);
-
-        execSync(cmd);
-        paddedFiles.push(`"${tmpOut}"`);
+        spawnSync(soxPath, [
+			  input,
+			  tmpOut,
+			  "trim", obj.debut.toString(), trimmedDuration.toString(),
+			  "pitch", (obj.detune * 100).toString(),
+			  "speed", speedFactor.toString(),
+			  "vol", obj.gain.toString(),
+			  "fade", obj.fadeIn.toString(),
+			          (durationAfterSpeed * obj.envX[0]).toString(),
+			          durationAfterSpeed.toString(),
+			          (durationAfterSpeed * (1 - obj.envX[1])).toString(),
+			  "pad", tStart.toString()
+			], {
+			  stdio: "inherit"
+			});
+        paddedFiles.push(tmpOut);
 
         idx++;
     }
 
     // Durée finale pour le mix
     const mixDuration = Math.max(...endTimes);
-
+    console.log("mixDuration", endTimes);
     // Fichier final
-    //const output = path.join(__dirname, `renduout.wav`);
-    let output ="renduout.wav";
-console.log("prepa",paddedFiles,paddedFiles.length,"tbobjets",tbobjets,lsgrp,lsgrp[0],"id",tableObjet[lsgrp[0]].id);
-    // MIX FINAL OFFLINE
-    let  mixCmd;
-    if(paddedFiles.length>1){
-    	mixCmd = `sox -m ${paddedFiles.join(" ")} "${output}" trim 0 ${mixDuration} fade 0.005 0 0.02`;
-    }else{
-    	output=audioPath+"exports/"+tableObjet[lsgrp[0]].id+".wav";
-    	mixCmd = `sox ${paddedFiles[0]} "${output}" trim 0 ${mixDuration} fade 0.005 0 0.02`;
-    }
-    console.log("MIX FINAL",mixCmd);
-    if(mixCmd){
-    	execSync(mixCmd);
-    }
-	 var rt={ mixDuration,output};
-    console.log("output",rt);
-
-    return rt;
+    let output;
+	  if (paddedFiles.length > 1) {
+	    output = path.join(app.getPath('userData') , "renduout.wav");
+	    // Crée le dossier si nécessaire
+	    fs.mkdirSync(path.dirname(output), { recursive: true });
+	  } else {
+	    output = path.join(audioPath, "exports", `${tableObjet[lsgrp[0]].id}.wav`);
+	    fs.mkdirSync(path.dirname(output), { recursive: true });
+	  }
+	
+	  console.log("Préparation mix final:", paddedFiles, "Nombre de fichiers:", paddedFiles.length);
+	  console.log("Output choisi:", output);
+	
+	  // Construction des arguments pour spawnSync (séparés, sécurisés)
+	  let args = [];
+	
+	  if (paddedFiles.length > 1) {
+		  args.push("-m", ...paddedFiles); // mix
+		  args.push(output);
+		  args.push("trim", "0", mixDuration.toString());
+		  args.push("fade", "0.005", "0", "0.02");
+		} else {
+		  args.push(paddedFiles[0]);
+		  args.push("-b", "32");
+		  args.push("-c", "1");
+		  args.push(output);
+		  args.push("fade", "0.005", "0", "0.1");
+		}
+	
+	  console.log("Commande SoX:", [soxPath, ...args].join(" "));
+	
+	  // Exécution sécurisée
+	  const result = spawnSync(soxPath, args, { stdio: "inherit" });
+	
+	  if (result.error) {
+	    throw new Error(`Erreur lors du mix final: ${result.error.message}`);
+	  }
+	
+	  return {
+	    duration: mixDuration,
+	    output
+	  };
    }
 });
 
@@ -4733,26 +5168,7 @@ function replaceAudio(id,rt) {
 function saveFxAudio(id,rt) {
   	mainWindow.webContents.send("fromMain", "audioImport;"+id+";"+rt+";1;1");
 }
-function preDefAudio(id) {
-	console.log("id2",id)
-	var rt=""
-	var audiofile = dialog.showOpenDialog({
-	properties: [
-    'openFile'],
-   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
-	filters: [
-    { name: 'Audios', extensions: ['wav', 'flac', 'ogg', 'aiff'] },
-    { name: 'All Files', extensions: ['*'] }
-  ]
-   }).then(result => {
-   	if(result.canceled==false){
-   		console.log("result.filePaths",result.filePaths[0],id)
-   		rt=result.filePaths[0]
-   	}
-  		winPreDef.webContents.send("fromMain", "defAudioObj;"+id+";"+rt);
-  		mainWindow.webContents.send("fromMain", "audioPreDefImport;"+id+";"+rt);
-	})
-}
+
 function defBkgImg(id) {
 	console.log("id2",id)
 	var rt=""
@@ -4875,6 +5291,318 @@ function interp() {
 	})
 	
 }
+
+
+ipcMain.handle('spectralShift', async (
+    event,
+    buffers,       // Float32Array[] par canal
+    sampleRate,
+    start,         // début de la sélection (en samples)
+    end,           // fin de la sélection (en samples)
+    fTarget,       // fréquence cible
+    objSelect      // objet contenant Fl/Fh
+) => {
+
+    const fftSize = 2048;
+    const hop = fftSize / 4;
+    const fft = new FFTModule(fftSize);
+
+    const length = end - start;
+    if (!Array.isArray(buffers) || buffers.length === 0 || length <= 0) return buffers;
+    if (!Number.isFinite(fTarget) || !objSelect || !Number.isFinite(objSelect.Fl) || !Number.isFinite(objSelect.Fh)) return buffers;
+
+    buffers = buffers.map(ch => new Float32Array(ch));
+
+    // fenêtre Hann
+    const window = new Float32Array(fftSize);
+    for (let i = 0; i < fftSize; i++) window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+
+    const shiftedBuffers = buffers.map(ch => {
+        const out = new Float32Array(length);
+
+        for (let offset = 0; offset < length; offset += hop) {
+            const input = fft.createComplexArray();
+            const spectrum = fft.createComplexArray();
+            const shifted = fft.createComplexArray();
+            const output = fft.createComplexArray();
+
+            input.fill(0);
+            shifted.fill(0);
+
+            // remplissage input avec zéro-padding
+            for (let i = 0; i < fftSize; i++) {
+                const idx = start + offset + i;
+                input[2*i] = (ch && idx < ch.length && idx < end) ? ch[idx] * window[i] : 0;
+                input[2*i+1] = 0;
+            }
+
+            fft.realTransform(spectrum, input);
+            fft.completeSpectrum(spectrum);
+
+            // calcul binShift
+            const fSel = (objSelect.Fl + objSelect.Fh) / 2;
+            const binWidth = sampleRate / fftSize;
+            const binShift = Math.round((fTarget - fSel) / binWidth);
+
+            // décalage avec wrap-around
+            const half = fftSize / 2;
+            for (let k = 0; k < half; k++) {
+                const targetBin = (k + binShift + half) % half;
+                shifted[2*targetBin] = spectrum[2*k];
+                shifted[2*targetBin+1] = spectrum[2*k+1];
+            }
+
+            fft.inverseTransform(output, shifted);
+
+            // overlap-add compensé pour garder le volume
+            // hop = fftSize/4 → facteur 4 pour compenser l’overlap
+            for (let i = 0; i < fftSize; i++) {
+                const outIdx = offset + i;
+                if (outIdx < length) out[outIdx] += output[2*i] * window[i] * 4;
+            }
+        }
+
+        return out;
+    });
+
+    return shiftedBuffers;
+});
+
+ipcMain.handle('eraseSelection', async (event, buffers, sampleRate, objSelect) => {
+    if (!buffers || !buffers.length) return buffers;
+
+    const fftSize = 2048;
+    const hop     = fftSize / 4;
+    const bins    = fftSize / 2;
+
+    const window = new Float32Array(fftSize);
+    for (let i = 0; i < fftSize; i++)
+        window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+
+    const binStart    = Math.floor(objSelect.Fl * fftSize / sampleRate);
+    const binEnd      = Math.ceil(objSelect.Fh * fftSize / sampleRate);
+    const startSample = Math.floor(objSelect.debut * sampleRate);
+    const endSample   = Math.floor(objSelect.fin * sampleRate);
+
+    const fft = new FFTModule(fftSize);
+
+    const outBuffers = buffers.map((channelSignal) => {
+        const length = channelSignal.length;
+
+        // 1️⃣ Zone sélectionnée avec padding avant
+        const pad = fftSize;
+        const selStart = Math.max(0, startSample - pad);
+        const selEnd   = endSample;
+        const selLength = selEnd - selStart;
+        const signal = channelSignal.subarray(selStart, selEnd);
+
+        // 2️⃣ STFT
+        const frames = Math.floor((signal.length - fftSize) / hop) + 1;
+        const real = [];
+        const imag = [];
+
+        for (let f = 0; f < frames; f++) {
+            const pos = f * hop;
+            const input = fft.createComplexArray();
+            const spectrum = fft.createComplexArray();
+            input.fill(0);
+
+            for (let i = 0; i < fftSize; i++) {
+                input[2*i]   = (pos + i < signal.length) ? signal[pos + i] * window[i] : 0;
+                input[2*i+1] = 0;
+            }
+
+            fft.realTransform(spectrum, input);
+            fft.completeSpectrum(spectrum);
+
+            const frameReal = new Float32Array(bins);
+            const frameImag = new Float32Array(bins);
+            for (let k = 0; k < bins; k++) {
+                frameReal[k] = spectrum[2*k];
+                frameImag[k] = spectrum[2*k+1];
+            }
+
+            real.push(frameReal);
+            imag.push(frameImag);
+        }
+
+        // 3️⃣ Masque spectral
+        for (let f = 0; f < frames; f++) {
+            const frameStart = f * hop + selStart;
+            const frameEnd   = frameStart + fftSize;
+
+            if (frameEnd <= startSample || frameStart >= endSample) continue;
+
+            for (let k = binStart; k <= binEnd && k < bins; k++) {
+                real[f][k] = 0;
+                imag[f][k] = 0;
+            }
+        }
+
+        // 4️⃣ ISTFT
+        const accum = new Float32Array(selLength);
+        const norm  = new Float32Array(selLength);
+
+        for (let f = 0; f < frames; f++) {
+            const spectrum = fft.createComplexArray();
+            const frame    = fft.createComplexArray();
+
+            for (let k = 0; k < bins; k++) {
+                spectrum[2*k]   = real[f][k];
+                spectrum[2*k+1] = imag[f][k];
+            }
+
+            fft.completeSpectrum(spectrum);
+            fft.inverseTransform(frame, spectrum);
+
+            const pos = f * hop;
+            for (let i = 0; i < fftSize; i++) {
+                const idx = pos + i;
+                if (idx >= selLength) break;
+
+                accum[idx] += frame[2*i] * window[i];
+                norm[idx]  += window[i] * window[i];
+            }
+        }
+
+        for (let i = 0; i < selLength; i++) {
+            if (norm[i] > 0) accum[i] /= norm[i];
+        }
+
+        // 5️⃣ Fade-out cosinus fixe 30 ms (ANTI-ARTEFACT FIN)
+        const fadeDuration = 0.03; // 30 ms
+        const fadeSamples = Math.floor(fadeDuration * sampleRate);
+
+        for (let i = 0; i < selLength; i++) {
+            const globalIdx = selStart + i;
+
+            if (globalIdx >= endSample - fadeSamples && globalIdx < endSample) {
+                const x = (endSample - globalIdx) / fadeSamples;
+                const gain = 0.5 * (1 - Math.cos(Math.PI * x));
+                accum[i] *= Math.max(0, Math.min(1, gain));
+            }
+        }
+
+        // 6️⃣ Recoller dans le buffer original
+        const out = new Float32Array(length);
+        out.set(channelSignal);
+
+        for (let i = startSample; i < endSample; i++) {
+            const idxInSel = i - selStart;
+            if (idxInSel >= 0 && idxInSel < accum.length)
+                out[i] = accum[idxInSel];
+        }
+
+        return out;
+    });
+
+    return outBuffers;
+});
+ipcMain.handle('filtreSelection', async (event, currentBuffers,sampleRate, objSelect) => {
+    if (objSelect.Fl === undefined || objSelect.Fh === undefined)
+        return currentBuffers;
+
+    const fftSize = 2048;
+    const hop     = fftSize / 4;
+    const bins    = fftSize / 2;
+
+    const window = new Float32Array(fftSize);
+    for (let i = 0; i < fftSize; i++)
+        window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+
+    const fft = new FFTModule(fftSize);
+
+    const binStart = Math.max(0, Math.floor(objSelect.Fl * fftSize / sampleRate));
+    const binEnd   = Math.min(bins - 1, Math.ceil(objSelect.Fh * fftSize / sampleRate));
+
+    const fadeDuration = 0.03; // 30 ms
+    const fadeSamples  = Math.floor(fadeDuration * sampleRate);
+
+    const outputBuffers = [];
+
+    for (let ch = 0; ch < currentBuffers.length; ch++) {
+        const channelData = currentBuffers[ch];
+        const length = channelData.length;
+
+        const accum = new Float32Array(length);
+        const norm  = new Float32Array(length);
+
+        const frames = Math.ceil(length / hop);
+
+        for (let f = 0; f < frames; f++) {
+            const pos = f * hop;
+
+            const inputFrame    = fft.createComplexArray();
+            const spectrumFrame = fft.createComplexArray();
+            inputFrame.fill(0);
+
+            for (let i = 0; i < fftSize; i++) {
+                const idx = pos + i;
+                inputFrame[2*i]   = (idx < length) ? channelData[idx] * window[i] : 0;
+                inputFrame[2*i+1] = 0;
+            }
+
+            fft.realTransform(spectrumFrame, inputFrame);
+            fft.completeSpectrum(spectrumFrame);
+
+            // Masque fréquentiel global
+            for (let k = binStart; k <= binEnd; k++) {
+                spectrumFrame[2*k]   = 0;
+                spectrumFrame[2*k+1] = 0;
+            }
+
+            const outputFrame = fft.createComplexArray();
+            fft.inverseTransform(outputFrame, spectrumFrame);
+
+            for (let i = 0; i < fftSize; i++) {
+                const idx = pos + i;
+                if (idx >= length) break;
+
+                accum[idx] += outputFrame[2*i] * window[i];
+                norm[idx]  += window[i] * window[i];
+            }
+        }
+
+        // Normalisation et fade début/fin
+        for (let i = 0; i < length; i++) {
+            if (norm[i] > 0) accum[i] /= norm[i];
+            else accum[i] = channelData[i];
+
+            // Fade début
+            if (i < fadeSamples) {
+                const x = i / fadeSamples;
+                const gain = 0.5 * (1 - Math.cos(Math.PI * x)); // Hann fade
+                accum[i] *= gain;
+            }
+
+            // Fade fin
+            if (i >= length - fadeSamples) {
+                const x = (length - i) / fadeSamples;
+                const gain = 0.5 * (1 - Math.cos(Math.PI * x));
+                accum[i] *= gain;
+            }
+        }
+
+        outputBuffers.push(accum);
+    }
+
+    return outputBuffers;
+});
+ipcMain.handle('audioSelect', async (event) => {
+	const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    defaultPath: app.getPath('home') + '/kandiskyscore/Projets',
+    filters: [
+      { name: 'Wave', extensions: ['wav'] }
+    ]
+  });
+
+  if (result.canceled || !result.filePaths.length) {
+    return null;
+  }
+
+  return result.filePaths[0];
+});
 // ****************************************************************************************************************
 
 // Quitter quand toutes les fenêtres sont fermées, sauf sur macOS. Dans ce cas il est courant

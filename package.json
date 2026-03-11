@@ -25,10 +25,13 @@
     "acorn": "^8.15.0",
     "audiobuffer": "^0.2.0",
     "electron-squirrel-startup": "^1.0.0",
+    "fft.js": "^4.0.4",
     "fs-extra": "^11.2.0",
     "node-wav": "^0.0.2",
+    "tree-kill": "^1.2.2",
     "wav-decoder": "^1.3.0",
     "wav-encoder": "^1.3.0",
+    "wavefile": "^11.0.0",
     "web-audio-api": "^0.2.2"
   },
   "config": {

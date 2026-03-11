@@ -12,6 +12,9 @@
 
 let tableObjet=[]
 let tableBuffer=[]
+let tempoPoints=[]
+let gainPoints=[]
+let exortTable=[]
 let selectObjet=''
 let objActif=1048576
 let nbObjets=0
@@ -28,7 +31,7 @@ var contextAudio=new AudioContext({
   latencyHint: "interactive",
   sampleRate: 48000}
   )
-
+var sourceS=contextAudio.createBufferSource();
 
 function importLang(name) {
    // Load lang
@@ -145,40 +148,7 @@ function configPalette() {
 	document.getElementById("decrescb").firstChild.firstChild.setAttribute("fill",paletteDecrescb)
 	document.getElementById("cresc").firstChild.firstChild.setAttribute("fill",paletteCresc)
 	document.getElementById("crescb").firstChild.firstChild.setAttribute("fill",paletteCrescb)
-	document.getElementById("agregat").firstChild.firstChild.setAttribute("fill",paletteAgregat)
-	document.getElementById("agregat").firstChild.firstChild.nextSibling.setAttribute("fill",paletteAgregat)
-	document.getElementById("agregat").firstChild.firstChild.nextSibling.nextSibling.setAttribute("fill",paletteAgregat)
-	document.getElementById("agregat").firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteAgregat)
-	document.getElementById("arpege").firstChild.firstChild.setAttribute("fill",paletteArpege)
-	document.getElementById("arpege").firstChild.firstChild.nextSibling.setAttribute("fill",paletteArpege)
-	document.getElementById("arpege").firstChild.firstChild.nextSibling.nextSibling.setAttribute("fill",paletteArpege)
-	document.getElementById("arpege").firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteArpege)
-	document.getElementById("arpege").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteArpege)
-	document.getElementById("arpege").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteArpege)
-	document.getElementById("arpege").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteArpege)
-	document.getElementById("multilignes").firstChild.firstChild.setAttribute("stroke",paletteMultilignes)
-	document.getElementById("multilignes").firstChild.firstChild.nextSibling.setAttribute("stroke",paletteMultilignes)
-	document.getElementById("multilignes").firstChild.firstChild.nextSibling.nextSibling.setAttribute("stroke",paletteMultilignes)
-	document.getElementById("multilignes").firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute("stroke",paletteMultilignes)
-	document.getElementById("multilignes").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("stroke",paletteMultilignes)
-	document.getElementById("multilignes").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("stroke",paletteMultilignes)
-	document.getElementById("multilignes").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("stroke",paletteMultilignes)
-	document.getElementById("nuage").firstChild.firstChild.setAttribute("fill",paletteNuage)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.setAttribute("fill",paletteTexture)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.nextSibling.setAttribute("fill",paletteTexture)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteTexture)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteTexture)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteTexture)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteTexture)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteTexture)
-	document.getElementById("texture").firstChild.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.setAttribute("fill",paletteTexture)
-	//paletteSymb = obj.getElementsByTagName("palettesymb")[0].getAttribute("value")
-	/*
-	paletteFleche = obj.getElementsByTagName("palettefleche")[0].getAttribute("value")
-	paletteMarque1 = obj.getElementsByTagName("palettemarque1")[0].getAttribute("value")
-	paletteMarque2 = obj.getElementsByTagName("palettemarque2")[0].getAttribute("value")
-	paletteLecteur = obj.getElementsByTagName("palettelecteur")[0].getAttribute("value")
-	*/
+	
 	var txt=imgpart.replaceAll('#000000', paletteImage)
 	txt=imgpart.replaceAll('#000000', paletteImage)
 	document.getElementById("pImage").innerHTML=txt
@@ -475,7 +445,7 @@ function symbCreate(){
 	document.getElementById("symb54").firstChild.firstChild.setAttribute("stroke",paletteSymb)
 	document.getElementById("symb54").firstChild.firstChild.setAttribute("fill",paletteSymb)
 	document.getElementById("symb54").firstChild.setAttribute("transform",'scale(1 1) translate(5 10) rotate(0 0 0) ')
-	document.getElementById("symb55").firstChild.firstChild.innerHTML=glyphSoftTenutoPointe
+	document.getElementById("symb55").firstChild.firstChild.innerHTML=glyphReverse
 	document.getElementById("symb55").firstChild.firstChild.setAttribute("stroke",paletteSymb)
 	document.getElementById("symb55").firstChild.firstChild.setAttribute("fill",paletteSymb)
 	document.getElementById("symb55").firstChild.setAttribute("transform",'scale(1 1) translate(5 10) rotate(0 0 0) ')

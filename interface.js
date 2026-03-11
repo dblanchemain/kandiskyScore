@@ -44,6 +44,7 @@ dragElement(document.getElementById("tempoAudio"));
 dragElement(document.getElementById("canvas"));
 dragElement(document.getElementById("popupScaleGrpObjets"));
 dragElement(document.getElementById("listeAudios"));
+dragElement(document.getElementById("popupLoader"));
 
 document.getElementById("arpeges").addEventListener('click',paletteArpeges);
 document.getElementById("articulations").addEventListener('click',paletteArticulations);
@@ -642,7 +643,7 @@ function dragElement(elmnt) {
     }
     
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
-    	if (tableObjet[elmnt.id.substring(5)].type==1 || tableObjet[elmnt.id.substring(5)].type==2  || tableObjet[elmnt.id.substring(5)].type==3 || tableObjet[elmnt.id.substring(5)].type==21  || tableObjet[elmnt.id.substring(5)].type==22  || tableObjet[elmnt.id.substring(5)].type==23 || tableObjet[elmnt.id.substring(5)].type==24 || tableObjet[elmnt.id.substring(5)].type==27 || tableObjet[elmnt.id.substring(5)].type==28  || tableObjet[elmnt.id.substring(5)].type==84){
+    	if (tableObjet[elmnt.id.substring(5)].type==1 || tableObjet[elmnt.id.substring(5)].type==2  || tableObjet[elmnt.id.substring(5)].type==3 || tableObjet[elmnt.id.substring(5)].type==21  || tableObjet[elmnt.id.substring(5)].type==22  || tableObjet[elmnt.id.substring(5)].type==23 || tableObjet[elmnt.id.substring(5)].type==24  || tableObjet[elmnt.id.substring(5)].type==27 || tableObjet[elmnt.id.substring(5)].type==28  || tableObjet[elmnt.id.substring(5)].type==84){
    	document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red'
    	}
     }
@@ -798,7 +799,7 @@ function dragElement(elmnt) {
 	    			}
 	    		}
 	    		if(tableObjet[objActif].class==3){
-	    			if(tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23  || tableObjet[objActif].type==24 || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84){
+	    			if(tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23  || tableObjet[objActif].type==24  || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84){
 	    				var lobj=document.getElementById("sglis"+elmnt.id.substring(5))
 	    				var ly1=tableObjet[objActif].y1
 	    				var ly2=tableObjet[objActif].y2
@@ -1139,6 +1140,7 @@ console.log('resultat',gainPoints,resultat);
     	document.getElementById("selector").style.display="none";
     	elmnt=document.getElementById("space");
     	nselector=0;
+    	console.log("nbselect",lsgrp)
     }
    if(elmnt.id.substring(0,5)=="gliss"){
    	document.getElementById("gliss"+elmnt.id.substring(5)).style.border='0px solid red'
@@ -1242,8 +1244,7 @@ function smarpege(elmnt,px,py) {
 						txt=txt+'<path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971" />'
 					break;
 				case 21:
-						txt=txt+'<path d="m 2,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="2"/>'
-						//x2=x2*tableObjet[elmnt.id.substring(5)].scaleX
+						txt=txt+'<path d="m 2,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>'
 					break;
 				case 22:
 						txt=txt+'<path d="m 3,0 l 0,'+(nb2*5)+' M 6,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>'
@@ -1253,7 +1254,6 @@ function smarpege(elmnt,px,py) {
 					break;
 				case 24:
 						txt=txt+'<path d="m 16,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/><path d="M 22,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="4"/><path d="m 28,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>'
-					break;
 				case 27:
 					var nb2=nb/21
 					for(i=0;i<nb;i++){
@@ -1271,7 +1271,7 @@ function smarpege(elmnt,px,py) {
 						txt=txt+'<path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971" /><path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971"  transform="translate(10,'+((nb2*5)-10)+') rotate(180 0 0)"/>'
 					break;
 			}
-			var al=Math.floor(90+(Math.asin((y2/nb))*180/Math.PI))
+ 			var al=Math.floor(90+(Math.asin((y2/nb))*180/Math.PI))
 
 			if(al>175){
 				al=180
@@ -1302,9 +1302,6 @@ function smarpege(elmnt,px,py) {
  		tableObjet[actif].y1=y1
  		tableObjet[actif].x2=x2
  		tableObjet[actif].y2=y2
- 		
-			//console.log(al,px,x2,py,y2,orig,elmnt)
- 		
  		}else{
  			orig.style.top=(py)+"px"
  			orig.style.height=(py)+"px"
@@ -1313,7 +1310,6 @@ function smarpege(elmnt,px,py) {
     		var y1=0
     		var x2=px-parseFloat(tableObjet[actif].posX);
     		var y2=parseFloat(tableObjet[actif].posY)-py;
-    		
     		var nb=Math.hypot(x2-x1, Math.abs(y2-y1))
     		var nb2=nb/4.9222416
     		var txt="";
@@ -1335,6 +1331,7 @@ function smarpege(elmnt,px,py) {
 					break;
 				 case 21:
 						txt=txt+'<path d="m 2,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>'
+						//txt=txt+'<path d="m 2,'+basey1+' l '+x2+','+y2+'"  stroke="#000000" stroke-width="2"/>'
 					break;
 				case 22:
 						txt=txt+'<path d="m 3,0 l 0,'+(nb2*5)+' M 6,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>'
@@ -1377,13 +1374,14 @@ function smarpege(elmnt,px,py) {
  		tableObjet[actif].y1=y2
  		tableObjet[actif].x2=x2
  		tableObjet[actif].y2=y1
-
- 		}
+		}
  			objActif=actif
  		tableObjet[actif].width=x2-x1
  		tableObjet[actif].height=Math.abs(y1-y2)
  		tableObjet[actif].bkgWidth=x2-x1
  		tableObjet[actif].bkgHeight=Math.abs(y1-y2)
+ 	
+	//console.log(al,px,x2,py,y2,orig,elmnt)
 }
 function updateFxAutomation(obj) {
 	var liste=tableObjet[objActif].tableFxParam
@@ -1448,6 +1446,7 @@ function drawFxAutomation(greffon) {
 			}
 		//console.log("id","fx"+j+i,"j",j,'y1',r0+2,"y2",r+2)
 		txt=txt+"<div id='fx"+j+i+"' style='position:absolute;top:"+r+"px;left:"+t+"px;width:5px;height:5px;background-color:#f100fa;' title='fx"+j+i+":"+cd[1]+"'></div>"
+		console.log("txt",txt)
 		document.getElementById(tableLabel[i]).innerHTML=""
 		document.getElementById(tableLabel[i]).innerHTML="<svg>"+txt1+"</svg>"+txt
 		}

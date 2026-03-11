@@ -104,31 +104,27 @@ console.log(`objparam ${data} from renderer process`);
 				txt="";
 				let ndir=[]
 				let lg=0
-				let d=cmd[1].split(",")
+				//let d=cmd[1].folders.split(",")
+				const data = JSON.parse(cmd[1]);
+				console.log('folders',data.folders)
 				txt="<table  border='0' cellspacing='0'><tbody><tr><td style='width:32px'> </td><td style='width:400px'> Nom</td><td style='width:60px'> Taille</td><td style='padding:20px;text-align:right'> Dernière modification</td><tr>"
-				for(let k=0;k<d.length;k++){
-					ndir=d[k].split("/")
+				for(let k=0;k<data.folders.length;k++){
+					ndir=data.folders[k].split("/")
 					lg=ndir.length-1;
-					txt=txt+"<tr onclick=\"defDir('"+d[k]+"');\"><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td><td> </td><td></td></tr>"	
+					txt=txt+"<tr class='dir' data-path="+data.folders[k]+" onclick='defDir.call(this)'><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td><td> </td><td></td></tr>"	
 				}
-				
-				d=[];
-				s=[];
-				m=[];
+			
 				ndir=[]
 				lg=0
-				d=cmd[2].split(",");
-				s=cmd[3].split(",");
-				m=cmd[4].split(",");
-				for(let k=0;k<d.length;k++){
-				ndir=d[k].split("/")
+				for(let k=0;k<data.files.length;k++){
+				ndir=data.files[k].split("/")
 					lg=ndir.length-1;
-					txt=txt+"<tr onclick=\"selectFile('"+d[k]+"');\"><td> <td  > "+ndir[lg]+"</td><td style='text-align:right'>"+s[k]+"</td><td style='text-align:right'> "+m[k].substring(4,24)+"</td></tr>"	
+					txt=txt+"<tr onclick=\"selectFile('"+data.files[k]+"');\"><td> <td  > "+ndir[lg]+"</td><td style='text-align:right'>"+data.fsize[k]+"</td><td style='text-align:right'> "+data.mtime[k].substring(4,24)+"</td></tr>"	
 				}
 				
 				txt=txt+"</tbody></table>"
 				document.getElementById("fileList").innerHTML=txt
-				console.log(m)
+
 				break;
 			case 'infoFile':
 				nbcanaux=cmd[1];
@@ -181,10 +177,11 @@ console.log(`objparam ${data} from renderer process`);
    	console.log('readNewSelect',document.getElementById("dirCourant").innerHTML)
    	window.api.send("toMain", 'readNewSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
    }
-   function defDir(dr) {
-   	console.log('readdir',dr)
-   	document.getElementById("dirCourant").innerHTML=dr
-   	window.api.send("toMain", 'readNewSelect;'+dr+';'+defType)
+   function defDir() {
+   	console.log('readdir',this.dataset.path)
+   	const dirPath = this.dataset.path;
+   	document.getElementById("dirCourant").textContent = dirPath;
+   	window.api.send("toMain", 'readNewSelect;'+dirPath+';'+defType)
    }
 async   function selectFile(dr) {
 		const width = 800;

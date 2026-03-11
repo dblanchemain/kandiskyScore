@@ -2,7 +2,7 @@
 <head>
 <meta name="generator" content="Bluefish 2.2.12" />
 <meta name="author" content="dominique" />
-<meta name="date" content="2025-12-12T15:01:04+0100" />
+<meta name="date" content="2026-02-01T17:30:33+0100" />
 <meta name="copyright" content="D. Blanchemain"/>
 <meta name="keywords" content=""/>
 <meta name="description" content=""/>
@@ -40,19 +40,10 @@
 		</span>
 		<div style="position:absolute;top:87px;left:100px;">Reverse : <input id="nreverse" style="position:absolute;top:-2px;left:80px;"type="checkbox" /> </div>
    </div>
-   <div id="dureeReelle" style="position:absolute;top:240px;left:30px;"><button onclick='defDureeReelle();'> Durée Réelle</button>  </div>
+   <div id="rmsDb" style="position:absolute;top:250px;left:30px;">RmsDb : </div>
    <div id="nspacialisation" onclick='openSpatialisation();' style="position:absolute;top:71px;left:340px;width:36px;height:36px;"><img src="./images/png/f3D.png" alt "3D" /></div>
-	<div style="position:absolute;top:250px;left:150px;"> fade-in :<br/>
+	<div style="position:absolute;top:250px;left:220px;"> fade-in/out :<br/>
         <select id="fadeInType">
-            <option value="q">Qt sinusoïde (q)</option>
-            <option value="h">Demi-sinus. (h)</option>
-            <option value="t">Linéaire (t)</option>
-            <option value="l">Logarithmique (l)</option>
-            <option value="p">Parab. invers. (p)</option>
-        </select>
-	</div>
-	<div style="position:absolute;top:250px;left:280px;"> fade-out : <br>
-        <select id="fadeOutType">
             <option value="q">Qt sinusoïde (q)</option>
             <option value="h">Demi-sinus. (h)</option>
             <option value="t">Linéaire (t)</option>
@@ -62,8 +53,8 @@
 	</div>
 	
 	<div>
-	<span style="display:none;"><input  id="fadeInPos"  type="number" style="width:60px;"  min="0" max="1" step="0.01" value="0.2" /><input id="fadeLg" type="number" style="width:60px;"/><input id="fadeOutPos" type="number" style="width:60px;"  min="0" max="1" step="0.01" value="0.8"/></span>
-	<span  style="position:absolute;top:127px;left:184px;width:200px;height:20px;" ><input  id="fadePosIn"  type="number" style="width:60px;"   min="0" max="1" step="0.01" value="0.2" /><input id="lgFade" type="number" style="width:60px;"/><input id="fadePosOut" type="number" style="width:60px;"  min="0" max="1" step="0.01" value="0.8"/></span>
+	<span style="display:none;"><input  id="fadeInPos"  type="number" style="width:60px;"  min="0" max="0.5" step="0.01" value="0.2"  /><input id="fadeLg" type="number" style="width:60px;"/><input id="fadeOutPos" type="number" style="width:60px;"  min="0" max="1" step="0.01" value="0.8"/></span>
+	<span  style="position:absolute;top:127px;left:184px;width:200px;height:20px;" ><input  id="fadePosIn"  type="number" style="width:60px;"   min="0.01"  step="0.01" value="0.2" /><input id="lgFade" type="number" style="width:60px;"/><input id="fadePosOut" type="number" style="width:60px;"  min="0.01"  step="0.01" value="0.8"/></span>
 	<div id="panEnv" style="position:absolute;top:148px;left:184px;border:1px solid black;width:200px;height:90px;">
 		<div id="env1"  style="position:absolute;top:0px;left:40px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
 		<div id="env2"  style="position:absolute;top:0px;left:160px;width:4px;height:4px;border:1px solid black;background-color:red;"></div>
@@ -73,14 +64,14 @@
 </svg>
 	</div>
 	<div id="listeFiltre" style="position:absolute;top:150px;left:80px;"><img alt="fx" src="./images/png/metafx.png"  /></div><div id="substituer" style="position:absolute;top:157px;left:125px;"><img alt="sub" src="./images/refresh.svg "  style="width:18px;height:18px;" /></div>
-	<div id="lbgain"  style="position:absolute;top:200px;left:38px;"><span>Gain : </span><input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="4.0" step="0.1" /></div>
+	<div id="lbgain"  style="position:absolute;top:200px;left:38px;"><span>Gain : </span><input id="ngain" style="width:60px;" type="number"  value="1.0" min="0.1" max="10.0" step="0.1" /></div>
 	<p><span  style="position:absolute;top:298px;left:30px;"><input  type="checkbox" name="flagTranspo" id="objFlagTranspo"  checked  /></span> <span id="lbrate" style="position:absolute;top:300px;left:60px;"  >Vitesse de lecture :</span> <span style="position:absolute;top:297px;left:206px;" ><input id="transposition" style="width:60px;" type="number"  value="1.0" min="0.01" max="4.0" step="0.01" /></span> </p>
 	</div>
 	<div id="position" style="position:absolute;top:334px;left:80px;"><span>Position : </span> <span id="mn1" ><input id="mnt" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn2" ><input id="mns" style="width:44px;height:24px;" type="number"  value="0" min="0" max="59" step="1" /> : </span><span id="mn3" ><input id="mnl" style="width:60px;height:24px;" type="number"  value="0" min="0" max="1000" step="1" /></span> </div>
 	<div id="lbdetune" style="position:absolute;top:384px;left:10px;">Detune : </div> <span id="etir" style="margin:0px;padding:0px;position:absolute;top:375px;left:88px;" ><input id="ndetune" style="width:80px;height:24px;" type="number"  value="0" min="-1199" max="1199" step="1" /></span><div class="slider"  style="position:absolute;top:383px;left:184px;"><input  style="margin-left:14px;width:180px;" id="detune" type="range" value="1" min="-1199" max="1199" step="1" /></div>
 	<div id="lblimites" style="position:absolute;top:416px;left:10px;"><span>Limites :</span><img  src="./images/png/fondSlider.png" style="margin-left:40px;width:266px;height:8px;" id="aPbr2"  /><div><img  src="./images/png/crocheDroit.png"  id="bgauche" style="position:absolute;top:0px;left:90px;height:20px;" /><span style="position:absolute;top:30px;left:68px;"   >% <input id="inpgauchet" style="width:50px;" type="number"  value="0.001" min="0.000" max="1.000" step="0.001" /></span></div><div><img  src="./images/png/crocheGauche.png"  id="bdroit"  style="position:absolute;top:0px;left:348px;height:20px;"/><span style="position:absolute;top:30px;left:276px;" >% <input id="inpdroitt" style="width:50px;" type="number"  value="1.000" min="0.001" max="1.000" step="0.001" /></span></div><div id="limFond" style="position:absolute;top:7px;left:90px;height:4px;width:262px;background-color: #255880;" /></div>
 	</div>
-	<div style="position:absolute;top:485px;left:10px;" >Durée relative : <input id="inprelatif" style="width:50px;" type="text"  value="0.001" min="0.001" max="1.000" step="0.001" /> s.</div>
+	<div style="position:absolute;top:485px;left:10px;"  onclick='defDureeReelle();'>Durée relative : <input id="inprelatif" style="width:50px;" type="text"  value="0.001" min="0.001" max="1.000" step="0.001" /> s.</div>
 	<div id="lbnom" style="position:absolute;top:525px;left:10px;"><span>Nom : </span><input id="inpNom" style="width:200px;" type="text"  value=""  /></div>
 	<div id="lbinstrument" style="position:absolute;top:577px;left:10px;"><span>Instrument :</span> <input id="inpCanal" style="width:50px;" type="number"  value="0" min="0" max="64" step="1" /></div>
 	<div  style="position:absolute;top:510px;left:290px;"><img alt="Reverb. Convolution impulse reponse" title="Reverb. Convolution impulse reponse" src="./images/png/convol2.png" style="width:48px;"   /> </div>
@@ -89,7 +80,7 @@
 			<option value="0"></option>
 		</select>
 		</div>
-	<div style="position:absolute;top:605px;left:270px;" ><button  id="lbAnnul" onclick='objAnnul();'>Annul</button><button  id="lbvalid"  style="margin-left:10px;" onclick='objValid();'></button></div>
+	<div style="position:absolute;top:605px;left:270px;" ><button  id="lbAnnul" onclick='objAnnul();'>Annul</button><button  id="lbvalid"  style="margin-left:10px;" onclick='objValid();'>Ok</button></div>
 </div>
 <script  src="impulseReponse.js"></script>
 <script >
@@ -124,6 +115,34 @@ document.getElementById("inpgauchet").addEventListener('input',defDebut)
 document.getElementById("inpdroitt").addEventListener('input',defFin)
 document.getElementById("inpNom").addEventListener('input',nom)
 document.getElementById("inpCanal").addEventListener('input',piste)
+document.getElementById("fadePosIn").addEventListener('input',setFadeInPos)
+document.getElementById("fadePosOut").addEventListener('input',setFadeOutPos)
+
+function setFadeInPos() {
+	var ev1=parseFloat(document.getElementById("fadePosIn").value)
+	if((ev1/parseFloat(lgFade.value))*200<(fadeOutPos.value*200)-10){
+	fadeInPos.value=(ev1/parseFloat(lgFade.value)).toFixed(2);
+	document.getElementById("env1").style.left=(fadeInPos.value*200)+"px";
+	selectObj.envX[0]=parseFloat(fadeInPos.value);
+ 	}else{
+ 		fadePosIn.value=ev1-0.01;
+ 	}
+ 	window.api.send("toMain", "defEnv;"+JSON.stringify(selectObj.envX));
+	update();
+}
+function setFadeOutPos() {
+	var ev1=parseFloat(document.getElementById("fadePosOut").value)
+	if((ev1/parseFloat(lgFade.value))*200<199 && (1-(ev1/parseFloat(lgFade.value)))*200>(fadeInPos.value*200)+10 ){
+	fadeOutPos.value=(1-(ev1/parseFloat(lgFade.value))).toFixed(2);
+	document.getElementById("env2").style.left=(fadeOutPos.value*200)+"px";
+	selectObj.envX[1]=parseFloat(fadeOutPos.value);
+ 	}else{
+ 		fadePosOut.value=ev1-0.01;
+ 	}
+ 	window.api.send("toMain", "defEnv;"+JSON.stringify(selectObj.envX));
+	update();
+}
+
 var txt="<option value=''></option>";
 for(let i=0;i<tableIR.length;i++){
 	txt=txt+"<option value='"+tableIR[i]+"'>"+tableIR[i]+"</option>";
@@ -165,7 +184,7 @@ document.getElementById('lbmute').innerHTML=tableLang["objpMute"]
 document.getElementById('lbfichier').innerHTML=tableLang["objpFile"]
 document.getElementById('lbduree').innerHTML=tableLang["objpDuree"]
 document.getElementById('lbcanaux').innerHTML=tableLang["objpCanaux"]
-document.getElementById('dureeReelle').firstChild.innerHTML=tableLang["objDreel"]
+
 document.getElementById('lbgain').firstChild.innerHTML=tableLang["objpGain"]
 document.getElementById('lbrate').innerHTML=tableLang["objpRate"]
 document.getElementById('position').firstChild.innerHTML=tableLang["objpPos"]
@@ -178,201 +197,97 @@ document.getElementById('lbvalid').innerHTML=tableLang["objpValid"]
 }
 
 function objetStringDef(txt,c) {
-	var tbtxt=txt.split(':')
-	selectObj={}
-	selectObj.basePosY=tbtxt[0]
-	selectObj.bkgColor=tbtxt[1]
-	selectObj.bkgHeight=tbtxt[2]
-	selectObj.bkgImg=tbtxt[3]
-	selectObj.bkgOpacity=tbtxt[4]
-	selectObj.bkgTrp=tbtxt[5]
-	selectObj.bkgWidth=tbtxt[6]
-	selectObj.borderBc=tbtxt[7]
-	selectObj.borderBr=tbtxt[8]
-	selectObj.borderBs=tbtxt[9]
-	selectObj.borderBw=tbtxt[10]
-	selectObj.borderDc=tbtxt[11]
-	selectObj.borderDr=tbtxt[12]
-	selectObj.borderDs=tbtxt[13]
-	selectObj.borderDw=tbtxt[14]
-	selectObj.borderGc=tbtxt[15]
-	selectObj.borderGr=tbtxt[16]
-	selectObj.borderGs=tbtxt[17]
-	selectObj.borderGw=tbtxt[18]
-	selectObj.borderHc=tbtxt[19]
-	selectObj.borderHr=tbtxt[20]
-	selectObj.borderHs=tbtxt[21]
-	selectObj.borderHw=tbtxt[22]
-	selectObj.buffer=tbtxt[23]
-	selectObj.class=parseInt(tbtxt[24])
-	selectObj.convolver=tbtxt[25]
-	selectObj.cx=tbtxt[26]
-	selectObj.cy=tbtxt[27]
-	selectObj.debut=parseFloat(tbtxt[28])
-	selectObj.detune=parseFloat(tbtxt[29])
-	selectObj.duree=parseFloat(tbtxt[30])
-	selectObj.fadeIn=tbtxt[31]
-	selectObj.fadeOut=tbtxt[32]
-	var ev=tbtxt[33].split(",")
-	
-	selectObj.envX=[]
-	for(let j=0;j<2;j++){
-		selectObj.envX[j]=ev[j]
-		//selectObj.envY[j]=0
-	}
-	
-	selectObj.etat=parseInt(tbtxt[34])
-	selectObj.file=tbtxt[35]
-	selectObj.fin=parseFloat(tbtxt[36])
-	selectObj.flagTranspo=tbtxt[37]
-	selectObj.gain=parseFloat(tbtxt[38])
-	selectObj.height=parseFloat(tbtxt[39])
-	selectObj.id=tbtxt[40]
-	selectObj.img=tbtxt[41]
-	selectObj.margeG=tbtxt[42]
-	selectObj.margeH=tbtxt[43]
-	selectObj.mute=parseInt(tbtxt[44])
-	selectObj.nom=tbtxt[45]
-	selectObj.objBorderC=tbtxt[46]
-	selectObj.objBorderW=parseFloat(tbtxt[47])
-	selectObj.objColor=tbtxt[48]
-	selectObj.objOpacity=parseFloat(tbtxt[49])
-	selectObj.piste=parseInt(tbtxt[50])
-	selectObj.posX=parseFloat(tbtxt[51])
-	selectObj.posY=parseFloat(tbtxt[52])
-	selectObj.r=parseFloat(tbtxt[53])
-	selectObj.radius=tbtxt[54]
-	selectObj.scaleX=parseFloat(tbtxt[55])
-	selectObj.scaleY=parseFloat(tbtxt[56])
-	selectObj.spD=[]
-	var lspD=tbtxt[57].split(",")
-	for(let j=0;j<lspD.length;j++){
-		selectObj.spD[j]=parseFloat(lspD[j])
-	}
-	selectObj.spT=[]
-	var lspT=tbtxt[58].split(",")
-	for(let j=0;j<lspT.length;j++){
-		selectObj.spT[j]=parseFloat(lspT[j])
-	}
-	selectObj.spX=[]
-	var lspX=tbtxt[59].split(",")
-	for(let j=0;j<lspX.length;j++){
-		selectObj.spX[j]=parseFloat(lspX[j])
-	}
-	selectObj.spY=[]
-	var lspY=tbtxt[60].split(",")
-	for(let j=0;j<lspY.length;j++){
-		selectObj.spY[j]=parseFloat(lspY[j])
-	}
-	selectObj.spZ=[]
-	var lspZ=tbtxt[61].split(",")
-	for(let j=0;j<lspZ.length;j++){
-		selectObj.spZ[j]=parseFloat(lspZ[j])
-	}
-	
-	selectObj.tableFx=tbtxt[62]
-	selectObj.tableFxParam=tbtxt[63]
-	selectObj.transposition=parseFloat(tbtxt[64]).toFixed(2)
-	selectObj.type=tbtxt[65]
-	selectObj.vueDuree=tbtxt[66]
-	selectObj.x1=tbtxt[67]
-	selectObj.x2=tbtxt[68]
-	selectObj.y1=tbtxt[69]
-	selectObj.y2=tbtxt[70]
-	selectObj.width=parseFloat(tbtxt[71])
-	selectObj.reverse=tbtxt[72]
-	
 	if(selectObj.bkgTrp==true){
 		document.getElementById("dobjColor").style.backgroundColor='transparent'
 	}else{
 		document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
 	}
 	switch(selectObj.type){
-					case "1":
+					case 1:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><circle id='circle' cx='50' cy='50' r='30' fill='"+selectObj.objColor+"' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "2":
+					case 2:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id='carre'  x='25' y='25' width='50' height='50' fill='"+selectObj.objColor+"' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "3":
+					case 3:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,40 0,0 40,20 0,40' fill='"+selectObj.objColor+"' transform='translate(34 34)'  stroke='"+selectObj.objBorderC+"' stroke-width='"+selectObj.objBorderW+"' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "4":
+					case 4:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><ellipse cx='50' cy='50' rx='40' ry='20' fill='"+selectObj.objColor+"'  stroke='"+selectObj.objBorderC+"' stroke-width='"+selectObj.objBorderW+"'  /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break		
-					case "5":
+					case 5:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect id='carre'  x='20' y='30' width='60' height='40' fill='"+selectObj.objColor+"' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "6":
+					case 6:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><polyline points='0,0 0,10 50,5 0,0' fill='"+selectObj.objColor+"' transform='scale(1.8 1.8) translate(4 25)'/></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "7":
+					case 7:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='scale(1.8 1.8) translate(8 20)'><circle cx='10' cy='10' r='10' fill='"+selectObj.objColor+"' /><rect  x='10' y='5' width='30' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "8":
+					case 8:
 						var txt="<svg width='50' height='50'  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g transform='scale(1.8 1.8) translate(8 20)'><rect width='20' height='20' fill='"+selectObj.objColor+"' /><rect  x='10' y='5' width='30' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "9":
+					case 9:
 						var txt="<svg width='50' height='50'  viewBox='0 0 60 60'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0,10 0,5 50,0 50,15 0,10 Z' transform='translate(5 20)' fill='"+selectObj.objColor+"' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "10":
+					case 10:
 						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='10' y1='24' x2='40' y2='24' stroke='"+selectObj.objColor+"' stroke-width='6' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "11":
+					case 11:
 						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='8' y1='40' x2='40' y2='8' stroke='"+selectObj.objBorderC+"' stroke-width='"+selectObj.objBorderW+"' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "12":
+					case 12:
 						var txt="<svg width='50' height='50'  viewBox='0 0 50 50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><line x1='25' y1='10' x2='25' y2='40' stroke='"+selectObj.objBorderC+"' stroke-width='10' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "13":
+					case 13:
 						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 25 Q 25 30 50 0  Q 45 30 0 40  L 0 25 Z ' fill='"+selectObj.objColor+"' transform='scale(0.7 0.7) translate(10 10)'/></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "14":
+					case 14:
 						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0 Q 45 3 40 38 Q 30 10 0 7 Z ' fill='"+selectObj.objColor+"' transform='scale(0.8 0.8) translate(12 12)'/></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "15":
+					case 15:
 						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 35 L 0 30 Q 30 30 50 0 L 50 20  Q 40 30 0 35 Z' fill='"+selectObj.objColor+"' transform='scale(0.7 0.7) translate(10 20)'/></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "16":
+					case 16:
 						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><path d='M 0 0  Q 30 5 50 20 L 50 50  Q 40 10 0 5 Z'  fill='"+selectObj.objColor+"' transform='scale(0.7 0.7) translate(12 10)'/></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "18":
+					case 18:
 						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(14 6)' ><rect x='0' y='2' width='4' height='34' fill='"+selectObj.objColor+"' /><rect x='6' y='2' width='10' height='10' fill='blue' /><rect x='6' y='14' width='10' height='10' fill='"+selectObj.objColor+"' /><rect x='6' y='26' width='10' height='10' fill='"+selectObj.objColor+"' /></g></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "19":
+					case 19:
 						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(6 3)' ><rect x='0' y='0' width='10' height='10' fill='blue' /><rect x='14' y='5' width='9' height='9' fill='"+selectObj.objColor+"' /><rect x='23' y='14' width='8' height='8' fill='"+selectObj.objColor+"' /><rect x='28' y='22' width='7' height='7' fill='"+selectObj.objColor+"' /><rect x='31' y='29' width='6' height='6' fill='"+selectObj.objColor+"' /><rect x='32' y='35' width='5' height='5' fill='"+selectObj.objColor+"' /><rect x='33' y='40' width='4' height='4' fill='"+selectObj.objColor+"' /></g></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "20":
+					case 20:
 						var txt="<svg width='40' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(4 1)' ><line x1='5' y1='10' x2='40' y2='10' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='13' x2='40' y2='13' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='18' x2='40' y2='18' stroke='"+selectObj.objBorderC+"' stroke-width='3' /><line x1='5' y1='25' x2='40' y2='25' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='29' x2='40' y2='29' stroke='"+selectObj.objBorderC+"' stroke-width='4' /><line x1='5' y1='35' x2='40' y2='35' stroke='"+selectObj.objBorderC+"' stroke-width='2' /><line x1='5' y1='38' x2='40' y2='38' stroke='"+selectObj.objBorderC+"' stroke-width='2' /></g></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "21":
+					case 21:
 						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><g  transform='translate(12 12)' ><path d='m 0,18 c 2.563522,-4.224314 5.082396,-8.502207 9.5544,-10.436343 15.408596,-2.005519 10.194491,-4.131414 15.287035,-6.173611 15.94465,-2.511366 17.400141,2.490165 23.66551,4.997685 2.271129,3.188679 5.724476,4.406994 4.703704,13.082175 -1.620314,13.767922 -5.475164,14.575533 -8.966435,17.4919 -8.306339,2.87551 -16.042438,4.467977 -22.783564,3.821758  -6.306339,0.87551 -14.042438,2.467977 -20.783564,-10.821758 Z' fill='#deea1a' stroke='#000000' stroke-width='1' transform='scale(0.5 0.5) translate(0 4)'/></g></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break
-					case "22":
+					case 22:
 						var txt="<svg width='40' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' transform='translate(5 5)'><circle  cx='4' cy='4' r='2' fill='green' /><circle  cx='10' cy='8' r='2' fill='green' /><circle cx='8' cy='16' r='2' fill='green' /><circle  cx='14' cy='20' r='2' fill='green' /><circle  cx='35' cy='27' r='2' fill='green' /><circle  cx='21' cy='33' r='2' fill='green' /><circle  cx='38' cy='19' r='2' fill='green' /><circle  cx='34' cy='35' r='2' fill='green' /></svg>"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
-					case "23":
+					case 23:
 						var txt="<img src='./images/png/image-2.svg' alt='' width='40px' style='padding-left:5px;padding-top:5px;' />"
 						document.getElementById("dobjColor").innerHTML=txt	
 						break	
@@ -381,15 +296,17 @@ function objetStringDef(txt,c) {
 	document.getElementById("dobjColor").style.backgroundImage='url('+selectObj.bkgImg+')'
 	document.getElementById("dobjColor").style.backgroundColor=selectObj.bkgColor
 	document.getElementById("dobjColor").style.backgroundSize=selectObj.bkgWidth+"px "+selectObj.bkgHeight+"px"
+	/*
 	if(selectObj.type!=23){
 		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke",selectObj.objBorderC)
 		document.getElementById("dobjColor").firstChild.firstChild.setAttribute("stroke-width",selectObj.objBorderW)
-	}		
-	var pathnom=tbtxt[35].split('/')
+	}	
+*/
+	var pathnom=selectObj.file.split('/')
 	document.getElementById("paramLabel").innerHTML="&nbsp;"+pathnom[pathnom.length-1]
 	
 	if(selectObj.file!=""){
-		document.getElementById("paramDr").textContent=selectObj.duree.toFixed(2)
+		document.getElementById("paramDr").textContent=parseFloat(selectObj.duree).toFixed(2)
 		document.getElementById("paramCanaux").textContent=c
 	}
 	if(selectObj.mute==1){
@@ -407,8 +324,7 @@ function objetStringDef(txt,c) {
 	
 	//document.getElementById("selecType").value=selectObj.envType
 	document.getElementById("fadeInType").value=selectObj.fadeIn
-	document.getElementById("fadeOutType").value=selectObj.fadeOut
-	console.log("env",selectObj.envX)
+
 	fadeInPos.value=selectObj.envX[0];
 	fadeOutPos.value=selectObj.envX[1];
 	
@@ -437,14 +353,15 @@ function objetStringDef(txt,c) {
 	
 	document.getElementById("env1").style.left=(200*selectObj.envX[0])+"px"
 	document.getElementById("env2").style.left=(200*selectObj.envX[1])+"px"
-	
+	document.getElementById("rmsDb").innerHTML="RmsDb : "+selectObj.rmsdb.toFixed(2);
 	var rw=parseInt(document.getElementById("bdroit").style.left)-parseInt(document.getElementById("bgauche").style.left);
 	var nduree=selectObj.duree/selectObj.transposition
 	var relative=nduree*((rw+4)/262)
 	document.getElementById("inprelatif").value=relative.toFixed(3)
-	lgFade.value=relative.toFixed(3)
-	fadePosIn.value=lgFade.value*selectObj.envX[0];
-	fadePosOut.value=lgFade.value-(lgFade.value*selectObj.envX[1]);
+	lgFade.value=relative.toFixed(3);
+	
+	fadePosIn.value=(lgFade.value*selectObj.envX[0]).toFixed(2);
+	fadePosOut.value=(lgFade.value-(lgFade.value*selectObj.envX[1])).toFixed(2);
 	update()
 }
 function defDureeReelle(){
@@ -472,6 +389,7 @@ console.log(`objparam ${data} from renderer process`);
 					lang=cmd[2]
 					tempo=cmd[5]
 					importLang('./Local/'+lang+'/objParam-'+lang+".txt")
+					selectObj=JSON.parse(cmd[3]);
 					objetStringDef(cmd[3],cmd[4])
 					console.log(selectObj)
 				}else{
@@ -533,7 +451,21 @@ console.log(`objparam ${data} from renderer process`);
 				break
 			case 'createSpatialPoint':
 				createSpatialPoint(cmd[1],cmd[2])
-				break
+				break;
+			case 'defTrajectory':
+				var id=cmd[1];
+				console.log(`obj spatial ${data}`);
+				var table=JSON.parse(cmd[2]);
+				
+				selectObj.spX=table.spX;
+				selectObj.spY=table.spY;
+				selectObj.spZ=table.spZ;
+				selectObj.spT=table.spT;
+				for(let i=0;i<table.spX.length;i++){
+					selectObj.spD[i]=1;
+				}
+				console.log("id",cmd[1],table,table.spX,selectObj);
+				break;
 			default :
 				
 				
@@ -629,11 +561,7 @@ function fadeIn() {
 	update();
 	window.api.send("toMain", "fadeInType;"+selectId+";"+selectObj.fadeIn);
 }
-function fadeOut() {
-	selectObj.fadeOut=document.getElementById("fadeOutType").value
-	update();
-	window.api.send("toMain", "fadeOutType;"+selectId+";"+selectObj.fadeOut);
-}
+
 function flagTranspo() {
 	if(document.getElementById("objFlagTranspo").checked==true){
 		selectObj.flagTranspo=1
@@ -788,17 +716,23 @@ function dragElement2(elmnt) {
 	 if(elmnt.id=="env1" ){
 	 	
 	 	//envDef(elmnt);
+	 	
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	if(parseFloat(elmnt.style.left)<2){
+	 		elmnt.style.left="2px";
+	 	}
 	 	var nv1=parseFloat(document.getElementById("env1").style.left);
 	 	var nv2=parseFloat(document.getElementById("env2").style.left);
-	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 	 	if(nv1>nv2-10){
 	 		elmnt.style.left = (nv2-10)+"px";
 	 	}
 	 	
 	 	if(nv1>0 && nv1<nv2){
 	 		fadeInPos.value=((elmnt.offsetLeft - pos1)*0.005).toFixed(2);
-	 		console.log("nv1",fadeInPos.value,lgFade.value*fadeInPos.value,selectObj.envX)
-	 		fadePosIn.value= lgFade.value*parseFloat(fadeInPos.value);
+	 		if(fadeInPos.value==0){
+	 			fadeInPos.value=0.01;
+	 		}
+	 		fadePosIn.value= (lgFade.value*parseFloat(fadeInPos.value)).toFixed(2);
 	 		selectObj.envX[0]=parseFloat(fadeInPos.value);
 	 		update();
 	 	}
@@ -806,16 +740,19 @@ function dragElement2(elmnt) {
 	 	
 	 }
 	 if( elmnt.id=="env2"){
+	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	
 	 	var nv1=parseFloat(document.getElementById("env1").style.left);
 	 	var nv2=parseFloat(document.getElementById("env2").style.left);
-	 	elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	 	if(parseFloat(elmnt.style.left)>200){
+	 		elmnt.style.left="200px";
+	 	}
 	 	if(nv2<nv1+10){
 	 		elmnt.style.left = (nv2+10)+"px";
 	 	}
 	 	if(nv2>nv1 && nv2<200){
-	 		fadeOutPos.value=((elmnt.offsetLeft - pos1)*0.005).toFixed(2);
-	 		console.log("nv2",fadeInPos.value,lgFade.value*fadeInPos.value,selectObj.envX)
-	 		fadePosOut.value= lgFade.value-(lgFade.value*parseFloat(fadeOutPos.value));
+	 		fadeOutPos.value=(nv2*0.005).toFixed(2);
+	 		fadePosOut.value= (lgFade.value-(lgFade.value*parseFloat(fadeOutPos.value))).toFixed(2);
 	 		selectObj.envX[1]= parseFloat(fadeOutPos.value);
 	 		update();
 	 	}
@@ -842,7 +779,7 @@ function dragElement2(elmnt) {
     	selectObj.envX[i]=nex[i].x
     	//selectObj.envY[i]=0
     }
-    window.api.send("toMain", "defEnv;"+selectObj.envX);
+    window.api.send("toMain", "defEnv;"+JSON.stringify(selectObj.envX));
   }
 }
 
@@ -970,14 +907,13 @@ const fadePosIn = document.getElementById("fadePosIn");
 const fadePosOut = document.getElementById("fadePosOut");
 const lgFade = document.getElementById("lgFade");
 const fadeInType = document.getElementById("fadeInType");
-const fadeOutType = document.getElementById("fadeOutType");
 const curve = document.getElementById("curve");
 const handleIn = document.getElementById("env1");
 const handleOut = document.getElementById("env2");
 
 function update() {
     const W = 200, H = 100;
-    const yBase = H - 1;
+    const yBase = 100 ;
 
     const xIn = fadeInPos.value * W;
     const xOut = fadeOutPos.value * W;
@@ -992,62 +928,38 @@ function update() {
     let points = [];
 
     for (let i = 0; i < W; i++) {
-        const xNorm = i / W;
-        let y;
+    const xNorm = i / (W - 1);
+    let y;
 
-        if (xNorm <= fadeInPos.value) {
-            const local = xNorm / fadeInPos.value;
-            y = applyCurve(local, fadeInType.value);
-        } else if (xNorm >= fadeOutPos.value) {
-            const local = (1 - xNorm) / (1 - fadeOutPos.value);
-            y = applyCurve(local, fadeOutType.value);
-        } else {
-            y = 1;
-        }
+    if (xNorm <= fadeInPos.value) {
+        const local = xNorm / fadeInPos.value;
+        y = applyCurve(local, fadeInType.value);
 
-        const px = i;
-        const py = yBase - y * 95;
-        points.push(px + "," + py);
+    } else if (xNorm >= fadeOutPos.value) {
+        const local = (xNorm - fadeOutPos.value) / (1 - fadeOutPos.value);
+        y = applyCurve(1 - local, fadeInType.value); // ← ICI
+
+    } else {
+        y = 1;
     }
 
+    const px = i;
+    const py = H - (y * H);
+
+    points.push(`${px},${py}`);
+}
+ 
     curve.setAttribute("points", points.join(" "));
 }
 
 update();
 
-/*
-// --- DRAG HANDLES ---
-let dragging = null;
-
-svg.addEventListener("mousedown", e => {
-    if (e.target.classList.contains("draggable")) {
-        dragging = e.target;
-    }
-});
-
-svg.addEventListener("mousemove", e => {
-    if (!dragging) return;
-    const rect = svg.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const norm = Math.max(0, Math.min(1, x / 800));
-
-    if (dragging === handleIn) fadeInPos.value = Math.min(norm, fadeOutPos.value - 0.05);
-    if (dragging === handleOut) fadeOutPos.value = Math.max(norm, fadeInPos.value + 0.05);
-
-    update();
-});
-
-svg.addEventListener("mouseup", () => dragging = null);
-svg.addEventListener("mouseleave", () => dragging = null);
-*/
-// Réactualiser si les menus changent
 
 
 fadeInPos.oninput = update;
 fadeOutPos.oninput = update;
 
 fadeInType.onchange = fadeIn;
-fadeOutType.onchange = fadeOut;
 </script>
 </body>
 </html>

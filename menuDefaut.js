@@ -1,9 +1,9 @@
  {
  Qquit='Voulez-vous continuer ou quitter?'
+ Qcontinu='Voulez-vous continuer?'
  Qnew='Nouveau projet ?'
  Qok='Quitter'
  Qcont='Continuer'
- Qcontinu='Voulez-vous continuer?'
  Qwarning='Attention'
  Qalerte='Vous allez supprimer un projet et ses fichiers'
  AlertWinOpen='Vous devez fermer la fenêtre déjà ouverte'
@@ -83,8 +83,8 @@
  Mexport="Exporter"
  Mprefs="Préférences"
  Mwaveform="Forme d'onde"
- Mstudio="Nouveau"
- MStdLoad="Ouvrir"
- MStdSave="Sauvegarder"
+ Mstudio="Nouveau studio"
+ MStdLoad="Ouvrir un studio"
+ MStdSave="Enregistrer un studio"
  MIde="IDE Faust"
  }

@@ -78,7 +78,8 @@ const glyphSymboleOndulation="<path d='M 3.85762,12.672136 H 3.75444 c -0.0344,-
 const glyphSoftAccent="<path d='m 0.78752654,3.9503425 c -0.328084,0 -0.492125,-0.164042 -0.492125,-0.492125 0,-0.327819 0.164041,-0.49186 0.492125,-0.49186 L 11.457643,0.1757965 c 0.03572,-0.0164 0.104775,-0.02487 0.20664,-0.02487 0.259027,0 0.388673,0.190236 0.388673,0.570707 0,0.187325 -0.119857,0.325172 -0.359834,0.413279 l -6.5648415,1.703387 -3.745442,0.619919 3.745442,0.620183 6.5648415,1.707357 c 0.239977,0.08546 0.359834,0.213518 0.359834,0.384439 0,0.396875 -0.129646,0.595313 -0.388673,0.595313 0,0 -0.0344,0 -0.103452,0 L 0.78752654,3.9503425 M 24.922289,2.9663575 c 0.328083,0 0.492125,0.164041 0.492125,0.49186 0,0.328083 -0.164042,0.492125 -0.492125,0.492125 l -10.773304,2.815167 h -0.103452 c -0.259027,0 -0.388673,-0.198438 -0.388673,-0.595313 0,-0.170921 0.119856,-0.298979 0.359833,-0.384439 l 6.564842,-1.707357 3.745441,-0.620183 -3.745441,-0.619919 -6.564842,-1.703387 c -0.239977,-0.08811 -0.359833,-0.225954 -0.359833,-0.413279 0,-0.380471 0.129646,-0.570707 0.388673,-0.570707 0.102129,0 0.170921,0.0085 0.206639,0.02487 l 10.670117,2.790561' style='stroke-width:0.26458332'/>";
 const glyphSoftAccentPointe="<path d='m 23.099554,3.945459 c 0.347133,-0.07858 0.347133,-0.264583 0.347133,-0.475456 0,-0.210873 0,-0.372004 -0.347133,-0.475456 l -7.9375,-2.69954401 c -0.103452,-0.02884 -0.210873,-0.05371 -0.235744,-0.05371 -0.239712,0 -0.318293,0.157163 -0.396875,0.372005 -0.02884,0.103452 -0.05371,0.182033 -0.05371,0.264583 0,0.13229201 0.07858,0.26458301 0.368035,0.36803501 0,0 5.717382,1.930665 5.981965,2.038086 0.132292,0.02487 0.186002,0.107421 0.186002,0.186002 0,0.07858 -0.05371,0.132292 -0.210873,0.186002 -0.293423,0.07858 -5.957094,2.009246 -5.957094,2.009246 -0.289454,0.132291 -0.368035,0.264583 -0.368035,0.396875 0,0.07858 0.02487,0.157162 0.05371,0.239712 0.07858,0.182034 0.182034,0.396875 0.368036,0.396875 0.02884,0 0.07858,0 0.107421,-0.02884 l 8.094662,-2.724415 m -22.54329328,0 c -0.3431646,-0.07858 -0.3431646,-0.264583 -0.3431646,-0.475456 0,-0.210873 0,-0.372004 0.3431646,-0.475456 L 8.4937606,0.29500299 c 0.1074204,-0.02884 0.2148414,-0.05371 0.2397124,-0.05371 0.239713,0 0.318294,0.157163 0.396875,0.372005 0.02487,0.103452 0.05371,0.182033 0.05371,0.264583 0,0.13229201 -0.07858,0.26458301 -0.372004,0.36803501 0,0 -5.7134121,1.930665 -5.9779954,2.038086 -0.1322917,0.02487 -0.1860021,0.107421 -0.1860021,0.186002 0,0.07858 0.05371,0.132292 0.2108729,0.186002 0.2891896,0.07858 5.9531246,2.009246 5.9531246,2.009246 0.293423,0.132291 0.372004,0.264583 0.372004,0.396875 0,0.07858 -0.02884,0.157162 -0.05371,0.239712 -0.07858,0.182034 -0.186002,0.396875 -0.372004,0.396875 -0.02487,0 -0.07858,0 -0.103452,-0.02884 L 0.55626072,3.945459 M 12.913096,3.416292 c 0,-0.607747 -0.500327,-1.112043 -1.112044,-1.112043 -0.607748,0 -1.108075,0.504296 -1.108075,1.112043 0,0.607748 0.500327,1.112044 1.108075,1.112044 0.611717,0 1.112044,-0.504296 1.112044,-1.112044'  style='stroke-width:0.26458332'/>";
 const glyphSoftTenuto="<path d='m 25.189776,3.9271137 c 0.347398,-0.0786 0.347398,-0.26458 0.347398,-0.47545 0,-0.21087 0,-0.37227 -0.347398,-0.47546 l -7.9375,-2.69953997 c -0.103452,-0.0291 -0.210873,-0.0537 -0.235744,-0.0537 -0.239712,0 -0.318293,0.1569 -0.396875,0.372 -0.02884,0.10319 -0.05371,0.18177 -0.05371,0.26459 0,0.13229 0.07858,0.26457997 0.368035,0.36776997 0,0 5.717381,1.93066 5.981965,2.03835 0.132291,0.0246 0.186002,0.10742 0.186002,0.186 0,0.0786 -0.05371,0.13229 -0.210608,0.186 -0.293688,0.0786 -5.957359,2.00925 -5.957359,2.00925 -0.289454,0.13229 -0.368035,0.26458 -0.368035,0.39687 0,0.0783 0.02487,0.1569 0.05371,0.23971 0.07858,0.18177 0.182034,0.39688 0.368036,0.39688 0.02884,0 0.07858,0 0.107421,-0.0291 l 8.094662,-2.72415 m -24.65995973,0 c -0.343165,-0.0786 -0.343165,-0.26458 -0.343165,-0.47545 0,-0.21087 0,-0.37227 0.343165,-0.47546 L 8.4673164,0.27668373 c 0.107421,-0.0291 0.214841,-0.0537 0.239712,-0.0537 0.239713,0 0.318294,0.1569 0.396875,0.372 0.02487,0.10319 0.05371,0.18177 0.05371,0.26459 0,0.13229 -0.07858,0.26457997 -0.372005,0.36776997 0,0 -5.7134121,1.93066 -5.9779951,2.03835 -0.132292,0.0246 -0.186002,0.10742 -0.186002,0.186 0,0.0786 0.05371,0.13229 0.210873,0.186 0.289454,0.0786 5.9531241,2.00925 5.9531241,2.00925 0.293423,0.13229 0.372005,0.26458 0.372005,0.39687 0,0.0783 -0.02884,0.1569 -0.05371,0.23971 -0.07858,0.18177 -0.186002,0.39688 -0.372004,0.39688 -0.02487,0 -0.07858,0 -0.103452,-0.0291 l -8.09863113,-2.72415 m 16.16842273,0.1323 c 0.607747,0 0.632618,-0.28946 0.632618,-0.63686 0,-0.34316 0,-0.63235 -0.632618,-0.63235 H 8.9964824 c -0.632618,0 -0.632618,0.28919 -0.632618,0.63235 0,0.3474 0,0.63686 0.632618,0.63686 h 7.7017566'  style='stroke-width:0.26458332'/>";
-const glyphSoftTenutoPointe="<path d='m 25.130528,3.9453292 c 0.347398,-0.07832 0.347398,-0.264584 0.347398,-0.475192 0,-0.210873 0,-0.372269 -0.347398,-0.475456 l -7.9375,-2.69954398 c -0.103187,-0.0291 -0.210873,-0.05398 -0.235479,-0.05398 -0.239977,0 -0.318294,0.157162 -0.396875,0.372269 -0.0291,0.103187 -0.05371,0.181768 -0.05371,0.264583 0,0.13229198 0.07832,0.26458298 0.367771,0.36777098 0,0 5.717645,1.930664 5.982229,2.038085 0.132291,0.02487 0.186002,0.107686 0.186002,0.186267 0,0.07832 -0.05371,0.132292 -0.210873,0.186002 -0.293688,0.07858 -5.957358,2.008981 -5.957358,2.008981 -0.289455,0.132292 -0.367771,0.264584 -0.367771,0.396875 0,0.07858 0.02461,0.157163 0.05371,0.239977 0.07858,0.181769 0.181769,0.396875 0.367771,0.396875 0.0291,0 0.07858,0 0.107685,-0.0291 l 8.094398,-2.724413 m -24.65995962,0 c -0.343164,-0.07832 -0.343164,-0.264584 -0.343164,-0.475192 0,-0.210873 0,-0.372269 0.343164,-0.475456 L 8.4080684,0.29513722 c 0.107421,-0.0291 0.215106,-0.05398 0.239713,-0.05398 0.239977,0 0.318558,0.157162 0.396875,0.372269 0.02487,0.103187 0.05398,0.181768 0.05398,0.264583 0,0.13229198 -0.07858,0.26458298 -0.372269,0.36777098 0,0 -5.713148,1.930664 -5.977731,2.038085 -0.132292,0.02487 -0.186267,0.107686 -0.186267,0.186267 0,0.07832 0.05397,0.132292 0.210873,0.186002 0.289454,0.07858 5.953125,2.008981 5.953125,2.008981 0.293687,0.132292 0.372269,0.264584 0.372269,0.396875 0,0.07858 -0.02911,0.157163 -0.05398,0.239977 -0.07832,0.181769 -0.186003,0.396875 -0.372005,0.396875 -0.02487,0 -0.07858,0 -0.103187,-0.0291 L 0.47056838,3.9453292 M 16.031508,2.9946812 c 0.500062,0 0.529166,-0.293688 0.529166,-0.611982 0,-0.31406 0,-0.607748 -0.529166,-0.607748 H 9.4955064 c -0.529167,0 -0.529167,0.293688 -0.529167,0.607748 0,0.318294 0,0.611982 0.529167,0.611982 h 6.5360016 m -2.145771,1.769268 c 0,-0.607748 -0.500063,-1.10781 -1.112044,-1.10781 -0.607748,0 -1.10781,0.500062 -1.10781,1.10781 0,0.611982 0.500062,1.112044 1.10781,1.112044 0.611981,0 1.112044,-0.500062 1.112044,-1.112044'  style='stroke-width:0.26458332'/>"; 
+const glyphSoftTenutoPointe="<path d='m 25.130528,3.9453292 c 0.347398,-0.07832 0.347398,-0.264584 0.347398,-0.475192 0,-0.210873 0,-0.372269 -0.347398,-0.475456 l -7.9375,-2.69954398 c -0.103187,-0.0291 -0.210873,-0.05398 -0.235479,-0.05398 -0.239977,0 -0.318294,0.157162 -0.396875,0.372269 -0.0291,0.103187 -0.05371,0.181768 -0.05371,0.264583 0,0.13229198 0.07832,0.26458298 0.367771,0.36777098 0,0 5.717645,1.930664 5.982229,2.038085 0.132291,0.02487 0.186002,0.107686 0.186002,0.186267 0,0.07832 -0.05371,0.132292 -0.210873,0.186002 -0.293688,0.07858 -5.957358,2.008981 -5.957358,2.008981 -0.289455,0.132292 -0.367771,0.264584 -0.367771,0.396875 0,0.07858 0.02461,0.157163 0.05371,0.239977 0.07858,0.181769 0.181769,0.396875 0.367771,0.396875 0.0291,0 0.07858,0 0.107685,-0.0291 l 8.094398,-2.724413 m -24.65995962,0 c -0.343164,-0.07832 -0.343164,-0.264584 -0.343164,-0.475192 0,-0.210873 0,-0.372269 0.343164,-0.475456 L 8.4080684,0.29513722 c 0.107421,-0.0291 0.215106,-0.05398 0.239713,-0.05398 0.239977,0 0.318558,0.157162 0.396875,0.372269 0.02487,0.103187 0.05398,0.181768 0.05398,0.264583 0,0.13229198 -0.07858,0.26458298 -0.372269,0.36777098 0,0 -5.713148,1.930664 -5.977731,2.038085 -0.132292,0.02487 -0.186267,0.107686 -0.186267,0.186267 0,0.07832 0.05397,0.132292 0.210873,0.186002 0.289454,0.07858 5.953125,2.008981 5.953125,2.008981 0.293687,0.132292 0.372269,0.264584 0.372269,0.396875 0,0.07858 -0.02911,0.157163 -0.05398,0.239977 -0.07832,0.181769 -0.186003,0.396875 -0.372005,0.396875 -0.02487,0 -0.07858,0 -0.103187,-0.0291 L 0.47056838,3.9453292 M 16.031508,2.9946812 c 0.500062,0 0.529166,-0.293688 0.529166,-0.611982 0,-0.31406 0,-0.607748 -0.529166,-0.607748 H 9.4955064 c -0.529167,0 -0.529167,0.293688 -0.529167,0.607748 0,0.318294 0,0.611982 0.529167,0.611982 h 6.5360016 m -2.145771,1.769268 c 0,-0.607748 -0.500063,-1.10781 -1.112044,-1.10781 -0.607748,0 -1.10781,0.500062 -1.10781,1.10781 0,0.611982 0.500062,1.112044 1.10781,1.112044 0.611981,0 1.112044,-0.500062 1.112044,-1.112044'  style='stroke-width:0.26458332'/>";
+const glyphReverse="<path style='fill:none;stroke-width:0.965223;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='M 3.869995,12.82295 C 3.1994017,12.153581 0.21192301,12.466385 -0.21698508,7.6571417 -0.07473801,1.3095649 5.4890505,0.95731311 6.2213119,1.0559167 12.343762,1.6964397 13.170382,6.512593 11.66417,10.550773 10.247111,14.113961 6.00734,14.694628 6.00734,14.694628' /> <path style='stroke-width:0.482715px;stroke-opacity:1' d='m 8.5336627,10.572665 v 0 l 2.3507303,3.907531 -5.8741439,1.332781 3.5234136,-5.240312' />";
 const glyphTremolo="<path d='m 3.8444991,14.079286 c 0.132291,0 0.235479,-0.05371 0.288395,-0.156898 L 10.432624,0.47811533 c 0.02646,-0.05371 0.05027,-0.07858 0.05027,-0.13229096 0,-0.05371 -0.02381,-0.132292 -0.05027,-0.186002 -0.05292,-0.103452 -0.161396,-0.157163 -0.264584,-0.157163 H 6.8581031 c -0.103188,0 -0.211667,0.05371 -0.291042,0.157163 L 0.2726241,13.60383 c -0.0291,0.05398 -0.05556,0.103452 -0.05556,0.157162 0,0.05371 0.02646,0.132292 0.05556,0.161396 0.05292,0.103188 0.156104,0.156898 0.264583,0.156898 h 3.307292 m 7.2760409,0 c 0.132292,0 0.238125,-0.05371 0.288396,-0.156898 L 17.708665,0.47811533 c 0.02646,-0.05371 0.05027,-0.07858 0.05027,-0.13229096 0,-0.05371 -0.02381,-0.132292 -0.05027,-0.186002 -0.05292,-0.103452 -0.161396,-0.157163 -0.264583,-0.157163 H 14.13679 c -0.105833,0 -0.214312,0.05371 -0.293687,0.157163 L 7.5486651,13.60383 c -0.02646,0.05398 -0.05556,0.103452 -0.05556,0.157162 0,0.05371 0.0291,0.132292 0.05556,0.161396 0.05292,0.103188 0.156104,0.156898 0.264584,0.156898 H 11.12054'  style='stroke-width:0.26458332'/>";
 
 const glyphRepete="<g transform='scale(1 1)'><circle style='fill:#ffffff;fill-opacity:1;stroke-width:0.6;stroke-opacity:1' cx='8.0' cy='8.0' r='7' /><circle style='fill:#ffffff;fill-opacity:1;stroke-width:0.6;stroke-opacity:1' cx='54.0' cy='8.0' r='7' /><line style='fill:none;stroke-width:0.60;stroke-opacity:1' x1='15' y1='8' x2='47.0' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 47,8 L 47,8 40,4 40,12 47,8' /></g>";
@@ -112,7 +113,8 @@ const glyphOnde="<g transform='translate(1 1)' style='fill:#000000;fill-opacity:
 const glyphFlecheDouble="<path style='stroke-width:0.26458332'  d='m 2.9183543,0.778183 c 0,-0.173567 0.08731,-0.26035 0.259292,-0.26035 0.171979,0 0.256645,0.08678 0.256645,0.26035 0,0.791104 0.336021,1.892829 1.008063,3.305175 0.672042,1.41261 1.317625,2.360083 1.93675,2.842418 0.06879,0.05239 0.103187,0.121179 0.103187,0.20664 0,0.173567 -0.08467,0.26035 -0.256645,0.26035 h -0.02911 c -0.01587,-0.0164 -0.04233,-0.02963 -0.07673,-0.03916 -0.0344,-0.0098 -0.06879,-0.01455 -0.100541,-0.01455 -0.06879,-0.03307 -0.431271,-0.08414 -1.087438,-0.152929 -0.722312,-0.08546 -1.307042,-0.128058 -1.754187,-0.128058 -0.449792,0 -1.034521,0.0426 -1.75948,0.128058 -0.65351997,0.06879 -1.01335397,0.119857 -1.08214497,0.152929 -0.105834,0.03598 -0.174625,0.05371 -0.209021,0.05371 -0.171979,0 -0.259292,-0.08678 -0.259292,-0.26035 0,-0.08546 0.0344,-0.154252 0.103188,-0.20664 C 0.59001533,6.443441 1.2382443,5.495968 1.9102853,4.083358 2.5823273,2.671012 2.9183483,1.569287 2.9183483,0.778183' /><polyline transform='matrix(0.26458333,0,0,0.26458333,-417.34581,-109.32632)' style='fill:none;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:bevel' points='1589.37,428.143 1589.37,668.002' /><path style='stroke-width:0.26458332'  d='m 2.9183543,0.778183 c 0,-0.173567 0.08731,-0.26035 0.259292,-0.26035 0.171979,0 0.256645,0.08678 0.256645,0.26035 0,0.791104 0.336021,1.892829 1.008063,3.305175 0.672042,1.41261 1.317625,2.360083 1.93675,2.842418 0.06879,0.05239 0.103187,0.121179 0.103187,0.20664 0,0.173567 -0.08467,0.26035 -0.256645,0.26035 h -0.02911 c -0.01587,-0.0164 -0.04233,-0.02963 -0.07673,-0.03916 -0.0344,-0.0098 -0.06879,-0.01455 -0.100541,-0.01455 -0.06879,-0.03307 -0.431271,-0.08414 -1.087438,-0.152929 -0.722312,-0.08546 -1.307042,-0.128058 -1.754187,-0.128058 -0.449792,0 -1.034521,0.0426 -1.75948,0.128058 -0.65351997,0.06879 -1.01335397,0.119857 -1.08214497,0.152929 -0.105834,0.03598 -0.174625,0.05371 -0.209021,0.05371 -0.171979,0 -0.259292,-0.08678 -0.259292,-0.26035 0,-0.08546 0.0344,-0.154252 0.103188,-0.20664 C 0.59001533,6.443441 1.2382443,5.495968 1.9102853,4.083358 2.5823273,2.671012 2.9183483,1.569287 2.9183483,0.778183' transform='translate (6.5 30) rotate(180 0 0)' />";
 // *******************************************************************************************************************************
 function defCadre(obj) {
-	var txt="position:absolute;top:"+tableObjet[obj].posY+"px;left:"+tableObjet[obj].posX+"px;"
+	var z=8*zoomScale;
+	var txt="position:absolute;top:"+((tableObjet[obj].posY*zoomScale)+z)+"px;left:"+((tableObjet[obj].posX*zoomScale)+z)+"px;"
 	txt=txt+"width:"+tableObjet[obj].bkgWidth+"px;height:"+tableObjet[obj].bkgHeight+"px;"
 	var nopac=Math.round(parseFloat(tableObjet[obj].bkgOpacity)*255)
 	var color=tableObjet[obj].bkgColor+ (nopac.toString(16))
@@ -498,8 +500,8 @@ function defSelectImg(rt){
 		var box=document.getElementById("fichierSave").getElementsByTagName("svg")[0].getAttribute('viewBox')
 	console.log('viewBox',box)
 	var tbox=box.split(' ');
-	tableObjet[objActif].bkgWidth=document.getElementById("fichierSave").getElementsByTagName("svg")[0].getAttribute('width')
-	tableObjet[objActif].bkgHeight=document.getElementById("fichierSave").getElementsByTagName("svg")[0].getAttribute('height')
+	tableObjet[objActif].bkgWidth=Math.floor(document.getElementById("fichierSave").getElementsByTagName("svg")[0].getAttribute('width'))
+	tableObjet[objActif].bkgHeight=Math.floor(document.getElementById("fichierSave").getElementsByTagName("svg")[0].getAttribute('height'))
 		graphImage(rt);//graphSvg()
 	}else{
 		graphImage(rt)
@@ -543,10 +545,9 @@ function selectobjet(objType,bkgc){
 			cy:10,
 			debut:0,
 			detune:0,
-			duree:0,
+			duree:1,
 			fadeIn:"l",
-			fadeOut:"l",
-			envX:"0.2,0.8",
+			envX:[0.2,0.8],
 			etat:1,
 			file:"",
 			fin:1,
@@ -567,6 +568,7 @@ function selectobjet(objType,bkgc){
 			posX:(scrollDemo.scrollLeft/zoomScale)+100.0,
 			posY:(scrollDemo.scrollTop/zoomScale)+100.0,
 			reverse:false,
+			rmsdb:-10,
 			rotate:0,
 			rx:20,
 			ry:10,
@@ -666,6 +668,8 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].y2=0
 				tableObjet[objActif].objBorderC=bkgc
 				tableObjet[objActif].objBorderW=4
+				tableObjet[objActif].tableFx[0]='Pitchshifter'
+				tableObjet[objActif].tableFxParam[0]='0.00?-12.00&0.50?12.0/0.00?1000/0.00?10';
 				graphGlissando(objActif)
 				dragElement(document.getElementById('gliss'+nbObjets));
 				break
@@ -683,8 +687,9 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].height=40
 				tableObjet[objActif].bkgWidth=50
 				tableObjet[objActif].bkgHeight=40
-				tableObjet[objActif].envX=[0, 0.04, 0.22, 0.42, 0.63, 0.81, 0.97]
-				tableObjet[objActif].envY=[0.38, 1, 0.96, 0.88, 0.77, 0.61, 0.31]
+				tableObjet[objActif].envX=[0.01, 0.07]
+				tableObjet[objActif].tableFx[0]='Pitchshifter';
+				tableObjet[objActif].tableFxParam[0]='0.00?0.0&0.50?12.0/0.00?1000/0.00?10';
 				graphDecresc(objActif)
 				break
 			case 14:
@@ -692,8 +697,9 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].height=40
 				tableObjet[objActif].bkgWidth=40
 				tableObjet[objActif].bkgHeight=40
-				tableObjet[objActif].envX=[0, 0.04, 0.22, 0.42, 0.63, 0.81, 0.97]
-				tableObjet[objActif].envY=[0.38, 1, 0.96, 0.88, 0.77, 0.61, 0.31]
+				tableObjet[objActif].envX=[0.01, 0.07]
+				tableObjet[objActif].tableFx[0]='Pitchshifter';
+				tableObjet[objActif].tableFxParam[0]='0.00?12.0&0.5?0.0/0.00?1000/0.00?10';
 				graphDecrescb(objActif)
 				break
 			case 15:
@@ -701,8 +707,9 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].height=36
 				tableObjet[objActif].bkgWidth=50
 				tableObjet[objActif].bkgHeight=36
-				tableObjet[objActif].envX=[0, 0.17, 0.37, 0.58, 0.73, 0.87, 0.98]
-				tableObjet[objActif].envY=[0.16, 0.24, 0.39, 0.59, 0.76, 1, 0.32]
+				tableObjet[objActif].envX=[0.96, 0.99]
+				tableObjet[objActif].tableFx[0]='Pitchshifter'
+				tableObjet[objActif].tableFxParam[0]='0.00?0.0&0.50?12.0/0.00?1000/0.00?10';
 				graphCresc(objActif)
 				break
 			case 16:
@@ -710,285 +717,12 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].height=50
 				tableObjet[objActif].bkgWidth=50
 				tableObjet[objActif].bkgHeight=50
-				tableObjet[objActif].envX=[0, 0.17, 0.37, 0.58, 0.73, 0.87, 0.98]
-				tableObjet[objActif].envY=[0.16, 0.24, 0.39, 0.59, 0.76, 1, 0.32]
+				tableObjet[objActif].envX=[0.96, 0.99]
+				tableObjet[objActif].tableFx[0]='Pitchshifter'
+				tableObjet[objActif].tableFxParam[0]='0.00?12.0&0.5?0.0/0.00?1000/0.00?10';
 				graphCrescb(objActif)
 				break
-			case 18:
-				tableObjet[objActif].width=20
-				tableObjet[objActif].height=42
-				tableObjet[objActif].bkgWidth=20
-				tableObjet[objActif].bkgHeight=42
-				tableObjet[objActif].bkgOpacity=1
-				tableObjet[objActif].borderGc='#0000ff'
-				tableObjet[objActif].borderGs='solid'
-				tableObjet[objActif].borderGw=4
-				tableObjet[objActif].class=2
-				var grpActif=objActif
-				tableObjet[grpActif].liste=[]
-				tableObjet[grpActif].id="grp"+grpActif
-				tableObjet[grpActif].nom="grp"+grpActif
-				graphGroupe(grpActif)
-				console.log(objActif,nbObjets,selectObj,tableObjet[objActif])
-				nbObjets++
-				for(let i=0;i<3;i++){
-					selectobjet(1,tableObjet[grpActif].objColor)
-					tableObjet[grpActif].liste.push(objActif)
-					tableObjet[objActif].posX=tableObjet[grpActif].posX+8
-					tableObjet[objActif].posY=100+(i*14)
-					tableObjet[objActif].width=10
-					tableObjet[objActif].height=10
-					tableObjet[objActif].bkgWidth=10
-					tableObjet[objActif].bkgHeight=10
-					tableObjet[objActif].groupe=grpActif
-					tableObjet[objActif].bkgColor="transparent"
-					bkgTransparent(objActif)
-					tableObjet[objActif].bkgOpacity=0
-					tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-					tableObjet[objActif].type=2
-					graphCarre(objActif)
-					document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-					document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-					console.log(objActif,nbObjets,selectObj,tableObjet[objActif])
-				}
-				selectObj="grp"+grpActif
-				nbObjets--
-				break
-			case 19:
-				tableObjet[objActif].width=50
-				tableObjet[objActif].height=60
-				tableObjet[objActif].bkgWidth=50
-				tableObjet[objActif].bkgHeight=60
-				tableObjet[objActif].class=2
-				tableObjet[objActif].bkgOpacity=1
-				var grpActif=objActif
-				tableObjet[grpActif].liste=[]
-				tableObjet[grpActif].id="grp"+grpActif
-				tableObjet[grpActif].nom="grp"+grpActif
-				graphGroupe(grpActif)
-				nbObjets++
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=100
-				tableObjet[objActif].width=10
-				tableObjet[objActif].height=10
-				tableObjet[objActif].type=2
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=123
-				tableObjet[objActif].posY=111
-				tableObjet[objActif].width=9
-				tableObjet[objActif].height=9
-				tableObjet[objActif].type=2
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=133
-				tableObjet[objActif].posY=123
-				tableObjet[objActif].width=8
-				tableObjet[objActif].height=8
-				tableObjet[objActif].type=2
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=138
-				tableObjet[objActif].posY=134
-				tableObjet[objActif].width=7
-				tableObjet[objActif].height=7
-				tableObjet[objActif].type=2
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=140
-				tableObjet[objActif].posY=143
-				tableObjet[objActif].width=6
-				tableObjet[objActif].height=6
-				tableObjet[objActif].type=2
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=141
-				tableObjet[objActif].posY=150
-				tableObjet[objActif].width=5
-				tableObjet[objActif].height=5
-				tableObjet[objActif].type=2
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=142
-				tableObjet[objActif].posY=153
-				tableObjet[objActif].width=4
-				tableObjet[objActif].height=4
-				tableObjet[objActif].type=2
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectObj="grp"+grpActif
-				nbObjets--
-				
-				break
-			case 20:
-				tableObjet[objActif].width=36
-				tableObjet[objActif].height=40
-				tableObjet[objActif].bkgWidth=36
-				tableObjet[objActif].bkgHeight=40
-				tableObjet[objActif].class=2
-				tableObjet[objActif].bkgOpacity=1
-				var grpActif=objActif
-				tableObjet[grpActif].liste=[]
-				tableObjet[grpActif].id="grp"+grpActif
-				tableObjet[grpActif].nom="grp"+grpActif
-				graphGroupe(grpActif)
-				nbObjets++
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=100
-				tableObjet[objActif].width=30
-				tableObjet[objActif].height=2
-				tableObjet[objActif].type=10
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=108
-				tableObjet[objActif].width=30
-				tableObjet[objActif].height=4
-				tableObjet[objActif].type=10
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=116
-				tableObjet[objActif].width=30
-				tableObjet[objActif].height=2
-				tableObjet[objActif].type=10
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=120
-				tableObjet[objActif].width=30
-				tableObjet[objActif].height=2
-				tableObjet[objActif].type=10
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=124
-				tableObjet[objActif].width=30
-				tableObjet[objActif].height=3
-				tableObjet[objActif].type=10
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=130
-				tableObjet[objActif].width=30
-				tableObjet[objActif].height=4
-				tableObjet[objActif].type=10
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectobjet(1,tableObjet[grpActif].objColor)
-				tableObjet[grpActif].liste.push(objActif)
-				tableObjet[objActif].posX=110
-				tableObjet[objActif].posY=136
-				tableObjet[objActif].width=30
-				tableObjet[objActif].height=2
-				tableObjet[objActif].type=10
-				document.getElementById(tableObjet[objActif].id).style.backgroundColor='transparent'
-				tableObjet[objActif].bkgTrp=false
-				tableObjet[objActif].groupe=grpActif
-				tableObjet[objActif].objColor=tableObjet[grpActif].objColor
-				graphCarre(objActif)
-				document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px'
-				document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px'
-				selectObj="grp"+grpActif
-				nbObjets--
-				break
+			
 			case 21:
 				tableObjet[objActif].width=54
 				tableObjet[objActif].height=42
@@ -1060,7 +794,7 @@ function graphSymbole(obj,glyph){
 	var st=defCadre(obj)
 	dupnode.setAttribute("style",st);
 	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >"
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)' >"+glyph+"</g></svg>"
+	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' fill='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)' >"+glyph+"</g></svg>"
 	document.getElementById("space").appendChild(dupnode)
 	document.getElementById(tableObjet[obj].id).innerHTML=txt
 	if(tableObjet[obj].type==74){		
@@ -1154,7 +888,7 @@ function gArpege21(obj){
 	dupnode.setAttribute("style",st);
 	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >"
 	
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)'  style='stroke-width:0.264583' >";
+	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"'   style='stroke-width:0.264583' >";
 	var x1=0
  	var y1=0
  	var x2=tableObjet[obj].bkgWidth
@@ -1170,6 +904,7 @@ function gArpege21(obj){
 	dupnode2.setAttribute("id","sglis"+nbObjets);
 	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
 	document.getElementById("space").appendChild(dupnode2);
+	console.log('obj',dupnode,tableObjet[obj])
 }
 function gArpege22(obj){
 	var dupnode=document.createElement('div')
@@ -1237,6 +972,7 @@ function gArpege24(obj){
 	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
 	document.getElementById("space").appendChild(dupnode2);
 }
+
 function gArpege27(obj){
 	var dupnode=document.createElement('div')
 	dupnode.setAttribute("id",tableObjet[obj].id)
@@ -1456,6 +1192,7 @@ function link(obj){
 function selectSymboleb(objType,bkgc){
 	objActif=nbObjets;
 	selectObj="objet"+nbObjets;
+	console.log("objType",objType)
 	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
 	tableObjet[objActif] = {
 		bkgColor:"#ffffff",
@@ -1512,6 +1249,7 @@ function selectSymbole(e,objType,bkgc){
 	selectSymboleb(objType,bkgc)
 }
 function defSymbole(objType) {
+	console.log("symbtype",objType)
 	switch(objType){
 		case 1:
 			tableObjet[objActif].width=8
@@ -1794,7 +1532,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=12
 			tableObjet[objActif].bkgWidth=36
 			tableObjet[objActif].bkgHeight=12
-			graphSymbole(objActif,glyphLignesCresc)
+			graphSymbole(objActif,glyphLignesCresc);
 			break
 		case 31:
 			tableObjet[objActif].width=20
@@ -1968,11 +1706,11 @@ function defSymbole(objType) {
 			graphSymbole(objActif,glyphSoftTenuto)
 			break
 		case 55:
-			tableObjet[objActif].width=40
-			tableObjet[objActif].height=20
-			tableObjet[objActif].bkgWidth=40
-			tableObjet[objActif].bkgHeight=20
-			graphSymbole(objActif,glyphSoftTenutoPointe)
+			tableObjet[objActif].width=14
+			tableObjet[objActif].height=17
+			tableObjet[objActif].bkgWidth=14
+			tableObjet[objActif].bkgHeight=17
+			graphSymbole(objActif,glyphReverse)
 			break
 		case 56:
 			tableObjet[objActif].width=64
@@ -2590,6 +2328,7 @@ function pasteObjet(obj,copyX,copyY){
 		piste:tableObjet[obj].piste,
 		posX:copyX,
 		posY:copyY,
+		rmsdb:tableObjet[obj].rmsdb,
 		rotate:tableObjet[obj].rotate,
 		scaleX:tableObjet[obj].scaleX,
 		scaleY:tableObjet[obj].scaleY,
@@ -2672,34 +2411,14 @@ function pasteObjet(obj,copyX,copyY){
 		case 16:
 			graphCrescb(objActif)
 			break
-		case 18:
-			tableObjet[objActif].id="grp"+objActif
-			tableObjet[objActif].bkgTrp=true
-			graphGrp(objActif)
-			break	
-		case 19:
-			tableObjet[objActif].id="grp"+objActif
-			tableObjet[objActif].bkgTrp=true
-			graphGrp(objActif)
-			break
-		case 20:
-			tableObjet[objActif].id="grp"+objActif
-			tableObjet[objActif].bkgTrp=true
-			graphGrp(objActif)
-			break
 		case 21:
 			graphNuage(objActif)
-			break	
-		case 22:
-			tableObjet[objActif].id="grp"+objActif
-			tableObjet[objActif].bkgTrp='false'
-			graphGrp(objActif)
-			break	
+			break		
 		case 23:
 			tableObjet[objActif].width=50
 			tableObjet[objActif].height=50
 			tableObjet[objActif].img=tableObjet[obj].img
-			graphImage(imgDirectory+tableObjet[objActif].img)
+			graphImage(window.api.joinPath(`${imgDirectory}`,tableObjet[objActif].img))
 			break
 		case 24:
 			tableObjet[objActif].width=50
@@ -2926,7 +2645,7 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphSoftTenuto)
 			break
 		case 55:
-			graphSymbole(objActif,glyphSoftTenutoPointe)
+			graphSymbole(objActif,glyphReverse)
 			break
 		case 56:
 			graphSymbole(objActif,glyphRepete)
