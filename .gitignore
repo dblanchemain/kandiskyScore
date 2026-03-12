@@ -1,0 +1,11 @@
+node_modules/
+out/
+.vite/
+
+# Emscripten SDK (trop volumineux)
+public/emsdk/
+
+# Sources C/C++ et headers (compilés en wasm)
+public/*.cpp
+public/*.cpp~
+public/*.h
