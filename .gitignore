@@ -9,6 +9,25 @@ out/
 dist/
 .vite/
 
+# Fichiers générés à l'exécution
+pdf/*.pdf
+pdf/*.html
+pdf/*.html~
+pdf/tmpsvg.svg
+saveAudio
+
+# Fichiers temporaires
+*.tmp
+*.log
+*~
+
+# Archives
+Dsp.zip
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Emscripten SDK (trop volumineux)
 public/emsdk/
 
