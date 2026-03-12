@@ -1,0 +1,28 @@
+# Dépendances Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build Electron
+out/
+dist/
+
+# Fichiers générés à l'exécution
+pdf/*.pdf
+pdf/*.html
+pdf/*.html~
+pdf/tmpsvg.svg
+saveAudio
+
+# Fichiers temporaires
+*.tmp
+*.log
+*~
+
+# Archives
+Dsp.zip
+
+# OS
+.DS_Store
+Thumbs.db
