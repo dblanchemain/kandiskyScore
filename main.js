@@ -879,6 +879,41 @@ ipcMain.on ("saveAudio", (event, ...args) => {									// Affichage du menu popu
     autoFileSave(event,args[1],args[2])
 });
 
+ipcMain.handle('playDirectFile', async (event, mode, filePath, soxParams) => {
+    if (winStudioEtat == 1) {
+        winStudio.webContents.send("fromMain", "endEvtAudio");
+    }
+    let proc;
+    if (os.platform() === "win32") {
+        const extraArgs = (soxParams || "").match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+        const args = [filePath, "-t", "waveaudio", "-d", ...extraArgs];
+        proc = spawn(soxPath, args, { shell: false });
+    } else {
+        proc = spawn(playPath, [filePath, soxParams], {
+            shell: true,
+            stdio: "ignore",
+            env: process.env
+        });
+    }
+    if (!proc) {
+        console.error("playDirectFile: impossible de lancer le lecteur audio");
+        return;
+    }
+    playProcess.add(proc);
+    if (proc.stderr) {
+        proc.stderr.on("data", data => console.error("playDirectFile stderr:", data.toString()));
+    }
+    proc.on("exit", (code) => {
+        playProcess.delete(proc);
+        if (mode == 0) {
+            mainWindow.webContents.send("fromMain", "playStop;");
+            if (winSpatMassEtat == 1) {
+                winSpatMass.webContents.send("fromMain", "playStop;");
+            }
+        }
+    });
+});
+
 ipcMain.handle('saveAudioTempo', async (event, filePath, arrayBuffer) => {
   try {
     const fullPath = path.resolve(filePath);
@@ -3953,66 +3988,9 @@ ipcMain.on ("toMain", (event, args) => {
 				    });
      	  	break;
      	  case "playDirectFile":
-				console.log(`playDirect ${args} from param`);
-				var proc ;
-	     	  	if (playProcess) {
-		        //killPlay();
-		      }
-		      if(winStudioEtat==1){
-					winStudio.webContents.send("fromMain", "endEvtAudio");
-				}
-		      var args=[cmd[2],cmd[3]];
-		      if(os.platform()=="win32"){
-		      	const fileToPlay = cmd[2];
-		      	let soxParams = cmd[3] || "";
-					const extraArgs = soxParams.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
-					const args = [fileToPlay, "-t", "waveaudio", "-d", ...extraArgs];
-					const playProcess = spawn(soxPath, args, {
- 					 shell: false,
-					});
-		      }else{
-		     	   proc = spawn(playPath, args, {
-			        shell: true,
-			        stdio: "ignore",
-			        env: process.env
-			      });
-			      playProcess.add(proc);
-		      }
-				console.log("args :",soxPath,args,playPath,"cmd");
-				if (!proc) {
-				  console.error("Impossible de lancer le lecteur audio");
-				  return;
-				}
-		     if (proc) {
-				  console.log("PID du lecteur :", proc.pid);
-				}
-		
-		      if (proc && proc.stdout) {
-		      	/*
-				  playProcess.stdout.on("data", data =>
-				    console.log("stdout:", data.toString())
-				  );
-				  */
-				}
-
-				if (proc && proc.stderr) {
-				  proc.stderr.on("data", data =>
-				    console.error("stderr:", data.toString())
-				  );
-				}
-				proc.on("exit", (code) => {
-				      console.log("Lecture terminée, code:", code);
-				      playProcess.delete(proc);
-				      if(cmd[1]==0){
-				      	mainWindow.webContents.send("fromMain", "playStop;");
-				      }
-				      if(winSpatMassEtat==1){
-				      	winSpatMass.webContents.send("fromMain", "playStop;");
-				      }
-				      
-				    });
+     	  	// Migré vers ipcMain.handle('playDirectFile') — voir ci-dessous
      	  	break;
-     	  case "killPlay":
+     	       	  case "killPlay":
      	  	console.log("killPlay");
   			killPlay();
      	  	break;

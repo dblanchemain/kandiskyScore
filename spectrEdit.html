@@ -366,7 +366,7 @@ async function defGain(){
 async function playBuffers() {
     var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
-    await window.api.send("toMain", 'playDirectFile;0;'+outPath);
+    await window.api.playDirectFile(0, outPath, "");
     playStartTime = performance.now();
     isPlaying = true;
 
@@ -385,7 +385,7 @@ async function playSelection() {
 	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  selectBuffers } });
 	 
 	 //await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:fxBuffers} }); 
-	 window.api.send("toMain", 'playDirectFile;0;'+outPath);
+	 window.api.playDirectFile(0, outPath, "");
 }
 let playheadSample = 0;
 function drawPlayhead() {

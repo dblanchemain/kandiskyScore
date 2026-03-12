@@ -1457,7 +1457,7 @@ scrollDemo.addEventListener("scroll", event => {
             output2.innerHTML = `scrollTop: ${Math.floor(scrollDemo2.scrollTop)} <br>
                                 scrollLeft: ${Math.floor(scrollDemo2.scrollLeft)} `;
         }, { passive: true });
-function createPdf() {
+async function createPdf() {
 	var txt="";
 	document.getElementById('svgTime').innerHTML="";
 	document.getElementById('vueSign').innerHTML="";
@@ -1471,11 +1471,9 @@ function createPdf() {
 	if(vueSvgMesure==1){
 		regSolfege(1,"vueSign",vueSvgFontSize,vueSvgFontColor,vueSvgFontColor,1);
 	}
-	vuePartitionA(1,2,tableObjet);
-	
+	await vuePartitionA(1,2,tableObjet);
+
 	var doc=document.getElementById("svgVue").innerHTML
-	//console.log(document.getElementById("svgVue").getElementsByTagName('svg')[1].getAttribute('width'))
-	
 	doc=uena(doc)
 	window.api.send("toMain", "spaceToSvg;"+paramProjet.path+";"+doc)
 }

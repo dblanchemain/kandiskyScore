@@ -1242,7 +1242,7 @@ function player() {
 	 document.getElementById("renderPlay").src="./images/png/pauseLect.png";
 	 document.getElementById("renderPos").value=0;
 	 foo();
-	 window.api.send("toMain", 'playDirectFile;'+filePath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
+	 window.api.playDirectFile(0, filePath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
 	 
 	 }else{
 	 	playerStat=0;
