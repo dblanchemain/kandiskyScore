@@ -183,8 +183,8 @@ function foo() {
 				 };
 				 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
 				 const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
-				 var cmd=outPath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade 
-		 		window.api.send("toMain", 'playDirectFile;1;'+cmd);
+				 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
+		 		window.api.playDirectFile(1, outPath, soxParams);
 		 		console.log("obj",obj.id,options,cmd)
 		 	}
 		 }		
@@ -381,7 +381,7 @@ async function readSimpleAudio() {
 				 maxDuree=durationAfterSpeed+(obj.posX/18);
 				 console.log("maxDuree",maxDuree)
 	  			 foo();
-			 window.api.send("toMain", 'playDirectFile;0;'+outPath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade );
+			 window.api.playDirectFile(0, outPath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade);
 	  				
 			//spatialiseObjet(objActif,"spline");
 			}else if(grpSelect==1 ||  tableObjet[objActif].class==4){
@@ -467,7 +467,7 @@ function player() {
 	 console.log("player",filePath,"duree",dureePlayer,parseFloat(document.getElementById("renderPos").value),options);
 	 document.getElementById("renderPlay").src="./images/png/pauseLect.png";
 	 foo2();
-	 window.api.send("toMain", 'playDirectFile;0;'+filePath+";"+"pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
+	 window.api.playDirectFile(0, filePath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
 	 
 	 }else{
 	 	playerStat=0;

@@ -357,18 +357,10 @@ function graphNuage(objActif) {
 	document.getElementById("space").appendChild(dupnode);
 	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
 }
-function importSvgImage(filePath) {
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			var rtxt=xhttp.responseText;
-			var rtxt2 = rtxt.replace("\n","");
-			document.getElementById("fichierSave").innerHTML="";
-			document.getElementById("fichierSave").innerHTML = rtxt2;
-		}
-	};
-	xhttp.open("GET", filePath, false);
-	xhttp.send();
+async function importSvgImage(filePath) {
+	const response = await fetch(filePath);
+	const rtxt = await response.text();
+	document.getElementById("fichierSave").innerHTML = rtxt;
 }
 function graphImage(src) {
 	//console.log('src',src)
@@ -416,7 +408,7 @@ function graphSvg() {
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj)
 }
 
-function defSelectImg(rt){
+async function defSelectImg(rt){
 	objActif=nbObjets;
 	selectObj="objet"+nbObjets;
 	
@@ -496,7 +488,7 @@ function defSelectImg(rt){
 	console.log('mime',mime[1])
 	if(mime[1]=="svg"){
 		
-		importSvgImage(rt)
+		await importSvgImage(rt)
 		var box=document.getElementById("fichierSave").getElementsByTagName("svg")[0].getAttribute('viewBox')
 	console.log('viewBox',box)
 	var tbox=box.split(' ');

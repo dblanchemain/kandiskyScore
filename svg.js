@@ -40,20 +40,13 @@ function vueImageSvg(){
 			window.api.send("toMain", "saveSvg;"+btoa(obj.innerHTML),1)
 			
 }
-function importSvgImage(filePath) {
-	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			var rtxt=xhttp.responseText;
-			document.getElementById("fichierSave").innerHTML="";
-			document.getElementById("fichierSave").innerHTML = rtxt;
-		}
-	};
-	xhttp.open("GET", filePath, false);
-	xhttp.send();
+async function importSvgImage(filePath) {
+	const response = await fetch(filePath);
+	const rtxt = await response.text();
+	document.getElementById("fichierSave").innerHTML = rtxt;
 }
 let dataImg=''
-function transformObjSvg(pdf,txt,lsgrp) {
+async function transformObjSvg(pdf,txt,lsgrp) {
 	var pi=3.141592653589793
 		if(lsgrp.borderGs!="" && lsgrp.borderGw>0 && lsgrp.borderGr!="0%"){
 			var radius=lsgrp.borderGr.split(" ")
@@ -81,7 +74,7 @@ function transformObjSvg(pdf,txt,lsgrp) {
 			txt=txt+"<rect x='0' y='0' width='"+(lsgrp.bkgWidth)+"' height='"+dh+"' fill='"+nc+"'  />\n"
 			if(lsgrp.bkgImg!=""){
 				if(pdf==1){
-					importSvgImage(lsgrp.bkgImg)
+					await importSvgImage(lsgrp.bkgImg)
 					console.log(document.getElementById("fichierSave").getElementsByTagName('svg')[0].getAttribute('width'))
 					document.getElementById("fichierSave").getElementsByTagName('svg')[0].setAttribute('width',lsgrp.bkgWidth)
 					document.getElementById("fichierSave").getElementsByTagName('svg')[0].setAttribute('height',lsgrp.bkgHeight)
@@ -186,7 +179,7 @@ function transformObjSvg(pdf,txt,lsgrp) {
 			if(pdf==1){
 				if(lsgrp.img.split('.')[1]=="svg"){
 					console.log('marge '+lsgrp.margeH)
-					importSvgImage(imgDirectory+lsgrp.img)
+					await importSvgImage(imgDirectory+lsgrp.img)
 					txt=txt+"<g width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" "+(lsgrp.bkgWidth/2)+" "+(lsgrp.bkgHeight/2)+")' >"
 					var dest=document.getElementById("fichierSave").getElementsByTagName('svg')
 					dest[0].setAttribute('width',lsgrp.bkgWidth)
@@ -264,7 +257,7 @@ function transformSymbSvg(txt,lsgrp) {
 			
 			if(lsgrp.bkgImg!=""){
 				if(pdf==1){
-					importSvgImage(lsgrp.bkgImg)
+					await importSvgImage(lsgrp.bkgImg)
 					console.log(document.getElementById("fichierSave").getElementsByTagName('svg')[0].getAttribute('width'))
 					document.getElementById("fichierSave").getElementsByTagName('svg')[0].setAttribute('width',lsgrp.bkgWidth)
 					document.getElementById("fichierSave").getElementsByTagName('svg')[0].setAttribute('height',lsgrp.bkgHeight)
@@ -771,7 +764,7 @@ function vueGrpSvg(mode){
 	window.api.send("toMain", "saveSvg;"+btoa(obj.innerHTML)+";"+mode)
 }
 
-function vuePartitionA(pdf,grp,grpObjets){
+async function vuePartitionA(pdf,grp,grpObjets){
 
 	var txt="";
 	document.getElementById('svgVue').firstChild.style.backgroundColor='"+vueSvgBackground+"';
@@ -804,7 +797,7 @@ function vuePartitionA(pdf,grp,grpObjets){
 				switch(grpObjets[i].class) {
 					case 1:
 						txt=txt+"<g transform='translate("+grpObjets[i].posX+" "+grpObjets[i].posY+")' >"
-						txt=transformObjSvg(pdf,txt,grpObjets[i]);
+						txt=await transformObjSvg(pdf,txt,grpObjets[i]);
 						txt=txt+"</g>"
 						break;
 					case 3:
