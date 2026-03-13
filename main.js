@@ -3050,6 +3050,13 @@ ipcMain.on ("toMain", (event, args) => {
 		case "saveFile":
 			console.log(cmd[1]);
 			break;
+		case "saveRubberbandOutput": {
+			const { src, dest } = JSON.parse(cmd[1]);
+			fs.copyFile(src, dest, (err) => {
+				if (err) console.error("saveRubberbandOutput error:", err);
+			});
+			break;
+		}
 		case "neweditor":
 			neweditor(cmd[1]);
 			break;

@@ -1796,6 +1796,9 @@ function indexFirstObjInGrp(lgrp) {
 	return id;
 }
 
+let tempoOutputPath = '';
+let stretchingOutputPath = '';
+
 async function tempoAudio() {
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file || obj.type >= 24) return;
@@ -1803,6 +1806,8 @@ async function tempoAudio() {
 	document.getElementById("tempoWav").src = `file://${filePath}`;
 	document.getElementById("sliderTempo").value = 1.00;
 	document.getElementById("inpTempo").value = 1.00;
+	document.getElementById("saveTempoBtn").style.display = "none";
+	document.getElementById("okTempoBtn").style.display = "inline";
 	document.getElementById("tempoAudio").style.display = "block";
 }
 
@@ -1844,6 +1849,8 @@ async function stretchingAudio() {
 	document.getElementById("inpStretching").value = 1.00;
 	document.getElementById("sliderPitch").value = 0;
 	document.getElementById("inpPitch").value = 0;
+	document.getElementById("saveStretchingBtn").style.display = "none";
+	document.getElementById("okStretchingBtn").style.display = "inline";
 	document.getElementById("stretchingAudio").style.display = "block";
 }
 function sliderStretching() {
@@ -1872,4 +1879,18 @@ async function validStretchingAudio() {
 }
 function annulStretchingAudio() {
 	document.getElementById("stretchingAudio").style.display = "none";
+}
+
+async function saveTempoAudio() {
+	if (!tempoOutputPath) return;
+	const destPath = await window.api.showSaveDialog();
+	if (!destPath) return;
+	window.api.send("toMain", "saveRubberbandOutput;" + JSON.stringify({ src: tempoOutputPath, dest: destPath }));
+}
+
+async function saveStretchingAudio() {
+	if (!stretchingOutputPath) return;
+	const destPath = await window.api.showSaveDialog();
+	if (!destPath) return;
+	window.api.send("toMain", "saveRubberbandOutput;" + JSON.stringify({ src: stretchingOutputPath, dest: destPath }));
 }

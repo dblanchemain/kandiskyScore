@@ -822,9 +822,16 @@ window.api.receive("fromMain", (data) => {
 						document.getElementById("loading").style.display = "none";
 						const wavId = cmd[2] === 'stretching' ? 'stretchingWav' : 'tempoWav';
 						const panelId = cmd[2] === 'stretching' ? 'stretchingAudio' : 'tempoAudio';
-						document.getElementById(wavId).src = `file://${cmd[3]}`;
+						const saveBtnId = cmd[2] === 'stretching' ? 'saveStretchingBtn' : 'saveTempoBtn';
+						const okBtnId = cmd[2] === 'stretching' ? 'okStretchingBtn' : 'okTempoBtn';
+						if (cmd[2] === 'tempo') tempoOutputPath = cmd[3];
+						else stretchingOutputPath = cmd[3];
+						const audioEl = document.getElementById(wavId);
+						audioEl.src = '';
+						audioEl.src = `file://${cmd[3]}`;
+						document.getElementById(saveBtnId).style.display = "inline";
+						document.getElementById(okBtnId).style.display = "none";
 						document.getElementById(panelId).style.display = "block";
-						saveRenduAudio(0, cmd[3]);
 					} else {
 						await postRubberband(cmd[1],cmd[2],cmd[3]);
 					}
