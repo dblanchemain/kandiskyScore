@@ -2694,34 +2694,21 @@ function exportAdm(){
 	mainWindow.webContents.send("fromMain", "exportAdm");
 }
 function pdfSettings() {
-    var paperSizeArray = ["A4", "A5"];
     var option = {
-     	  top : pdfMgTop,
-     	  bottom: pdfMgBot,
-     	  left : pdfMgLeft,
-     	  right : pdfMgRight,
-     	  printSelectionOnly: false,
-        pageRanges: '1-2'
+        printSelectionOnly: false,
+        printBackground: pdfBkg === 0,
+        landscape: pdfLandscape === 1,
+        pageSize: pdfPage === 1 ? 'A4' : 'A3',
+        margins: {
+            marginType: 'custom',
+            top: pdfMgTop,
+            bottom: pdfMgBot,
+            left: pdfMgLeft,
+            right: pdfMgRight,
+        },
     };
     console.log(option);
-    if(pdfLandscape==1){
-        option.landscape = true;
-    }else{
-        option.landscape = false;
-    }
-    if(pdfBkg==0){
-         option.printBackground=true;
-        }else{
-        	option.printBackground=false;
-        }
-        
-     if(pdfPage==1){
-     		option.pageSize= "A4";
-     }else{
-     		option.pageSize= "A3";
-     }
-     console.log(option);
-  return option;
+    return option;
 }
 
 function buildPdfHtml(nbPages) {
