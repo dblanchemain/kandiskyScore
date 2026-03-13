@@ -820,9 +820,11 @@ window.api.receive("fromMain", (data) => {
 				(async () => {
 					if (cmd[2] === 'tempo' || cmd[2] === 'stretching') {
 						document.getElementById("loading").style.display = "none";
-						const buffer = await window.api.readFile(cmd[3]);
-						const audioBuffer = await contextAudio.decodeAudioData(buffer);
-						saveRenduAudio(audioBuffer.duration, `file://${cmd[3]}`);
+						const wavId = cmd[2] === 'stretching' ? 'stretchingWav' : 'tempoWav';
+						const panelId = cmd[2] === 'stretching' ? 'stretchingAudio' : 'tempoAudio';
+						document.getElementById(wavId).src = `file://${cmd[3]}`;
+						document.getElementById(panelId).style.display = "block";
+						saveRenduAudio(0, cmd[3]);
 					} else {
 						await postRubberband(cmd[1],cmd[2],cmd[3]);
 					}
