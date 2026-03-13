@@ -1,0 +1,293 @@
+
+// readSimpleAudioA_v9 - version clé en main (renderer)
+// - multi-canaux
+// - compilation DSP mono une fois (depuis .dsp)
+// - traitement canal par canal (offline processor)
+// - réassemblage et sauvegarde via preload (window.api.saveAudioBuffer)
+async function readSimpleAudioA(id) {
+    try {
+        const obj = tableObjet[id];
+        if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
+
+        // ----- PATHS -----
+        const filePath = obj.file;
+        const dir = rdDirName(filePath);
+        const baseName = rdBaseName(filePath).split(".")[0];
+        const outPath = `${dir}/${baseName}-fx.wav`;
+
+        console.log("[pipeline] readSimpleAudioA_v8 start", { filePath, outPath }, obj);
+
+        // ----- LOAD BUFFERS (via preload) -----
+        const rt = await window.api.loadBuffers(filePath);
+        if (!rt || !Array.isArray(rt.channels) || rt.channels.length === 0) {
+            throw new Error("loadBuffers: aucun canal renvoyé par preload");
+        }
+        const numChannels = rt.numChannels;
+        const numSamples = rt.numSamples;
+        const sampleRate = rt.sampleRate;
+        console.log("[pipeline] source info", { numChannels, numSamples, sampleRate });
+
+        // convert ArrayBuffer -> Float32Array per channel
+        let sourceChannels = rt.channels.map(chAb => new Float32Array(chAb));
+        
+        // REVERSE
+        
+			if(tableObjet[id].reverse==true){
+				sourceChannels = reverseMultiBuffersFloat32(sourceChannels);
+				console.log("reverse")
+  			}
+  			// CONVOLUTION
+			if(tableObjet[id].convolver!=""){
+				console.log("convolution rt",rt,tableBufferIR);
+				var rb= await convolveMultiBuffers(rt, tableBufferIR[tableObjet[id].convolver]);
+				sourceChannels =  rb.buffers;
+				console.log("convol rb",rb )
+  			}
+         
+        // ---------------------------------------------------------------------
+        // MULTI-GREFFONS EN SÉRIE (PLAYLIST: obj.tableFx[])
+        // On garde la même logique mono-par-canal pour chaque greffon (comme avant)
+        // ---------------------------------------------------------------------
+
+        const fxSlots = obj.tableFx || [];
+        // filter valid keys (exist in listeFx)
+        const validSlots = fxSlots.filter(key => key && listeFx && listeFx[key]);
+
+        if (validSlots.length === 0) {
+            console.log("[pipeline] Aucun greffon défini -> passthrough (copie simple)");
+            await window.api.saveAudioBuffer({
+                filePath: outPath,
+                buffer: { sampleRate, channels: sourceChannels.map(c => c.buffer) }
+            });
+            console.log("[pipeline] passthrough saved →", outPath);
+            return;
+        }
+
+        // buffer de travail, modifié greffon après greffon
+        let currentChannels = sourceChannels.map(c => new Float32Array(c)); // Float32Array[]
+
+        // pour chaque greffon valide dans l'ordre
+        for (let slotIndex = 0; slotIndex < validSlots.length; slotIndex++) {
+            const fxKey = validSlots[slotIndex];
+            const fxDesc = listeFx[fxKey];
+            if (!fxDesc) {
+                console.warn(`[pipeline] fxDesc introuvable pour key ${fxKey} -> skip slot ${slotIndex}`);
+                continue;
+            }
+            const dspName = fxDesc.greffon;
+            console.log(`[pipeline] apply greffon slot ${slotIndex} : ${fxKey} → ${dspName}`);
+
+            // ----- TRY: compile DSP source and create offline processor (per-slot) -----
+            let processor = null;
+            let paramsPaths = []; // liste des chemins de params (strings)
+            try {
+                console.log("[pipeline] loading faustwasm package...");
+                const faustPkg = await import("./node_modules/@grame/faustwasm/dist/esm/index.js");
+                const {
+                    instantiateFaustModuleFromFile,
+                    LibFaust,
+                    FaustCompiler,
+                    FaustMonoDspGenerator
+                } = faustPkg;
+
+                console.log("[pipeline] instantiateFaustModuleFromFile...");
+                const faustModule = await instantiateFaustModuleFromFile(
+                    "./node_modules/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js"
+                );
+                const libFaust = new LibFaust(faustModule);
+                console.log("[pipeline] libFaust ready, version:", libFaust.version && libFaust.version());
+
+                const compiler = new FaustCompiler(libFaust);
+                const generator = new FaustMonoDspGenerator();
+
+                // read .dsp source from greffon dir (preferred)
+                const dspSrcPath = `./greffons/${dspName}-wasm/${dspName}.dsp`;
+                let dspSource = null;
+                try {
+                    dspSource = await window.api.readFxFile(dspSrcPath);
+                    if (dspSource instanceof Uint8Array || dspSource instanceof ArrayBuffer) {
+                        dspSource = new TextDecoder().decode(dspSource);
+                    }
+                } catch (errDsp) {
+                    console.warn(`[pipeline] .dsp not found at ${dspSrcPath} -> will try dsp-meta + wasm fallback`, errDsp);
+                }
+
+                if (dspSource) {
+                    // compile source -> create offline processor
+                    console.log("[pipeline] compiling DSP source...");
+                    await generator.compile(compiler, dspName, dspSource, ""); // add argv if needed
+                    console.log("[pipeline] compile OK, creating offline processor...");
+                    // blockSize 1024 chosen as safe default
+                    processor = await generator.createOfflineProcessor(sampleRate, 1024);
+                    console.log("[pipeline] offline processor ready");
+                } else {
+                    // fallback: try to use dsp-module.wasm + dsp-meta.json (best-effort)
+                    const base = `./greffons/${dspName}-wasm/`;
+                    console.log("[pipeline] reading dsp-meta.json + dsp-module.wasm from", base);
+                    const metaTxt = await window.api.readFxFile(`${base}dsp-meta.json`).catch(()=>null);
+                    const wasmBin = await window.api.readFxFile(`${base}dsp-module.wasm`).catch(()=>null);
+                    if (!metaTxt || !wasmBin) throw new Error("fallback dsp files missing");
+                    // Many faustwasm versions don't provide a straightforward wasm->offlineconstructor;
+                    // for robustness, abort compilation for this slot -> passthrough
+                    throw new Error("fallback wasm path not implemented reliably in this build - please provide .dsp source");
+                }
+
+                // get parameter list (many versions of processor.getParams() return array of strings)
+                try {
+                    const dest = processor.getParams(); // either array of {path,...} or array of strings
+                    if (!dest) paramsPaths = [];
+                    else if (Array.isArray(dest) && dest.length > 0 && typeof dest[0] === "string") {
+                        paramsPaths = dest.slice(); // each element is a path string
+                    } else if (Array.isArray(dest) && dest.length > 0 && dest[0].path) {
+                        paramsPaths = dest.map(p => p.path);
+                    } else {
+                        paramsPaths = [];
+                    }
+                    console.log("[pipeline] DSP parameters:",paramsPaths);
+                } catch (e) {
+                    console.warn("[pipeline] unable to read DSP params:", e);
+                    paramsPaths = [];
+                }
+
+            } catch (errFaust) {
+                console.warn("[pipeline] faust offline compile/create failed for slot", slotIndex, "-> passthrough for this slot", errFaust);
+                processor = null;
+                paramsPaths = [];
+            }
+
+            // ----- PARSE AUTOMATIONS for this slot -----
+            // Format (ex): '0.00?7.2&1.02?-6.0/0.00?1000/0.00?10'
+            const tableFxParam = obj.tableFxParam || [];
+            const fxParamString = tableFxParam[slotIndex] || ""; // slot-specific
+            function parseParamBlock(blockStr) {
+                if (!blockStr) return []; // no automation for that param
+                const events = blockStr.split("&").map(seg => {
+                    const [t, v] = seg.split("?");
+                    return { time: parseFloat(t || "0"), value: parseFloat(v || "0") };
+                });
+                events.sort((a, b) => a.time - b.time);
+                return events;
+            }
+            const paramBlocks = fxParamString.split("/").map(parseParamBlock); // array per param index
+
+            // ----- PROCESS per channel (mono DSP per-channel, exactly as before) -----
+            const blockSize = 1024; // match offline processor default; safe power of two
+            const processedChannels = new Array(numChannels);
+
+            if (processor) {
+                console.log("[pipeline] processing channels with offline processor (mono DSP) ...");
+                // For each channel, process whole buffer in blocks (same logic as original)
+                for (let ch = 0; ch < numChannels; ch++) {
+                    console.log(`[pipeline] --[slot ${slotIndex} channel ${ch}]--`);
+                    const inFloat = currentChannels[ch];
+                    const outFloat = new Float32Array(numSamples);
+
+                    for (let offset = 0; offset < numSamples; offset += blockSize) {
+                        const len = Math.min(blockSize, numSamples - offset);
+                        const sliceIn = inFloat.subarray(offset, offset + len);
+
+                        // compute time (seconds) at start of block => used for automation sampling
+                        const t = offset / sampleRate;
+
+                        // apply parameter values for this time:
+                        for (let pIndex = 0; pIndex < paramsPaths.length; pIndex++) {
+                            const path = paramsPaths[pIndex];
+                            const events = paramBlocks[pIndex] || [];
+                            if (!events || events.length === 0) continue;
+
+                            // find surrounding events for current time t to do linear interp
+                            let val = events[0].value;
+                            if (t <= events[0].time) {
+                                val = events[0].value;
+                            } else if (t >= events[events.length - 1].time) {
+                                val = events[events.length - 1].value;
+                            } else {
+                                for (let i = 0; i < events.length - 1; i++) {
+                                    const a = events[i], b = events[i + 1];
+                                    if (t >= a.time && t < b.time) {
+                                        const frac = (t - a.time) / (b.time - a.time);
+                                        val = a.value + frac * (b.value - a.value);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // set parameter value on processor for this block
+                            try {
+                                if (typeof processor.setParamValue === "function") {
+                                    processor.setParamValue(path, val);
+                                } else if (typeof processor.setParam === "function") {
+                                    processor.setParam(path, val);
+                                }
+                            } catch (errSet) {
+                                console.warn("[pipeline] cannot set param", path, errSet);
+                            }
+                        } // end params loop
+
+                        // render block (most processors accept render(inputArray, length))
+                        let blockOut = null;
+                        try {
+                            // some APIs return Float32Array[], some return single Float32Array
+                            const maybe = processor.render([sliceIn], len);
+                            if (Array.isArray(maybe)) {
+                                blockOut = maybe[0];
+                            } else if (maybe instanceof Float32Array) {
+                                blockOut = maybe;
+                            } else if (maybe && maybe.channelData && Array.isArray(maybe.channelData)) {
+                                blockOut = new Float32Array(maybe.channelData[0]);
+                            }
+                        } catch (errRender) {
+                            console.warn("[pipeline] processor.render failed on block, fallback passthrough for remainder:", errRender);
+                            // copy remaining input and break
+                            outFloat.set(inFloat.subarray(offset), offset);
+                            break;
+                        }
+
+                        if (!blockOut) {
+                            // fallback: passthrough this block
+                            outFloat.set(sliceIn, offset);
+                        } else {
+                            // write result to outFloat
+                            if (blockOut.length !== len) {
+                                const m = Math.min(len, blockOut.length);
+                                outFloat.set(blockOut.subarray(0, m), offset);
+                                if (m < len) {
+                                    outFloat.fill(0, offset + m, offset + len);
+                                }
+                            } else {
+                                outFloat.set(blockOut, offset);
+                            }
+                        }
+                    } // end blocks
+
+                    // store processed channel as ArrayBuffer
+                    const copy = new Float32Array(outFloat.length);
+                    copy.set(outFloat);
+                    processedChannels[ch] = copy.buffer;
+                } // end channels loop
+            } else {
+                console.log("[pipeline] no processor for this slot -> passthrough channels for this slot");
+                for (let ch = 0; ch < numChannels; ch++) processedChannels[ch] = currentChannels[ch].buffer;
+            }
+
+            // sortie de ce greffon -> entrée pour le greffon suivant
+            currentChannels = processedChannels.map(ab => new Float32Array(ab));
+        } // end per-slot loop
+
+        // ----- SAVE assembled multichannel WAV (final after all greffons) -----
+        await window.api.saveAudioBuffer({
+            filePath: outPath,
+            buffer: {
+                sampleRate,
+                channels: currentChannels.map(c => c.buffer)
+            }
+        });
+
+        console.log("[pipeline] saved →", outPath);
+        return true;
+
+    } catch (err) {
+        console.error("[pipeline] readSimpleAudioA_v8 error:", err);
+        throw err;
+    }
+}

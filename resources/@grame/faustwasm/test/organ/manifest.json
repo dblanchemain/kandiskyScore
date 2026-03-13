@@ -1,0 +1,17 @@
+{
+  "name": "Faust organ",
+  "short_name": "organ",
+  "start_url": "./index.html",
+  "description": "Progressive Web App for organ",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "390x390",
+      "type": "image/png"
+    }
+  ]
+}

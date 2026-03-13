@@ -7,6 +7,15 @@ yarn-error.log*
 # Build Electron
 out/
 dist/
+.vite/
+
+# Emscripten SDK (trop volumineux)
+public/emsdk/
+
+# Sources C/C++ et headers (compilés en wasm)
+public/*.cpp
+public/*.cpp~
+public/*.h
 
 # Fichiers générés à l'exécution
 pdf/*.pdf

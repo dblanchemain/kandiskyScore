@@ -1,7 +1,12 @@
+const fs = require('fs');
+
+const allResources = ["resources/bin","resources/Dsp","resources/@grame","resources/images"];
+const extraResource = allResources.filter(p => fs.existsSync(p));
+
 module.exports = {
   packagerConfig: {
     asar: true,
-    extraResource: ["resources/bin","resources/Dsp","resources/@grame","resources/images"]
+    extraResource
   },
   rebuildConfig: {},
   makers: [
