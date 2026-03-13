@@ -820,31 +820,6 @@ window.api.receive("fromMain", (data) => {
 				(async () => {
 					if (cmd[2] === 'tempo' || cmd[2] === 'stretching') {
 						document.getElementById("loading").style.display = "none";
-						document.getElementById("renderAudio").style.display = "none";
-						const wavId = cmd[2] === 'stretching' ? 'stretchingWav' : 'tempoWav';
-						const panelId = cmd[2] === 'stretching' ? 'stretchingAudio' : 'tempoAudio';
-						const saveBlockId = cmd[2] === 'stretching' ? 'stretchingSaveBlock' : 'tempoSaveBlock';
-						const okBtnId = cmd[2] === 'stretching' ? 'okStretchingBtn' : 'okTempoBtn';
-						const outputPath = cmd[3];
-						const audioEl = document.getElementById(wavId);
-						audioEl.src = '';
-						audioEl.src = `file://${outputPath}`;
-						const saveBlock = document.getElementById(saveBlockId);
-						saveBlock.innerHTML = '';
-						const a = document.createElement('a');
-						a.href = '#';
-						a.textContent = 'Enregistrer';
-						a.style.display = 'inline-block';
-						a.style.padding = '2px 12px';
-						a.style.background = '#0078d7';
-						a.style.color = 'white';
-						a.style.borderRadius = '6px';
-						a.style.textDecoration = 'none';
-						a.style.fontSize = '12px';
-						a.onclick = () => saveRubberbandFile(outputPath);
-						saveBlock.appendChild(a);
-						document.getElementById(okBtnId).style.display = "none";
-						document.getElementById(panelId).style.display = "block";
 					} else {
 						await postRubberband(cmd[1],cmd[2],cmd[3]);
 					}

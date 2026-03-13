@@ -1803,8 +1803,6 @@ async function tempoAudio() {
 	document.getElementById("tempoWav").src = `file://${filePath}`;
 	document.getElementById("sliderTempo").value = 1.00;
 	document.getElementById("inpTempo").value = 1.00;
-	document.getElementById("tempoSaveBlock").innerHTML = '';
-	document.getElementById("okTempoBtn").style.display = "inline";
 	document.getElementById("tempoAudio").style.display = "block";
 }
 
@@ -1821,10 +1819,12 @@ async function validTempoAudio() {
 	const ratio = parseFloat(document.getElementById("sliderTempo").value);
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file) return;
+	const destPath = await window.api.showSaveDialog();
+	if (!destPath) return;
 	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
 	document.getElementById("tempoAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
-	window.api.send("toMain", "processTempo;" + JSON.stringify({ id: objActif, filePath, ratio }));
+	window.api.send("toMain", "processTempo;" + JSON.stringify({ id: objActif, filePath, ratio, destPath }));
 }
 function annulTempoAudio() {
 	document.getElementById("tempoAudio").style.display="none";
@@ -1839,8 +1839,6 @@ async function stretchingAudio() {
 	document.getElementById("inpStretching").value = 1.00;
 	document.getElementById("sliderPitch").value = 0;
 	document.getElementById("inpPitch").value = 0;
-	document.getElementById("stretchingSaveBlock").innerHTML = '';
-	document.getElementById("okStretchingBtn").style.display = "inline";
 	document.getElementById("stretchingAudio").style.display = "block";
 }
 function sliderStretching() {
@@ -1862,17 +1860,14 @@ async function validStretchingAudio() {
 	const pitch = parseFloat(document.getElementById("sliderPitch").value);
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file) return;
+	const destPath = await window.api.showSaveDialog();
+	if (!destPath) return;
 	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
 	document.getElementById("stretchingAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
-	window.api.send("toMain", "processStretching;" + JSON.stringify({ id: objActif, filePath, ratio, pitch }));
+	window.api.send("toMain", "processStretching;" + JSON.stringify({ id: objActif, filePath, ratio, pitch, destPath }));
 }
 function annulStretchingAudio() {
 	document.getElementById("stretchingAudio").style.display = "none";
 }
 
-async function saveRubberbandFile(outputPath) {
-	const destPath = await window.api.showSaveDialog();
-	if (!destPath) return;
-	window.api.send("toMain", "saveRubberbandOutput;" + JSON.stringify({ src: outputPath, dest: destPath }));
-}

@@ -3907,11 +3907,10 @@ ipcMain.on ("toMain", (event, args) => {
 			})();
      	  break;
 		case "processTempo": {
-			const { id, filePath, ratio } = JSON.parse(cmd[1]);
-			const outputPath = path.join(app.getPath('userData'), 'tempo-out.wav');
+			const { id, filePath, ratio, destPath } = JSON.parse(cmd[1]);
 			(async () => {
 				try {
-					await callRubberbandCLI(rubberbandPath, id, 'tempo', filePath, outputPath, ratio, 0);
+					await callRubberbandCLI(rubberbandPath, id, 'tempo', filePath, destPath, ratio, 0);
 				} catch (err) {
 					console.error("Rubberband tempo failed:", err);
 					mainWindow.webContents.send("fromMain", "tempoError");
@@ -3920,11 +3919,10 @@ ipcMain.on ("toMain", (event, args) => {
 			break;
 		}
 		case "processStretching": {
-			const { id: strId, filePath: strFile, ratio: strRatio, pitch: strPitch } = JSON.parse(cmd[1]);
-			const strOutputPath = path.join(app.getPath('userData'), 'stretching-out.wav');
+			const { id: strId, filePath: strFile, ratio: strRatio, pitch: strPitch, destPath: strDest } = JSON.parse(cmd[1]);
 			(async () => {
 				try {
-					await callRubberbandCLI(rubberbandPath, strId, 'stretching', strFile, strOutputPath, strRatio, strPitch);
+					await callRubberbandCLI(rubberbandPath, strId, 'stretching', strFile, strDest, strRatio, strPitch);
 				} catch (err) {
 					console.error("Rubberband stretching failed:", err);
 					mainWindow.webContents.send("fromMain", "tempoError");
