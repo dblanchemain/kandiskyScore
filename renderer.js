@@ -815,10 +815,20 @@ window.api.receive("fromMain", (data) => {
  				break;
  			case 'processRubberband':
 				(async () => {
-					await postRubberband(cmd[1],cmd[2],cmd[3]);	
+					if (cmd[2] === 'tempo') {
+						document.getElementById("loading").style.display = "none";
+						const buffer = await window.api.readFile(cmd[3]);
+						const audioBuffer = await contextAudio.decodeAudioData(buffer);
+						saveRenduAudio(audioBuffer.duration, `file://${cmd[3]}`);
+					} else {
+						await postRubberband(cmd[1],cmd[2],cmd[3]);
+					}
 				})();
 				
  				break;
+ 			case 'tempoError':
+				document.getElementById("loading").style.display = "none";
+				break;
  			case 'autoRubberband':
 				
 				 document.getElementById("loading").style.display="none";
