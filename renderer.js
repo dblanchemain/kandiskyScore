@@ -797,6 +797,8 @@ window.api.receive("fromMain", (data) => {
 				break;
 			case 'playStop':
 				console.log("playStop");
+				if(tempoPlayerStat===1){ tempoPlayerStat=0; document.getElementById("tempoPlay").src="./images/png/lecture.png"; }
+				if(stretchingPlayerStat===1){ stretchingPlayerStat=0; document.getElementById("stretchingPlay").src="./images/png/lecture.png"; }
 				if(playerStat==1){
 					document.getElementById("renderPlay").src="./images/png/lecture.png";
 					//playerStat=0;
