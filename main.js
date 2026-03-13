@@ -14,7 +14,7 @@
 
 // Modules de controle du cycle de vie de l'application et de création 
 // de fenêtre native de navigateur
-const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer } = require('electron');
+const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer, shell } = require('electron');
 const url = require('url');
 const path = require('path');
 const fs = require("fs-extra");
@@ -2724,78 +2724,69 @@ function pdfSettings() {
   return option;
 }
 
-function svgToPdf(txt) {
-	var win1 = new BrowserWindow({show : false});
-	var win2 = new BrowserWindow({show : false});
-	var win3 = new BrowserWindow({show : false});
-	var win4 = new BrowserWindow({show : false});
-	var win5 = new BrowserWindow({show : false});
-	var win6 = new BrowserWindow({show : false});
-	var win7 = new BrowserWindow({show : false});
-	var win8 = new BrowserWindow({show : false});
-	var win9 = new BrowserWindow({show : false});
-	var win10 = new BrowserWindow({show : false});
-	var nwin=[];
-	nwin[1]=win1;
-	nwin[2]=win2;
-	nwin[3]=win3;
-	nwin[4]=win4;
-	nwin[5]=win5;
-	nwin[6]=win6;
-	nwin[7]=win7;
-	nwin[8]=win8;
-	nwin[9]=win9;
-	nwin[10]=win10;
-   var nbw=0;
-	for(let i=1;i<11;i++){
-	nwin[i].loadFile(app.getPath('appData')+'/kandiskyscore/pdf/p'+i+'.html');
-	nwin[i].webContents.on('did-finish-load', function() { 
-	
-	   nwin[i].webContents.printToPDF(pdfSettings()).then(data => {
-		   fs.writeFile(app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf", data, function (err) {
-			   if (err) {
-			       console.log(err);
-			   } else {
-			       console.log('PDF Generated Successfully',app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf");
-			       nbw++;
-			       if(nbw>9){
-					   var listPdf='';
-					   for(let i=1;i<11;i++){
-					   	listPdf=listPdf+app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf ";
-					   }
-					   console.log("listepdf",listPdf);
-					   exec(pdfAssCmd+" " +listPdf+app.getPath('appData')+"/kandiskyscore/merged.pdf", (error, stdout, stderr) => {
-					    if (error) {
-					        console.log(`error: ${error.message}`);
-					        return;
-					    }
-					    if (stderr) {
-					        console.log(`stderr: ${stderr}`);
-					        return;
-					    }
-					    console.log(`stdout: ${stdout}`);
-					});
-					
-					   exec(pdfAppCmd+" " +app.getPath('appData')+"/kandiskyscore/merged.pdf", (error, stdout, stderr) => {
-					    if (error) {
-					        console.log(`error: ${error.message}`);
-					        return;
-					    }
-					    if (stderr) {
-					        console.log(`stderr: ${stderr}`);
-					        return;
-					    }
-					    console.log(`stdout: ${stdout}`);
-					});
-					}
-			   }
-			 });
-		 	}).catch(error => {
-		  	console.log(error);
-		 	});
-	 });
-   }
-   
+function buildPdfHtml(svgPath, nbPages) {
+    const pageWidth = 1364;
+    const pageHeight = 800;
+    let pages = '';
+    for (let i = 0; i < nbPages; i++) {
+        const offset = i * pageWidth;
+        pages += `
+    <div class="page">
+      <div class="page-inner" style="margin-left:-${offset}px;"></div>
+    </div>`;
+    }
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    margin-top: ${pdfMgTop}in;
+    margin-bottom: ${pdfMgBot}in;
+    margin-left: ${pdfMgLeft}in;
+    margin-right: ${pdfMgRight}in;
+    size: ${pdfPage === 1 ? 'A4' : 'A3'} ${pdfLandscape === 1 ? 'landscape' : 'portrait'};
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: ${pdfBkg === 0 ? 'white' : 'transparent'}; }
+  .page {
+    width: ${pageWidth}px;
+    height: ${pageHeight}px;
+    overflow: hidden;
+    break-after: page;
+  }
+  .page:last-child { break-after: avoid; }
+  .page-inner {
+    width: ${pageWidth * nbPages}px;
+    height: ${pageHeight}px;
+    background-image: url('file://${svgPath}');
+    background-repeat: no-repeat;
+    background-size: auto;
+  }
+</style>
+</head>
+<body>${pages}
+</body>
+</html>`;
+}
+
+async function svgToPdf(svgPath) {
+    const NB_PAGES = 10;
+    const pdfDir = path.join(app.getPath('appData'), 'kandiskyscore', 'pdf');
+    const htmlPath = path.join(pdfDir, 'partition.html');
+    const pdfPath = path.join(pdfDir, 'partition.pdf');
+
+    const html = buildPdfHtml(svgPath, NB_PAGES);
+    await fs.promises.writeFile(htmlPath, html, 'utf8');
+
+    const win = new BrowserWindow({ show: false });
+    await win.loadFile(htmlPath);
+
+    const data = await win.webContents.printToPDF(pdfSettings());
+    win.destroy();
+
+    await fs.promises.writeFile(pdfPath, data);
+    shell.openPath(pdfPath);
 }
 function createPdf(txt) {
 	mainWindow.webContents.send("fromMain", "createPdf");
@@ -2912,19 +2903,15 @@ function uena(chn) {
 function aenu(chn) {
   return decodeURIComponent(escape(atob(chn)));
 }
-function spaceToSvg(path,txt) {
-	var ntxt=aenu(txt);
-	ntxt=ntxt.replaceAll("&nbsp;", "");
-	console.log(ntxt);
-	fs.writeFile(app.getPath('appData')+'/kandiskyscore/pdf/tmpsvg.svg', ntxt, function (err) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('PDF Generated Successfully');
-                svgToPdf(txt); 
-            }
-        });
-        
+async function spaceToSvg(projPath, txt) {
+    const svgPath = path.join(app.getPath('appData'), 'kandiskyscore', 'pdf', 'tmpsvg.svg');
+    const ntxt = aenu(txt).replaceAll("&nbsp;", "");
+    try {
+        await fs.promises.writeFile(svgPath, ntxt, 'utf8');
+        await svgToPdf(svgPath);
+    } catch (err) {
+        console.error('spaceToSvg error:', err);
+    }
 }
 function audioEditor(obj) {
 	var cm=editAudioCmd+" "+obj;
