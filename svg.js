@@ -1,4 +1,4 @@
-function vueImageSvg(){
+async function vueImageSvg(){
 	var lsgrp={};
 	lsgrp=tableObjet[objActif];
 	reslsgrpX=lsgrp.posX;
@@ -24,7 +24,7 @@ function vueImageSvg(){
 		case 3:
 
 			txt="<g transform='translate("+lsgrp.posX+","+(lsgrp.posY)+")' >\n";
-			txt=transformSymbSvg(txt,lsgrp);
+			txt=await transformSymbSvg(txt,lsgrp);
 			document.getElementById("svgGrpVue").firstChild.innerHTML=txt;
 			document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp.bkgWidth+200);
 			document.getElementById("svgGrpVue").firstChild.setAttribute("height",lsgrp.bkgHeight+200);
@@ -802,7 +802,7 @@ async function vuePartitionA(pdf,grp,grpObjets){
 						break;
 					case 3:
 						txt=txt+"<g transform='translate("+grpObjets[i].posX+" "+grpObjets[i].posY+")' >";
-						txt=transformSymbSvg(txt,grpObjets[i]);
+						txt=await transformSymbSvg(txt,grpObjets[i]);
 						txt=txt+"</g>";
 						break;
 					case 2:
