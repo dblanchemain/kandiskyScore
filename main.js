@@ -534,6 +534,10 @@ function buildSmoothRubberbandTimeMap(tempoCurve, sampleRate, durationSec, total
 // de s'initialiser et sera prêt à créer des fenêtres de navigation.
 // Certaines APIs peuvent être utilisées uniquement quant cet événement est émit.
 app.whenReady().then(async () => {
+  if (app.isPackaged) {
+    console.log = () => {};
+    console.debug = () => {};
+  }
   // Charger dynamiquement Rubber Band
  	//await initializeRubberBand();
 	//testRubberband().catch(console.error);
