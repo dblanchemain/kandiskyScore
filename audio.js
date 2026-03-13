@@ -1824,7 +1824,7 @@ async function validTempoAudio() {
 	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
 	document.getElementById("tempoAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
-	window.api.send("toMain", "processTempo;" + JSON.stringify({ id: objActif, filePath, ratio, destPath }));
+	window.api.send("toMain", "processTempo;" + JSON.stringify({ id: objActif, filePath, ratio: 1 / ratio, destPath }));
 }
 function annulTempoAudio() {
 	document.getElementById("tempoAudio").style.display="none";
@@ -1865,7 +1865,7 @@ async function validStretchingAudio() {
 	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
 	document.getElementById("stretchingAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
-	window.api.send("toMain", "processStretching;" + JSON.stringify({ id: objActif, filePath, ratio, pitch, destPath }));
+	window.api.send("toMain", "processStretching;" + JSON.stringify({ id: objActif, filePath, ratio: 1 / ratio, pitch, destPath }));
 }
 function annulStretchingAudio() {
 	document.getElementById("stretchingAudio").style.display = "none";
