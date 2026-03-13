@@ -2731,9 +2731,7 @@ function buildPdfHtml(nbPages) {
     for (let i = 0; i < nbPages; i++) {
         const offset = i * pageWidth;
         pages += `
-    <div class="page">
-      <div class="page-inner" style="margin-left:-${offset}px;"></div>
-    </div>`;
+    <div class="page" style="background-position: -${offset}px 0px;"></div>`;
     }
     return `<!DOCTYPE html>
 <html>
@@ -2752,17 +2750,11 @@ function buildPdfHtml(nbPages) {
   .page {
     width: ${pageWidth}px;
     height: ${pageHeight}px;
-    overflow: hidden;
+    background-image: url('./tmpsvg.svg');
+    background-repeat: no-repeat;
     break-after: page;
   }
   .page:last-child { break-after: avoid; }
-  .page-inner {
-    width: ${pageWidth * nbPages}px;
-    height: ${pageHeight}px;
-    background-image: url('./tmpsvg.svg');
-    background-repeat: no-repeat;
-    background-size: auto;
-  }
 </style>
 </head>
 <body>${pages}
