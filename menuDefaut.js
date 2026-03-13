@@ -57,6 +57,7 @@
  Mretro='Rétrograde';
  MrenvRet='Renv.Retrograde';
  Mtempo='Tempo (objet)';
+ Mstretching='Stretching (objet)';
  Mrendus='Rendus';
  Mimgsvg='Image svg';
  Mgrpsvg='Vue groupe svg';

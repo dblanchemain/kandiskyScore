@@ -728,6 +728,8 @@ const template = [
       { type: 'separator' },
       { label: Mtempo,
 				click: () => tempoAudio() },
+      { label: Mstretching,
+				click: () => stretchingAudio() },
 		{ type: 'separator' },
 		{ label: "Actions",
 				click: () => interp() },
@@ -2677,6 +2679,9 @@ function winHostOpen(id,objWav) {
 function tempoAudio() {
 	mainWindow.webContents.send("fromMain", "tempoAudio");
 }
+function stretchingAudio() {
+	mainWindow.webContents.send("fromMain", "stretchingAudio");
+}
 function exportObj(){
 	mainWindow.webContents.send("fromMain", "exportObj");
 }
@@ -3901,6 +3906,19 @@ ipcMain.on ("toMain", (event, args) => {
 					await callRubberbandCLI(rubberbandPath, id, 'tempo', filePath, outputPath, ratio, 0);
 				} catch (err) {
 					console.error("Rubberband tempo failed:", err);
+					mainWindow.webContents.send("fromMain", "tempoError");
+				}
+			})();
+			break;
+		}
+		case "processStretching": {
+			const { id: strId, filePath: strFile, ratio: strRatio, pitch: strPitch } = JSON.parse(cmd[1]);
+			const strOutputPath = path.join(app.getPath('userData'), 'stretching-out.wav');
+			(async () => {
+				try {
+					await callRubberbandCLI(rubberbandPath, strId, 'stretching', strFile, strOutputPath, strRatio, strPitch);
+				} catch (err) {
+					console.error("Rubberband stretching failed:", err);
 					mainWindow.webContents.send("fromMain", "tempoError");
 				}
 			})();
