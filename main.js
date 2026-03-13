@@ -3893,6 +3893,19 @@ ipcMain.on ("toMain", (event, args) => {
 			}
 			})();
      	  break;
+		case "processTempo": {
+			const { id, filePath, ratio } = JSON.parse(cmd[1]);
+			const outputPath = path.join(app.getPath('userData'), 'tempo-out.wav');
+			(async () => {
+				try {
+					await callRubberbandCLI(rubberbandPath, id, 'tempo', filePath, outputPath, ratio, 0);
+				} catch (err) {
+					console.error("Rubberband tempo failed:", err);
+					mainWindow.webContents.send("fromMain", "tempoError");
+				}
+			})();
+			break;
+		}
      	  case "infoSpectrogram":
      	  	if (playProcess) {
 		        killPlay();

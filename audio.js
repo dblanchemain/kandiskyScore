@@ -1797,51 +1797,13 @@ function indexFirstObjInGrp(lgrp) {
 }
 
 async function tempoAudio() {
-	document.getElementById("tempoAudio").style.display="block";
-	document.getElementById("sliderTempo").value=1.00;
-	document.getElementById("inpTempo").value=document.getElementById("sliderTempo").value;
-	var recorder=false;
-	var recordingstream=false;
-	if (tableObjet[objActif].type<24) {
-		if (tableObjet[objActif].file) {
-			console.log("source1",tableObjet[objActif].file);
-			if(tableObjet[objActif].mute==0){
-				console.log("source",tableObjet[objActif].file);
-				source="";
-				source=contextAudio.createBufferSource();
-				source.buffer =tableBuffer[tableObjet[objActif].bufferId].buffer;
-				source.onended = () => {
-		  			sourcEtat=0;
-		  			recorder.addEventListener('dataavailable',function(e){
-		  				document.getElementById("tempoWav").src=URL.createObjectURL(e.data);
-		  				
-    					recorder=false;
-    					recordingstream=false;
-  						});
-  						recorder.stop();
-  						playerStat=0;
-		  			console.log("source init end");
-		  			
-				};
-				const gainNode = contextAudio.createGain();
-				const panner = contextAudio.createPanner();
-				const convolver = contextAudio.createConvolver();
-				console.log("source",tableObjet[objActif].file);
-				var now=contextAudio.currentTime;
-				var rt=await readSourceAudio(contextAudio,source,objActif,gainNode,now,panner,convolver);
-				source=rt.src;
-				var ndeb=rt.ndeb;
-				var nfin=rt.nfin;
-				recordingstream=contextAudio.createMediaStreamDestination();
-  				recorder=new MediaRecorder(recordingstream.stream);
-  				panner.connect(recordingstream);
-  				console.log("source",source);
-  				source.start(0,ndeb,nfin);
-  				recorder.start();
-				sourcEtat=1;
-			}
-		}
-	}
+	const obj = tableObjet[objActif];
+	if (!obj || !obj.file || obj.type >= 24) return;
+	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	document.getElementById("tempoWav").src = `file://${filePath}`;
+	document.getElementById("sliderTempo").value = 1.00;
+	document.getElementById("inpTempo").value = 1.00;
+	document.getElementById("tempoAudio").style.display = "block";
 }
 
 function sliderTempo(){
@@ -1860,23 +1822,14 @@ recordingstream2=contextAudio.createMediaStreamDestination();
 recorder2=new MediaRecorder(recordingstream2.stream);
 mediasource2.connect(recordingstream2);
 mediasource2.connect(contextAudio.destination);
-function validTempoAudio() {
-  	recorder2.start();
-  	document.getElementById("tempoWav").play();
-  	document.getElementById("tempoWav").onended = () => {
-  			recorder2.addEventListener('dataavailable',function(e){
-  				e.data.arrayBuffer().then(arrayBuffer => {
-				   contextAudio.decodeAudioData(arrayBuffer, (audioBuffer) => {
-   				var rwav=convertAudioBufferToBlob(audioBuffer);
-				   document.getElementById("renduWav").src=URL.createObjectURL(rwav);
- 					});
-				});
- 					recordingstream2=false;
- 					document.getElementById("renderAudio").style.display="block";
- 					console.log("source tempo end");
-  						});
-  						recorder2.stop();
-		};
+async function validTempoAudio() {
+	const ratio = parseFloat(document.getElementById("sliderTempo").value);
+	const obj = tableObjet[objActif];
+	if (!obj || !obj.file) return;
+	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	document.getElementById("tempoAudio").style.display = "none";
+	document.getElementById("loading").style.display = "block";
+	window.api.send("toMain", "processTempo;" + JSON.stringify({ id: objActif, filePath, ratio }));
 }
 function annulTempoAudio() {
 	document.getElementById("tempoAudio").style.display="none";
