@@ -39,7 +39,7 @@ paramDistance(x)=hgroup("[2]Distance",x);
 };
 process =par(j,${numInputs},_):>Matrix(1,${numSpeakers});
 `;
-console.log("dsp",dspCode)
+console.log("dsp",dspCode);
     return dspCode;
 }
 
@@ -90,7 +90,7 @@ async function loadSpatializer(layoutName) {
     const layoutJSON = await loadLayoutJSON(spat3D); // spat3D = nom du layout
     const M = layoutJSON.speakers.length;
     const dspSource = await generateSpatDSP(M,layoutJSON);
-console.log("dspSource",dspSource)
+console.log("dspSource",dspSource);
     // 2) Compile DSP → WASM
     const wasm = await compileSpatDSP(dspSource, "spat");
 
@@ -104,22 +104,22 @@ async function createSpatializersForObjects(layoutName) {
 	
     // 1) Génère le DSP une fois
     const dspSource = await generateSpatDSP(layoutName);
-    console.log("dspSource",dspSource)
+    console.log("dspSource",dspSource);
 
     // 2) Compile le DSP
     const wasmFactory = await compileSpatDSP(dspSource, "spat");
-	 console.log("wasmFactory",wasmFactory)
+	 console.log("wasmFactory",wasmFactory);
     // 3) Crée une instance WASM par objet
     
     const spatializers = tableObjet.map(obj => {
     	(async () => {
         let gen = new wasmFactory.constructor(); // ou selon l’API faustwasm
         gen = await wasmFactory.createOfflineProcessor(48000, 1024);; // init avec sampleRate
-        console.log("spatializers",gen)
+        console.log("spatializers",gen);
         return gen;
    })();
 
-})
+});
  
     return spatializers; // tableau d’instances indépendantes
     

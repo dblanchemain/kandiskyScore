@@ -30,7 +30,7 @@ function moveDObjActif(){
 	   line = new THREE.Line( lineGeometry, lineMaterial );
 	   scene.add( line );
 	   */
-	   drawEtat=0
+	   drawEtat=0;
 	   
    }
    
@@ -108,7 +108,7 @@ function render() {
 requestAnimationFrame(render);
 renderer.render(scene, camera);
 }
-render()
+render();
 
 export function onWindowResize(){
 
@@ -122,14 +122,14 @@ export function onWindowResize(){
 
 
 if(drawEtat==1){
-	draw3dObj()
+	draw3dObj();
 }
-var timer=""
+var timer="";
 function foo() {
 	var delay=50;
-	moveDObjActif()
+	moveDObjActif();
    timer=setTimeout(foo, delay);
    
 }
 
-foo()
+foo();

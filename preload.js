@@ -32,7 +32,7 @@ contextBridge.exposeInMainWorld(
             // whitelist channels
             let validChannels = ["showmenu"];
             if (validChannels.includes(channel)) {
-                ipcRenderer.send(channel,'showmenu')
+                ipcRenderer.send(channel,'showmenu');
             }
         },
         saveBuffer: (data) => {
@@ -45,7 +45,7 @@ contextBridge.exposeInMainWorld(
             // whitelist channels
             let validChannels = ["saveAudio"];
             if (validChannels.includes(channel)) {
-                ipcRenderer.send(channel,'saveAudio',...args)
+                ipcRenderer.send(channel,'saveAudio',...args);
             }
         },
     spectralShift: (buffers, sampleRate, start, end, fTarget, objSelect) =>
@@ -95,4 +95,4 @@ contextBridge.exposeInMainWorld(
     playDirectFile: (mode, filePath, soxParams) =>
         ipcRenderer.invoke('playDirectFile', mode, filePath, soxParams)
     }
-)
+);

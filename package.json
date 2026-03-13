@@ -19,6 +19,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
     "@grame/faustwasm": "^0.12.2",
     "electron": "^25.4.0",
+    "eslint": "^10.0.3",
     "terser": "^5.44.0"
   },
   "dependencies": {

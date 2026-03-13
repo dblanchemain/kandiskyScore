@@ -2,216 +2,216 @@
 //														objets
 //*******************************************************************************************************
 function getObjActif() {
-	return objActif
+	return objActif;
 }
 function getObjSelect() {
-	return selectObj
+	return selectObj;
 }
 function muteObjet(id,mute) {
-	tableObjet[id].mute=mute
+	tableObjet[id].mute=mute;
 }
 function gainObjet(id,g){
 	if(g<0){
-		g=0
+		g=0;
 	}
 	if(g>10){
-		g=10
+		g=10;
 	}
-	tableObjet[id].gain=g
+	tableObjet[id].gain=g;
 }
 function fadeInTypeObjet(id,type){
 	if(type<1){
-		type=0
+		type=0;
 	}
 	if(type>3){
-		type=3
+		type=3;
 	}
-	tableObjet[id].fadeInType=type
+	tableObjet[id].fadeInType=type;
 }
 function fadeOutTypeObjet(id,type){
 	if(type<1){
-		type=0
+		type=0;
 	}
 	if(type>3){
-		type=3
+		type=3;
 	}
-	tableObjet[id].fadeOutType=type
+	tableObjet[id].fadeOutType=type;
 }
 function envObjet(id,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,x7,y7){
 	if(x1<0){
-		x1=0
+		x1=0;
 	}
 	if(x1>x2){
-		x1=x2-0.01
+		x1=x2-0.01;
 	}
-	tableObjet[id].envX[0]=x1
+	tableObjet[id].envX[0]=x1;
 	if(y1<0){
-		y1=0
+		y1=0;
 	}
 	if(y1>1){
-		y1=1
+		y1=1;
 	}
-	tableObjet[id].envY[0]=y1
+	tableObjet[id].envY[0]=y1;
 	if(x2<x1){
-		x2=x1+0.01
+		x2=x1+0.01;
 	}
 	if(x2>x3){
-		x2=x3-0.01
+		x2=x3-0.01;
 	}
-	tableObjet[id].envX[1]=x2
+	tableObjet[id].envX[1]=x2;
 	if(y2<0){
-		y2=0
+		y2=0;
 	}
 	if(y2>1){
-		y2=1
+		y2=1;
 	}
-	tableObjet[id].envY[1]=y2
+	tableObjet[id].envY[1]=y2;
 	if(x3<x2){
-		x3=x2+0.01
+		x3=x2+0.01;
 	}
 	if(x3>x4){
-		x3=x4-0.01
+		x3=x4-0.01;
 	}
-	tableObjet[id].envX[2]=x3
+	tableObjet[id].envX[2]=x3;
 	if(y3<0){
-		y3=0
+		y3=0;
 	}
 	if(y3>1){
-		y3=1
+		y3=1;
 	}
-	tableObjet[id].envY[2]=y3
+	tableObjet[id].envY[2]=y3;
 	if(x4<x3){
-		x4=x3+0.01
+		x4=x3+0.01;
 	}
 	if(x4>x5){
-		x4=x5-0.01
+		x4=x5-0.01;
 	}
-	tableObjet[id].envX[3]=x4
+	tableObjet[id].envX[3]=x4;
 	if(y4<0){
-		y4=0
+		y4=0;
 	}
 	if(y4>1){
-		y4=1
+		y4=1;
 	}
-	tableObjet[id].envY[3]=y4
+	tableObjet[id].envY[3]=y4;
 	if(x5<x4){
-		x5=x4+0.01
+		x5=x4+0.01;
 	}
 	if(x5>x6){
-		x5=x6-0.01
+		x5=x6-0.01;
 	}
-	tableObjet[id].envX[4]=x5
+	tableObjet[id].envX[4]=x5;
 	if(y5<0){
-		y5=0
+		y5=0;
 	}
 	if(y5>1){
-		y5=1
+		y5=1;
 	}
-	tableObjet[id].envY[4]=y5
+	tableObjet[id].envY[4]=y5;
 	if(x6<x5){
-		x6=x5+0.01
+		x6=x5+0.01;
 	}
 	if(x6>x7){
-		x6=x7-0.01
+		x6=x7-0.01;
 	}
-	tableObjet[id].envX[5]=x6
+	tableObjet[id].envX[5]=x6;
 	if(y6<0){
-		y6=0
+		y6=0;
 	}
 	if(y6>1){
-		y6=1
+		y6=1;
 	}
-	tableObjet[id].envY[5]=y6
+	tableObjet[id].envY[5]=y6;
 	if(x7<x6){
-		x7=x6-0.01
+		x7=x6-0.01;
 	}
 	if(x7>1){
-		x7=1
+		x7=1;
 	}
-	tableObjet[id].envX[6]=x7
+	tableObjet[id].envX[6]=x7;
 	if(y7<0){
-		y7=0
+		y7=0;
 	}
 	if(y7>1){
-		y7=1
+		y7=1;
 	}
-	tableObjet[id].envY[6]=y7
+	tableObjet[id].envY[6]=y7;
 }
 function detuneObjet(id,d){
 	if(d<-1199){
-		d=-1199
+		d=-1199;
 	}
 	if(d>1199){
-		d=1199
+		d=1199;
 	}
-	tableObjet[id].detune=d
+	tableObjet[id].detune=d;
 }
 function dbfObjet(id,d,f){
 	if(d<0){
-		d=0
+		d=0;
 	}
 	if(d>f){
-		d=f-0.01
+		d=f-0.01;
 	}
 	if(f<d){
-		f=d+0.01
+		f=d+0.01;
 	}
 	if(f>1){
-		f=1
+		f=1;
 	}
-	tableObjet[id].debut=d
-	tableObjet[id].fin=f
+	tableObjet[id].debut=d;
+	tableObjet[id].fin=f;
 }
 function nameObjet(id,name){
-	tableObjet[id].nom=name
+	tableObjet[id].nom=name;
 }
 function trackObjet(id,track){
-	tableObjet[id].piste=track
+	tableObjet[id].piste=track;
 }
 function convolObjet(id,convol){
 	if(convol<1){
-		convol=0
+		convol=0;
 	}
 	if(convol>32){
-		convol=32
+		convol=32;
 	}
 	if (convol<1){
-		tableObjet[id].convolver=""
+		tableObjet[id].convolver="";
 	}else{
-		tableObjet[id].convolver=tableIR[convol]
+		tableObjet[id].convolver=tableIR[convol];
 	}
 }
 function reverseObjet(id,rv){
-	tableObjet[id].reverse=rv
+	tableObjet[id].reverse=rv;
 }
 function timePosObjet(id,t){
 	if(t<0){
-		t=0
+		t=0;
 	}
 	if(t>720){
-		t=720
+		t=720;
 	}
-	tableObjet[id].posX=t*18*zoomScale
-	document.getElementById(tableObjet[id].id).style.left=tableObjet[id].posX+'px'
+	tableObjet[id].posX=t*18*zoomScale;
+	document.getElementById(tableObjet[id].id).style.left=tableObjet[id].posX+'px';
 }
 function rateObjet(id,etat,r){
-	tableObjet[id].flagTranspo=etat
+	tableObjet[id].flagTranspo=etat;
 	if(r<0.1){
-		r=0.1
+		r=0.1;
 	}
 	if(r>2){
-		r=2
+		r=2;
 	}
-	var ms=(spaceHeight-40)/2
-	var nh=r-1
+	var ms=(spaceHeight-40)/2;
+	var nh=r-1;
 	if(r>1){
-		tableObjet[id].posY=ms+(ms*nh)
+		tableObjet[id].posY=ms+(ms*nh);
 	}else {
-		tableObjet[id].posY=ms-(ms*nh)
+		tableObjet[id].posY=ms-(ms*nh);
 	}
-	document.getElementById(tableObjet[id].id).style.top=tableObjet[id].posY+'px'
-	tableObjet[id].basePosY=((scrollDemo.scrollTop/zoomScale)+tableObjet[id].posY)*(1/ratioSpaceHeight)
-	tableObjet[id].transposition=r
+	document.getElementById(tableObjet[id].id).style.top=tableObjet[id].posY+'px';
+	tableObjet[id].basePosY=((scrollDemo.scrollTop/zoomScale)+tableObjet[id].posY)*(1/ratioSpaceHeight);
+	tableObjet[id].transposition=r;
 }
 function loadAudioTableBuffer(id,url) {
     var request = new XMLHttpRequest();
@@ -220,8 +220,8 @@ function loadAudioTableBuffer(id,url) {
 	    request.onload = function() {
 	    contextAudio.decodeAudioData(request.response, function(buffer) {
 	        tableObjet[id].duree = buffer.duration;
-	        var pathnom=url.split('/')
-	        tableObjet[id].file=pathnom[pathnom.length-1]
+	        var pathnom=url.split('/');
+	        tableObjet[id].file=pathnom[pathnom.length-1];
 	        
 	       var hasKey = -1;
 	       var hasKey =tableBuffer.findIndex(elem => elem.name === pathnom[pathnom.length-1]);
@@ -234,73 +234,73 @@ function loadAudioTableBuffer(id,url) {
 	        	tableObjet[id].bufferId=tableBuffer.length-1;							
 	        }
 	    });
-	    }
+	    };
 	    request.send();
 }
 
 function createObjet(t,etat,r,type,color){
-	selectobjet(type,color)
-	timePosObjet(objActif,t)
-	rateObjet(objActif,etat,r)
+	selectobjet(type,color);
+	timePosObjet(objActif,t);
+	rateObjet(objActif,etat,r);
 }
 //*******************************************************************************************************
 //														Objet : éléments graphiques
 //*******************************************************************************************************
 function objetColor(id,color){
-	tableObjet[id].objColor=color
-	document.getElementById(tableObjet[id].id).firstChild.firstChild.setAttribute("fill",color)
+	tableObjet[id].objColor=color;
+	document.getElementById(tableObjet[id].id).firstChild.firstChild.setAttribute("fill",color);
 }
 function objetDim(id,w,h){
-	objScaleX(id,w)
-	objScaleY(id,h)
+	objScaleX(id,w);
+	objScaleY(id,h);
 }
 function objetBordure(id,width,color,opacity){
-	objetBordureWidth(id,width)
-	objetBordureColor(id,color)
-	objetOpacity(id,opacity)
+	objetBordureWidth(id,width);
+	objetBordureColor(id,color);
+	objetOpacity(id,opacity);
 }
 
 function objetBkgColor(id,color){
-	tableObjet[id].bkgColor=color
-	document.getElementById(tableObjet[id].id).style.backgroundColor=color
+	tableObjet[id].bkgColor=color;
+	document.getElementById(tableObjet[id].id).style.backgroundColor=color;
 }
 function objetBkgDim(id,w,h){
-	objetBkgWidth(id,w)
-	objetBkgHeight(id,h)
+	objetBkgWidth(id,w);
+	objetBkgHeight(id,h);
 }
 function objetBkgOpacity(id,opacity){
-	bkgOpacity(id,opacity)
+	bkgOpacity(id,opacity);
 }
 function objetBkgTransparent(id){
-	bkgTransparent(id)
+	bkgTransparent(id);
 }
 function objCadreLeft(id,type,w,r,color){
-	borderGaucheType(id,type)
-	borderGaucheWidth(id,w)
-	borderGaucheRadius(id,r)
-	borderGaucheColor(id,color)
+	borderGaucheType(id,type);
+	borderGaucheWidth(id,w);
+	borderGaucheRadius(id,r);
+	borderGaucheColor(id,color);
 }
 function objCadreTop(id,type,w,r,color){
-	borderHautType(id,type)
-	borderHautWidth(id,w)
-	borderHautRadius(id,r)
-	borderHautColor(id,color)
+	borderHautType(id,type);
+	borderHautWidth(id,w);
+	borderHautRadius(id,r);
+	borderHautColor(id,color);
 }
 function objCadreRight(id,type,w,r,color){
-	borderDroitType(id,type)
-	borderDroitWidth(id,w)
-	borderDroitRadius(id,r)
-	borderDroitColor(id,color)
+	borderDroitType(id,type);
+	borderDroitWidth(id,w);
+	borderDroitRadius(id,r);
+	borderDroitColor(id,color);
 }
 function objCadreBottom(id,type,w,r,color){
-	borderBasType(id,type)
-	borderBasWidth(id,w)
-	borderBasRadius(id,r)
-	borderBasColor(id,color)
+	borderBasType(id,type);
+	borderBasWidth(id,w);
+	borderBasRadius(id,r);
+	borderBasColor(id,color);
 }
 function objetMarge(id,x,y){
-	objetPlGauche(id,x)
-	objetPlHaut(id,y)
+	objetPlGauche(id,x);
+	objetPlHaut(id,y);
 }
 
 //*******************************************************************************************************
@@ -308,82 +308,82 @@ function objetMarge(id,x,y){
 //*******************************************************************************************************
 function xPosSymb(id,x){
 	if(x<0){
-		x=0
+		x=0;
 	}
 	if(x>12960){
-		x=12960
+		x=12960;
 	}
-	tableObjet[id].posX=x
-	document.getElementById(tableObjet[id].id).style.left=tableObjet[id].posX+'px'
+	tableObjet[id].posX=x;
+	document.getElementById(tableObjet[id].id).style.left=tableObjet[id].posX+'px';
 }
 function yPosSymb(id,y){
 	if(y<0){
-		y=0
+		y=0;
 	}
 	if(y>spaceHeight-40){
-		y=spaceHeight-40
+		y=spaceHeight-40;
 	}
-	tableObjet[id].posY=y
-	document.getElementById(tableObjet[id].id).style.top=tableObjet[id].posY+'px'
+	tableObjet[id].posY=y;
+	document.getElementById(tableObjet[id].id).style.top=tableObjet[id].posY+'px';
 }
 function posSymb(id,x,y){
-	xPosSymb(id,x)
-	yPosSymb(id,y)
+	xPosSymb(id,x);
+	yPosSymb(id,y);
 }
 function rotateSymb(id,r){
-	tableObjet[id].rotate=r
-	symbRotate(id,r)
+	tableObjet[id].rotate=r;
+	symbRotate(id,r);
 }
 function gCadreSymb(id,gstyle,geps,grd,gcolor){
-	borderGaucheType(id,gstyle)
-	borderGaucheWidth(id,geps)
-	borderGaucheRadius(id,grd) 
-	borderGaucheColor(id,gcolor)
+	borderGaucheType(id,gstyle);
+	borderGaucheWidth(id,geps);
+	borderGaucheRadius(id,grd); 
+	borderGaucheColor(id,gcolor);
 }
 function hCadreSymb(id,gstyle,geps,grd,gcolor){
-	borderHautType(id,gstyle)
-	borderHautWidth(id,geps)
-	borderHautRadius(id,grd) 
-	borderHautColor(id,gcolor)
+	borderHautType(id,gstyle);
+	borderHautWidth(id,geps);
+	borderHautRadius(id,grd); 
+	borderHautColor(id,gcolor);
 }
 function dCadreSymb(id,gstyle,geps,grd,gcolor){
-	borderDroitType(id,gstyle)
-	borderDroitWidth(id,geps)
-	borderDroitRadius(id,grd) 
-	borderDroitColor(id,gcolor)
+	borderDroitType(id,gstyle);
+	borderDroitWidth(id,geps);
+	borderDroitRadius(id,grd); 
+	borderDroitColor(id,gcolor);
 }
 function bCadreSymb(id,gstyle,geps,grd,gcolor){
-	borderBasType(id,gstyle)
-	borderBasWidth(id,geps)
-	borderBasRadius(id,grd) 
-	borderBasColor(id,gcolor)
+	borderBasType(id,gstyle);
+	borderBasWidth(id,geps);
+	borderBasRadius(id,grd); 
+	borderBasColor(id,gcolor);
 }
 function cadreSymb(id,gstyle,geps,grd,gcolor){
-	gCadreSymb(id,gstyle,geps,grd,gcolor)
-	hCadreSymb(id,gstyle,geps,grd,gcolor)
-	dCadreSymb(id,gstyle,geps,grd,gcolor) 
-	bCadreSymb(id,gstyle,geps,grd,gcolor)
+	gCadreSymb(id,gstyle,geps,grd,gcolor);
+	hCadreSymb(id,gstyle,geps,grd,gcolor);
+	dCadreSymb(id,gstyle,geps,grd,gcolor); 
+	bCadreSymb(id,gstyle,geps,grd,gcolor);
 }
 function bkgSymb(id,opacity,width,height,color){
-	bkgOpacity(id,opacity)
-	symbBkgColor(id,color)
-	symbBkgWidth(id,width)
-	symbBkgHeight(id,height)
+	bkgOpacity(id,opacity);
+	symbBkgColor(id,color);
+	symbBkgWidth(id,width);
+	symbBkgHeight(id,height);
 }
 function createSymbole(x,y,type,color){
-	selectSymboleb(type,color)
-	xPosSymb(objActif,x)
-	yPosSymb(objActif,y)
+	selectSymboleb(type,color);
+	xPosSymb(objActif,x);
+	yPosSymb(objActif,y);
 }
 //*******************************************************************************************************
 //														groupe
 //*******************************************************************************************************
 
 function createGroupe(color,w,liste){
-	var lst=liste.split(",")
+	var lst=liste.split(",");
 	objActif=nbObjets;
 	selectObj="grp"+nbObjets;
-	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height)
+	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
 	tableObjet[objActif] = {
 		bkgColor:"#ffffff",
 		bkgHeight:10,
@@ -425,14 +425,14 @@ function createGroupe(color,w,liste){
 		scaleX:1.0,
 		scaleY:1.0,
 		width:0
-	}
+	};
 	for(let i=0;i<lst.length;i++){
 		tableObjet[lst[i]].groupe=objActif;
 	}
-	graphGrp(objActif)
-	dragElement(document.getElementById(selectObj))
-	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj)
-	nbObjets++
+	graphGrp(objActif);
+	dragElement(document.getElementById(selectObj));
+	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
+	nbObjets++;
 	var minl=tableObjet[lst[0]].posX;
  	var mint=tableObjet[lst[0]].posY;
  	var maxl=tableObjet[lst[0]].posX+(tableObjet[lst[0]].bkgWidth);
@@ -456,75 +456,75 @@ function createGroupe(color,w,liste){
  	mint=mint+2;
  	maxt=maxt+4;
 	tableObjet[objActif].posX=minl;
-	document.getElementById(tableObjet[objActif].id).style.left=tableObjet[objActif].posX+'px'
+	document.getElementById(tableObjet[objActif].id).style.left=tableObjet[objActif].posX+'px';
 	tableObjet[objActif].posY=mint;
-	document.getElementById(tableObjet[objActif].id).style.top=tableObjet[objActif].posY+'px'
+	document.getElementById(tableObjet[objActif].id).style.top=tableObjet[objActif].posY+'px';
 	tableObjet[objActif].width=maxl-minl;
 	tableObjet[objActif].height=maxt-mint;
 	tableObjet[objActif].bkgWidth=maxl-minl;
 	tableObjet[objActif].bkgHeight=maxt-mint;
-	document.getElementById(tableObjet[objActif].id).style.width=tableObjet[objActif].bkgWidth+'px'
-	document.getElementById(tableObjet[objActif].id).style.height=tableObjet[objActif].bkgHeight+'px'
-	cadreSymb(objActif,'solid',w,'0%',color)
+	document.getElementById(tableObjet[objActif].id).style.width=tableObjet[objActif].bkgWidth+'px';
+	document.getElementById(tableObjet[objActif].id).style.height=tableObjet[objActif].bkgHeight+'px';
+	cadreSymb(objActif,'solid',w,'0%',color);
 }
 function dimCadreGroupe(id,w,h){
-	grpBkgWidth(id,w)
-	grpBkgHeight(id,h)
+	grpBkgWidth(id,w);
+	grpBkgHeight(id,h);
 }
 function borderGrpLeft(id,style,eps,r,color){
-	borderGrpGType(id,style)
-	borderGrpGWidth(id,eps)
-	borderGrpGRadius(id,r) 
-	borderGrpGColor(id,color)
+	borderGrpGType(id,style);
+	borderGrpGWidth(id,eps);
+	borderGrpGRadius(id,r); 
+	borderGrpGColor(id,color);
 }
 function borderGrpTop(id,style,eps,r,color){
-	borderGrpHType(id,style)
-	borderGrpHWidth(id,eps)
-	borderGrpHRadius(id,r) 
-	borderGrpHColor(id,color)
+	borderGrpHType(id,style);
+	borderGrpHWidth(id,eps);
+	borderGrpHRadius(id,r); 
+	borderGrpHColor(id,color);
 }
 function borderGrpRight(id,style,eps,r,color){
-	borderGrpDType(id,style)
-	borderGrpDWidth(id,eps)
-	borderGrpDRadius(id,r) 
-	borderGrpDColor(id,color)
+	borderGrpDType(id,style);
+	borderGrpDWidth(id,eps);
+	borderGrpDRadius(id,r); 
+	borderGrpDColor(id,color);
 }
 function borderGrpBottom(id,style,eps,r,color){
-	borderGrpBType(id,style)
-	borderGrpBWidth(id,eps)
-	borderGrpBRadius(id,r) 
-	borderGrpBColor(id,color)
+	borderGrpBType(id,style);
+	borderGrpBWidth(id,eps);
+	borderGrpBRadius(id,r); 
+	borderGrpBColor(id,color);
 }
 function cadreGrp(id,gstyle,geps,grd,gcolor){
-	borderGrpLeft(id,gstyle,geps,grd,gcolor)
-	borderGrpTop(id,gstyle,geps,grd,gcolor)
-	borderGrpRight(id,gstyle,geps,grd,gcolor) 
-	borderGrpBottom(id,gstyle,geps,grd,gcolor)
+	borderGrpLeft(id,gstyle,geps,grd,gcolor);
+	borderGrpTop(id,gstyle,geps,grd,gcolor);
+	borderGrpRight(id,gstyle,geps,grd,gcolor); 
+	borderGrpBottom(id,gstyle,geps,grd,gcolor);
 }
 function bkgGroupe(id,width,height,color,opacity){
-	grpBkgWidth(id,width)
-	grpBkgHeight(id,height)
-	grpBkgColor(id,color)
-	bkgGrpOpacity(id,opacity)
+	grpBkgWidth(id,width);
+	grpBkgHeight(id,height);
+	grpBkgColor(id,color);
+	bkgGrpOpacity(id,opacity);
 }
 function groupeTransparent(id){
-	bkgTransparent(id)
+	bkgTransparent(id);
 }
 //*******************************************************************************************************
 //														functions génrérales
 //*******************************************************************************************************
 function copyObjets(obj) {
-	grpSelect=1
-	copySelect=[]
+	grpSelect=1;
+	copySelect=[];
  	copySelect=obj.split(',');
  	for(let i=0;i<copySelect.length;i++){
- 		copySelect[i]=parseInt(copySelect[i])
+ 		copySelect[i]=parseInt(copySelect[i]);
  	}
- 	console.log(copySelect)
+ 	console.log(copySelect);
  	grpSelect=0;
 }
 function pasteObjets(x,y) {
-	collerA(x,y)
+	collerA(x,y);
 }
 //*******************************************************************************************************
 //														fenêtre popup
@@ -542,10 +542,10 @@ function openPopup(title,x,y,width,height,padding,content) {
 	dupnode2.setAttribute("id","popupContent"+title);
 	dupnode.appendChild(dupnode2);
 	document.getElementsByTagName('body')[0].appendChild(dupnode);
-	dragElement(dupnode)
+	dragElement(dupnode);
 	document.getElementById('popup'+title+"Header").style.color=popupFontTitreColor;
-	document.getElementById('popup'+title+"Header").innerHTML="<b>"+title+"</b>"
-	document.getElementById('popupContent'+title).innerHTML=content
+	document.getElementById('popup'+title+"Header").innerHTML="<b>"+title+"</b>";
+	document.getElementById('popupContent'+title).innerHTML=content;
 	document.getElementById('popup'+title).style.display='block';
 }
 function closePopup(title) {
@@ -557,9 +557,9 @@ function closePopup(title) {
 //*******************************************************************************************************
 
 function fxOnDef(id,name) {
-	idFxParam=id
+	idFxParam=id;
 	tableObjet[objActif].tableFx[id]=name;
-	console.log(listeFx[name])
+	console.log(listeFx[name]);
 	//tableObjet[objActif].tableFxParam[idFxParam]=listeFx[id].defaut
 }
 function fxDefParam(id,param) {
@@ -668,7 +668,7 @@ function lastAudio() {
 	for(let i=0;i<tableObjet.length;i++){
 		var localDuree=tableObjet[i].duree/tableObjet[i].transposition;
 		lgi= localDuree/ratioT;
-		console.log("last",i,tableObjet[i].posX,tableObjet[i].posX+lgi,localDuree)
+		console.log("last",i,tableObjet[i].posX,tableObjet[i].posX+lgi,localDuree);
 		if(tableObjet[i].posX+lgi>maxPos){
 			lmax=tableObjet[i].posX;
 			iref=i;
@@ -679,7 +679,7 @@ function lastAudio() {
 	return param = {
 			id:iref,
 			maxDuree:maxDuree,
-			maxPosX:maxPos}
+			maxPosX:maxPos};
 }
 function secondeToAdmTime(stime) {
 
@@ -706,7 +706,7 @@ function secondeToAdmTime(stime) {
 		h:ht,
 		m:mt,
 		s:st+ct
-	}
+	};
 }
 async function removeSilenceFromStart(audioBuffer, threshold = 0.001) {
 	/*
@@ -768,7 +768,7 @@ function trimBeforEnd(context, audioBuffer, duration ) {
   duration=duration*48000;
   
   let cutoffIndex = Math.min(length-duration, length);
-console.log("cutoffIndex",length,length-duration,cutoffIndex)
+console.log("cutoffIndex",length,length-duration,cutoffIndex);
   // Créer un nouveau buffer coupé
   const trimmed = context.createBuffer(numChannels, cutoffIndex, sampleRate);
   for (let ch = 0; ch < numChannels; ch++) {
@@ -783,7 +783,7 @@ function trimAfterSilence(context, audioBuffer, silenceDuration, threshold ) {
   const numChannels = audioBuffer.numberOfChannels;
   const length = audioBuffer.length;
   const silenceSamples = Math.floor(silenceDuration * sampleRate);
-  const nbuffer=removeEndSpikes(audioBuffer, 0.1, 0.1)
+  const nbuffer=removeEndSpikes(audioBuffer, 0.1, 0.1);
   let lastActiveSample = 0;
   let consecutiveSilent = 0;
 
@@ -805,7 +805,7 @@ function trimAfterSilence(context, audioBuffer, silenceDuration, threshold ) {
       consecutiveSilent++;
     }
   }
-	console.log("silenceSamples",consecutiveSilent,lastActiveSample/48000,silenceSamples,length/48000)
+	console.log("silenceSamples",consecutiveSilent,lastActiveSample/48000,silenceSamples,length/48000);
   // S'il reste plus de silence que la durée autorisée à la fin
   let cutoffIndex = Math.min(lastActiveSample + silenceSamples, length);
 
@@ -866,7 +866,7 @@ copyToChannel() : Copie les données significatives dans un nouveau buffer de ta
 
   return trimmedBuffer;
 }
-function removeSilenceFromStart(audioBuffer) {
+function removeSilenceFromStartSimple(audioBuffer) {
 	const channelData = audioBuffer.getChannelData(0); // Supposons que nous travaillons avec un buffer mono
 	const newLength = channelData.length;
     const newAudioBuffer = contextAudio.createBuffer(2, newLength, audioBuffer.sampleRate);
@@ -874,7 +874,7 @@ function removeSilenceFromStart(audioBuffer) {
     
     var startIndex = 0;
     
-    const channelData = audioBuffer.getChannelData(k)
+    const channelData = audioBuffer.getChannelData(k);
 
     // Trouver l'index de début du premier échantillon non silencieux
     for (let i = 0; i < channelData.length; i++) {
@@ -995,7 +995,7 @@ sourceStart et sourceEnd : Les indices d'échantillons pour définir la portion 
 }
 function audioBufferToWav(sampleRate, channelBuffers,axml,chna,tracks) {
   const totalSamples = channelBuffers[0].length * channelBuffers.length;
-	const nbobjs=tableObjet.length*2
+	const nbobjs=tableObjet.length*2;
   //const buffer = new ArrayBuffer(axml.length+8+80 +(totalSamples * 2)+14+chna.length);
   const buffer = new ArrayBuffer(axml.length+8+80 +(totalSamples * 2)+12+(40*nbobjs));
   const view = new DataView(buffer);
@@ -1005,7 +1005,7 @@ function audioBufferToWav(sampleRate, channelBuffers,axml,chna,tracks) {
       view.setUint8(offset + i, string.charCodeAt(i));
     }
   };
-console.log('channelBuffers.length',channelBuffers.length)
+console.log('channelBuffers.length',channelBuffers.length);
   /* RIFF identifier */
   writeString(view, 0, "RIFF");
   /* RIFF chunk length */
@@ -1014,7 +1014,7 @@ console.log('channelBuffers.length',channelBuffers.length)
   /* RIFF type */
   writeString(view, 8, "WAVE");
   /* format chunk identifier */
-  writeString(view, 12, 'JUNK')              // Format
+  writeString(view, 12, 'JUNK');              // Format
   view.setUint32(16, 28, true);
   view.setUint32(20,0,true);
   view.setUint32(24,0,true);
@@ -1054,7 +1054,7 @@ console.log('channelBuffers.length',channelBuffers.length)
     }
   }
 
-  offset=80 + (totalSamples * 2)
+  offset=80 + (totalSamples * 2);
  /*                 
   writeString(view, offset, "chna");
   // data chunk length 
@@ -1121,7 +1121,7 @@ var cmax=nbtracks+1;
  }
 
 
-	offset=offset+axml.length
+	offset=offset+axml.length;
 	writeString(view, offset, "chna");
   // data chunk length 
   offset=offset+4;
@@ -1134,7 +1134,7 @@ var cmax=nbtracks+1;
   offset=offset+2;
   
 var cmax=nbtracks+1;
-console.log("chna-max",cmax)
+console.log("chna-max",cmax);
     	var base=4096;
     	var nbobjets=tableObjet.length;
     	var coffset=1;
@@ -1144,10 +1144,10 @@ console.log("chna-max",cmax)
     		for(j=0;j<nbobjets;j++){
 	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
 		    		var at=4096+coffset;
- 					var atu=numToHex16String(coffset)
+ 					var atu=numToHex16String(coffset);
  					var duree=tableObjet[j].duree*tableObjet[j].transposition;
  					var d=secondeToAdmTime(duree);
- 					var idx=numToHex16String(coffset)
+ 					var idx=numToHex16String(coffset);
  					view.setUint16(offset,(i*2)-1, true);
  					offset=offset+2;
 			    		chna='ATU_0000'+idx+'AT_0003'+at.toString(16)+'_01AP_0003'+at.toString(16);
@@ -1161,10 +1161,10 @@ console.log("chna-max",cmax)
         for(j=0;j<nbobjets;j++){
 	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
 		    		var at=4096+coffset;
- 					var atu=numToHex16String(coffset)
+ 					var atu=numToHex16String(coffset);
  					var duree=tableObjet[j].duree*tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree)
-			    	var idx=numToHex16String(coffset)
+ 					var d=secondeToAdmTime(duree);
+			    	var idx=numToHex16String(coffset);
  					view.setUint16(offset,(i*2), true);
 			    	offset=offset+2;
 			    		chna='ATU_0000'+idx+'AT_0003'+at.toString(16)+'_01AP_0003'+at.toString(16);
@@ -1252,34 +1252,34 @@ function defAxml(nbtracks) {
     		for(j=0;j<nbobjets;j++){
 	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
 		    		var at=4096+coffset;
-		    		var debut=tableObjet[j].posX*(720/12960)
-					var tm=secondeToAdmTime(debut)
+		    		var debut=tableObjet[j].posX*(720/12960);
+					var tm=secondeToAdmTime(debut);
 					
- 					var dt=tm.h+":"+tm.m+":"+tm.s
- 					var atu=numToHex16String(coffset)
+ 					var dt=tm.h+":"+tm.m+":"+tm.s;
+ 					var atu=numToHex16String(coffset);
  					var duree=tableObjet[j].duree/tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree)
+ 					var d=secondeToAdmTime(duree);
 			    		txt=txt+' <audioObject audioObjectID="AO_'+at.toString(16)+'" audioObjectName="Object '+coffset+'" start="'+dt+'" duration="'+d.h+":"+d.m+":"+d.s+'">\n\
 			          <audioPackFormatIDRef>AP_0003'+at.toString(16)+'</audioPackFormatIDRef>\n\
 			          <audioTrackUIDRef>ATU_0000'+atu+'</audioTrackUIDRef>\n\
-			        </audioObject>\n'
+			        </audioObject>\n';
 			        coffset++;
 		       }
         }
         for(j=0;j<nbobjets;j++){
 	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
 		    		var at=4096+coffset;
-		    		var debut=tableObjet[j].posX*(720/12960)
-					var tm=secondeToAdmTime(debut)
+		    		var debut=tableObjet[j].posX*(720/12960);
+					var tm=secondeToAdmTime(debut);
 					
- 					var dt=tm.h+":"+tm.m+":"+tm.s
- 					var atu=numToHex16String(coffset)
+ 					var dt=tm.h+":"+tm.m+":"+tm.s;
+ 					var atu=numToHex16String(coffset);
  					var duree=tableObjet[j].duree/tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree)
+ 					var d=secondeToAdmTime(duree);
 			    		txt=txt+' <audioObject audioObjectID="AO_'+at.toString(16)+'" audioObjectName="Object '+coffset+'" start="'+dt+'" duration="'+d.h+":"+d.m+":"+d.s+'">\n\
 			          <audioPackFormatIDRef>AP_0003'+at.toString(16)+'</audioPackFormatIDRef>\n\
 			          <audioTrackUIDRef>ATU_0000'+atu+'</audioTrackUIDRef>\n\
-			        </audioObject>\n'
+			        </audioObject>\n';
 			        coffset++;
 		       }
         }
@@ -1295,7 +1295,7 @@ function defAxml(nbtracks) {
 		    		var at=4096+coffset;
 			    		txt=txt+'<audioPackFormat audioPackFormatID="AP_0003'+at.toString(16)+'" audioPackFormatName="objet '+coffset+'" typeLabel="0003" typeDefinition="Objects">\n\
           <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
-        </audioPackFormat>\n'
+        </audioPackFormat>\n';
 			        coffset++;
 		       }
         }
@@ -1304,7 +1304,7 @@ function defAxml(nbtracks) {
 		    		var at=4096+coffset;
 			    		txt=txt+'<audioPackFormat audioPackFormatID="AP_0003'+at.toString(16)+'" audioPackFormatName="objet '+coffset+'" typeLabel="0003" typeDefinition="Objects">\n\
           <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
-        </audioPackFormat>\n'
+        </audioPackFormat>\n';
 			        coffset++;
 		       }
         }
@@ -1317,9 +1317,9 @@ function defAxml(nbtracks) {
     		for(j=0;j<nbobjets;j++){
 	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
 		    		var at=4096+coffset;
-		    		txt=txt+'<audioChannelFormat audioChannelFormatID="AC_0003'+at.toString(16)+'" audioChannelFormatName="objet '+coffset+'" typeDefinition="Objects">\n'
+		    		txt=txt+'<audioChannelFormat audioChannelFormatID="AC_0003'+at.toString(16)+'" audioChannelFormatName="objet '+coffset+'" typeDefinition="Objects">\n';
 		    		if(tableObjet[j].spT.length>1){
-		    			var debut=tableObjet[j].posX*(720/12960)
+		    			var debut=tableObjet[j].posX*(720/12960);
 						var tm=secondeToAdmTime(debut);
 	 					var dt=tm.h+":"+tm.m+":"+tm.s;
 	 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
@@ -1329,8 +1329,8 @@ function defAxml(nbtracks) {
 					      <position coordinate="Y">'+tableObjet[j].spZ[0]+'</position>\n\
 					      <position coordinate="Z">'+tableObjet[j].spY[0]+'</position>\n\
 					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n'
-					    var rt2=0
+					    	</audioBlockFormat>\n';
+					    var rt2=0;
 	 					for(m=1;m<tableObjet[j].spT.length;m++){
 	 						if(m==tableObjet[j].spT.length-1){
 	 							var rt=duree;
@@ -1345,7 +1345,7 @@ function defAxml(nbtracks) {
 					      <position coordinate="Y">'+tableObjet[j].spZ[m]+'</position>\n\
 					      <position coordinate="Z">'+tableObjet[j].spY[m]+'</position>\n\
 					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n'
+					    	</audioBlockFormat>\n';
 					    	rt2=rt2+duration;
 					    }
 				  }else{
@@ -1354,7 +1354,7 @@ function defAxml(nbtracks) {
 					      <position coordinate="Y">'+tableObjet[j].spZ[0]+'</position>\n\
 					      <position coordinate="Z">'+tableObjet[j].spY[0]+'</position>\n\
 					      <cartesian>1</cartesian>\n\
-					    </audioBlockFormat>\n'
+					    </audioBlockFormat>\n';
 					 
 				  }
 				  	  txt=txt+'</audioChannelFormat>\n';
@@ -1364,9 +1364,9 @@ function defAxml(nbtracks) {
         for(j=0;j<nbobjets;j++){
 	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
 		    		var at=4096+coffset;
-		    		txt=txt+'<audioChannelFormat audioChannelFormatID="AC_0003'+at.toString(16)+'" audioChannelFormatName="objet '+coffset+'" typeDefinition="Objects">\n'
+		    		txt=txt+'<audioChannelFormat audioChannelFormatID="AC_0003'+at.toString(16)+'" audioChannelFormatName="objet '+coffset+'" typeDefinition="Objects">\n';
 		    		if(tableObjet[j].spT.length>1){
-		    			var debut=tableObjet[j].posX*(720/12960)
+		    			var debut=tableObjet[j].posX*(720/12960);
 						var tm=secondeToAdmTime(debut);
 	 					var dt=tm.h+":"+tm.m+":"+tm.s;
 	 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
@@ -1376,25 +1376,25 @@ function defAxml(nbtracks) {
 					      <position coordinate="Y">'+tableObjet[j].spZ[0]+'</position>\n\
 					      <position coordinate="Z">'+tableObjet[j].spY[0]+'</position>\n\
 					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n'
-					    	var rt2=0
+					    	</audioBlockFormat>\n';
+					    	var rt2=0;
 	 					for(m=1;m<tableObjet[j].spT.length;m++){
 	 						if(m==tableObjet[j].spT.length-1){
 	 							var rt=duree;
-	 							console.log("duree spT",j,duree,rt)
+	 							console.log("duree spT",j,duree,rt);
 	 						}else{
 	 							var rt=(tableObjet[j].spT[m]*duree);
 	 						}
 	 						var rtime=secondeToAdmTime(rt2);
 	 						var duration=rt-rt2;
 	 						var dr=secondeToAdmTime(duration);
-	 						console.log("duree",duree,rt,rt2,'duration',duration)
+	 						console.log("duree",duree,rt,rt2,'duration',duration);
 					    	txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_0000000'+(m+1).toString(16)+'" rtime="'+rtime.h+":"+rtime.m+":"+rtime.s+'" duration="'+dr.h+":"+dr.m+":"+dr.s+'" >\n\
 					      <position coordinate="X">'+tableObjet[j].spX[m]+'</position>\n\
 					      <position coordinate="Y">'+tableObjet[j].spZ[m]+'</position>\n\
 					      <position coordinate="Z">'+tableObjet[j].spY[m]+'</position>\n\
 					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n'
+					    	</audioBlockFormat>\n';
 					    	rt2=rt2+duration;
 					    }
 				  }else{
@@ -1421,7 +1421,7 @@ function defAxml(nbtracks) {
 			    		txt=txt+'<audioStreamFormat audioStreamFormatID="AS_0003'+at.toString(16)+'" audioStreamFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
           <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
           <audioTrackFormatIDRef>AT_0003'+at.toString(16)+'_01</audioTrackFormatIDRef>\n\
-          </audioStreamFormat>\n'
+          </audioStreamFormat>\n';
 			        coffset++;
 		       }
         }
@@ -1431,7 +1431,7 @@ function defAxml(nbtracks) {
 			    		txt=txt+'<audioStreamFormat audioStreamFormatID="AS_0003'+at.toString(16)+'" audioStreamFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
           <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
           <audioTrackFormatIDRef>AT_0003'+at.toString(16)+'_01</audioTrackFormatIDRef>\n\
-          </audioStreamFormat>\n'
+          </audioStreamFormat>\n';
 			        coffset++;
 		       }
         }
@@ -1446,7 +1446,7 @@ function defAxml(nbtracks) {
 		    		var at=4096+coffset;
 			    		txt=txt+'<audioTrackFormat audioTrackFormatID="AT_0003'+at.toString(16)+'_01" audioTrackFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
  			<audioStreamFormatIDRef>AS_0003'+at.toString(16)+'</audioStreamFormatIDRef>\n\
- 			</audioTrackFormat>\n'
+ 			</audioTrackFormat>\n';
 			        coffset++;
 		       }
         }
@@ -1455,7 +1455,7 @@ function defAxml(nbtracks) {
 		    		var at=4096+coffset;
 			    		txt=txt+'<audioTrackFormat audioTrackFormatID="AT_0003'+at.toString(16)+'_01" audioTrackFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
  			<audioStreamFormatIDRef>AS_0003'+at.toString(16)+'</audioStreamFormatIDRef>\n\
- 			</audioTrackFormat>\n'
+ 			</audioTrackFormat>\n';
 			        coffset++;
 		       }
         }
@@ -1469,17 +1469,17 @@ function defAxml(nbtracks) {
     		txt=txt+'<audioTrackUID UID="ATU_0000'+atu+'" sampleRate="48000" bitDepth="16" >\n\
     		<audioTrackFormatIDRef>AT_0003'+at.toString(16)+'_01</audioTrackFormatIDRef>\n\
           <audioPackFormatIDRef>AP_0003'+at.toString(16)+'</audioPackFormatIDRef>\n\
-          </audioTrackUID>\n'
+          </audioTrackUID>\n';
     	}
 	 txt=txt+'</audioFormatExtended>\n\
     </format>\n\
   </coreMetadata>\n\
 </ebuCoreMain>';
-console.log('length',txt.length)
+console.log('length',txt.length);
 if(txt.length%2>0){
 	txt=txt+" ";
 }
-console.log('length',txt.length)
+console.log('length',txt.length);
     return txt;
 }
 function numToHex16String(v) {
@@ -1517,11 +1517,11 @@ async function exportAdm(){
 	}
 	for(i=0;i<ntableObjet.length;i++){
 		if(ntableObjet[i].piste>nbtracks){
-			nbtracks=ntableObjet[i].piste
+			nbtracks=ntableObjet[i].piste;
 		}
 	}
 	exportPart(1);
-	console.log('nbtracks',nbtracks)
+	console.log('nbtracks',nbtracks);
 	var nBuffer = contextAudio.createBuffer(2*nbtracks,mduree,contextAudio.sampleRate);
 	var k=0;
 	for(j=0;j<nbtracks;j++){
@@ -1533,32 +1533,32 @@ async function exportAdm(){
 				
 				await new Promise(resolve => setTimeout(resolve, 200));
 
-				var tpos=Math.round((tableObjet[i].posX*ratioT)*contextAudio.sampleRate)
-				console.log("adm",rc,tpos,rc.buffer.sampleRate)
-				insertAdmBufferPart(nBuffer,k, rc.buffer, tpos, sourceStart = 0, sourceEnd = rc.buffer.length)
+				var tpos=Math.round((tableObjet[i].posX*ratioT)*contextAudio.sampleRate);
+				console.log("adm",rc,tpos,rc.buffer.sampleRate);
+				insertAdmBufferPart(nBuffer,k, rc.buffer, tpos, sourceStart = 0, sourceEnd = rc.buffer.length);
 				
 			}
 		}
 	}
 
-	console.log("nbobjets",ntableObjet.length,"nbtracks",nbtracks,contextAudio.sampleRate)
+	console.log("nbobjets",ntableObjet.length,"nbtracks",nbtracks,contextAudio.sampleRate);
 
 	const xmlString =defAxml(nbtracks);
-	const defchna="AudioID(trackIndex=1, audioTrackUID='ATU_00000001', audioTrackFormatIDRef='AT_00031001_01', audioPackFormatIDRef='AP_00031001')"
+	const defchna="AudioID(trackIndex=1, audioTrackUID='ATU_00000001', audioTrackFormatIDRef='AT_00031001_01', audioPackFormatIDRef='AP_00031001')";
 		
-	console.log(xmlString)
+	console.log(xmlString);
 	//var rwav=convertAdmBufferToBlob(nBuffer,nbtracks*2,contextAudio.sampleRate)
 	const channelBuffers = [];
 	for (let channel = 0; channel < nBuffer.numberOfChannels; channel++) {
 	  channelBuffers.push(nBuffer.getChannelData(channel));
 	}
 
-	var rwav=audioBufferToWav(48000, channelBuffers,xmlString,defchna,nbtracks)
+	var rwav=audioBufferToWav(48000, channelBuffers,xmlString,defchna,nbtracks);
 
    
 	console.log('wavBuffer',rwav.byteLength,rwav.byteLength.toString(16));
     const newWavBuffer =rwav;//addAxmlChunk(nwavBuffer, xmlString)
-    window.api.send('toMain','defExportFile;'+audioDirectory+'exports/'+";"+audioDirectory+'exports/nbuffer.wav')
+    window.api.send('toMain','defExportFile;'+audioDirectory+'exports/'+";"+audioDirectory+'exports/nbuffer.wav');
 	    	window.api.saveAudio('saveAudio',(audioDirectory+"exports/nbuffer.wav"), newWavBuffer);
 	   		 console.log("result ",audioDirectory+"exports/nbuffer.wav"," ");
 
@@ -1583,32 +1583,32 @@ function saveFxAudio(obj,mode,nom){
       				var rwav=convertAudioBufferToBlob(audioBuffer);
       				if(mode==0){
 						   const regex = new RegExp('-');
-						   var lab=tableObjet[obj].file.split('.')
-						   var label=''
-						   var sch=lab[0].search(regex)
+						   var lab=tableObjet[obj].file.split('.');
+						   var label='';
+						   var sch=lab[0].search(regex);
 							if(sch==-1){
-								label=lab[0]+"-1.wav"
+								label=lab[0]+"-1.wav";
 							}else{
-								var ft=lab[0].substring(0,sch)
-								var rt=lab[0].substring(sch+1)
+								var ft=lab[0].substring(0,sch);
+								var rt=lab[0].substring(sch+1);
 								if(isNaN(rt)){
-									rt=0
+									rt=0;
 								}
-								var rft=parseInt(lab[0].substring(sch+1))+1
-								label=ft+"-"+rft+".wav"
+								var rft=parseInt(lab[0].substring(sch+1))+1;
+								label=ft+"-"+rft+".wav";
 							}
 						}else{
-							label=nom
+							label=nom;
 						}
-						tableObjet[obj].tableFx=['','','','','','','']
-						tableObjet[obj].tableFxParam=['','','','','','','']
+						tableObjet[obj].tableFx=['','','','','','',''];
+						tableObjet[obj].tableFxParam=['','','','','','',''];
 						var reader = new FileReader();
 						reader.readAsArrayBuffer(rwav);
 						reader.onloadend = (event) => {
 	    					// The contents of the BLOB are in reader.result:	
 	    					window.api.saveAudio('saveAudio',(audioDirectory+label), reader.result);
 	    					window.api.send('toMain','saveFxAudio;'+obj+';'+audioDirectory+label);
-	    				}
+	    				};
 	    					
 					   	console.log(label);
     					});
@@ -1647,52 +1647,52 @@ function saveFxAudio(obj,mode,nom){
 //*******************************************************************************************************
 
 function spaceListerner(fwX,fwY,fwZ,upX,upY,upZ,X,Y,Z) {
-	listenerForwardX=fwX
- 	listenerForwardY=fwY
-	listenerForwardZ=fwZ
-   listenerUpX=upX
- 	listenerUpY=upY
- 	listenerUpZ=upZ
- 	listenerPositionX=X
- 	listenerPositionY=Y
- 	listenerPositionZ=Z
- 	paramSpace.lForwardX=fwX
- 	paramSpace.lForwardY=fwY
-	paramSpace.lForwardZ=fwZ
-   paramSpace.lUpX=upX
- 	paramSpace.lUpY=upY
- 	paramSpace.lUpZ=upZ
- 	paramSpace.lPosX=X
- 	paramSpace.lPosY=Y
- 	paramSpace.lPosZ=Z
+	listenerForwardX=fwX;
+ 	listenerForwardY=fwY;
+	listenerForwardZ=fwZ;
+   listenerUpX=upX;
+ 	listenerUpY=upY;
+ 	listenerUpZ=upZ;
+ 	listenerPositionX=X;
+ 	listenerPositionY=Y;
+ 	listenerPositionZ=Z;
+ 	paramSpace.lForwardX=fwX;
+ 	paramSpace.lForwardY=fwY;
+	paramSpace.lForwardZ=fwZ;
+   paramSpace.lUpX=upX;
+ 	paramSpace.lUpY=upY;
+ 	paramSpace.lUpZ=upZ;
+ 	paramSpace.lPosX=X;
+ 	paramSpace.lPosY=Y;
+ 	paramSpace.lPosZ=Z;
 }
 function spacePanningModel(model) {
-	PModel=model
- 	paramSpace.PModel=model
+	PModel=model;
+ 	paramSpace.PModel=model;
 }
 function spacePanningDistance(mode,redD,maxD,Rolloff,ConeInnerA,ConeOuterA,ConeOuterG) {
-  	pannerDistanceModel = mode
- 	pannerRefDistance = redD
- 	pannerMaxDistance = maxD
-  	pannerRolloffFactor = Rolloff
-  	pannerConeInnerAngle = ConeInnerA
-  	pannerConeOuterAngle =ConeOuterA
-  	pannerConeOuterGain = ConeOuterG
- 	paramSpace.DModel=mode
- 	paramSpace.refD=redD
-	paramSpace.maxD=maxD
-	paramSpace.rolF=Rolloff
-	paramSpace.coneIA=ConeInnerA
-	paramSpace.coneOA=ConeOuterA
-	paramSpace.coneOG=ConeOuterG
+  	pannerDistanceModel = mode;
+ 	pannerRefDistance = redD;
+ 	pannerMaxDistance = maxD;
+  	pannerRolloffFactor = Rolloff;
+  	pannerConeInnerAngle = ConeInnerA;
+  	pannerConeOuterAngle =ConeOuterA;
+  	pannerConeOuterGain = ConeOuterG;
+ 	paramSpace.DModel=mode;
+ 	paramSpace.refD=redD;
+	paramSpace.maxD=maxD;
+	paramSpace.rolF=Rolloff;
+	paramSpace.coneIA=ConeInnerA;
+	paramSpace.coneOA=ConeOuterA;
+	paramSpace.coneOG=ConeOuterG;
 }
 function spacePanningOrientation(X,Y,Z) {
-  	pannerOrientationX=X
-   pannerOrientationY=Y
-   pannerOrientationZ=Z
- 	paramSpace.orX=X
-	paramSpace.orY=Y
-	paramSpace.orZ=Z
+  	pannerOrientationX=X;
+   pannerOrientationY=Y;
+   pannerOrientationZ=Z;
+ 	paramSpace.orX=X;
+	paramSpace.orY=Y;
+	paramSpace.orZ=Z;
 }
 function spaceDefPoint(id,t,d,x,y,z) {
 	tableObjet[objActif].spT[id]=t;
@@ -1707,37 +1707,37 @@ function spaceDefPoint(id,t,d,x,y,z) {
 //*******************************************************************************************************
 
 function baseDefProjet(name,start,end,comment,ppath,audioPath,imgPath,greffon3D,canaux) {
-	paramProjet.name=name
-	paramProjet.start=start
-	paramProjet.end=end
-	paramProjet.comment=comment
-	paramProjet.path=ppath
-	paramProjet.audioPath=audioPath
-	paramProjet.imgPath=imgPath
-	paramProjet.greffon3D=greffon3D
-	paramProjet.greffonC=canaux
-	path=ppath
-	audioDirectory=audioPath
-	imgDirectory=imgPath
-	spat3D=greffon3D
-	spat3dCanaux=canaux
+	paramProjet.name=name;
+	paramProjet.start=start;
+	paramProjet.end=end;
+	paramProjet.comment=comment;
+	paramProjet.path=ppath;
+	paramProjet.audioPath=audioPath;
+	paramProjet.imgPath=imgPath;
+	paramProjet.greffon3D=greffon3D;
+	paramProjet.greffonC=canaux;
+	path=ppath;
+	audioDirectory=audioPath;
+	imgDirectory=imgPath;
+	spat3D=greffon3D;
+	spat3dCanaux=canaux;
 }
 function appExternes(ledit,sequenceur,dawPath,AssCmd,AppCmd) {
-	editor=ledit
-	daw=sequenceur
-   cmdDaw=dawPath
-	pdfAssCmd=AssCmd
-   pdfAppCmd=AppCmd
+	editor=ledit;
+	daw=sequenceur;
+   cmdDaw=dawPath;
+	pdfAssCmd=AssCmd;
+   pdfAppCmd=AppCmd;
 }
 function pdfConfig(page,landscape,scale,margeT,margeL,margeB,margeR,Bkg) {
-	pdfPage=page
-  	pdfScale=scale
-  	pdfLandscape=landscape
-  	pdfMgTop=margeT
-  	pdfMgBot=margeB
-  	pdfMgLeft=margeL
-  	pdfMgRight=margeR
-  	pdfBkg=Bkg
+	pdfPage=page;
+  	pdfScale=scale;
+  	pdfLandscape=landscape;
+  	pdfMgTop=margeT;
+  	pdfMgBot=margeB;
+  	pdfMgLeft=margeL;
+  	pdfMgRight=margeR;
+  	pdfBkg=Bkg;
 }
 function apiParamProjet() {
 	var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+ pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd;	

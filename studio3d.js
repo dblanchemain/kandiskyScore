@@ -24,12 +24,12 @@ function moveDObjActif(){
 		for(let i=0;i<spX.length;i++){
 		sph[i].position.set ( spX[i]*3,-spY[i]*2,-spZ[i]*3 );
 		points.push( new THREE.Vector3( spX[i]*3, -spY[i]*2, -spZ[i]*3  ) );
-		console.log("moveDObjActif",spX[i])
+		console.log("moveDObjActif",spX[i]);
 		}
 		const lineGeometry = new THREE.BufferGeometry().setFromPoints( points );
 	   line = new THREE.Line( lineGeometry, lineMaterial );
 	   scene.add( line );
-	   drawEtat=0
+	   drawEtat=0;
 	   
    }
    
@@ -138,7 +138,7 @@ function render() {
 requestAnimationFrame(render);
 renderer.render(scene, camera);
 }
-render()
+render();
 
 export function onWindowResize(){
 
@@ -152,14 +152,14 @@ export function onWindowResize(){
 
 
 if(drawEtat==1){
-	draw3dObj()
+	draw3dObj();
 }
-var timer=""
+var timer="";
 function foo() {
 	var delay=50;
-	moveDObjActif()
+	moveDObjActif();
    timer=setTimeout(foo, delay);
    
 }
 
-foo()
+foo();

@@ -10,8 +10,8 @@
 // 
 // You should have received a copy of the GNU General Public License along with this program; If not, see http://www.gnu.org/licenses.var contextAudio=new AudioContext();
 function createGrp(nom,grp) {
-	lsgrp=[].concat(grp)
-	console.log(lsgrp,tableObjet,lsgrp[0],tableObjet[lsgrp[0]])
+	lsgrp=[].concat(grp);
+	console.log(lsgrp,tableObjet,lsgrp[0],tableObjet[lsgrp[0]]);
 	if(lsgrp.length>1){
 
 	    	var minl=tableObjet[lsgrp[0]].posX;
@@ -33,11 +33,11 @@ function createGrp(nom,grp) {
 	 				maxt=tableObjet[lsgrp[i]].posY+(tableObjet[lsgrp[i]].bkgHeight);
 	 			}
 	    	}
-			minl=minl-8
-			nwidth=maxl-minl+16
+			minl=minl-8;
+			nwidth=maxl-minl+16;
 
-			mint=mint-16
-			nheight=maxt-mint+16
+			mint=mint-16;
+			nheight=maxt-mint+16;
 			
 	    	if(lsgrp.length>0){
 	    		var dupnode=document.createElement('div');
@@ -88,7 +88,7 @@ function createGrp(nom,grp) {
 				scaleX:1.0,
 				scaleY:1.0,
 				width:nwidth,
-			}
+			};
 			dragElement(document.getElementById(selectObj));	
 			document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
 			preservSelect=[].concat(lsgrp);
@@ -159,12 +159,12 @@ function validAugmDim() {
 	for(let i=0;i<copySelect.length;i++){
 		lsgrp.push(i+resObj);
 	}
-	console.log(copySelect)
+	console.log(copySelect);
 	createGrp("Augm/Dim",lsgrp);
-	tableObjet[objActif].width=tableObjet[objActif].width+((lsgrp.length-1)*dLine)
-	tableObjet[objActif].height=tableObjet[objActif].height+((lsgrp.length-1)*dVertic)
-	document.getElementById("grp"+objActif).style.width=tableObjet[objActif].width+"px"
-	document.getElementById("grp"+objActif).style.height=tableObjet[objActif].height+"px"
+	tableObjet[objActif].width=tableObjet[objActif].width+((lsgrp.length-1)*dLine);
+	tableObjet[objActif].height=tableObjet[objActif].height+((lsgrp.length-1)*dVertic);
+	document.getElementById("grp"+objActif).style.width=tableObjet[objActif].width+"px";
+	document.getElementById("grp"+objActif).style.height=tableObjet[objActif].height+"px";
 	document.getElementById("augmDim").style.display="none";
 	if(grpSelect==1){
  		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
@@ -335,14 +335,14 @@ function renversement() {
 		copyX=tableObjet[copySelect[0]].posX-tableObjet[copySelect[i]].posX;
 		copyY=-(tableObjet[copySelect[0]].posY-tableObjet[copySelect[i]].posY);
 		if(tableObjet[copySelect[i]].class==1){
-			var x=clientX-copyX
-			var y=clientY-copyY
-			pasteObjet(copySelect[i],x,y)
-			nbObjets++
+			var x=clientX-copyX;
+			var y=clientY-copyY;
+			pasteObjet(copySelect[i],x,y);
+			nbObjets++;
 			lsgrp.push(nbObjets);
 		}
 	}
-	lsgrp.pop()
+	lsgrp.pop();
 	createGrp("Renversement",lsgrp);
 	if(grpSelect==1){
  		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
@@ -371,14 +371,14 @@ function retrograde() {
 			copyY=-(tableObjet[copySelect[i]].posY-tableObjet[copySelect[0]].posY);
 		}
 		if(tableObjet[copySelect[i]].class==1){
-			var x=clientX-copyX
-			var y=clientY-copyY
-			pasteObjet(copySelect[i],x,y)
-			nbObjets++
+			var x=clientX-copyX;
+			var y=clientY-copyY;
+			pasteObjet(copySelect[i],x,y);
+			nbObjets++;
 			lsgrp.push(nbObjets);
 		}
 	}
-	lsgrp.pop()
+	lsgrp.pop();
 	createGrp("Rétrograde",lsgrp);
 	if(grpSelect==1){
  		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
@@ -408,14 +408,14 @@ function renvRetro() {
 	}
 
 		if(tableObjet[copySelect[i]].class==1){
-			var x=clientX-copyX
-			var y=clientY-copyY
-			pasteObjet(copySelect[i],x,y)
-			nbObjets++
+			var x=clientX-copyX;
+			var y=clientY-copyY;
+			pasteObjet(copySelect[i],x,y);
+			nbObjets++;
 			lsgrp.push(nbObjets);
 		}
 	}
-	lsgrp.pop()
+	lsgrp.pop();
 	createGrp("Renv.Rétrograde",lsgrp);
 	if(grpSelect==1){
  		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
