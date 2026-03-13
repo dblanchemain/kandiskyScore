@@ -401,25 +401,24 @@
 
 <!--    **************************************   fenêtre tempo audio  **************************************     -->
 
-<div id="tempoAudio"  class="popup" style="top:500px;left:380px;width:300px;height:150px;">
+<div id="tempoAudio"  class="popup" style="top:500px;left:380px;width:300px;height:130px;">
 	<div id="tempoAudioHeader" class="popupHeader"><b>Tempo </b></div>
-
- <div style="text-align:center;"> <audio align="center" style="margin-top:10px;padding:px;width:90%;height:24px;" id="tempoWav" controls src=""></audio></div>
- <div style="position:absolute;top:80px;left:10px;"><input id="sliderTempo" style="width:200px" type="range" value="1.0" min="0.25" max="4" step="0.01" /></div>
- <div style="position:absolute;top:80px;left:220px;" ><input id="inpTempo" style="width:60px;" type="number" min="0.25" max="4" value="1" step="0.01" /></div>
- <div style="position:absolute;top:115px;left:130px;"><button onclick='annulTempoAudio();'>Annuler</button> <button onclick='validTempoAudio();'>Enregistrer</button></div>
+ <div style="position:absolute;top:30px;left:10px;"><img id="tempoPlay" src="./images/png/lecture.png" style="width:24px;cursor:pointer;" title="Écouter" onclick="playTempoFile()" /></div>
+ <div style="position:absolute;top:32px;left:45px;"><input id="sliderTempo" style="width:180px" type="range" value="1.0" min="0.25" max="4" step="0.01" /></div>
+ <div style="position:absolute;top:32px;left:235px;"><input id="inpTempo" style="width:55px;" type="number" min="0.25" max="4" value="1" step="0.01" /></div>
+ <div style="position:absolute;top:68px;left:130px;"><button onclick='annulTempoAudio();'>Annuler</button> <button onclick='validTempoAudio();'>Enregistrer</button></div>
 </div>
 
-<div id="stretchingAudio" class="popup" style="top:500px;left:380px;width:340px;height:195px;">
+<div id="stretchingAudio" class="popup" style="top:500px;left:380px;width:340px;height:165px;">
 	<div id="stretchingAudioHeader" class="popupHeader"><b>Stretching </b></div>
- <div style="text-align:center;"> <audio align="center" style="margin-top:10px;padding:px;width:90%;height:24px;" id="stretchingWav" controls src=""></audio></div>
- <div style="position:absolute;top:80px;left:10px;font-size:11px;">Durée ×</div>
- <div style="position:absolute;top:78px;left:55px;"><input id="sliderStretching" style="width:180px" type="range" value="1.0" min="0.25" max="4" step="0.01" oninput="sliderStretching()" /></div>
- <div style="position:absolute;top:78px;left:245px;"><input id="inpStretching" style="width:60px;" type="number" min="0.25" max="4" value="1" step="0.01" oninput="inpStretching()" /></div>
- <div style="position:absolute;top:118px;left:10px;font-size:11px;">Hauteur ♪</div>
- <div style="position:absolute;top:116px;left:55px;"><input id="sliderPitch" style="width:180px" type="range" value="0" min="-24" max="24" step="0.5" oninput="sliderPitch()" /></div>
- <div style="position:absolute;top:116px;left:245px;"><input id="inpPitch" style="width:60px;" type="number" min="-24" max="24" value="0" step="0.5" oninput="inpPitch()" /></div>
- <div style="position:absolute;top:158px;left:155px;"><button onclick='annulStretchingAudio();'>Annuler</button> <button onclick='validStretchingAudio();'>Enregistrer</button></div>
+ <div style="position:absolute;top:30px;left:10px;"><img id="stretchingPlay" src="./images/png/lecture.png" style="width:24px;cursor:pointer;" title="Écouter" onclick="playStretchingFile()" /></div>
+ <div style="position:absolute;top:32px;left:10px;font-size:11px;margin-left:30px;">Durée ×</div>
+ <div style="position:absolute;top:30px;left:75px;"><input id="sliderStretching" style="width:170px" type="range" value="1.0" min="0.25" max="4" step="0.01" oninput="sliderStretching()" /></div>
+ <div style="position:absolute;top:30px;left:255px;"><input id="inpStretching" style="width:55px;" type="number" min="0.25" max="4" value="1" step="0.01" oninput="inpStretching()" /></div>
+ <div style="position:absolute;top:68px;left:10px;font-size:11px;">Hauteur ♪</div>
+ <div style="position:absolute;top:66px;left:75px;"><input id="sliderPitch" style="width:170px" type="range" value="0" min="-24" max="24" step="0.5" oninput="sliderPitch()" /></div>
+ <div style="position:absolute;top:66px;left:255px;"><input id="inpPitch" style="width:55px;" type="number" min="-24" max="24" value="0" step="0.5" oninput="inpPitch()" /></div>
+ <div style="position:absolute;top:105px;left:155px;"><button onclick='annulStretchingAudio();'>Annuler</button> <button onclick='validStretchingAudio();'>Enregistrer</button></div>
 </div>
 
 <!--                                         fenêtre editor                                              -->

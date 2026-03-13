@@ -1796,58 +1796,84 @@ function indexFirstObjInGrp(lgrp) {
 	return id;
 }
 
+let tempoFilePath = '';
+let stretchingFilePath = '';
+let tempoPlayerStat = 0;
+let stretchingPlayerStat = 0;
+
 async function tempoAudio() {
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file || obj.type >= 24) return;
-	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
-	document.getElementById("tempoWav").src = `file://${filePath}`;
+	tempoFilePath = window.api.joinPath(paramProjet.audioPath, obj.file);
 	document.getElementById("sliderTempo").value = 1.00;
 	document.getElementById("inpTempo").value = 1.00;
+	tempoPlayerStat = 0;
+	document.getElementById("tempoPlay").src = "./images/png/lecture.png";
 	document.getElementById("tempoAudio").style.display = "block";
+}
+
+function playTempoFile() {
+	if (tempoPlayerStat === 0) {
+		tempoPlayerStat = 1;
+		document.getElementById("tempoPlay").src = "./images/png/pauseLect.png";
+		window.api.playDirectFile(0, tempoFilePath, "");
+	} else {
+		tempoPlayerStat = 0;
+		document.getElementById("tempoPlay").src = "./images/png/lecture.png";
+		window.api.send("toMain", "killPlay");
+	}
 }
 
 function sliderTempo(){
 	document.getElementById("inpTempo").value=document.getElementById("sliderTempo").value;
-	document.getElementById("tempoWav").playbackRate=parseFloat(document.getElementById("inpTempo").value);
 }
 function inpTempo(){
 	document.getElementById("sliderTempo").value=document.getElementById("inpTempo").value;
-	document.getElementById("tempoWav").playbackRate=parseFloat(document.getElementById("inpTempo").value);
 }
 
 async function validTempoAudio() {
 	const ratio = parseFloat(document.getElementById("sliderTempo").value);
-	const obj = tableObjet[objActif];
-	if (!obj || !obj.file) return;
+	if (!tempoFilePath) return;
 	const destPath = await window.api.showSaveDialog();
 	if (!destPath) return;
-	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	if (tempoPlayerStat === 1) { tempoPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("tempoAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
-	window.api.send("toMain", "processTempo;" + JSON.stringify({ id: objActif, filePath, ratio: 1 / ratio, destPath }));
+	window.api.send("toMain", "processTempo;" + JSON.stringify({ id: objActif, filePath: tempoFilePath, ratio: 1 / ratio, destPath }));
 }
 function annulTempoAudio() {
-	document.getElementById("tempoAudio").style.display="none";
+	if (tempoPlayerStat === 1) { tempoPlayerStat = 0; window.api.send("toMain", "killPlay"); }
+	document.getElementById("tempoAudio").style.display = "none";
 }
 
 async function stretchingAudio() {
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file || obj.type >= 24) return;
-	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
-	document.getElementById("stretchingWav").src = `file://${filePath}`;
+	stretchingFilePath = window.api.joinPath(paramProjet.audioPath, obj.file);
 	document.getElementById("sliderStretching").value = 1.00;
 	document.getElementById("inpStretching").value = 1.00;
 	document.getElementById("sliderPitch").value = 0;
 	document.getElementById("inpPitch").value = 0;
+	stretchingPlayerStat = 0;
+	document.getElementById("stretchingPlay").src = "./images/png/lecture.png";
 	document.getElementById("stretchingAudio").style.display = "block";
+}
+function playStretchingFile() {
+	if (stretchingPlayerStat === 0) {
+		stretchingPlayerStat = 1;
+		document.getElementById("stretchingPlay").src = "./images/png/pauseLect.png";
+		window.api.playDirectFile(0, stretchingFilePath, "");
+	} else {
+		stretchingPlayerStat = 0;
+		document.getElementById("stretchingPlay").src = "./images/png/lecture.png";
+		window.api.send("toMain", "killPlay");
+	}
 }
 function sliderStretching() {
 	document.getElementById("inpStretching").value = document.getElementById("sliderStretching").value;
-	document.getElementById("stretchingWav").playbackRate = parseFloat(document.getElementById("inpStretching").value);
 }
 function inpStretching() {
 	document.getElementById("sliderStretching").value = document.getElementById("inpStretching").value;
-	document.getElementById("stretchingWav").playbackRate = parseFloat(document.getElementById("inpStretching").value);
 }
 function sliderPitch() {
 	document.getElementById("inpPitch").value = document.getElementById("sliderPitch").value;
@@ -1858,16 +1884,16 @@ function inpPitch() {
 async function validStretchingAudio() {
 	const ratio = parseFloat(document.getElementById("sliderStretching").value);
 	const pitch = parseFloat(document.getElementById("sliderPitch").value);
-	const obj = tableObjet[objActif];
-	if (!obj || !obj.file) return;
+	if (!stretchingFilePath) return;
 	const destPath = await window.api.showSaveDialog();
 	if (!destPath) return;
-	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	if (stretchingPlayerStat === 1) { stretchingPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("stretchingAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
-	window.api.send("toMain", "processStretching;" + JSON.stringify({ id: objActif, filePath, ratio: 1 / ratio, pitch, destPath }));
+	window.api.send("toMain", "processStretching;" + JSON.stringify({ id: objActif, filePath: stretchingFilePath, ratio: 1 / ratio, pitch, destPath }));
 }
 function annulStretchingAudio() {
+	if (stretchingPlayerStat === 1) { stretchingPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("stretchingAudio").style.display = "none";
 }
 
