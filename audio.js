@@ -12,21 +12,21 @@
 
 // audio.js
 
-let sourceStat=0
-let playerStat=0
-let tableSrc=[]
-let vueStudio=0
-var points=0
-var compteur=0
-var tempoFoo=[]
+let sourceStat=0;
+let playerStat=0;
+let tableSrc=[];
+let vueStudio=0;
+var points=0;
+var compteur=0;
+var tempoFoo=[];
 var curTempo=0;
 let dureePlayer=0;
 let tableListSource=[];
 let timer;
 
 
-document.getElementById("simpleSpeaker").addEventListener('click',readSimpleAudio)
-document.getElementById("actualiseObj").addEventListener('click',actualiseObjets)
+document.getElementById("simpleSpeaker").addEventListener('click',readSimpleAudio);
+document.getElementById("actualiseObj").addEventListener('click',actualiseObjets);
 document.getElementById("inpTempo").addEventListener('input',inpTempo);
 document.getElementById("sliderTempo").addEventListener('input',sliderTempo);
 document.getElementById("renderPlay").addEventListener('click',player);
@@ -61,7 +61,7 @@ function readPart(){
 		 }
 		console.log("maxduree",maxDuree); 
 		curTempo=0;
-		foo() 
+		foo(); 
 		 
 
 		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M5,40 L5,0 M25,0 L25,40');
@@ -74,7 +74,7 @@ function readPart(){
 		//multiStop();
 		window.api.send("toMain", 'killPlay');
 		if(vueStudio==1 ){
-			window.api.send("toMain", "endEvtAudio;")
+			window.api.send("toMain", "endEvtAudio;");
 		}
 	}
 }
@@ -86,8 +86,8 @@ function playerDebut(){
 	document.getElementById("compteurH").innerHTML = " 00 : ";
 	document.getElementById("compteurM").innerHTML = " 00 : ";
 	document.getElementById("compteurS").innerHTML = "00";
-	document.getElementById("tempo").value=60
-	console.log('debut bar',document.getElementById("barVerticale").style.left)
+	document.getElementById("tempo").value=60;
+	console.log('debut bar',document.getElementById("barVerticale").style.left);
 }
 function playerPrec(){
 	document.getElementById("barVerticale").style.left=(parseInt(document.getElementById("barDebut").style.left)+35)+"px";
@@ -99,9 +99,9 @@ function playerSuiv(){
 	defTime("barVerticale");
 }
 function playerEnd(){
-var nsgrp=[]
-nsgrp=[].concat(tableObjet)
-console.log("nsgrp",nsgrp)
+var nsgrp=[];
+nsgrp=[].concat(tableObjet);
+console.log("nsgrp",nsgrp);
 nsgrp=nsgrp.sort((s1, s2) => {
  return s1.posX - s2.posX;
 });
@@ -114,7 +114,7 @@ function foo() {
 	var mt;
 	
 	
-	var gtempo=60/parseFloat(document.getElementById("tempo").value)
+	var gtempo=60/parseFloat(document.getElementById("tempo").value);
 	var delay=55*gtempo;
 	
 	var nbp2;
@@ -181,11 +181,11 @@ function foo() {
 			    startSec: obj.debut,
 			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
 				 };
-				 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
+				 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
 				 const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
 				 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
 		 		window.api.playDirectFile(1, outPath, soxParams);
-		 		console.log("obj",obj.id,options,cmd)
+		 		console.log("obj",obj.id,options,cmd);
 		 	}
 		 }		
 		 
@@ -195,14 +195,14 @@ function foo() {
 			 	if(tableListSource[i].etat==1 && tableListSource[i].start<parseFloat(document.getElementById("barVerticale").style.left)/18){
 			 		tableListSource[i].etat=2;
 			 		cmd="obj"+i+";"+tableListSource[i].x+";"+tableListSource[i].y+";"+tableListSource[i].z+";"+tableListSource[i].w+";"+tableListSource[i].index+";"+tableListSource[i].img;
-					console.log("createEvtAudio",cmd)					
-					window.api.send("toMain", "createEvtAudio;"+cmd)
+					console.log("createEvtAudio",cmd);					
+					window.api.send("toMain", "createEvtAudio;"+cmd);
 			 	}
 		 	}
 		 	for(i=0;i<tableListSource.length;i++){
 			 	if(tableListSource[i].etat==2 && tableListSource[i].end<parseFloat(document.getElementById("barVerticale").style.left)/18){
 			 		tableListSource[i].etat=3;
-			 		window.api.send("toMain", "delEvtAudio;obj"+i)
+			 		window.api.send("toMain", "delEvtAudio;obj"+i);
 			 	}
 		 	}
 		 
@@ -213,7 +213,7 @@ function foo() {
 	 
 	 if(parseFloat(document.getElementById("barVerticale").style.left)>tempoFoo[curTempo].X){
 	 	//document.getElementById("renduWav").playbackRate =tempoFoo[curTempo].Y/60;
-	 	document.getElementById("tempo").value=tempoFoo[curTempo].Y.toFixed(2)
+	 	document.getElementById("tempo").value=tempoFoo[curTempo].Y.toFixed(2);
 	 	 curTempo++;
 	 }
 	 
@@ -230,7 +230,7 @@ function foo2() {
 	if(document.getElementById("renderPos").value<240){
 		timer=setTimeout(foo2, delay);
 	}else{
-		window.api.send("toMain", 'killPlay')
+		window.api.send("toMain", 'killPlay');
 	}
 }
 function defStudioSrc(lsgrp) {
@@ -266,12 +266,12 @@ function defStudioSrc(lsgrp) {
 			npoint.index=Math.round((npz*100)+1);
 			tableListSource.push(npoint);
 		}
-		console.log(obj,tableListSource)
+		console.log(obj,tableListSource);
 	}
 	
 }
 function defTypeDb(objDb) {
-	var lscale2=2	
+	var lscale2=2;	
 	if (objDb<-40){
 		var ws=30*lscale2;
 		var im="./images/png/path4484.png";
@@ -303,7 +303,7 @@ function defTypeDb(objDb) {
 	var rt={
 		wd:ws,
 		img:im
-	}
+	};
 	return rt;
 }
 
@@ -337,11 +337,11 @@ function defTime(elem) {
  	 document.getElementById("compteurH").innerHTML = ht+" : ";
 	 document.getElementById("compteurM").innerHTML = mt+" : ";
 	 document.getElementById("compteurS").innerHTML = st;
-	return tmp
+	return tmp;
 }
 
 async function readSimpleAudio() {
-	console.log("read speaker",tableObjet[objActif],objActif)
+	console.log("read speaker",tableObjet[objActif],objActif);
 	if(playerStat==0){
 		sourceStat=1;
 		if(grpSelect==1){
@@ -358,8 +358,8 @@ async function readSimpleAudio() {
 		    baseName=baseName.split(".")[0];
 		    let outPath ="";
 		    outPath=window.api.joinPath(`${paramProjet.audioPath}`,'tmp',`${obj.id}-fx.wav`);
-		    console.log('baseName',dir,baseName,outPath)
-		    const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
+		    console.log('baseName',dir,baseName,outPath);
+		    const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
 		    const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
 		    const options = {
 			    pitchSemitones: obj.detune,  // équivalent à -500 cents
@@ -369,7 +369,7 @@ async function readSimpleAudio() {
 			    fade:defFade,
 			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
 				 };
-				 console.log("read speaker opt",options)
+				 console.log("read speaker opt",options);
 				 document.getElementById("barVerticale").style.left=((tableObjet[objActif].posX-4)*zoomScale)+"px";
 				 defTime("barVerticale");
 				 if(vueStudio==1 ){
@@ -379,7 +379,7 @@ async function readSimpleAudio() {
 				 lsgrp[0]=objActif;
 				 defStudioSrc(lsgrp);
 				 maxDuree=durationAfterSpeed+(obj.posX/18);
-				 console.log("maxDuree",maxDuree)
+				 console.log("maxDuree",maxDuree);
 	  			 foo();
 			 window.api.playDirectFile(0, outPath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade);
 	  				
@@ -392,8 +392,8 @@ async function readSimpleAudio() {
 		sourceStat=0;
 		playerStat=0;
 		if(tableObjet[objActif].class==1){
-			console.log("stop speaker",objActif)
-			window.api.send("toMain", 'killPlay')
+			console.log("stop speaker",objActif);
+			window.api.send("toMain", 'killPlay');
 		}else{
 			multiStop();
 		}
@@ -411,7 +411,7 @@ function lastAudioInGrp(lgrp) {
 	for(let i=0;i<lgrp.length;i++){
 		var localDuree=tableObjet[lgrp[i]].duree/tableObjet[lgrp[i]].transposition;
 		lgi= localDuree/ratioT;
-		console.log("last",i,tableObjet[lgrp[i]].posX,tableObjet[lgrp[i]].posX+lgi,tableObjet[lgrp[i]].posX+lgi)
+		console.log("last",i,tableObjet[lgrp[i]].posX,tableObjet[lgrp[i]].posX+lgi,tableObjet[lgrp[i]].posX+lgi);
 		if(tableObjet[lgrp[i]].posX+lgi>maxPos){
 			lmax=tableObjet[lgrp[i]].posX;
 			iref=i;
@@ -422,7 +422,7 @@ function lastAudioInGrp(lgrp) {
 	return param = {
 			id:iref,
 			maxDuree:maxDuree,
-			maxPosX:maxPos}
+			maxPosX:maxPos};
 }
 function lastAudio() {
 	var lmax=-1;
@@ -435,7 +435,7 @@ function lastAudio() {
 	for(let i=0;i<tableObjet.length;i++){
 		var localDuree=(tableObjet[i].duree*(1/tableObjet[i].transposition));
 		lgi= localDuree/ratioT;
-		console.log("last",i,tableObjet[i].posX,tableObjet[i].posX+lgi,tableObjet[i].posX+lgi)
+		console.log("last",i,tableObjet[i].posX,tableObjet[i].posX+lgi,tableObjet[i].posX+lgi);
 		if(tableObjet[i].posX+lgi>maxPos){
 			lmax=tableObjet[i].posX;
 			iref=i;
@@ -446,7 +446,7 @@ function lastAudio() {
 	return param = {
 			id:iref,
 			maxDuree:maxDuree,
-			maxPosX:maxPos}
+			maxPosX:maxPos};
 }
 function annulAudio(){
 	document.getElementById("renderAudio").style.display="none";
@@ -476,15 +476,15 @@ function player() {
 	 	if(timer){
 			clearTimeout(timer);
 		}
-	 	window.api.send("toMain", 'killPlay')
+	 	window.api.send("toMain", 'killPlay');
 	 }
 }
 function copySliceBuffer(source,len,offset) {
-	const buffer1 = source
+	const buffer1 = source;
 
 	// Créez un AudioBuffer pour la destination (buffer2) avec une longueur plus grande
-	var length2= tableBufferIR[tableObjet[objActif].convolver].length
-	console.log("length2",length2)
+	var length2= tableBufferIR[tableObjet[objActif].convolver].length;
+	console.log("length2",length2);
 	const buffer2 = contextAudio.createBuffer(
  	 	buffer1.numberOfChannels, // Nombre de canaux
  	 	length2,                   // Longueur souhaitée pour buffer2 (en échantillons)
@@ -499,7 +499,7 @@ function copySliceBuffer(source,len,offset) {
 	  // Utilisez Float32Array.set pour copier les échantillons, avec ajustement de longueur
 	  destinationChannelData.set(sourceChannelData.slice(offset, length2));
 	}	
-	return buffer2	
+	return buffer2;	
 }
 
 // audio.js (Renderer)
@@ -521,12 +521,12 @@ async function rdDirName(path) {
 	if(appPaths.os=="win32"){
 		const ndir=path.split("\\");
 		for(i=0;i<ndir.length-1;i++){
-			dir=dir+ndir[i]+"\\"
+			dir=dir+ndir[i]+"\\";
 		}
 	}else{
 		const ndir=path.split("/");
 		for(i=0;i<ndir.length-1;i++){
-			dir=dir+ndir[i]+"/"
+			dir=dir+ndir[i]+"/";
 		}
 	}
 	dir=dir.substring(0, dir.length - 1);
@@ -560,48 +560,48 @@ function readGrpAudio(){
 	var grp=[];
 
 	if(grpSelect==1){
-		var minx=tableObjet[preservSelect[0]].posX
+		var minx=tableObjet[preservSelect[0]].posX;
 		for(let i=0;i<preservSelect.length;i++){
 			if(tableObjet[preservSelect[i]].posX<minx){
-				minx=tableObjet[preservSelect[i]].posX
+				minx=tableObjet[preservSelect[i]].posX;
 			}
 		}
-		var maxx=tableObjet[preservSelect[preservSelect.length-1]].posX
+		var maxx=tableObjet[preservSelect[preservSelect.length-1]].posX;
 		for(let i=0;i<preservSelect.length;i++){
 			if(tableObjet[preservSelect[i]].posX>maxx){
-				maxx=tableObjet[preservSelect[i]].posX
+				maxx=tableObjet[preservSelect[i]].posX;
 			}
 		}
 		for(let i=0;i<tableObjet.length;i++){
 			if(tableObjet[i].posX>=minx && tableObjet[i].posX<=maxx){
 				if(tableObjet[i].etat==1 && tableObjet[i].class==1  && tableObjet[i].file && tableObjet[i].mute==0){
-					grp.push(i)
+					grp.push(i);
 				}
 			}	
 		}
-		console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp)
+		console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp);
 	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
-		var minx=tableObjet[tableObjet[objActif].liste[0]].posX
+		var minx=tableObjet[tableObjet[objActif].liste[0]].posX;
 		
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			if(tableObjet[tableObjet[objActif].liste[i]].posX<minx){
-				minx=tableObjet[preservSelect[i]].posX
+				minx=tableObjet[preservSelect[i]].posX;
 			}
 		}
-		var maxx=tableObjet[tableObjet[objActif].liste[tableObjet[objActif].liste.length-1]].posX
+		var maxx=tableObjet[tableObjet[objActif].liste[tableObjet[objActif].liste.length-1]].posX;
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			if(tableObjet[tableObjet[objActif].liste[i]].posX>maxx){
-				maxx=tableObjet[preservSelect[i]].posX
+				maxx=tableObjet[preservSelect[i]].posX;
 			}
 		}
 		for(let i=0;i<tableObjet.length;i++){
 			if(tableObjet[i].posX>=minx && tableObjet[i].posX<=maxx){
 				if(tableObjet[i].etat==1 && tableObjet[i].class==1 && tableObjet[i].file && tableObjet[i].mute==0){
-					grp.push(i)
+					grp.push(i);
 				}
 			}
 		}
-		console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp)
+		console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp);
 	}
 	
 	var minpos=tableObjet[grp[0]].posX;
@@ -613,37 +613,37 @@ function readGrpAudio(){
 		}
 	}
 	var tablePosX=[];
-  	var deflastObj=lastAudioInGrp(grp)
+  	var deflastObj=lastAudioInGrp(grp);
   	
-  	console.log("lastAudioInGrp",deflastObj.id)
-  	var j=0
+  	console.log("lastAudioInGrp",deflastObj.id);
+  	var j=0;
 	if(grp.length>0){
 		document.getElementById("barVerticale").style.left=((tableObjet[grp[idpos]].posX-10)*zoomScale)+"px";
 		posX=parseFloat(document.getElementById("barVerticale").style.left)/zoomScale;
 		bar=(posX*ratioT);
 		for(let i=0;i<grp.length;i++){
 			if(tableObjet[grp[i]].posX*zoomScale>posX){
-				console.log("id",i,tableObjet[grp[i]].bufferId)
+				console.log("id",i,tableObjet[grp[i]].bufferId);
 				
 				var source2=contextAudio.createBufferSource();
 				if(tableObjet[grp[i]].convolver!="" && tableBufferIR[tableObjet[grp[i]].convolver].duration>tableBuffer[tableObjet[grp[i]].bufferId].buffer.duration*tableObjet[grp[i]].fin){					
-						source2.buffer=copySliceBuffer(tableBuffer[tableObjet[grp[i]].bufferId].buffer,tableBufferIR[tableObjet[grp[i]].convolver].length,0)
+						source2.buffer=copySliceBuffer(tableBuffer[tableObjet[grp[i]].bufferId].buffer,tableBufferIR[tableObjet[grp[i]].convolver].length,0);
 				}else{
 						source2.buffer =tableBuffer[tableObjet[grp[i]].bufferId].buffer;
 				}
 				
 				tableSrc[j]=contextAudio.createBufferSource();
 				if(tableObjet[grp[i]].reverse==true){
-					var buf1= new Float32Array()
-					var buf2= new Float32Array()
-					buf1=source2.buffer.getChannelData(0)
+					var buf1= new Float32Array();
+					var buf2= new Float32Array();
+					buf1=source2.buffer.getChannelData(0);
      				buf2=source2.buffer.getChannelData(1);
-     				var myArrayBuffer = contextAudio.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate)
-     				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0)
-     				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0)
-     				tableSrc[j].buffer=myArrayBuffer
+     				var myArrayBuffer = contextAudio.createBuffer(2, source2.buffer.duration*contextAudio.sampleRate, contextAudio.sampleRate);
+     				myArrayBuffer.copyToChannel(buf1.toReversed(), 0, 0);
+     				myArrayBuffer.copyToChannel(buf2.toReversed(), 1, 0);
+     				tableSrc[j].buffer=myArrayBuffer;
      			}else{
-     				tableSrc[j]=source2
+     				tableSrc[j]=source2;
      			}
      			
 
@@ -653,11 +653,11 @@ function readGrpAudio(){
 				now=curTime+((tableObjet[i].posX*ratioT)-bar);
 				var rt=readSourceAudio(contextAudio,tableSrc[j],grp[i],gainNode[j],now,panner[j],convolver[j]);	
 				tableSrc[j]=rt.src;
-				defPeak(j,rt.src,tableObjet[grp[i]].gain)
+				defPeak(j,rt.src,tableObjet[grp[i]].gain);
 				ndeb[j]=rt.ndeb;
 				nfin[j]=rt.nfin;
-				tablePosX.push(tableObjet[grp[i]].posX)
-				j++
+				tablePosX.push(tableObjet[grp[i]].posX);
+				j++;
 			}
 		}		
 		tableSrc[deflastObj.id].onended = () => {
@@ -674,7 +674,7 @@ function readGrpAudio(){
 		for(let i=0;i<tableSrc.length;i++){
 			if(tableSrc[i] && tablePosX[i]>posX){
 				startX=(tablePosX[i])*ratioT;
-				console.log("source",i)
+				console.log("source",i);
 				tableSrc[i].start(contextAudio.currentTime+(startX-bar),ndeb[i],nfin[i]);
 				playerStat=1;
 			}
@@ -682,7 +682,7 @@ function readGrpAudio(){
 		
 	}
 }
-let peak=[]
+let peak=[];
 
 function saveRenduAudio(duree,file){
 dureePlayer = duree;
@@ -698,7 +698,7 @@ console.log("duree",duree,file);
 	a.id="rubber";
 	}
   //const fileName = file.split(/[\\/]/).pop(); 
-  a.href = file//URL.createObjectURL(rwav);
+  a.href = file;//URL.createObjectURL(rwav);
   a.download = file;
   a.textContent = 'Sauvegarder le fichier audio';
   a.style.display = 'inline-block';
@@ -738,7 +738,7 @@ function renderGrpAudio3(ngrp){
 });
 	
 	var indDebut=tempoFoo.find((element) => element.X>=tableObjet[lsgrp[0]].posX);
-	var nfin=tableObjet[lsgrp[lsgrp.length-1]].posX+(tableObjet[lsgrp[lsgrp.length-1]].duree*18)
+	var nfin=tableObjet[lsgrp[lsgrp.length-1]].posX+(tableObjet[lsgrp[lsgrp.length-1]].duree*18);
 	var indFin=tempoFoo.find((element) => element.X>=nfin);
 	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
 	var i=0;
@@ -793,7 +793,7 @@ async function renderPartAudio(mode){
 	console.log("retour",rt);
 	var start=startx/18;
 	var end=rt.duration-start;
-	console.log("read start",start,rt.duration,end,rt.output)
+	console.log("read start",start,rt.duration,end,rt.output);
 	saveRenduAudio(rt.duration+start,rt.output);
 }
 
@@ -928,16 +928,16 @@ async function createTempoMap(id){
 	tempoMap[0]={
 			x:0,
 			y:indDebut.Y/60
-			}
-			console.log("tempoMap",lsgrp,indDebut,indFin,nfin,j)
+			};
+			console.log("tempoMap",lsgrp,indDebut,indFin,nfin,j);
 			i++;
 	while(tempoPoints[j].X<indFin.X){
-		console.log("tempoMap",j,indDebut.X,(tempoPoints[j].X-base)/18,(240-(parseFloat(tempoPoints[j].Y)/0.4167)))
+		console.log("tempoMap",j,indDebut.X,(tempoPoints[j].X-base)/18,(240-(parseFloat(tempoPoints[j].Y)/0.4167)));
 		if(tempoPoints[j].X>indDebut.X){
 		tempoMap[i]={
 			x:(parseFloat(tempoPoints[j].X)-base)/18,
 			y:(240-(parseFloat(tempoPoints[j].Y)/0.4167))/60
-			}
+			};
 			i++;
 		 }
 			j++;
@@ -945,10 +945,10 @@ async function createTempoMap(id){
 	tempoMap[i]={
 			x:(parseFloat(indFin.X)-base)/18,
 			y:indFin.Y/60
-			}
+			};
 	i++;
 	
-	console.log("tempoMap",tempoPoints,tempoMap,indDebut,indFin)	
+	console.log("tempoMap",tempoPoints,tempoMap,indDebut,indFin);	
 	return tempoMap;
 }
 // ======================================================================
@@ -980,11 +980,11 @@ async function prepareAudio(id, currentChannels, sampleRate, options) {
     source.buffer = buffer;
 
     // Speed (change durée finale)
-    console.log("source",source.playbackRate.value,source.detune.value)
+    console.log("source",source.playbackRate.value,source.detune.value);
     source.playbackRate.value = speedFactor;
     
     source.detune.value = pitchSemitones;
-console.log("source",source.playbackRate.value,source.detune.value)
+console.log("source",source.playbackRate.value,source.detune.value);
     // Gain
     const gainNode = offlineCtx.createGain();
     gainNode.gain.value = gain;
@@ -1090,14 +1090,14 @@ function applyEnvelopeToGainNode(gainNode, localEnv) {
 
 async function readSimpleAudioA(id,mode) {
     const obj = tableObjet[id];
-    console.time()
+    console.time();
     if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
 	 document.getElementById("loading").style.display="block";
     const filePath =window.api.joinPath(`${paramProjet.audioPath}`,obj.file);
     const dir = await rdDirName(filePath);    
     let baseName = await rdBaseName(filePath);
     baseName=baseName.split(".")[0];
-    console.log('baseName',dir,baseName)
+    console.log('baseName',dir,baseName);
 
     const outPath = window.api.joinPath(`${paramProjet.audioPath}`,"tmp",`${obj.id}-fx.wav`);
 
@@ -1137,7 +1137,7 @@ async function readSimpleAudioA(id,mode) {
 	    startSec: obj.debut,
 	    lengthSec: (obj.duree*obj.fin)-(obj.duree*obj.debut)
 		 };
-		 console.log("options",options)
+		 console.log("options",options);
 		
     // ----- Sauvegarde finale ----- 
     //
@@ -1152,7 +1152,7 @@ async function readSimpleAudioA(id,mode) {
     
 	    
 	
-	 currentChannels = await applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate) 
+	 currentChannels = await applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate); 
 	 const monoBuffer = await mixToMono(currentChannels);
 	 
 	  
@@ -1203,7 +1203,7 @@ async function endTrim(renderedBuffer, nsecondes) {
 }
 async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate) {
 	
-	console.log("listeFx",obj,obj.tableFx)
+	console.log("listeFx",obj,obj.tableFx);
     // ----- WAM / GREFFONS -----
     const fxSlots = obj.tableFx || [];
     const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
@@ -1213,7 +1213,7 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
     // Import faustwasm once
     const appPaths = await window.api.getPaths();
     const faust=window.api.joinPath(window.api.resources,"@grame","faustwasm","dist","esm","index.js");
-    console.log("faust",appPaths.basedir,faust)
+    console.log("faust",appPaths.basedir,faust);
     const faustPkg = await import(`file://${faust}`);
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
     const faustModule = await instantiateFaustModuleFromFile(`${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`);
@@ -1311,10 +1311,10 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
 }
 
 async function loadLayoutJSON(layoutName) {
-	console.log("layoutName",layoutName)
+	console.log("layoutName",layoutName);
   const appPaths = await window.api.getPaths();
 		  const buf = await window.api.readFile(`${appPaths.basedir}/resources/Dsp/${layoutName}.json`);
-		  console.log("layoutPath",`${appPaths}/resources/Dsp/${layoutName}.json`)
+		  console.log("layoutPath",`${appPaths}/resources/Dsp/${layoutName}.json`);
     	  const txt = new TextDecoder("utf-8").decode(buf);
     	  return JSON.parse(txt);  
 }
@@ -1413,7 +1413,7 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
     const obj = tableObjet[id];
     // ===== OFFLINE PROCESSOR =====
     const blockSize = 64; // plus réactif
-    console.log("generator",await window.wamSpat.generator)
+    console.log("generator",await window.wamSpat.generator);
     const processor = await window.wamSpat.generator.createOfflineProcessor(sampleRate, blockSize);
 	
     // ===== READ AVAILABLE PARAMS =====
@@ -1591,17 +1591,17 @@ async function postRubberband(id,mode,file) {
    const numSamples = audioBuffer.length;
    const sampleRate =audioBuffer.sampleRate;
    
-   const trimmed= await endTrim(audioBuffer,0)
+   const trimmed= await endTrim(audioBuffer,0);
 	const trimmedLength = trimmed.length; 
    console.log("TRIMMED LENGTH =", trimmedLength);
-   console.log("rendu",numChannels,numSamples,sampleRate)
+   console.log("rendu",numChannels,numSamples,sampleRate);
 	const offlineCtx = new OfflineAudioContext(1,trimmedLength,sampleRate );
 	const song = offlineCtx.createBufferSource();
 	const resultBuffer = offlineCtx.createBuffer(1, trimmedLength, sampleRate);
 	resultBuffer.copyToChannel(trimmed, 0);  // copie dans le canal 0
 	song.buffer = resultBuffer; 
 	const gainNode = offlineCtx.createGain();
-	console.log("gain",gainPoints)
+	console.log("gain",gainPoints);
 	const extracted = extractEnvelopeForObject(
     gainPoints,
     tableObjet[id].posX,        // position de l’objet dans le X global
@@ -1627,7 +1627,7 @@ async function postRubberband(id,mode,file) {
     let outPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-fx.wav`);
     if(mode==0){
 	   await spatialiseBuffer(id,outPath, numChannels, trimmedLength, sampleRate , currentChannels, interpType = "linear");
-	   console.timeEnd()
+	   console.timeEnd();
 	   console.log("[pipeline] saved →spatialised", outPath);
     }else{
     	outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
@@ -1635,7 +1635,7 @@ async function postRubberband(id,mode,file) {
     	document.getElementById("loading").style.display="none";
    	console.log("[no spatialiseObjet] File save:", outPath);
    	exportCompteur++;
-   	console.log("exportTable",exportCompteur,exportTable)
+   	console.log("exportTable",exportCompteur,exportTable);
    	if(exportCompteur<exportTable.length){
    		document.getElementById("sliderLParam").style.width=(Math.floor((exportCompteur/exportTable.length)*100))+"%";
    		await readSimpleAudioA(exportTable[exportCompteur],1);
@@ -1723,29 +1723,29 @@ async function exportPart(){
 function exportToSeq(refGrp){
 	var autoGain="";
 	for(i=0;i<gainPoints.length;i++){
-		autoGain=autoGain+((gainPoints[i].X/18).toFixed(2))+","+((100-gainPoints[i].Y)*0.05).toFixed(2)+";"
+		autoGain=autoGain+((gainPoints[i].X/18).toFixed(2))+","+((100-gainPoints[i].Y)*0.05).toFixed(2)+";";
 	}
-	autoGain=autoGain.substring(0,autoGain.length-1)
+	autoGain=autoGain.substring(0,autoGain.length-1);
 	var txt=audioDirectory+"\n"+spat3D+"\n"+spat3DCanaux+"\n"+contextAudio.sampleRate+"\n"+autoGain+"\n";
 	var nfilesave=[];
 	var ratioT=(720/12960);
 	var offsetPiste=1;
-	var track=1
+	var track=1;
 	nfilesave=[].concat(refGrp);
 	nfilesave.sort((a, b) => a.piste - b.piste);
-	console.log("exportToSeq",refGrp,nfilesave)
-	console.log(tableObjet[0])
+	console.log("exportToSeq",refGrp,nfilesave);
+	console.log(tableObjet[0]);
 	for(let i in nfilesave){
 		if(tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].class==1 && tableObjet[i].type<24){
 			if(refGrp.length>0){
-				track=tableObjet[nfilesave[i]].piste+offsetPiste
+				track=tableObjet[nfilesave[i]].piste+offsetPiste;
 			}
-			txt=txt+tableObjet[nfilesave[i]].nom+";"+(tableObjet[nfilesave[i]].objColor.substring(1)+"ff")+";"+tableObjet[nfilesave[i]].id+";"+(tableObjet[nfilesave[i]].piste+offsetPiste)+";"+Math.floor((tableObjet[nfilesave[i]].posX*ratioT)*48000)			
+			txt=txt+tableObjet[nfilesave[i]].nom+";"+(tableObjet[nfilesave[i]].objColor.substring(1)+"ff")+";"+tableObjet[nfilesave[i]].id+";"+(tableObjet[nfilesave[i]].piste+offsetPiste)+";"+Math.floor((tableObjet[nfilesave[i]].posX*ratioT)*48000);			
 			txt=txt+";"+tableObjet[nfilesave[i]].spT+";"+tableObjet[nfilesave[i]].spX+";"+tableObjet[nfilesave[i]].spY+";"+tableObjet[nfilesave[i]].spZ+";"+tableObjet[nfilesave[i]].spD+"\n";   	
 		 }
 		
 	}
-   	window.api.send("toMain", "exportSelect;"+btoa(txt))
+   	window.api.send("toMain", "exportSelect;"+btoa(txt));
 }
 
 // ***********************************************************************************************************************
@@ -1760,7 +1760,7 @@ async function actualiseObjets(){
 			}
 		}
 	}
-   console.log(lsgrp)
+   console.log(lsgrp);
 	document.getElementById("sliderLParam").style.width="0%";
 	document.getElementById("popupLoader").style.display="block";
 	var nb=100/lsgrp.length;
@@ -1835,7 +1835,7 @@ async function tempoAudio() {
 				recordingstream=contextAudio.createMediaStreamDestination();
   				recorder=new MediaRecorder(recordingstream.stream);
   				panner.connect(recordingstream);
-  				console.log("source",source)
+  				console.log("source",source);
   				source.start(0,ndeb,nfin);
   				recorder.start();
 				sourcEtat=1;
@@ -1853,7 +1853,7 @@ function inpTempo(){
 	document.getElementById("tempoWav").playbackRate=parseFloat(document.getElementById("inpTempo").value);
 }
 
-var mediasource2=contextAudio.createMediaElementSource(document.getElementById("tempoWav"))
+var mediasource2=contextAudio.createMediaElementSource(document.getElementById("tempoWav"));
 var recorder2=false;
 var recordingstream2=false;	
 recordingstream2=contextAudio.createMediaStreamDestination();

@@ -14,10 +14,10 @@
 
 // Modules de controle du cycle de vie de l'application et de création 
 // de fenêtre native de navigateur
-const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer } = require('electron')
+const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer } = require('electron');
 const url = require('url');
-const path = require('path')
-const fs = require("fs-extra")
+const path = require('path');
+const fs = require("fs-extra");
 const os = require("os");
 const { existsSync } = require("fs");
 const tkill = require("tree-kill");
@@ -33,7 +33,7 @@ const wav = require("node-wav");
 
 const FFTModule = require('fft.js'); 
 
-var AudioBuffer = require('audiobuffer')
+var AudioBuffer = require('audiobuffer');
 const { exec, execSync, spawn , spawnSync} = require("child_process");
 const util = require("util");
 const execAsync = util.promisify(exec);
@@ -92,7 +92,7 @@ function findSoxiPath() {
     default:
       localPath = path.join(baseDir, "linux", "soxi");
   }
-	console.log("loaclPath",localPath)
+	console.log("loaclPath",localPath);
   if (existsSync(localPath)) return localPath;
   return "soxi"; // fallback global
 }
@@ -162,7 +162,7 @@ function getFFmpegPaths() {
 const soxPath = findSoxPath();
 const soxiPath = findSoxiPath();
 const playPath = findPlayPath();
-console.log("playPath",playPath)
+console.log("playPath",playPath);
 const rubberbandPath = findRubberbandPath();
 const { ffmpegPath, ffplayPath, ffprobePath } = getFFmpegPaths();
 console.log("🎧 Sox détecté :", soxPath,soxiPath,playPath,rubberbandPath,ffmpegPath, ffplayPath, ffprobePath );
@@ -227,7 +227,7 @@ async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio,
   });
   await waitForFile(outputPath);
 
-  mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath)
+  mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath);
 }
 async function autoRubberbandCLI(rb,inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null,obj) {
   let cmd = rb+` -t ${timeRatio} -p ${pitchSemitones}  --window-long --no-transients --smoothing --threads "${inputPath}" "${outputPath}"`;
@@ -237,7 +237,7 @@ async function autoRubberbandCLI(rb,inputPath, outputPath, timeRatio, pitchSemit
   const { stdout, stderr } = await execAsync(cmd);
   //if (stderr) console.error("rubberband stderr:", stderr);
   console.log("Rubberband terminé !");
-  mainWindow.webContents.send("fromMain", "autoRubberband;"+obj+";"+outputPath)
+  mainWindow.webContents.send("fromMain", "autoRubberband;"+obj+";"+outputPath);
 }
 async function checkTimeMapLength(timeMapPath) {
   try {
@@ -307,7 +307,7 @@ var copyFileOutsideOfElectronAsar = function (sourceInAsarArchive, destOutsideAs
         // file will be copied
         if (fs.statSync(app.getAppPath() + "/" + sourceInAsarArchive).isFile()) {
 
-            let file = destOutsideAsarArchive 
+            let file = destOutsideAsarArchive; 
             let dir = path.dirname(file);
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir, { recursive: true });
@@ -327,7 +327,7 @@ var copyFileOutsideOfElectronAsar = function (sourceInAsarArchive, destOutsideAs
         }
     }
 
-}
+};
 if (fs.existsSync(app.getPath('appData')+'/kandiskyscore')) {
   console.log('The directory exists');
 } else {
@@ -341,7 +341,7 @@ if (fs.existsSync(app.getPath('appData')+'/kandiskyscore')) {
 }
 if (fs.existsSync(app.getPath('home')+'/kandiskyscore')) {
   console.log('The directory exists');
-    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts')
+    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts');
 } else {
   console.log('The directory does NOT exist');
   fs.mkdir(app.getPath('home')+'/kandiskyscore', (err) => { 
@@ -349,99 +349,99 @@ if (fs.existsSync(app.getPath('home')+'/kandiskyscore')) {
         return console.error(err); 
     } 
     console.log('Directory '+app.getPath('home')+'/kandiskyscore created successfully!'); 
-    copyFileOutsideOfElectronAsar('./Pdf', app.getPath('home')+'/kandiskyscore/Pdf')
-    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts')
-    copyFileOutsideOfElectronAsar('./Dsp', app.getPath('home')+'/kandiskyscore/Dsp')
+    copyFileOutsideOfElectronAsar('./Pdf', app.getPath('home')+'/kandiskyscore/Pdf');
+    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts');
+    copyFileOutsideOfElectronAsar('./Dsp', app.getPath('home')+'/kandiskyscore/Dsp');
 	}); 
 }
 
 
 if (fs.existsSync(app.getPath('appData')+'/kandiskyscore/config.js')) {
-	 console.log('config')
+	 console.log('config');
 	}else{
-    copyFileOutsideOfElectronAsar('./config.js', app.getPath('appData')+'/kandiskyscore/config.js')
+    copyFileOutsideOfElectronAsar('./config.js', app.getPath('appData')+'/kandiskyscore/config.js');
    }
 if (fs.existsSync(app.getPath('appData')+'/kandiskyscore/menuDefaut.js')) {
-	 console.log('menu exists')
+	 console.log('menu exists');
 	}else{
-    copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
+    copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
    }
 
 
 //copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
-const Mn = require(app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
-console.log('copy menuDefaut')
+const Mn = require(app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
+console.log('copy menuDefaut');
 fs.access(app.getPath('appData')+'/kandiskyscore/Dsp', (err) => {
 	   if (err) {
-	      console.log('does not exist')
-			copyFileOutsideOfElectronAsar('./Dsp', app.getPath('appData')+'/kandiskyscore/Dsp')
+	      console.log('does not exist');
+			copyFileOutsideOfElectronAsar('./Dsp', app.getPath('appData')+'/kandiskyscore/Dsp');
 	    } else {
-	      console.log('exists')
+	      console.log('exists');
 	    }
-   })
+   });
 fs.access(app.getPath('appData')+'/kandiskyscore/Pdf', (err) => {
 	   if (err) {
-	      console.log('does not exist')
-			copyFileOutsideOfElectronAsar('./Pdf', app.getPath('appData')+'/kandiskyscore/Pdf')
+	      console.log('does not exist');
+			copyFileOutsideOfElectronAsar('./Pdf', app.getPath('appData')+'/kandiskyscore/Pdf');
 	    } else {
-	      console.log('exists')
+	      console.log('exists');
 	    }
-   })
+   });
 
 
 
-const isMac = process.platform === 'darwin'
+const isMac = process.platform === 'darwin';
 
-let mainWindow =""
-let winConfig ="" 
-let winConfigEtat=0
-let winProjetEtat=0
-let winSpatialEtat=0
-let winGraphObjEtat=0
-let winGraphSymbEtat=0
-let winGraphGrpEtat=0
-let winTrajectoireEtat=0
-let winStudioEtat=0
-let winStudio3DEtat=0
-let winSpectrEditEtat=0
-let winPreDefEtat=0
-let winAideEtat=0
-let newStudioEtat=0
-let winVueStudio3DEtat=0
-let winDocEtat=0
-let winSpectroEtat=0
-let winMediaExplorerEtat=0
+let mainWindow ="";
+let winConfig =""; 
+let winConfigEtat=0;
+let winProjetEtat=0;
+let winSpatialEtat=0;
+let winGraphObjEtat=0;
+let winGraphSymbEtat=0;
+let winGraphGrpEtat=0;
+let winTrajectoireEtat=0;
+let winStudioEtat=0;
+let winStudio3DEtat=0;
+let winSpectrEditEtat=0;
+let winPreDefEtat=0;
+let winAideEtat=0;
+let newStudioEtat=0;
+let winVueStudio3DEtat=0;
+let winDocEtat=0;
+let winSpectroEtat=0;
+let winMediaExplorerEtat=0;
 let winImgViewerEtat=0;
-let winHostEtat=0
-let winPro54Etat=0
-let winObxdEtat=0
-let winSpatMassEtat=0
-let winMassWasmEtat=0
-let winSpectWamEtat=0
-let winTrajectoryEtat=0
+let winHostEtat=0;
+let winPro54Etat=0;
+let winObxdEtat=0;
+let winSpatMassEtat=0;
+let winMassWasmEtat=0;
+let winSpectWamEtat=0;
+let winTrajectoryEtat=0;
 let winSvgEtat=0;
-let projetName=''
-let projetPath=app.getPath('home')+'/kandiskyscore/projets'
-let audioPath=app.getPath('home')+'/kandiskyscore/projets'
-let imgPath=app.getPath('home')+'/kandiskyscore/projets'
-let editor='libreoffice --draw'
-let editAudioCmd='audacity'
-let daw=0
-let cmdDaw=app.getPath('home')+'/Reaper/reaper_linux_x86_64/REAPER/reaper'
-let pdfPage=1
-let pdfLandscape=1
-let pdfScale=1
-let pdfMgTop=0.2
-let pdfMgBot=0.2
-let pdfMgLeft=0.2
-let pdfMgRight=0.2
-let pdfBkg=0
-let pdfAssCmd='pdfunite'
-let pdfAppCmd='atril'
-let rubberband=""
+let projetName='';
+let projetPath=app.getPath('home')+'/kandiskyscore/projets';
+let audioPath=app.getPath('home')+'/kandiskyscore/projets';
+let imgPath=app.getPath('home')+'/kandiskyscore/projets';
+let editor='libreoffice --draw';
+let editAudioCmd='audacity';
+let daw=0;
+let cmdDaw=app.getPath('home')+'/Reaper/reaper_linux_x86_64/REAPER/reaper';
+let pdfPage=1;
+let pdfLandscape=1;
+let pdfScale=1;
+let pdfMgTop=0.2;
+let pdfMgBot=0.2;
+let pdfMgLeft=0.2;
+let pdfMgRight=0.2;
+let pdfBkg=0;
+let pdfAssCmd='pdfunite';
+let pdfAppCmd='atril';
+let rubberband="";
 
-let currentProjet=app.getPath('home')+'/kandiskyscore/Projets'
-app.disableHardwareAcceleration()
+let currentProjet=app.getPath('home')+'/kandiskyscore/Projets';
+app.disableHardwareAcceleration();
 const createWindow = () => {
   // Création de la fenêtre de navigateur.
   mainWindow = new BrowserWindow({
@@ -456,17 +456,17 @@ const createWindow = () => {
       sandbox: false
     }
     
-  })
+  });
 
   // et chargement de l'index.html de l'application.
-  mainWindow.loadFile('index.html')
-  ipcMain.handle('ping', () =>  mainWindow.getSize())
+  mainWindow.loadFile('index.html');
+  ipcMain.handle('ping', () =>  mainWindow.getSize());
   
   // Ouvrir les outils de développement.
-  mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools();
   
 	mainWindow.on('close', e => { // Line 49
-  e.preventDefault()
+  e.preventDefault();
   dialog.showMessageBox({
     type: 'info',
     buttons: [Qcont, Qok],
@@ -475,14 +475,14 @@ const createWindow = () => {
     title: Qwarning,
     detail: Qquit
   }).then(({ response, checkboxChecked }) => {
-    console.log(`response: ${response}`)
+    console.log(`response: ${response}`);
     if (response) {
-      mainWindow.destroy()
-      app.quit()
+      mainWindow.destroy();
+      app.quit();
     }
-  })
-})  
-}
+  });
+});  
+};
 //"../../kandiskyscore/Projets/Projet3/Audios/outfoxing.wav"
 
 
@@ -537,15 +537,15 @@ app.whenReady().then(async () => {
   // Charger dynamiquement Rubber Band
  	//await initializeRubberBand();
 	//testRubberband().catch(console.error);
-  createWindow()
+  createWindow();
   
   
 
   app.on('activate', () => {
     // Sur macOS il est commun de re-créer une fenêtre  lors 
     // du click sur l'icone du dock et qu'il n'y a pas d'autre fenêtre ouverte.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
  
 const template = [
   
@@ -780,7 +780,7 @@ const template = [
         click: async () => openDoc() }
     ]
   }
-]
+];
 /*
 const template2 = [
   
@@ -818,25 +818,25 @@ const template2 = [
       isMac ? { role: 'close' } : { role: 'quit' }
     ]
    }
-]
+];
 // ****************************************************************************************************************
 //																	Popup Menu
 // ****************************************************************************************************************
 
-const menuPopup = new Menu()
+const menuPopup = new Menu();
 menuPopup.append(new MenuItem({ label: Mcouper,
-click: () => menuPopupCouper()},))
+click: () => menuPopupCouper()},));
 menuPopup.append(new MenuItem({ label: Mcopier,
-click: () => menuPopupCopier()},))
+click: () => menuPopupCopier()},));
 menuPopup.append(new MenuItem({ label: Mcoller,
-click: () => menuPopupColler()},))
-menuPopup.append(new MenuItem({ type: 'separator' }))
+click: () => menuPopupColler()},));
+menuPopup.append(new MenuItem({ type: 'separator' }));
 menuPopup.append(new MenuItem({ label: Mgrouper,
-click: () => menuPopupGrouper()},))
+click: () => menuPopupGrouper()},));
 menuPopup.append(new MenuItem({ label: Mdegrouper,
-click: () => menuPopupRegrouper()},))
+click: () => menuPopupRegrouper()},));
 menuPopup.append(new MenuItem({ label: MtoutDegrouper,
-click: () => menuPopupToutDegrouper()}))
+click: () => menuPopupToutDegrouper()}));
 
 																						  // fonction popup menu
 function menuPopupCouper() {
@@ -862,21 +862,21 @@ function menuPopupToutDegrouper() {
 }
 
 ipcMain.on ("showmenu", (event, args) => {									// Affichage du menu popup
-	console.log(`Restore ${args} 1 from param`)
-    const winMenu = BrowserWindow.fromWebContents(event.sender)
-  	 menuPopup.popup(winMenu)
+	console.log(`Restore ${args} 1 from param`);
+    const winMenu = BrowserWindow.fromWebContents(event.sender);
+  	 menuPopup.popup(winMenu);
 });
 function autoFileSave(event,filePath,audioData) {
-	const buffer = Buffer.from(audioData)
+	const buffer = Buffer.from(audioData);
 	fs.writeFile(filePath, buffer, (err) => {
 				       if (err) throw err;
-		    console.log('Saved! '+filePath)
+		    console.log('Saved! '+filePath);
 				    });
 }
 
 ipcMain.on ("saveAudio", (event, ...args) => {									// Affichage du menu popup
-	console.log(`Save`+ args[1] +` from param`)
-    autoFileSave(event,args[1],args[2])
+	console.log(`Save`+ args[1] +` from param`);
+    autoFileSave(event,args[1],args[2]);
 });
 
 ipcMain.handle('playDirectFile', async (event, mode, filePath, soxParams) => {
@@ -940,7 +940,7 @@ ipcMain.handle('saveAudioTempo', async (event, filePath, arrayBuffer) => {
 
 ipcMain.on("save-File", (event, { filename, data }) => {
   const savePath = path.join(app.getPath('home')+'/kandiskyscore', filename);
-  console.log(savePath)
+  console.log(savePath);
 	
   dialog.showSaveDialog({
         title: 'Select the File Path to save',
@@ -954,7 +954,7 @@ ipcMain.on("save-File", (event, { filename, data }) => {
         if (!file.canceled) {
             console.log(file.filePath.toString());
             
-            currentProjet=file.filePath.toString()
+            currentProjet=file.filePath.toString();
             // Creating and Writing to the sample.txt file
             fs.writeFile(file.filePath.toString(), 
                          data, function (err) {
@@ -963,7 +963,7 @@ ipcMain.on("save-File", (event, { filename, data }) => {
             });
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });  
   
 });
@@ -1022,8 +1022,8 @@ ipcMain.on("process-audio", async (event, args) => {
 // ****************************************************************************************************************
 function winDefSvg(obj,mode) {
 	if(winSvgEtat==1){
-		winSvg.destroy()
-  			winSvgEtat=0
+		winSvg.destroy();
+  			winSvgEtat=0;
 	}
 	winSvg = new BrowserWindow({width:800,height:640,alwaysOnTop:false,
 	webPreferences: {
@@ -1032,22 +1032,22 @@ function winDefSvg(obj,mode) {
             enableRemoteModule: false, // turn off remote
             preload: path.join(__dirname, 'preload.js')
         }
-	})
-	winSvg.loadFile('winSvg.html')
+	});
+	winSvg.loadFile('winSvg.html');
 	winSvg.removeMenu();
 	//winSvg.setMenu(menu2)
 	//winSvg.webContents.openDevTools()
-	winSvgEtat=1
+	winSvgEtat=1;
 	winSvg.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
  		winSvg.webContents.send("fromMain", "defSvg;"+obj+";"+mode);
   		});
 
 	winSvg.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-   e.preventDefault()
+   e.preventDefault();
    
-  winSvg.destroy()
-  winSvgEtat=0
-  }) 
+  winSvg.destroy();
+  winSvgEtat=0;
+  }); 
 }
 
 
@@ -1063,23 +1063,23 @@ function createStudio() {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		newStudio.loadFile('studioCreate.html')
+		});
+		newStudio.loadFile('studioCreate.html');
 		newStudio.setMenu(menu2);
 		//newStudio.webContents.openDevTools()
-		newStudioEtat=1
+		newStudioEtat=1;
 		
 
 		newStudio.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  newStudio.destroy()
-	  newStudioEtat=0
+	  newStudio.destroy();
+	  newStudioEtat=0;
 	  if(winVueStudio3DEtat==1){
-		 winVueStudio3D.destroy()
-  		 winVueStudio3DEtat=0
+		 winVueStudio3D.destroy();
+  		 winVueStudio3DEtat=0;
 	  }
-	}) 
+	}); 
 	
 	}else{
 		/*
@@ -1093,20 +1093,20 @@ function createStudio() {
 	  })
 	  */
 	  //winConfig.destroy()
-	  newStudio=0
-		console.log('close createStudio')
+	  newStudio=0;
+		console.log('close createStudio');
 	}
 }
 
 function copyDefautMenu(lang) {
-   copyFileOutsideOfElectronAsar('/Local/'+lang+'/menu-'+lang+'.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
+   copyFileOutsideOfElectronAsar('/Local/'+lang+'/menu-'+lang+'.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
    console.log('./Local/'+lang+'/menu-'+lang+'.js was copied to '+app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
-    mainWindow.webContents.send("fromMain", 'configSave;'+lang)
+    mainWindow.webContents.send("fromMain", 'configSave;'+lang);
 //});
 }
-const menu = Menu.buildFromTemplate(template)								// construction du menu principal
-Menu.setApplicationMenu(menu)
-app.on("ready", createWindow)
+const menu = Menu.buildFromTemplate(template);								// construction du menu principal
+Menu.setApplicationMenu(menu);
+app.on("ready", createWindow);
 
 mainWindow.on('resize', function () {
     var size   = mainWindow.getSize();
@@ -1128,11 +1128,11 @@ function nouveauProjet() {
 	    title: Qwarning,
 	    detail: Qquit
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
-	      mainWindow.webContents.send("fromMain", 'newProject;')
+	      mainWindow.webContents.send("fromMain", 'newProject;');
 	    }
-	  })
+	  });
 }
 function openProjet() {
 	dialog.showMessageBox({
@@ -1143,7 +1143,7 @@ function openProjet() {
 	    title: Qwarning,
 	    detail: Qnew
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
 	      var testfile = dialog.showOpenDialog({
 			properties: [
@@ -1154,14 +1154,14 @@ function openProjet() {
 		    { name: 'All Files', extensions: ['*'] }
 		  ]
 		   }).then(result => {
-		   	console.log(result.canceled)
+		   	console.log(result.canceled);
 		  		if(!result.canceled){
-		  			currentProjet=result.filePaths[0]
-		  			mainWindow.webContents.send("fromMain", 'loadProjet;'+result.filePaths)
+		  			currentProjet=result.filePaths[0];
+		  			mainWindow.webContents.send("fromMain", 'loadProjet;'+result.filePaths);
 		  		}
-			})
+			});
 	    }
-	  })
+	  });
 }
 function openGrp() {
 var testfile = dialog.showOpenDialog({
@@ -1173,12 +1173,12 @@ var testfile = dialog.showOpenDialog({
     { name: 'All Files', extensions: ['*'] }
   ]
    }).then(result => {
-   	console.log(result.canceled)
-  		console.log(result.filePaths)
+   	console.log(result.canceled);
+  		console.log(result.filePaths);
   		if(!result.canceled){
-  			mainWindow.webContents.send("fromMain", 'loadGrp;'+result.filePaths)
+  			mainWindow.webContents.send("fromMain", 'loadGrp;'+result.filePaths);
   		}
-	})
+	});
 	
 }
 function renameProjetAs() {
@@ -1196,7 +1196,7 @@ function renameProjetAs() {
         // Stating whether dialog operation was cancelled or not.
         console.log(file.canceled);
         if (!file.canceled) {
-            var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName)
+            var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName);
             // Creating and Writing to the sample.txt file
             
             if (fs.lstatSync(base).isDirectory()) {
@@ -1209,7 +1209,7 @@ function renameProjetAs() {
             mainWindow.webContents.send("fromMain", "renameProjet;"+projetName);
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function delProjet() {
@@ -1221,25 +1221,25 @@ function delProjet() {
 	    title: Qalerte,
 	    detail: Qcontinu
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
-	    	var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName)
+	    	var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName);
 	    	if (fs.lstatSync(base).isDirectory()) {
 			      fs.rmSync(base, { recursive: true });
 			      mainWindow.webContents.send("fromMain", 'newProject;');
 			    }
 	    }
-	  })
+	  });
 }
 function defStudio() {
-	console.log("saveStudio")
+	console.log("saveStudio");
 	newStudio.webContents.send("fromMain", 'saveStudio;');
 }
 function sPro24() {
-	winPro54Open()
+	winPro54Open();
 }
 function sObxd() {
-	winObxdOpen()
+	winObxdOpen();
 }
 
 // Dans votre main process
@@ -1259,13 +1259,13 @@ ipcMain.handle('read-file', async (event, filePath) => {
 
 // ******************************************************************************************************
 async function ide() {
-          const { shell } = require('electron')
-          await shell.openExternal('https://faustide.grame.fr/')
+          const { shell } = require('electron');
+          await shell.openExternal('https://faustide.grame.fr/');
 }
 function audioBufferToWav(buffer) {
 	//var leftchannel = buffer.getChannelData(0)
 	//var rightchannel = buffer.getChannelData(1)
-	var recordingLength = buffer.length
+	var recordingLength = buffer.length;
     var leftBuffer = flattenArray(buffer.getChannelData(0), recordingLength); // flattenArray is on GitHub (see below)
 var rightBuffer = flattenArray(buffer.getChannelData(1), recordingLength);
 
@@ -1348,15 +1348,15 @@ function saveAudioObjet(dest,buf) {
 		    console.log('Saved!')
 		})
 */
-console.log("blob",buf.size)
+console.log("blob",buf.size);
 
 //var blob =new Blob([buf], { type: 'audio/wav' });
 
  fs.writeFile(dest, 
 		Buffer.from(buf), function (err) {
 		    if (err) throw err;
-		    console.log('Saved!')
-		})
+		    console.log('Saved!');
+		});
 }
 // **************************************************************************************************************
 function saveConfig(txt) {
@@ -1369,9 +1369,9 @@ function saveConfig(txt) {
 }
 function saveModifProjet(txt) {
 	if(currentProjet==""){
-		saveModifProjetAs(txt)
+		saveModifProjetAs(txt);
 	}else{
-		var dest=currentProjet
+		var dest=currentProjet;
 		fs.writeFile(dest, 
                    aenu(txt), function (err) {
           if (err) throw err;
@@ -1397,7 +1397,7 @@ function saveModifProjetAs(txt) {
             console.log(file.filePath.toString());
             
             console.log(file.filePath.toString());
-            currentProjet=file.filePath.toString()
+            currentProjet=file.filePath.toString();
             // Creating and Writing to the sample.txt file
             fs.writeFile(file.filePath.toString(), 
                          aenu(txt), function (err) {
@@ -1406,11 +1406,11 @@ function saveModifProjetAs(txt) {
             });
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function stdSelect() {
-   var rt=""
+   var rt="";
 	var themeFile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -1421,10 +1421,10 @@ function stdSelect() {
    ]
    }).then(result => {
    	if(result.canceled==false){
-   		rt=result.filePaths[0]
+   		rt=result.filePaths[0];
    	}
   		newStudio.webContents.send("fromMain", "loadStudio;"+result.filePaths[0]);
-	})
+	});
 }
 function getExecutableDir() {
   if (app.isPackaged) {
@@ -1436,7 +1436,7 @@ function getExecutableDir() {
   }
 }
 function dspSave(txtHtml,txt,dsp,fjson) {
-	console.log(app.getAppPath(),getExecutableDir())
+	console.log(app.getAppPath(),getExecutableDir());
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
         defaultPath: path.join( getExecutableDir(), 'resources','Dsp/',projetName),
@@ -1456,20 +1456,20 @@ function dspSave(txtHtml,txt,dsp,fjson) {
         console.log(file.canceled);
         if (!file.canceled) {
             console.log(file.filePath.toString());
-            currentProjet=file.filePath.toString()
+            currentProjet=file.filePath.toString();
             // Creating and Writing to the sample.txt file
-            var gfile=file.filePath.toString().split("/")
-            var dfile=gfile[gfile.length-1].split(".")
-            var path=""
+            var gfile=file.filePath.toString().split("/");
+            var dfile=gfile[gfile.length-1].split(".");
+            var path="";
             for(let i=0;i<gfile.length-1;i++){
-            	path=path+gfile[i]+'/'
+            	path=path+gfile[i]+'/';
             }
-            varfile1=path+dfile[0]+".html"
-            varfile2=path+dfile[0]+".std"
-            varfile3=path+dfile[0]+".dsp"
-            varfile4=path+dfile[0]+".json"
-            console.log("dsp file",file.filePath,dfile,varfile1,varfile2,varfile3)
-            var ndsp="declare name        \""+dfile[0]+"\";\n"+atob(dsp)
+            varfile1=path+dfile[0]+".html";
+            varfile2=path+dfile[0]+".std";
+            varfile3=path+dfile[0]+".dsp";
+            varfile4=path+dfile[0]+".json";
+            console.log("dsp file",file.filePath,dfile,varfile1,varfile2,varfile3);
+            var ndsp="declare name        \""+dfile[0]+"\";\n"+atob(dsp);
             fs.writeFile(varfile1.toString(), 
                          atob(txtHtml), function (err) {
                 if (err) throw err;
@@ -1488,7 +1488,7 @@ function dspSave(txtHtml,txt,dsp,fjson) {
             ndsp='{ \n\
 	"name":"'+dfile[0]+'",\n\
 	"speakers":[\n';
-	console.log("json",JSON.parse(fjson))
+	console.log("json",JSON.parse(fjson));
 	ndsp=ndsp+JSON.parse(fjson);
             fs.writeFile(varfile4.toString(), 
                         ndsp, function (err) {
@@ -1497,7 +1497,7 @@ function dspSave(txtHtml,txt,dsp,fjson) {
             });
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function saveTheme(txt) {
@@ -1516,7 +1516,7 @@ function saveTheme(txt) {
         console.log(file.canceled);
         if (!file.canceled) {
             console.log(file.filePath.toString());
-            currentProjet=file.filePath.toString()
+            currentProjet=file.filePath.toString();
             // Creating and Writing to the sample.txt file
             fs.writeFile(file.filePath.toString(), 
                          atob(txt), function (err) {
@@ -1525,7 +1525,7 @@ function saveTheme(txt) {
             });
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function saveSvgAs(txt) {
@@ -1552,11 +1552,11 @@ function saveSvgAs(txt) {
             });
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function saveDefGrp() {
-	mainWindow.webContents.send("fromMain", 'saveGrp')
+	mainWindow.webContents.send("fromMain", 'saveGrp');
 }
 function saveModifGrp(txt) {
 	dialog.showSaveDialog({
@@ -1575,7 +1575,7 @@ function saveModifGrp(txt) {
         console.log(file.canceled);
         if (!file.canceled) {
             console.log(file.filePath.toString());
-            currentProjet=file.filePath.toString()
+            currentProjet=file.filePath.toString();
             // Creating and Writing to the sample.txt file
             
             fs.writeFile(file.filePath.toString(), 
@@ -1585,7 +1585,7 @@ function saveModifGrp(txt) {
             });
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function nouvelEspace() {
@@ -1615,65 +1615,65 @@ function neweditor(cmd) {
 });
 }
 function saveDefProjet() {
-	mainWindow.webContents.send("fromMain", 'saveProjet;0')
+	mainWindow.webContents.send("fromMain", 'saveProjet;0');
 }
 function saveDefProjetAs() {
-	mainWindow.webContents.send("fromMain", 'saveProjet;1')
+	mainWindow.webContents.send("fromMain", 'saveProjet;1');
 }
 
 function grpColor(){
-   mainWindow.webContents.send("fromMain", 'grpColor')
+   mainWindow.webContents.send("fromMain", 'grpColor');
 }
 function grpForme(){
-   mainWindow.webContents.send("fromMain", 'grpForme')
+   mainWindow.webContents.send("fromMain", 'grpForme');
 } 
 function grpScale(){
-   mainWindow.webContents.send("fromMain", 'grpScale')
+   mainWindow.webContents.send("fromMain", 'grpScale');
 } 
 function alignTop(){
-   mainWindow.webContents.send("fromMain", 'topAlign')
+   mainWindow.webContents.send("fromMain", 'topAlign');
 } 
 function alignLeft(){
-   mainWindow.webContents.send("fromMain", 'leftAlign')
+   mainWindow.webContents.send("fromMain", 'leftAlign');
 }
 function alignBottom(){
-   mainWindow.webContents.send("fromMain", 'bottomAlign')
+   mainWindow.webContents.send("fromMain", 'bottomAlign');
 }
 function alignRight(){
-   mainWindow.webContents.send("fromMain", 'rightAlign')
+   mainWindow.webContents.send("fromMain", 'rightAlign');
 } 
 function descendre(){
-   mainWindow.webContents.send("fromMain", 'descendre')
+   mainWindow.webContents.send("fromMain", 'descendre');
 } 
 function toutBas(){
-   mainWindow.webContents.send("fromMain", 'toutBas')
+   mainWindow.webContents.send("fromMain", 'toutBas');
 } 
 function monter(){
-   mainWindow.webContents.send("fromMain", 'monter')
+   mainWindow.webContents.send("fromMain", 'monter');
 }
 function toutHaut(){
-   mainWindow.webContents.send("fromMain", 'toutHaut')
+   mainWindow.webContents.send("fromMain", 'toutHaut');
 } 
 function augm(){
-   mainWindow.webContents.send("fromMain", 'augmDim')
+   mainWindow.webContents.send("fromMain", 'augmDim');
 }
 function permut(){
-   mainWindow.webContents.send("fromMain", 'permut')
+   mainWindow.webContents.send("fromMain", 'permut');
 }
 function defPalindrome(){
-   mainWindow.webContents.send("fromMain", 'palindrome')
+   mainWindow.webContents.send("fromMain", 'palindrome');
 }
 function defInclusion(){
-   mainWindow.webContents.send("fromMain", 'inclusion')
+   mainWindow.webContents.send("fromMain", 'inclusion');
 }
 function defRenvers(){
-   mainWindow.webContents.send("fromMain", 'renversement')
+   mainWindow.webContents.send("fromMain", 'renversement');
 }
 function defRetro(){
-   mainWindow.webContents.send("fromMain", 'retrograde')
+   mainWindow.webContents.send("fromMain", 'retrograde');
 }
 function defRenvRetro(){
-   mainWindow.webContents.send("fromMain", 'renvRetro')
+   mainWindow.webContents.send("fromMain", 'renvRetro');
 }
 function zoom(z) {
    mainWindow.webContents.send("fromMain", 'zoom;'+z);
@@ -1705,8 +1705,8 @@ function renduPartSvg(){
 	mainWindow.webContents.send("fromMain", 'renduPartSvg');
 }
 function dimWin(zx,zy) {
-	mainWindow.setSize(zx,zy)
-	mainWindow.webContents.send("fromMain", 'winSize;'+zx+','+zy)
+	mainWindow.setSize(zx,zy);
+	mainWindow.webContents.send("fromMain", 'winSize;'+zx+','+zy);
 }
 function configProjet() {
 	mainWindow.webContents.send("fromMain", 'configProjet');
@@ -1718,7 +1718,7 @@ function lstAudio() {
 	mainWindow.webContents.send("fromMain", 'listeAudios');
 }
 function exportBlock(block) {
-	console.log("block",block)
+	console.log("block",block);
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
         defaultPath: path.join(__dirname, '../'),
@@ -1734,7 +1734,7 @@ function exportBlock(block) {
         console.log(file.canceled);
         if (!file.canceled) {
             console.log(file.filePath.toString());
-            currentProjet=file.filePath.toString()
+            currentProjet=file.filePath.toString();
             // Creating and Writing to the sample.txt file
             fs.writeFile(file.filePath.toString(), 
                          atob(block), function (err) {
@@ -1743,7 +1743,7 @@ function exportBlock(block) {
             });
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function defExportFile(dir,cmd) {
@@ -1765,19 +1765,19 @@ function defExportFile(dir,cmd) {
             fs.renameSync(cmd, file.filePath.toString());
         }
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function exportSelect(block) {
-	console.log("block",block)
+	console.log("block",block);
   // Stating whether dialog operation was cancelled or not.
-  	file=app.getPath('home')+'/kandiskyscore/Projets/autoInsert.txt'
+  	file=app.getPath('home')+'/kandiskyscore/Projets/autoInsert.txt';
    // Creating and Writing to the sample.txt file
    fs.writeFile(file, 
                 atob(block), function (err) {
        if (err) throw err;
        console.log('Saved autoInsert!');
-       mainRead3D()
+       mainRead3D();
    });
 }
 
@@ -1790,16 +1790,16 @@ function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
             enableRemoteModule: false, // turn off remote
             preload: path.join(__dirname, 'preload.js')
         }
-		})
-		winProjet.loadFile('configuration.html')
+		});
+		winProjet.loadFile('configuration.html');
 		winProjet.removeMenu();
 		//winProjet.webContents.openDevTools()
-		winProjetEtat=1
+		winProjetEtat=1;
 		winProjet.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winProjet.webContents.send("fromMain", "defProjet;"+lang+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6);
   		});
 		winProjet.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   dialog.showMessageBox({
 	    type: 'info',
 	    buttons: [Qcont, Qok],
@@ -1808,13 +1808,13 @@ function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
 	    title: Qwarning,
 	    detail: Qquit
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
-	      winProjet.destroy()
-	      winProjetEtat=0
+	      winProjet.destroy();
+	      winProjetEtat=0;
 	    }
-	  })
-	}) 
+	  });
+	}); 
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -1823,12 +1823,12 @@ function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function configClose() {
-	winProjet.destroy()
-	winProjetEtat=0
+	winProjet.destroy();
+	winProjetEtat=0;
 }
 function spectrEdit(id,fpath,obj) {
 	if(winSpectrEditEtat==0){
@@ -1842,28 +1842,28 @@ function spectrEdit(id,fpath,obj) {
 		        //console.log(`stderr: ${stderr}`);
 		        //return;
 		    }
-		})
+		});
 		winSpectrEdit = new BrowserWindow({width:1040,height:840,alwaysOnTop:false,
 		webPreferences: {
 	            nodeIntegration: true,
 	            contextIsolation: true,
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winSpectrEdit.loadFile('spectrEdit.html')
+		});
+		winSpectrEdit.loadFile('spectrEdit.html');
 		winSpectrEdit.removeMenu();
-		winSpectrEdit.webContents.openDevTools()
-		winSpectrEditEtat=1
+		winSpectrEdit.webContents.openDevTools();
+		winSpectrEditEtat=1;
 		winSpectrEdit.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpectrEdit.webContents.send("fromMain", "defObjet;"+id+";"+obj+";"+audioPath+";"+app.getPath('userData'));
   		});
 
 		winSpectrEdit.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winSpectrEdit.destroy()
-	  winSpectrEditEtat=0
-	}) 
+	  winSpectrEdit.destroy();
+	  winSpectrEditEtat=0;
+	}); 
 	
 	}else{
 		/*
@@ -1877,8 +1877,8 @@ function spectrEdit(id,fpath,obj) {
 	  })
 	  */
 	  //winSpectrEdit.destroy()
-	  winSpectrEditEtat=0
-		console.log('')
+	  winSpectrEditEtat=0;
+		console.log('');
 	}
 }
 function winObjetParam(objId,lang,obj,c,t) {
@@ -1890,21 +1890,21 @@ function winObjetParam(objId,lang,obj,c,t) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winConfig.loadFile('objetParam.html')
+		});
+		winConfig.loadFile('objetParam.html');
 		winConfig.removeMenu();
 		//winConfig.webContents.openDevTools()
-		winConfigEtat=1
+		winConfigEtat=1;
 		winConfig.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winConfig.webContents.send("fromMain", "defObjet;"+objId+";"+lang+";"+obj+";"+c+";"+t);
   		});
 
 		winConfig.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winConfig.destroy()
-	  winConfigEtat=0
-	}) 
+	  winConfig.destroy();
+	  winConfigEtat=0;
+	}); 
 	
 	}else{
 		/*
@@ -1918,8 +1918,8 @@ function winObjetParam(objId,lang,obj,c,t) {
 	  })
 	  */
 	  //winConfig.destroy()
-	  winConfigEtat=0
-		console.log('')
+	  winConfigEtat=0;
+		console.log('');
 	}
 }
 function spatMass(id,obj) {
@@ -1931,25 +1931,25 @@ function spatMass(id,obj) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winSpatMass.loadFile('spatMass.html')
+		});
+		winSpatMass.loadFile('spatMass.html');
 		winSpatMass.removeMenu();
 		//winSpatMass.webContents.openDevTools()
-		winSpatMassEtat=1
+		winSpatMassEtat=1;
 		winSpatMass.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpatMass.webContents.send("fromMain", "openSpatMass;"+id+";"+audioPath+";"+obj+";0");
   		});
 
 		winSpatMass.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winSpatMass.destroy()
-	  winSpatMassEtat=0
+	  winSpatMass.destroy();
+	  winSpatMassEtat=0;
 	  if(winMassWasmEtat==1){
 			winMassWasm.destroy();
 			winMassWasmEtat=0;
 		}
-	}) 
+	}); 
 	
 	}else{
 		/*
@@ -1964,7 +1964,7 @@ function spatMass(id,obj) {
 	  */
 	  //winSpatMass.destroy()
 	  winSpatMassEtat=0;
-		console.log('')
+		console.log('');
 	}
 }
 function openMassWasm(id,file,rate) {
@@ -1976,21 +1976,21 @@ function openMassWasm(id,file,rate) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winMassWasm.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html')
+		});
+		winMassWasm.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html');
 		winMassWasm.removeMenu();
 		//winMassWasm.webContents.openDevTools()
-		winMassWasmEtat=1
+		winMassWasmEtat=1;
 		winMassWasm.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winMassWasm.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";0");
   		});
 
 		winMassWasm.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winMassWasm.destroy()
+	  winMassWasm.destroy();
 	  winMassWasmEtat=0;
-	}) 
+	}); 
 	
 	}else{
 		/*
@@ -2004,8 +2004,8 @@ function openMassWasm(id,file,rate) {
 	  })
 	  */
 	  //winMassWasm.destroy()
-	  winMassWasmEtat=0
-		console.log('')
+	  winMassWasmEtat=0;
+		console.log('');
 	}
 }
 function openSpectWasm(id,file,rate,mode) {
@@ -2017,21 +2017,21 @@ function openSpectWasm(id,file,rate,mode) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winSpectWam.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html')
+		});
+		winSpectWam.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html');
 		winSpectWam.removeMenu();
 		//winSpectWam.webContents.openDevTools()
-		winSpectWamEtat=1
+		winSpectWamEtat=1;
 		winSpectWam.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpectWam.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";"+mode);
   		});
 
 		winSpectWam.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winSpectWam.destroy()
+	  winSpectWam.destroy();
 	  winSpectWamEtat=0;
-	}) 
+	}); 
 	
 	}else{
 		/*
@@ -2045,11 +2045,11 @@ function openSpectWasm(id,file,rate,mode) {
 	  })
 	  */
 	  //winSpectWam.destroy()
-	  winSpectWamEtat=0
-		console.log('')
+	  winSpectWamEtat=0;
+		console.log('');
 	}
 }
-const menu2 = Menu.buildFromTemplate(template2)
+const menu2 = Menu.buildFromTemplate(template2);
 
 
 function createPreDef(objId,lang,obj) {
@@ -2061,17 +2061,17 @@ function createPreDef(objId,lang,obj) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winPreDef.loadFile('preDefGrp.html')
+		});
+		winPreDef.loadFile('preDefGrp.html');
 		winPreDef.removeMenu();
 		//winPreDef.webContents.openDevTools()
-		winPreDefEtat=1
+		winPreDefEtat=1;
 		winPreDef.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winPreDef.webContents.send("fromMain", "defPreDef;"+objId+";"+lang+";"+obj);
   		});
 		
 		winPreDef.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   dialog.showMessageBox({
 	    type: 'info',
 	    buttons: [Qcont, Qok],
@@ -2080,13 +2080,13 @@ function createPreDef(objId,lang,obj) {
 	    title: Qwarning,
 	    detail: Qquit
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
-	      winPreDef.destroy()
-	      winPreDefEtat=0
+	      winPreDef.destroy();
+	      winPreDefEtat=0;
 	    }
-	  })
-	}) 
+	  });
+	}); 
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2095,8 +2095,8 @@ function createPreDef(objId,lang,obj) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
-		console.log('')
+	  });
+		console.log('');
 	}
 }
 function createWinGraph(id,lang,param,type) {
@@ -2108,19 +2108,19 @@ function createWinGraph(id,lang,param,type) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winGraphObj.loadFile('defgraphObj.html')
+		});
+		winGraphObj.loadFile('defgraphObj.html');
 		winGraphObj.removeMenu();
 		//winGraphObj.webContents.openDevTools()
-		winGraphObjEtat=1
+		winGraphObjEtat=1;
 		winGraphObj.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphObj.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
   		});
 		winGraphObj.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
-	   winGraphObj.destroy()
-	      winGraphObjEtat=0
-	}) 
+	   e.preventDefault();
+	   winGraphObj.destroy();
+	      winGraphObjEtat=0;
+	}); 
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2129,7 +2129,7 @@ function createWinGraph(id,lang,param,type) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function createWinSymb(id,lang,param,type) {
@@ -2141,16 +2141,16 @@ function createWinSymb(id,lang,param,type) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winGraphSymb.loadFile('defSymbObj.html')
+		});
+		winGraphSymb.loadFile('defSymbObj.html');
 		winGraphSymb.removeMenu();
 		//winGraphSymb.webContents.openDevTools()
-		winGraphSymbEtat=1
+		winGraphSymbEtat=1;
 		winGraphSymb.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphSymb.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
   		});
 		winGraphSymb.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   dialog.showMessageBox({
 	    type: 'info',
 	    buttons: [Qcont, Qok],
@@ -2159,13 +2159,13 @@ function createWinSymb(id,lang,param,type) {
 	    title: Qwarning,
 	    detail: Qquit
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
-	      winGraphSymb.destroy()
-	      winGraphSymbEtat=0
+	      winGraphSymb.destroy();
+	      winGraphSymbEtat=0;
 	    }
-	  })
-	}) 
+	  });
+	}); 
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2174,7 +2174,7 @@ function createWinSymb(id,lang,param,type) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function createWinGrp(id,lang,param) {
@@ -2186,16 +2186,16 @@ function createWinGrp(id,lang,param) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winGraphGrp.loadFile('defGrp.html')
+		});
+		winGraphGrp.loadFile('defGrp.html');
 		winGraphGrp.removeMenu();
 		//winGraphGrp.webContents.openDevTools()
-		winGraphGrpEtat=1
+		winGraphGrpEtat=1;
 		winGraphGrp.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphGrp.webContents.send("fromMain", "defGrp;"+id+";"+lang+";"+param);
   		});
 		winGraphGrp.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   dialog.showMessageBox({
 	    type: 'info',
 	    buttons: [Qcont, Qok],
@@ -2204,13 +2204,13 @@ function createWinGrp(id,lang,param) {
 	    title: Qwarning,
 	    detail: Qquit
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
-	      winGraphGrp.destroy()
-	      winGraphGrpEtat=0
+	      winGraphGrp.destroy();
+	      winGraphGrpEtat=0;
 	    }
-	  })
-	}) 
+	  });
+	}); 
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2219,7 +2219,7 @@ function createWinGrp(id,lang,param) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function createTrajectoire(id,cmd2) {
@@ -2231,19 +2231,19 @@ function createTrajectoire(id,cmd2) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winTrajectoire.loadFile('trajectoire.html')
+		});
+		winTrajectoire.loadFile('trajectoire.html');
 		winTrajectoire.removeMenu();
 		//winTrajectoire.webContents.openDevTools()
-		winTrajectoireEtat=1
+		winTrajectoireEtat=1;
 		winTrajectoire.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winTrajectoire.webContents.send("fromMain", "deftrajectoire;"+id+";"+cmd2);
   		});
   		winTrajectoire.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-		   e.preventDefault()
-		   winTrajectoire.destroy()
-		   winTrajectoireEtat=0
-	   })
+		   e.preventDefault();
+		   winTrajectoire.destroy();
+		   winTrajectoireEtat=0;
+	   });
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2252,7 +2252,7 @@ function createTrajectoire(id,cmd2) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function createTrajectory(id) {
@@ -2264,19 +2264,19 @@ function createTrajectory(id) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winTrajectory.loadFile('trajectory.html')
+		});
+		winTrajectory.loadFile('trajectory.html');
 		winTrajectory.removeMenu();
 		//winTrajectory.webContents.openDevTools()
-		winTrajectoryEtat=1
+		winTrajectoryEtat=1;
 		winTrajectory.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winTrajectory.webContents.send("fromMain", "trajectory;"+id);
   		});
   		winTrajectory.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-		   e.preventDefault()
-		   winTrajectory.destroy()
-		   winTrajectoryEtat=0
-	   })
+		   e.preventDefault();
+		   winTrajectory.destroy();
+		   winTrajectoryEtat=0;
+	   });
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2285,7 +2285,7 @@ function createTrajectory(id) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function openStudio(X,Y,Z,gain) {
@@ -2297,20 +2297,20 @@ function openStudio(X,Y,Z,gain) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winStudio.loadFile('studio.html')
+		});
+		winStudio.loadFile('studio.html');
 		winStudio.removeMenu();
 		//winStudio.webContents.openDevTools()
-		winStudioEtat=1
+		winStudioEtat=1;
 		winStudio.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winStudio.webContents.send("fromMain", "drawObjActif;"+X+";"+Y+"+;"+Z+";"+gain);
   		});
   		winStudio.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-		   e.preventDefault()
-		   winStudio.destroy()
+		   e.preventDefault();
+		   winStudio.destroy();
 		   winStudioEtat=0;
 		   mainWindow.webContents.send("fromMain", "studioEnd");
-	   })
+	   });
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2319,7 +2319,7 @@ function openStudio(X,Y,Z,gain) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function open3dStudio(X,Y,Z,gain) {
@@ -2331,19 +2331,19 @@ function open3dStudio(X,Y,Z,gain) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winStudio3D.loadFile('studio3D.html')
+		});
+		winStudio3D.loadFile('studio3D.html');
 		winStudio3D.removeMenu();
 		//winStudio3D.webContents.openDevTools()
-		winStudio3DEtat=1
+		winStudio3DEtat=1;
 		winStudio3D.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winStudio3D.webContents.send("fromMain", "draw3dObj;"+X+";"+Y+"+;"+Z+";"+gain);
   		});
   		winStudio3D.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-		   e.preventDefault()
-		   winStudio3D.destroy()
-		   winStudio3DEtat=0
-	   })
+		   e.preventDefault();
+		   winStudio3D.destroy();
+		   winStudio3DEtat=0;
+	   });
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2352,7 +2352,7 @@ function open3dStudio(X,Y,Z,gain) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function vueStudio3D(lst) {
@@ -2364,19 +2364,19 @@ function vueStudio3D(lst) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winVueStudio3D.loadFile('vueStudio3D.html')
+		});
+		winVueStudio3D.loadFile('vueStudio3D.html');
 		winVueStudio3D.removeMenu();
 		//winVueStudio3D.webContents.openDevTools()
-		winVueStudio3DEtat=1
+		winVueStudio3DEtat=1;
 		winVueStudio3D.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winVueStudio3D.webContents.send("fromMain", "draw3dObj;"+lst);
   		});
   		winVueStudio3D.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-		   e.preventDefault()
-		   winVueStudio3D.destroy()
-		   winVueStudio3DEtat=0
-	   })
+		   e.preventDefault();
+		   winVueStudio3D.destroy();
+		   winVueStudio3DEtat=0;
+	   });
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2385,7 +2385,7 @@ function vueStudio3D(lst) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 	}
 }
 function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
@@ -2398,17 +2398,17 @@ function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winSpatial.loadFile('spatialisation.html')
+		});
+		winSpatial.loadFile('spatialisation.html');
 		winSpatial.removeMenu();
 		//winSpatial.webContents.openDevTools()
-		winSpatialEtat=1
+		winSpatialEtat=1;
 		winSpatial.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpatial.webContents.send("fromMain", "defObjetSpatial;"+objId+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6+";"+cmd7);
   		});
 		
 		winSpatial.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   dialog.showMessageBox({
 	    type: 'info',
 	    buttons: [Qcont, Qok],
@@ -2417,17 +2417,17 @@ function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
 	    title: Qwarning,
 	    detail: Qquit
 	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`)
+	    console.log(`response: ${response}`);
 	    if (response) {
-	      winSpatial.destroy()
+	      winSpatial.destroy();
 	      winSpatialEtat=0;
 	      if(winTrajectoryEtat==1){
 				winTrajectoire.destroy();
 				winTrajectoireEtat=0;
 			}
 	    }
-	  })
-	}) 
+	  });
+	}); 
 	}else{
 		dialog.showMessageBox({
 	    type: 'info',
@@ -2436,8 +2436,8 @@ function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
-		console.log('')
+	  });
+		console.log('');
 	}
 	
 }
@@ -2450,16 +2450,16 @@ function openDoc() {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winDoc.loadURL('http://blanchemain.info/Documents/Programmation/index.php?page=kandiskyScore')
+		});
+		winDoc.loadURL('http://blanchemain.info/Documents/Programmation/index.php?page=kandiskyScore');
 		winDoc.removeMenu();
 		//winDoc.webContents.openDevTools()
-		winDocEtat=1
+		winDocEtat=1;
   		winDoc.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-		   e.preventDefault()
-		   winDoc.destroy()
-		   winDocEtat=0
-	   })
+		   e.preventDefault();
+		   winDoc.destroy();
+		   winDocEtat=0;
+	   });
 	}
 }
 function mediaExplorer() {
@@ -2471,21 +2471,21 @@ function mediaExplorer() {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winMediaExplorer.loadFile('./mediaExplorer.html')
+		});
+		winMediaExplorer.loadFile('./mediaExplorer.html');
 		winMediaExplorer.removeMenu();
 		//winMediaExplorer.webContents.openDevTools()
-		winMediaExplorerEtat=1
+		winMediaExplorerEtat=1;
 		winMediaExplorer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winMediaExplorer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+path.join(app.getPath('home'),'kandiskyscore')+';'+currentProjet);
   		});
 
 		winMediaExplorer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winMediaExplorer.destroy()
-	  winMediaExplorerEtat=0
-	}) 
+	  winMediaExplorer.destroy();
+	  winMediaExplorerEtat=0;
+	}); 
 	
 	}else{
 		/*
@@ -2499,8 +2499,8 @@ function mediaExplorer() {
 	  })
 	  */
 	  //winGraphicEqua.destroy()
-	  winMediaExplorerEtat=0
-		console.log('')
+	  winMediaExplorerEtat=0;
+		console.log('');
 	}
 }
 function imgViewer() {
@@ -2512,21 +2512,21 @@ function imgViewer() {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winImgViewer.loadFile('./imgViewer.html')
+		});
+		winImgViewer.loadFile('./imgViewer.html');
 		winImgViewer.removeMenu();
 		//winImgViewer.webContents.openDevTools()
-		winImgViewerEtat=1
+		winImgViewerEtat=1;
 		winImgViewer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winImgViewer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+app.getPath('home')+'/kandiskyscore;'+currentProjet);
   		});
 
 		winImgViewer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winImgViewer.destroy()
-	  winImgViewerEtat=0
-	}) 
+	  winImgViewer.destroy();
+	  winImgViewerEtat=0;
+	}); 
 	
 	}else{
 		/*
@@ -2540,8 +2540,8 @@ function imgViewer() {
 	  })
 	  */
 	  //winGraphicEqua.destroy()
-	  winImgViewerEtat=0
-		console.log('')
+	  winImgViewerEtat=0;
+		console.log('');
 	}
 }
 function winPro54Open() {
@@ -2553,22 +2553,22 @@ function winPro54Open() {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		console.log('winPro54Open')
-		winPro54.loadFile('./Wam2/wam-examples-master/packages/Synthe/Pro54/index.html')
+		});
+		console.log('winPro54Open');
+		winPro54.loadFile('./Wam2/wam-examples-master/packages/Synthe/Pro54/index.html');
 		winPro54.removeMenu();
 		//winPro54.webContents.openDevTools()
-		winPro54Etat=1
+		winPro54Etat=1;
 		winPro54.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winPro54.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
   		});
 
 		winPro54.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winPro54.destroy()
-	  winPro54Etat=0
-	}) 
+	  winPro54.destroy();
+	  winPro54Etat=0;
+	}); 
 	
 	}else{
 		/*
@@ -2582,8 +2582,8 @@ function winPro54Open() {
 	  })
 	  */
 	  //winPro54.destroy()
-	  winPro54Etat=0
-		console.log('')
+	  winPro54Etat=0;
+		console.log('');
 	}
 }
 function winObxdOpen() {
@@ -2595,22 +2595,22 @@ function winObxdOpen() {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		console.log('winObxdOpen')
-		winObxd.loadFile('./Wam2/wam-examples-master/packages/Synthe/Obxd/index.html')
+		});
+		console.log('winObxdOpen');
+		winObxd.loadFile('./Wam2/wam-examples-master/packages/Synthe/Obxd/index.html');
 		winObxd.removeMenu();
 		//winObxd.webContents.openDevTools()
-		winObxdEtat=1
+		winObxdEtat=1;
 		winObxd.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winObxd.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
   		});
 
 		winObxd.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winObxd.destroy()
-	  winObxdEtat=0
-	}) 
+	  winObxd.destroy();
+	  winObxdEtat=0;
+	}); 
 	
 	}else{
 		/*
@@ -2624,8 +2624,8 @@ function winObxdOpen() {
 	  })
 	  */
 	  //winObxd.destroy()
-	  winObxdEtat=0
-		console.log('')
+	  winObxdEtat=0;
+		console.log('');
 	}
 }
 
@@ -2638,21 +2638,21 @@ function winHostOpen(id,objWav) {
 	            enableRemoteModule: false, // turn off remote
 	            preload: path.join(__dirname, 'preload.js')
 	        }
-		})
-		winHost.loadFile('./Wam2/wam-examples-master/packages/hostModules/index.html')
+		});
+		winHost.loadFile('./Wam2/wam-examples-master/packages/hostModules/index.html');
 		winHost.removeMenu();
 		//winHost.webContents.openDevTools()
-		winHostEtat=1
+		winHostEtat=1;
 		winHost.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winHost.webContents.send("fromMain", "equalizer;"+id+";"+audioPath+";"+objWav);
   		});
 
 		winHost.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault()
+	   e.preventDefault();
 	   
-	  winHost.destroy()
-	  winHostEtat=0
-	}) 
+	  winHost.destroy();
+	  winHostEtat=0;
+	}); 
 	
 	}else{
 		/*
@@ -2666,28 +2666,28 @@ function winHostOpen(id,objWav) {
 	  })
 	  */
 	  //winHost.destroy()
-	  winHostEtat=0
-		console.log('')
+	  winHostEtat=0;
+		console.log('');
 	}
 }
 function tempoAudio() {
-	mainWindow.webContents.send("fromMain", "tempoAudio")
+	mainWindow.webContents.send("fromMain", "tempoAudio");
 }
 function exportObj(){
-	mainWindow.webContents.send("fromMain", "exportObj")
+	mainWindow.webContents.send("fromMain", "exportObj");
 }
 function exportGrp(){
-	mainWindow.webContents.send("fromMain", "exportGrp")
+	mainWindow.webContents.send("fromMain", "exportGrp");
 }
 
 function exportIntv(){
-	mainWindow.webContents.send("fromMain", "exportIntv")
+	mainWindow.webContents.send("fromMain", "exportIntv");
 }
 function exportPart(){
-	mainWindow.webContents.send("fromMain", "exportPart")
+	mainWindow.webContents.send("fromMain", "exportPart");
 }
 function exportAdm(){
-	mainWindow.webContents.send("fromMain", "exportAdm")
+	mainWindow.webContents.send("fromMain", "exportAdm");
 }
 function pdfSettings() {
     var paperSizeArray = ["A4", "A5"];
@@ -2699,52 +2699,52 @@ function pdfSettings() {
      	  printSelectionOnly: false,
         pageRanges: '1-2'
     };
-    console.log(option)
+    console.log(option);
     if(pdfLandscape==1){
-        option.landscape = true
+        option.landscape = true;
     }else{
-        option.landscape = false
+        option.landscape = false;
     }
     if(pdfBkg==0){
-         option.printBackground=true
+         option.printBackground=true;
         }else{
-        	option.printBackground=false
+        	option.printBackground=false;
         }
         
      if(pdfPage==1){
-     		option.pageSize= "A4"
+     		option.pageSize= "A4";
      }else{
-     		option.pageSize= "A3"
+     		option.pageSize= "A3";
      }
-     console.log(option)
+     console.log(option);
   return option;
 }
 
 function svgToPdf(txt) {
-	var win1 = new BrowserWindow({show : false})
-	var win2 = new BrowserWindow({show : false})
-	var win3 = new BrowserWindow({show : false})
-	var win4 = new BrowserWindow({show : false})
-	var win5 = new BrowserWindow({show : false})
-	var win6 = new BrowserWindow({show : false})
-	var win7 = new BrowserWindow({show : false})
-	var win8 = new BrowserWindow({show : false})
-	var win9 = new BrowserWindow({show : false})
-	var win10 = new BrowserWindow({show : false})
-	var nwin=[]
-	nwin[1]=win1
-	nwin[2]=win2
-	nwin[3]=win3
-	nwin[4]=win4
-	nwin[5]=win5
-	nwin[6]=win6
-	nwin[7]=win7
-	nwin[8]=win8
-	nwin[9]=win9
-	nwin[10]=win10
-   var nbw=0
+	var win1 = new BrowserWindow({show : false});
+	var win2 = new BrowserWindow({show : false});
+	var win3 = new BrowserWindow({show : false});
+	var win4 = new BrowserWindow({show : false});
+	var win5 = new BrowserWindow({show : false});
+	var win6 = new BrowserWindow({show : false});
+	var win7 = new BrowserWindow({show : false});
+	var win8 = new BrowserWindow({show : false});
+	var win9 = new BrowserWindow({show : false});
+	var win10 = new BrowserWindow({show : false});
+	var nwin=[];
+	nwin[1]=win1;
+	nwin[2]=win2;
+	nwin[3]=win3;
+	nwin[4]=win4;
+	nwin[5]=win5;
+	nwin[6]=win6;
+	nwin[7]=win7;
+	nwin[8]=win8;
+	nwin[9]=win9;
+	nwin[10]=win10;
+   var nbw=0;
 	for(let i=1;i<11;i++){
-	nwin[i].loadFile(app.getPath('appData')+'/kandiskyscore/pdf/p'+i+'.html')
+	nwin[i].loadFile(app.getPath('appData')+'/kandiskyscore/pdf/p'+i+'.html');
 	nwin[i].webContents.on('did-finish-load', function() { 
 	
 	   nwin[i].webContents.printToPDF(pdfSettings()).then(data => {
@@ -2753,13 +2753,13 @@ function svgToPdf(txt) {
 			       console.log(err);
 			   } else {
 			       console.log('PDF Generated Successfully',app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf");
-			       nbw++
+			       nbw++;
 			       if(nbw>9){
-					   var listPdf=''
+					   var listPdf='';
 					   for(let i=1;i<11;i++){
-					   	listPdf=listPdf+app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf "
+					   	listPdf=listPdf+app.getPath('appData')+"/kandiskyscore/pdf/p"+i+".pdf ";
 					   }
-					   console.log("listepdf",listPdf)
+					   console.log("listepdf",listPdf);
 					   exec(pdfAssCmd+" " +listPdf+app.getPath('appData')+"/kandiskyscore/merged.pdf", (error, stdout, stderr) => {
 					    if (error) {
 					        console.log(`error: ${error.message}`);
@@ -2787,21 +2787,21 @@ function svgToPdf(txt) {
 			   }
 			 });
 		 	}).catch(error => {
-		  	console.log(error)
+		  	console.log(error);
 		 	});
 	 });
    }
    
 }
 function createPdf(txt) {
-	mainWindow.webContents.send("fromMain", "createPdf")
+	mainWindow.webContents.send("fromMain", "createPdf");
 }
 function spectrogram() {
-	mainWindow.webContents.send("fromMain", "spectrogram")
+	mainWindow.webContents.send("fromMain", "spectrogram");
 }
 
 function host() {
-	mainWindow.webContents.send("fromMain", "host")
+	mainWindow.webContents.send("fromMain", "host");
 }
 function soxSpectrogram(npath) {
 	var txt="";
@@ -2827,16 +2827,16 @@ function soxSpectrogram(npath) {
 		       //var ntxt=stderr.split(' ').join(' ')
 		       var ttxt=stderr.split("\n");
 			    
-			    var ntxt=''
-			    var sr=-1
+			    var ntxt='';
+			    var sr=-1;
 			    for(i=0;i<ttxt.length;i++){
 			    	sr=ttxt[i].indexOf("sox");
 			    	if(sr==-1){
-			    		ntxt=ntxt+"    \n"+ttxt[i]
+			    		ntxt=ntxt+"    \n"+ttxt[i];
 			    	}
-			    	sr=-1
+			    	sr=-1;
 			    }
-			    txt="<pre><code>"+ntxt+"</code></pre>"
+			    txt="<pre><code>"+ntxt+"</code></pre>";
 			    winSpectro = new BrowserWindow({width:920,height:544,
 				webPreferences: {
 			            nodeIntegration: true,
@@ -2844,22 +2844,22 @@ function soxSpectrogram(npath) {
 			            enableRemoteModule: false, // turn off remote
 			            preload: path.join(__dirname, 'preload.js')
 			        }
-				})
-				winSpectro.loadFile('spectrogram.html')
+				});
+				winSpectro.loadFile('spectrogram.html');
 				winSpectro.removeMenu();
 				//winSpectro.webContents.openDevTools()
-				winSpectroEtat=1
+				winSpectroEtat=1;
 				winSpectro.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
 		    		winSpectro.webContents.send("fromMain", "defSpectro;"+app.getPath('home')+'/kandiskyscore/Projets;'+uena(txt)+";"+npath);
 		  		});
 				winSpectro.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-			   e.preventDefault()
-			   winSpectro.destroy()
-			   winSpectroEtat=0
+			   e.preventDefault();
+			   winSpectro.destroy();
+			   winSpectroEtat=0;
 			    });
 			}
-	 	  }) 
-	 	  }, 400)
+	 	  }); 
+	 	  }, 400);
 	   });
 	}else{
 		dialog.showMessageBox({
@@ -2869,7 +2869,7 @@ function soxSpectrogram(npath) {
 	    defaultId: 0,
 	    title: Qwarning,
 	    detail: AlertWinOpen
-	  })
+	  });
 
 	}
 }
@@ -2897,9 +2897,9 @@ function saveSpectro(npath) {
 		        //console.log(`stderr: ${stderr}`);
 		        //return;
 		    }
-		    })
+		    });
     }).catch(err => {
-        console.log(err)
+        console.log(err);
     });
 }
 function uena(chn) {
@@ -2911,21 +2911,21 @@ function aenu(chn) {
 function spaceToSvg(path,txt) {
 	var ntxt=aenu(txt);
 	ntxt=ntxt.replaceAll("&nbsp;", "");
-	console.log(ntxt)
+	console.log(ntxt);
 	fs.writeFile(app.getPath('appData')+'/kandiskyscore/pdf/tmpsvg.svg', ntxt, function (err) {
             if (err) {
                 console.log(err);
             } else {
                 console.log('PDF Generated Successfully');
-                svgToPdf(txt) 
+                svgToPdf(txt); 
             }
         });
         
 }
 function audioEditor(obj) {
-	var cm=editAudioCmd+" "+obj
-	console.log('cm',cm)
-	exec(cm)
+	var cm=editAudioCmd+" "+obj;
+	console.log('cm',cm);
+	exec(cm);
 }
 function pro54Preset() {
 	var testfile = dialog.showOpenDialog({
@@ -2937,103 +2937,103 @@ function pro54Preset() {
     { name: 'All Files', extensions: ['*'] }
   ]
    }).then(result => {
-   	console.log(result.canceled)
-  		console.log('result.filePaths',result.filePaths)
+   	console.log(result.canceled);
+  		console.log('result.filePaths',result.filePaths);
   		if(!result.canceled){
   			try {
 			    const data = fs.readFileSync(result.filePaths.toString(), "utf-8");
-			    winPro54.webContents.send("fromMain", 'presetPro54;'+data)
+			    winPro54.webContents.send("fromMain", 'presetPro54;'+data);
 			  } catch (err) {
 			    console.error("⚠️ Impossible de charger le state :", err);
 			  }
   			
   		}
-	})
+	});
 }
 // ****************************************************************************************************************
 //const ipc = require('electron').ipcRenderer;
 
 ipcMain.on ("toMain", (event, args) => {
   if (typeof args === "string") {
-	let cmd=args.split(';')
+	let cmd=args.split(';');
 	switch(cmd[0]) {
 		case 'basePath':
-			mainWindow.webContents.send("fromMain", "dconfig;"+app.getPath('userData'))
-			break
+			mainWindow.webContents.send("fromMain", "dconfig;"+app.getPath('userData'));
+			break;
 		case 'defPdf':
-			divToPdf(cmd[1])
-			break
+			divToPdf(cmd[1]);
+			break;
 		case 'spaceToSvg':
-			spaceToSvg(cmd[1],cmd[2])
-			break
+			spaceToSvg(cmd[1],cmd[2]);
+			break;
 		case 'openObjetParam':
 		console.log(`openObjetParam ${args} from param`);
-			winObjetParam(cmd[1],cmd[2],cmd[3],cmd[4],cmd[6])
-			break
+			winObjetParam(cmd[1],cmd[2],cmd[3],cmd[4],cmd[6]);
+			break;
 		case 'openSymbParam':
 			console.log(`openSymbParam ${args} from param`);
-			createWinSymb(cmd[1],cmd[2],cmd[3],cmd[4])
-			break
+			createWinSymb(cmd[1],cmd[2],cmd[3],cmd[4]);
+			break;
 		case 'openGrpParam':
 			console.log(`openGrpParam ${args} from param`);
-			createWinGrp(cmd[1],cmd[2],cmd[3])
-			break
+			createWinGrp(cmd[1],cmd[2],cmd[3]);
+			break;
 		case 'openPreDef':
 			//console.log(`openGrpParam ${args} from param`);
-			createPreDef(cmd[1],cmd[2],cmd[3])
-			break
+			createPreDef(cmd[1],cmd[2],cmd[3]);
+			break;
 		case 'objParamAnnul':
 			//console.log(`Restore ${args} from param`);
-			mainWindow.webContents.send("fromMain", "annulModifObj;"+cmd[1])
-			winConfigEtat=0
-			winConfig.destroy()
-			break
+			mainWindow.webContents.send("fromMain", "annulModifObj;"+cmd[1]);
+			winConfigEtat=0;
+			winConfig.destroy();
+			break;
 		case 'objParamClose':
 			if(winConfigEtat==1){
-				winConfigEtat=0
-				winConfig.destroy()
+				winConfigEtat=0;
+				winConfig.destroy();
 			}
 			if(winGraphObjEtat==1){
-				winGraphObj.destroy()
-				winGraphObjEtat=0
+				winGraphObj.destroy();
+				winGraphObjEtat=0;
 			}
-			break
+			break;
 		case 'objParamChange':
 			if(winConfigEtat==1){
-				winConfigEtat=0
-				winConfig.destroy()
+				winConfigEtat=0;
+				winConfig.destroy();
 			}
 			if(winGraphObjEtat==1){
-				winGraphObj.destroy()
-				winGraphObjEtat=0
+				winGraphObj.destroy();
+				winGraphObjEtat=0;
 			}
-			break
+			break;
 		case 'objParamValid':
 			console.log(`Restore spatial ${args}`);
 			if(winGraphObjEtat==1){
-				winGraphObj.destroy()
-				winGraphObjEtat=0
+				winGraphObj.destroy();
+				winGraphObjEtat=0;
 			}
 			if(winSpatialEtat==1){
-				winSpatial.destroy()
-				winSpatialEtat=0
+				winSpatial.destroy();
+				winSpatialEtat=0;
 			}
 			if(winTrajectoireEtat==1){
-				winTrajectoire.destroy()
-				winTrajectoireEtat=0
+				winTrajectoire.destroy();
+				winTrajectoireEtat=0;
 			}
 			if(winTrajectoryEtat==1){
-				winTrajectory.destroy()
-				winTrajectoryEtat=0
+				winTrajectory.destroy();
+				winTrajectoryEtat=0;
 			}
-			winConfig.destroy()
+			winConfig.destroy();
 			winConfigEtat=0;
-			mainWindow.webContents.send("fromMain", "objValid;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "objValid;"+cmd[1]);
+			break;
 		case 'objGraphValid':
 			if(winGraphObjEtat==1){
-				winGraphObj.destroy()
-				winGraphObjEtat=0
+				winGraphObj.destroy();
+				winGraphObjEtat=0;
 			}
 			/*
 			if(winConfigEtat==1){
@@ -3041,786 +3041,786 @@ ipcMain.on ("toMain", (event, args) => {
 				winConfigEtat=0
 			}
 			*/
-			break
+			break;
 		case 'symbGraphValid':
-			winGraphSymb.destroy()
-			winGraphSymbEtat=0
-			break
+			winGraphSymb.destroy();
+			winGraphSymbEtat=0;
+			break;
 		case 'grpValid':
-			winGraphGrp.destroy()
-			winGraphGrpEtat=0
-			break
+			winGraphGrp.destroy();
+			winGraphGrpEtat=0;
+			break;
 		case 'grpAnnul':
-			winGraphGrp.destroy()
-			winGraphGrpEtat=0
-			break
+			winGraphGrp.destroy();
+			winGraphGrpEtat=0;
+			break;
 		case 'objGraphAnnul':
-			mainWindow.webContents.send("fromMain", "objGraphAnnul;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "objGraphAnnul;"+cmd[1]);
+			break;
 		case 	'objWinGraphAnnul':
-			winGraphObj.destroy()
-			winGraphObjEtat=0
+			winGraphObj.destroy();
+			winGraphObjEtat=0;
 			/*
 			if(winConfigEtat==1){
 				winConfig.destroy()
 				winConfigEtat=0
 			}
 			*/
-			break
+			break;
 		case 	'symbGraphAnnul':
-			winGraphSymb.destroy()
-			winGraphSymbEtat=0
-			break
+			winGraphSymb.destroy();
+			winGraphSymbEtat=0;
+			break;
 		case "saveFile":
-			console.log(cmd[1])
-			break
+			console.log(cmd[1]);
+			break;
 		case "neweditor":
-			neweditor(cmd[1])
-			break
+			neweditor(cmd[1]);
+			break;
 		case 'spatialAnnul':
 			console.log(`Restore spatial ${args}`);
 			//winSpatial.webContents.send("fromMain", "annulModifObj;"+cmd[1]+";"+cmd[2])
-			winSpatialEtat=0
-			winSpatial.destroy()
+			winSpatialEtat=0;
+			winSpatial.destroy();
 			if(winStudioEtat==1){
-				winStudioEtat=0
-				winStudio.destroy()
+				winStudioEtat=0;
+				winStudio.destroy();
 			}
 			if(winStudio3DEtat==1){
-				winStudio3D.destroy()
-	     	   winStudio3DEtat=0
+				winStudio3D.destroy();
+	     	   winStudio3DEtat=0;
 	      }
-			break	
+			break;	
 		case "spatialAnnulPoints":
-			winTrajectoire.destroy()
-		   winTrajectoireEtat=0
-			break
+			winTrajectoire.destroy();
+		   winTrajectoireEtat=0;
+			break;
 		case 'spatialValid':
 			console.log(`Valid spatial ${args}`);
 			//winSpatial.webContents.send("fromMain", "annulModifObj;"+cmd[1]+";"+cmd[2])
-			winSpatialEtat=0
-			winSpatial.destroy()
+			winSpatialEtat=0;
+			winSpatial.destroy();
 			if(winStudioEtat==1){
-				winStudioEtat=0
-				winStudio.destroy()
+				winStudioEtat=0;
+				winStudio.destroy();
 			}
 			if(winTrajectoireEtat==1){
-				winTrajectoire.destroy()
-				winTrajectoireEtat=0
+				winTrajectoire.destroy();
+				winTrajectoireEtat=0;
 			}
 			if(winStudio3DEtat==1){
-				winStudio3D.destroy()
-	     	   winStudio3DEtat=0
+				winStudio3D.destroy();
+	     	   winStudio3DEtat=0;
 	      }
 	      if(winTrajectoryEtat==1){
-				winTrajectory.destroy()
-				winTrajectoryEtat=0
+				winTrajectory.destroy();
+				winTrajectoryEtat=0;
 			}
-			break	
+			break;	
 		case 'winSpatial':
-			console.log('winSpatial',cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
-			spatialOpen(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7])
-			break
+			console.log('winSpatial',cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7]);
+			spatialOpen(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7]);
+			break;
 		case 'winTrajectoire':
-			createTrajectoire(cmd[1],cmd[2])
-			break
+			createTrajectoire(cmd[1],cmd[2]);
+			break;
 		case 'createSpatialPoint':
-			mainWindow.webContents.send("fromMain", "createSpatialPoint;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			winSpatial.webContents.send("fromMain", "createSpatialPoint;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			winConfig.webContents.send("fromMain", "createSpatialPoint;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
+			mainWindow.webContents.send("fromMain", "createSpatialPoint;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			winSpatial.webContents.send("fromMain", "createSpatialPoint;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			winConfig.webContents.send("fromMain", "createSpatialPoint;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
 			if(winStudio3DEtat==1){
-				winStudio3D.destroy()
-	     	   winStudio3DEtat=0
+				winStudio3D.destroy();
+	     	   winStudio3DEtat=0;
 	      }
-			break
+			break;
 		case "createTrajectory":
 			createTrajectory(cmd[1]);
 			break;
 		case "defTrajectory":
-			winSpatial.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2])
-			mainWindow.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2])
+			winSpatial.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2]);
+			mainWindow.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "defTrajectory;"+cmd[1]+";"+cmd[2]);
 			break;
 		case 'audioFileObj':
-			console.log("id1",cmd[1])
-			objetAudio(cmd[1])
-			break
+			console.log("id1",cmd[1]);
+			objetAudio(cmd[1]);
+			break;
 		case 'audioFileObj2':
-			console.log("id1",cmd[1])
-			objetAudio(cmd[1],2)
-			break
+			console.log("id1",cmd[1]);
+			objetAudio(cmd[1],2);
+			break;
 		case 'replaceAudio':
-			replaceAudio(cmd[1],cmd[2])
-			break
+			replaceAudio(cmd[1],cmd[2]);
+			break;
 		case 'saveFxAudio':
-			saveFxAudio(cmd[1],cmd[2])
-			break
+			saveFxAudio(cmd[1],cmd[2]);
+			break;
 		case 'fileAudioParam':
 			console.log("id1",cmd[1]);
 			//console.log(`openObjetParam ${args} from param`);
-			winConfig.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			break
+			winConfig.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			break;
 		case 'fileAudioPreDef':
-			console.log("id1",cmd[1])
-			winPreDef.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			break
+			console.log("id1",cmd[1]);
+			winPreDef.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			break;
 		case 'mute':
 			if(winConfigEtat==1){
-				mainWindow.webContents.send("fromMain", "audioMute;"+cmd[1]+";"+cmd[2])
+				mainWindow.webContents.send("fromMain", "audioMute;"+cmd[1]+";"+cmd[2]);
 			}
-			break
+			break;
 		case 'mutePreDef':
-				mainWindow.webContents.send("fromMain", "preDefMute;"+cmd[1]+";"+cmd[2])
-			break
+				mainWindow.webContents.send("fromMain", "preDefMute;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'gain':
 			if(winConfigEtat==1){
-				mainWindow.webContents.send("fromMain", "audioGain;"+cmd[1]+";"+cmd[2])
+				mainWindow.webContents.send("fromMain", "audioGain;"+cmd[1]+";"+cmd[2]);
 			}
-			break
+			break;
 		case 'reverse':
-				mainWindow.webContents.send("fromMain", "defReverse;"+cmd[1]+";"+cmd[2])
-			break
+				mainWindow.webContents.send("fromMain", "defReverse;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'preDefGain':
-			mainWindow.webContents.send("fromMain", "preDefGain;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefGain;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'fadeInType':
 			if(winConfigEtat==1){
-				mainWindow.webContents.send("fromMain", "fadeInType;"+cmd[1]+";"+cmd[2])
+				mainWindow.webContents.send("fromMain", "fadeInType;"+cmd[1]+";"+cmd[2]);
 			}
-			break
+			break;
 		case 'fadeOutType':
 			if(winConfigEtat==1){
-				mainWindow.webContents.send("fromMain", "fadeOutType;"+cmd[1]+";"+cmd[2])
+				mainWindow.webContents.send("fromMain", "fadeOutType;"+cmd[1]+";"+cmd[2]);
 			}
-			break
+			break;
 		case 'envPreDefType':
-			mainWindow.webContents.send("fromMain", "preDefEnvType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefEnvType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'flagTranspo':
 			if(winConfigEtat==1){
-				mainWindow.webContents.send("fromMain", "audioFlagTranspo;"+cmd[1]+";"+cmd[2])
+				mainWindow.webContents.send("fromMain", "audioFlagTranspo;"+cmd[1]+";"+cmd[2]);
 			}
-			break
+			break;
 		case 'preDefFlagTranspo':
-			mainWindow.webContents.send("fromMain", "preDefFlagTranspo;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefFlagTranspo;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'transposition':
 			if(winConfigEtat==1){
-				winConfig.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2])
+				winConfig.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2]);
 			}
 			if(winPreDefEtat==1){
-				winPreDef.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2])
+				winPreDef.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2]);
 			}
-			break
+			break;
 		case 'detune':
 			if(winConfigEtat==1){
-				mainWindow.webContents.send("fromMain", "audioDetune;"+cmd[1]+";"+cmd[2])
+				mainWindow.webContents.send("fromMain", "audioDetune;"+cmd[1]+";"+cmd[2]);
 			}
-			break
+			break;
 		case 'preDefDetune':
-			mainWindow.webContents.send("fromMain", "preDefDetune;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefDetune;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'debut':
-			mainWindow.webContents.send("fromMain", "audioDebut;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "audioDebut;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'preDefDebut':
-			mainWindow.webContents.send("fromMain", "preDefDebut;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefDebut;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'fin':
-			mainWindow.webContents.send("fromMain", "audioFin;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "audioFin;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'preDefFin':
-			mainWindow.webContents.send("fromMain", "preDefFin;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefFin;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'position':
 			if(winConfigEtat==1){
-				winConfig.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
+				winConfig.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
 			}
 			if(winPreDefEtat==1){
-				winPreDef.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
+				winPreDef.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
 			}
-			break
+			break;
 		case 'nom':
-			mainWindow.webContents.send("fromMain", "audioNom;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "audioNom;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'preDefNom':
-			mainWindow.webContents.send("fromMain", "preDefNom;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefNom;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'preDefColor':
-			mainWindow.webContents.send("fromMain", "preDefColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'piste':
-			mainWindow.webContents.send("fromMain", "audioPiste;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "audioPiste;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'preDefPiste':
-			mainWindow.webContents.send("fromMain", "preDefPiste;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefPiste;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'convolver':
-			mainWindow.webContents.send("fromMain", "audioConvolver;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "audioConvolver;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'preDefConvolver':
-			mainWindow.webContents.send("fromMain", "preDefConvolver;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "preDefConvolver;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'env':
-			mainWindow.webContents.send("fromMain", "audioEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			break
+			mainWindow.webContents.send("fromMain", "audioEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			break;
 		case 'defEnv':
-			mainWindow.webContents.send("fromMain", "defEnv;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "defEnv;"+cmd[1]);
+			break;
 		case 'preDefEnv':
-			mainWindow.webContents.send("fromMain", "preDefEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			break
+			mainWindow.webContents.send("fromMain", "preDefEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			break;
 		case 'objRayon':
-			mainWindow.webContents.send("fromMain", "objetRayon;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objetRayon;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'objScaleX':
 			//console.log(`scaleX ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "objetScaleX;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objetScaleX;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'objScaleY':
-			mainWindow.webContents.send("fromMain", "objetScaleY2;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objetScaleY2;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'objScaleY2':
-			mainWindow.webContents.send("fromMain", "objetScaleY;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objetScaleY;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'objScaleGrpXY':
-			mainWindow.webContents.send("fromMain", "objetScaleGrpXY;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objetScaleGrpXY;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'objScaleXY':
-			mainWindow.webContents.send("fromMain", "objetScaleXY;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objetScaleXY;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'objOpacity':
-			mainWindow.webContents.send("fromMain", "objetOpacity;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objetOpacity;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgOpacity':
-			mainWindow.webContents.send("fromMain", "bkgOpacity;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "bkgOpacity;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgGrpOpacity':
-			mainWindow.webContents.send("fromMain", "bkgGrpOpacity;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "bkgGrpOpacity;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgTransparent':
-			mainWindow.webContents.send("fromMain", "bkgTransparent;"+cmd[1])
-			winConfig.webContents.send("fromMain", "bkgTransparent;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "bkgTransparent;"+cmd[1]);
+			winConfig.webContents.send("fromMain", "bkgTransparent;"+cmd[1]);
+			break;
 		case 'symbBkgTransparent':
 			console.log(`symbBkgTransparent ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "bkgTransparent;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "bkgTransparent;"+cmd[1]);
+			break;
 		case 'grpBkgTransparent':
-			mainWindow.webContents.send("fromMain", "bkgGrpTransparent;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "bkgGrpTransparent;"+cmd[1]);
+			break;
 		case 'grpNom':
-			mainWindow.webContents.send("fromMain", "grpNom;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpNom;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'defWinGraphObj':
-			createWinGraph(cmd[1],cmd[2],cmd[3],cmd[4])
-			break
+			createWinGraph(cmd[1],cmd[2],cmd[3],cmd[4]);
+			break;
 		case 'defGraphObj':
-			mainWindow.webContents.send("fromMain", "defGraphParam;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "defGraphParam;"+cmd[1]);
+			break;
 		case 'objColor':
 			console.log(`defGraphObj ${args} from renderer process`);
-			winConfig.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2])
-			mainWindow.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2])
-			break
+			winConfig.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2]);
+			mainWindow.webContents.send("fromMain", "objColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgGrpColor':
 			console.log(`defGraphObj ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "grpBkgColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpBkgColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbColor':
 			console.log(`defGraphObj ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "symbColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbBkgColor':
 			console.log(`symbBkgColor ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "bkgNColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "bkgNColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbRotate':
 			console.log(`defGraphObj ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "symbRotate;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbRotate;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'imgRotate':
 			console.log(`imgRotate ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "objRotate;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "objRotate;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbWidth':
 			console.log(`defGraphObj ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "symbWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbHeight':
 			console.log(`defGraphObj ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "symbHeight;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbHeight;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbBkgOpacity':
-			mainWindow.webContents.send("fromMain", "bkgOpacity;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "bkgOpacity;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbMGauche':
-			mainWindow.webContents.send("fromMain", "symbMGauche;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbMGauche;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbMHaut':
-			mainWindow.webContents.send("fromMain", "symbMHaut;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbMHaut;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgSymbWidth':
 			console.log(`symbBkgWidth ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "symbBkgWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbBkgWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgSymbHeight':
 			console.log(`defGraphObj ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "symbBkgHeight;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "symbBkgHeight;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgColor':
-			winConfig.webContents.send("fromMain", "defBkgColor;"+cmd[1]+";"+cmd[2])
-			mainWindow.webContents.send("fromMain", "bkgNColor;"+cmd[1]+";"+cmd[2])
-			break
+			winConfig.webContents.send("fromMain", "defBkgColor;"+cmd[1]+";"+cmd[2]);
+			mainWindow.webContents.send("fromMain", "bkgNColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'defBkgImg':
-			defBkgImg(cmd[1])
-			break
+			defBkgImg(cmd[1]);
+			break;
 		case 'bkgGrpImg':
-			defBkgGrpImg(cmd[1])
-			break
+			defBkgGrpImg(cmd[1]);
+			break;
 		case 'defSymbBkgImg':
-			defSymbBkgImg(cmd[1])
-			break
+			defSymbBkgImg(cmd[1]);
+			break;
 		case 'bkgWidth':
-			mainWindow.webContents.send("fromMain", "bkgWidth;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "bkgSize;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			break
+			mainWindow.webContents.send("fromMain", "bkgWidth;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "bkgSize;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			break;
 		case 'bkgHeight':
-			mainWindow.webContents.send("fromMain", "bkgHeight;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "bkgSize;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			break
+			mainWindow.webContents.send("fromMain", "bkgHeight;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "bkgSize;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			break;
 		case 'bkgGrpWidth':
-			mainWindow.webContents.send("fromMain", "bkgGrpWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "bkgGrpWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bkgHeight':
-			mainWindow.webContents.send("fromMain", "bkgHeight;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "bkgSize;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			break
+			mainWindow.webContents.send("fromMain", "bkgHeight;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "bkgSize;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			break;
 		case 'bkgGrpHeight':
-			mainWindow.webContents.send("fromMain", "bkgGrpHeight;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "bkgGrpHeight;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'bordureWidth':
-			mainWindow.webContents.send("fromMain", "defBordureWidth;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "defBordureWidth;"+cmd[1]+";"+cmd[2])
+			mainWindow.webContents.send("fromMain", "defBordureWidth;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "defBordureWidth;"+cmd[1]+";"+cmd[2]);
 			
-			break
+			break;
 		case 'bordureColor':
-			mainWindow.webContents.send("fromMain", "defBordureColor;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "defBordureColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defBordureColor;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "defBordureColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'margeGauche':
-			mainWindow.webContents.send("fromMain", "defMargeGauche;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "defPlGauche;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defMargeGauche;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "defPlGauche;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'margeHaut':
-			mainWindow.webContents.send("fromMain", "defMargeHaut;"+cmd[1]+";"+cmd[2])
-			winConfig.webContents.send("fromMain", "defPlHaut;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defMargeHaut;"+cmd[1]+";"+cmd[2]);
+			winConfig.webContents.send("fromMain", "defPlHaut;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpMGauche':
-			mainWindow.webContents.send("fromMain", "grpMGauche;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpMGauche;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpMHaut':
-			mainWindow.webContents.send("fromMain", "grpMHaut;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpMHaut;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpGaucheType':
-			mainWindow.webContents.send("fromMain", "grpGaucheType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpGaucheType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpGaucheColor':
-			mainWindow.webContents.send("fromMain", "grpGaucheColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpGaucheColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpGaucheWidth':
-			mainWindow.webContents.send("fromMain", "grpGaucheWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpGaucheWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpGaucheRadius':
-			mainWindow.webContents.send("fromMain", "grpGaucheRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpGaucheRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpHautType':
-			mainWindow.webContents.send("fromMain", "grpHautType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpHautType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpHautColor':
-			mainWindow.webContents.send("fromMain", "grpHautColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpHautColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpHautWidth':
-			mainWindow.webContents.send("fromMain", "grpHautWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpHautWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpHautRadius':
-			mainWindow.webContents.send("fromMain", "grpHautRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpHautRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpDroitType':
-			mainWindow.webContents.send("fromMain", "grpDroitType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpDroitType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpDroitColor':
-			mainWindow.webContents.send("fromMain", "grpDroitColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpDroitColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpDroitWidth':
-			mainWindow.webContents.send("fromMain", "grpDroitWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpDroitWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpDroitRadius':
-			mainWindow.webContents.send("fromMain", "grpDroitRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpDroitRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpBasType':
-			mainWindow.webContents.send("fromMain", "grpBasType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpBasType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpBasColor':
-			mainWindow.webContents.send("fromMain", "grpBasColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpBasColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpBasWidth':
-			mainWindow.webContents.send("fromMain", "grpBasWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpBasWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'grpBasRadius':
-			mainWindow.webContents.send("fromMain", "grpBasRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "grpBasRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'gaucheType':
-			mainWindow.webContents.send("fromMain", "defGaucheType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defGaucheType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'gaucheColor':
-			mainWindow.webContents.send("fromMain", "defGaucheColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defGaucheColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'gaucheWidth':
-			mainWindow.webContents.send("fromMain", "defGaucheWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defGaucheWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'gaucheRadius':
-			mainWindow.webContents.send("fromMain", "defGaucheRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defGaucheRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'droitType':
-			mainWindow.webContents.send("fromMain", "defDroitType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defDroitType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'droitColor':
-			mainWindow.webContents.send("fromMain", "defDroitColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defDroitColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'droitWidth':
-			mainWindow.webContents.send("fromMain", "defDroitWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defDroitWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'droitRadius':
-			mainWindow.webContents.send("fromMain", "defDroitRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defDroitRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'hautType':
-			mainWindow.webContents.send("fromMain", "defHautType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defHautType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'hautColor':
-			mainWindow.webContents.send("fromMain", "defHautColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defHautColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'hautWidth':
-			mainWindow.webContents.send("fromMain", "defHautWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defHautWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'hautRadius':
-			mainWindow.webContents.send("fromMain", "defHautRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defHautRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'basType':
-			mainWindow.webContents.send("fromMain", "defBasType;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defBasType;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'basColor':
-			mainWindow.webContents.send("fromMain", "defBasColor;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defBasColor;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'basWidth':
-			mainWindow.webContents.send("fromMain", "defBasWidth;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defBasWidth;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'basRadius':
-			mainWindow.webContents.send("fromMain", "defBasRadius;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defBasRadius;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'saveModifProjet':
-			saveModifProjet(cmd[1])
-			break
+			saveModifProjet(cmd[1]);
+			break;
 		case 'saveModifProjetAs':
 			
-			saveModifProjetAs(cmd[1])
-			break
+			saveModifProjetAs(cmd[1]);
+			break;
 		case 'saveModifGrp':
-			saveModifGrp(cmd[1])
-			break	
+			saveModifGrp(cmd[1]);
+			break;	
 		case 'configProjet':
-			configuration(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6])
-			break
+			configuration(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6]);
+			break;
 		case 'configClose':
-			configClose()
-			break
+			configClose();
+			break;
 		case 'configSave':
-			mainWindow.webContents.send("fromMain", "configSave;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "configSave;"+cmd[1]);
+			break;
 		case 'exportBlock':
-			exportBlock(cmd[1])
-			break
+			exportBlock(cmd[1]);
+			break;
 		case 'defExportFile':
 		console.log(`deffile ${args} from renderer process`);
-			defExportFile(cmd[1],cmd[2])
+			defExportFile(cmd[1],cmd[2]);
 			break;
 		case 'exportProjet':
-			mainWindow.webContents.send("fromMain", "exportProjet;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "exportProjet;"+cmd[1]);
+			break;
 		case 'exportSpace':
-			mainWindow.webContents.send("fromMain", "exportSpace;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "exportSpace;"+cmd[1]);
+			break;
 		case 'exportInterface':
-			mainWindow.webContents.send("fromMain", "exportInterface;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "exportInterface;"+cmd[1]);
+			break;
 		case 'exportPalette':
-			mainWindow.webContents.send("fromMain", "exportPalette;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "exportPalette;"+cmd[1]);
+			break;
 		case 'spatialspXZ':
-			mainWindow.webContents.send("fromMain", "spatialspXZ;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			winConfig.webContents.send("fromMain", "spatialspXZ;"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			break
+			mainWindow.webContents.send("fromMain", "spatialspXZ;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			winConfig.webContents.send("fromMain", "spatialspXZ;"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			break;
 		case 'spatialspZY':
-			mainWindow.webContents.send("fromMain", "spatialspZY;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			winConfig.webContents.send("fromMain", "spatialspZY;"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			break
+			mainWindow.webContents.send("fromMain", "spatialspZY;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			winConfig.webContents.send("fromMain", "spatialspZY;"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			break;
 		case 'spatialspXY':
-			mainWindow.webContents.send("fromMain", "spatialspXY;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			winConfig.webContents.send("fromMain", "spatialspXY;"+cmd[2]+";"+cmd[3]+";"+cmd[4])
-			break
+			mainWindow.webContents.send("fromMain", "spatialspXY;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			winConfig.webContents.send("fromMain", "spatialspXY;"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			break;
 		case 'spatialspD':
-			mainWindow.webContents.send("fromMain", "spatialspD;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			winConfig.webContents.send("fromMain", "spatialspD;"+cmd[2]+";"+cmd[3])
-			break
+			mainWindow.webContents.send("fromMain", "spatialspD;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			winConfig.webContents.send("fromMain", "spatialspD;"+cmd[2]+";"+cmd[3]);
+			break;
 		case 'spatialspT':
-			mainWindow.webContents.send("fromMain", "spatialspT;"+cmd[1]+";"+cmd[2]+";"+cmd[3])
-			winSpatial.webContents.send("fromMain", "spatialspT;"+cmd[2]+";"+cmd[3])
-			winConfig.webContents.send("fromMain", "spatialspT;"+cmd[2]+";"+cmd[3])
+			mainWindow.webContents.send("fromMain", "spatialspT;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
+			winSpatial.webContents.send("fromMain", "spatialspT;"+cmd[2]+";"+cmd[3]);
+			winConfig.webContents.send("fromMain", "spatialspT;"+cmd[2]+";"+cmd[3]);
 			break;
 		case 'trajectSpatial':
-			mainWindow.webContents.send("fromMain", "trajectSpatial;"+cmd[1]+";"+cmd[2])
+			mainWindow.webContents.send("fromMain", "trajectSpatial;"+cmd[1]+";"+cmd[2]);
 			break;
 		case 'openListeFx':
-			mainWindow.webContents.send("fromMain", "openListeFx")
-			break
+			mainWindow.webContents.send("fromMain", "openListeFx");
+			break;
 		case 'openStudio':
-			openStudio(cmd[2],cmd[3],cmd[4],cmd[5])
-			mainWindow.webContents.send("fromMain", "openStudio")
+			openStudio(cmd[2],cmd[3],cmd[4],cmd[5]);
+			mainWindow.webContents.send("fromMain", "openStudio");
 			if(winSpatialEtat==1){
-				winSpatial.webContents.send("fromMain", "openStudio")
+				winSpatial.webContents.send("fromMain", "openStudio");
 			}
 			
-			break
+			break;
 		case 'moveObjActif':
 			if(winStudioEtat==1){
-				winStudio.webContents.send("fromMain", "moveObjActif;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
+				winStudio.webContents.send("fromMain", "moveObjActif;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			}
-			break
+			break;
 		case 'drawObjActif':
-			winStudio.webContents.send("fromMain", "drawObjActif;"+cmd[2]+";"+cmd[3]+";"+cmd[4]+";"+cmd[5]+";"+cmd[6])
+			winStudio.webContents.send("fromMain", "drawObjActif;"+cmd[2]+";"+cmd[3]+";"+cmd[4]+";"+cmd[5]+";"+cmd[6]);
 			if(winSpatialEtat==1){
-				winSpatial.webContents.send("fromMain", "openStudio3D")
+				winSpatial.webContents.send("fromMain", "openStudio3D");
 			}
-			break
+			break;
 		case 'createEvtAudio':
 		console.log(`createEvtAudio ${args} from renderer save`);
 			if(winStudioEtat==1){
-				winStudio.webContents.send("fromMain", "createEvtAudio;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]+";"+cmd[5]+";"+cmd[6]+";"+cmd[7])
-				console.log("evt",cmd[1])
+				winStudio.webContents.send("fromMain", "createEvtAudio;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]+";"+cmd[5]+";"+cmd[6]+";"+cmd[7]);
+				console.log("evt",cmd[1]);
 			}
-			break
+			break;
 		case 'delEvtAudio':
 			if(winStudioEtat==1){
-				winStudio.webContents.send("fromMain", "delEvtAudio;"+cmd[1])
+				winStudio.webContents.send("fromMain", "delEvtAudio;"+cmd[1]);
 			}
-			break
+			break;
 		case 'endEvtAudio':
 			if(winStudioEtat==1){
-				winStudio.webContents.send("fromMain", "endEvtAudio;")
+				winStudio.webContents.send("fromMain", "endEvtAudio;");
 			}
-			break
+			break;
 		case 'openStudio3d':
-			open3dStudio(cmd[1],cmd[2],cmd[3],cmd[4])
-			winSpatial.webContents.send("fromMain", "openStudio3D")
-			break
+			open3dStudio(cmd[1],cmd[2],cmd[3],cmd[4]);
+			winSpatial.webContents.send("fromMain", "openStudio3D");
+			break;
 		case 'move3dObj':
 			if(winStudio3DEtat==1){
-				winStudio3D.webContents.send("fromMain", "moveObjActif;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4])
+				winStudio3D.webContents.send("fromMain", "moveObjActif;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			}
-			break
+			break;
 		case 'selectImg':
-			selectImg()
-			break
+			selectImg();
+			break;
 		case 'saveSvg':
 			//console.log(`savd1Svg ${args} from renderer save`);
-			winDefSvg(cmd[1],cmd[2])
-			break
+			winDefSvg(cmd[1],cmd[2]);
+			break;
 		case 'saveVueSvg':
 			//console.log(`savdSvg ${args} from renderer process`);
-			saveSvgAs(cmd[1])
-			break
+			saveSvgAs(cmd[1]);
+			break;
 		case 'vueSvgValid':
 			if(winSvgEtat==1){
-				winSvg.destroy()
-	  			winSvgEtat=0
+				winSvg.destroy();
+	  			winSvgEtat=0;
 	  		}
-			break
+			break;
 		case 'spectroAnnul':
 			if(winSpectroEtat==1){
-				winSpectro.destroy()
-	  			winSpectroEtat=0
+				winSpectro.destroy();
+	  			winSpectroEtat=0;
 	  		}
-			break
+			break;
 		case 'saveAudioObjet':
-			saveAudioObjet(cmd[1],cmd[2])
-			break
+			saveAudioObjet(cmd[1],cmd[2]);
+			break;
 		case 'substituerFx':
-			mainWindow.webContents.send("fromMain", "substituerFx")
-			break
+			mainWindow.webContents.send("fromMain", "substituerFx");
+			break;
 		case 'dureeReelle':
-			mainWindow.webContents.send("fromMain", "dureeReelle;"+cmd[1])
-			break
+			mainWindow.webContents.send("fromMain", "dureeReelle;"+cmd[1]);
+			break;
 		case 'defPosition':
-			mainWindow.webContents.send("fromMain", "defPosition;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "defPosition;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'transpoToPosY':
 			console.log(`transpoToPosY ${args} from renderer process`);
-			mainWindow.webContents.send("fromMain", "transpoToPosY;"+cmd[1]+";"+cmd[2])
-			break
+			mainWindow.webContents.send("fromMain", "transpoToPosY;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'saveConfig':
-			saveConfig(cmd[1])
-			break
+			saveConfig(cmd[1]);
+			break;
 		case 'saveTheme':
-			saveTheme(cmd[1])
-			break
+			saveTheme(cmd[1]);
+			break;
 		case 'copyDefautMenu':
-			copyDefautMenu(cmd[1])
-			break
+			copyDefautMenu(cmd[1]);
+			break;
 		case 'saveDsp':
-			dspSave(cmd[1],cmd[2],cmd[3],cmd[4])
-			break
+			dspSave(cmd[1],cmd[2],cmd[3],cmd[4]);
+			break;
 		case 'selectStd':
-			stdSelect()
-			break
+			stdSelect();
+			break;
 		case 'ide':
-			ide()
-			break
+			ide();
+			break;
 		case 'defStudioOk':
 			if(winVueStudio3DEtat==1){
-				winVueStudio3D.destroy()
-	  			winVueStudio3DEtat=0
+				winVueStudio3D.destroy();
+	  			winVueStudio3DEtat=0;
 	  		}
-			newStudio.destroy()
-	  		newStudioEtat=0
-			break 
+			newStudio.destroy();
+	  		newStudioEtat=0;
+			break; 
 		case 'vueStudio3D':
-			vueStudio3D(cmd[1])
-			break 
+			vueStudio3D(cmd[1]);
+			break; 
 		case 'vueModifStudio3D':
-			winVueStudio3D.webContents.send("fromMain", "moveObjActif;"+cmd[1])
-			break
+			winVueStudio3D.webContents.send("fromMain", "moveObjActif;"+cmd[1]);
+			break;
 		case 'closeVue3D':
 			if(winVueStudio3DEtat==1){
-				winVueStudio3D.destroy()
-	  			winVueStudio3DEtat=0
+				winVueStudio3D.destroy();
+	  			winVueStudio3DEtat=0;
 	  		}
-			break
+			break;
 		case 'read3D':
 		console.log(`externe ${args} from renderer process`);
-			mainRead3D()
-			break
+			mainRead3D();
+			break;
 		case 'exportExterne':
 		console.log(`externe ${args} from renderer process`);
-			mainExternes(cmd[1])
-			mainWindow.webContents.send("fromMain", "exportExterne;"+cmd[1])
-			break
+			mainExternes(cmd[1]);
+			mainWindow.webContents.send("fromMain", "exportExterne;"+cmd[1]);
+			break;
 		case 'defExterne':
 		console.log(`externe ${args} from renderer process`);
-			mainExternes2(cmd[1])
-			break
+			mainExternes2(cmd[1]);
+			break;
 		case 'exportSelect':
-			exportSelect(cmd[1])
-			break
+			exportSelect(cmd[1]);
+			break;
 		case 'vueSpectrogram':
 			//console.log(`spectro ${args} from renderer process`);
-			soxSpectrogram(cmd[1])
-			break
+			soxSpectrogram(cmd[1]);
+			break;
 		case 'saveSpectro':
 			//console.log(`save spectro ${args} from renderer process`);
-			saveSpectro(cmd[1])
-			break
+			saveSpectro(cmd[1]);
+			break;
 		case 'audioEditor':
 			console.log(`save spectro ${args} from renderer process`);
-			audioEditor(cmd[1])
-			break
+			audioEditor(cmd[1]);
+			break;
 		case 'openGraphEqua':
 		   console.log(`openObjetParam ${args} from param`);
-			winGraphicEqualizer(cmd[1],cmd[2])
-			break
+			winGraphicEqualizer(cmd[1],cmd[2]);
+			break;
 		case 'openBigMuff':
 		   console.log(`openObjetParam ${args} from param`);
-			winBigMuffOpen(cmd[1],cmd[2])
-			break
+			winBigMuffOpen(cmd[1],cmd[2]);
+			break;
 		case 'bigMuffExit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winBigMuffEtat==1){
-				winBigMuff.destroy()
-	  			winBigMuffEtat=0
+				winBigMuff.destroy();
+	  			winBigMuffEtat=0;
 	  		}
-			break
+			break;
 		case 'openStonePhaser':
 		   console.log(`openObjetParam ${args} from param`);
-			winStonePhaserOpen(cmd[1],cmd[2])
-			break
+			winStonePhaserOpen(cmd[1],cmd[2]);
+			break;
 		case 'stonePhaserExit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winStonePhaserEtat==1){
-				winStonePhaser.destroy()
-	  			winStonePhaserEtat=0
+				winStonePhaser.destroy();
+	  			winStonePhaserEtat=0;
 	  		}
-			break
+			break;
 		case 'openDistoM':
 		   console.log(`openObjetParam ${args} from param`);
-			winDistoMOpen(cmd[1],cmd[2])
-			break
+			winDistoMOpen(cmd[1],cmd[2]);
+			break;
 		case 'distoMExit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winDistoMEtat==1){
-				winDistoMOpen.destroy()
-	  			winDistoMEtat=0
+				winDistoMOpen.destroy();
+	  			winDistoMEtat=0;
 	  		}
-			break
+			break;
 		case 'openGuitarAmp':
 		   console.log(`openObjetParam ${args} from param`);
-			winGuitarAmpOpen(cmd[1],cmd[2])
-			break
+			winGuitarAmpOpen(cmd[1],cmd[2]);
+			break;
 		case 'guitarAmpExit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winGuitarAmpEtat==1){
-				winGuitarAmp.destroy()
-	  			winGuitarAmpEtat=0
+				winGuitarAmp.destroy();
+	  			winGuitarAmpEtat=0;
 	  		}
-	  		break
+	  		break;
 	  	case 'openQuadrafuzz':
 		   console.log(`openObjetParam ${args} from param`);
-			winQuadrafuzzOpen(cmd[1],cmd[2])
-			break
+			winQuadrafuzzOpen(cmd[1],cmd[2]);
+			break;
 		case 'quadrafuzzExit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winQuadrafuzzEtat==1){
-				winQuadrafuzz.destroy()
-	  			winQuadrafuzzEtat=0
+				winQuadrafuzz.destroy();
+	  			winQuadrafuzzEtat=0;
 	  		}
-	  		break
+	  		break;
 	  	case 'openHost':
 		   console.log(`openObjetParam ${args} from param`);
-			winHostOpen(cmd[1],cmd[2])
-			break
+			winHostOpen(cmd[1],cmd[2]);
+			break;
 		case 'hostExit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winHostEtat==1){
-				winHost.destroy()
-	  			winHostEtat=0
+				winHost.destroy();
+	  			winHostEtat=0;
 	  		}
-	  		break
+	  		break;
 	  	case 'hostWamsExit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winMassWasmEtat==1){
-				winMassWasm.destroy()
-	  			winMassWasmEtat=0
+				winMassWasm.destroy();
+	  			winMassWasmEtat=0;
 	  		}
-	  		break
+	  		break;
 	  	case 'pro54Exit':
 		   console.log(`openObjetParam ${args} from param`);
 			if(winPro54Etat==1){
-				winPro54.destroy()
-	  			winPro54Etat=0
+				winPro54.destroy();
+	  			winPro54Etat=0;
 	  		}
-	  		break
+	  		break;
 	  	case 'pro54Preset':
 		   console.log(`openObjetParam ${args} from param`);
 			pro54Preset();
-	  		break
+	  		break;
 	  	case 'readNewSelect':
 		   console.log(`openObjetParam ${args} from param`);
 			const folders = listSubfolders(cmd[1]);
@@ -3829,11 +3829,11 @@ ipcMain.on ("toMain", (event, args) => {
 		   var mtime=[];
 		   var ninfo;
 			for(let i=0;i<files.length;i++){
-				ninfo=fs.statSync(files[i])
-				fsize[i]=ninfo.size
-				mtime[i]=ninfo.mtime
+				ninfo=fs.statSync(files[i]);
+				fsize[i]=ninfo.size;
+				mtime[i]=ninfo.mtime;
 			}
-				console.log("size",fsize,mtime)
+				console.log("size",fsize,mtime);
 			winMediaExplorer.webContents.send("fromMain", "retReadDir;"+JSON.stringify({
 			  path: cmd[1],
 			  folders: folders,
@@ -3841,29 +3841,29 @@ ipcMain.on ("toMain", (event, args) => {
 			  fsize: fsize,
 			  mtime: mtime
 			}));
-	  		break
+	  		break;
 	  	case 'readListSpat':
 		   console.log(`openList ${args} from param`);
 		   var f=[];
 		   const npath = path.join(getExecutableDir(), 'resources', 'Dsp');
-		   var entries=listAudioFiles(npath,'json')
+		   var entries=listAudioFiles(npath,'json');
 			for(i=0;i<entries.length;i++){
 				var nf=entries[i].split("/");
 				var nnf=nf[nf.length-1].split('.');
 				f[i]=nnf[0];
 			}
-			winProjet.webContents.send("fromMain", "rtSpatList;"+f)
-	  		break
+			winProjet.webContents.send("fromMain", "rtSpatList;"+f);
+	  		break;
 	  	case 'readImgsSelect':
 		   console.log(`openObjetParam ${args} from param`);
 			const ifolders = listSubfolders(cmd[1]);
 		   const ifiles = listImgFiles(cmd[1],cmd[2]);
 			
-			winImgViewer.webContents.send("fromMain", "retImgDir;"+ifolders+";"+ifiles)
-	  		break
+			winImgViewer.webContents.send("fromMain", "retImgDir;"+ifolders+";"+ifiles);
+	  		break;
 	  	case 'insertImgSelect':
-			mainWindow.webContents.send("fromMain", "insertImgSelect;"+cmd[1])
-	  		break
+			mainWindow.webContents.send("fromMain", "insertImgSelect;"+cmd[1]);
+	  		break;
 	   case "processAudio":
 	   	//console.log(`openObjetParam ${args} from param`);
 	   	var { id, mode, sampleRate, channels,length, duration, tempoMap } = JSON.parse(cmd[1]);
@@ -3931,7 +3931,7 @@ ipcMain.on ("toMain", (event, args) => {
 			  const chans = parseInt(execSync(`"${soxPath}" --i -c "${cmd[1]}"`).toString().trim(),10);
 			  const rate = parseInt(execSync(`"${soxPath}" --i -r "${cmd[1]}"`).toString().trim(),10);
 			  const nbsamples = parseInt(execSync(`"${soxPath}" --i -s "${cmd[1]}"`).toString().trim(),10);
-  			  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 750 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`)
+  			  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 750 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`);
   			  winMediaExplorer.webContents.send("fromMain", "infoFile;"+chans+";"+rate+";"+nbsamples+";"+cmd[1]+";"+app.getPath('home')+"/kandiskyscore/Projets/spectrogram.png");
 			} catch (err) {
 			  console.error("Erreur lors de l'exécution de sox --i :", err);
@@ -3939,7 +3939,7 @@ ipcMain.on ("toMain", (event, args) => {
      	  	break;
      	  case "wasmSpectrogram":
      	  		console.log(`openObjetParam ${args} from param`);
-     	  	  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 250 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`)
+     	  	  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 250 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`);
   			  winSpatMass.webContents.send("fromMain", "spectrogram;"+app.getPath('home')+"/kandiskyscore/Projets/spectrogram.png");
 
      	   break;
@@ -4012,7 +4012,7 @@ ipcMain.on ("toMain", (event, args) => {
 			  try {
 			    //await splitChannels(cmd[1]);
 			    	const path=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]+".wav";
-	     	  	const outputDir=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]
+	     	  	const outputDir=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1];
 	     	  	await splitW64ToWav(path, outputDir, 18, "stem");
     console.log("🎚️ Fichiers exportés dans :", outputDir);
 			  } catch (err) {
@@ -4051,11 +4051,11 @@ ipcMain.on ("toMain", (event, args) => {
 			})();
 			break;
 			case "openSpatMass":
-				 spatMass(cmd[1],cmd[2])
+				 spatMass(cmd[1],cmd[2]);
 			break;
 			case "openSpectrEdit":
 				console.log(`openSpectrEdit ${args} from param`);
-				 spectrEdit(cmd[1],cmd[2],cmd[3])
+				 spectrEdit(cmd[1],cmd[2],cmd[3]);
 			break;
 			case "closeSpectrEdit":
 				if(winSpectrEditEtat==1){
@@ -4066,7 +4066,7 @@ ipcMain.on ("toMain", (event, args) => {
 					winSpectWam.destroy();
 					winSpectWamEtat=0;
 				}
-				winSpectWam
+				winSpectWam;
 			break;
 			case "openSpectWasm":
 				console.log(`openObjetParam ${args} from param`);
@@ -4137,7 +4137,7 @@ ipcMain.on ("toMain", (event, args) => {
    });
 
 
-})
+});
 async function rtWasmHost(canal, buffer) {
     console.log("AudioBuffer reçu", buffer.numberOfChannels);
 
@@ -4145,10 +4145,10 @@ async function rtWasmHost(canal, buffer) {
     //currentChannels[canal] = new Float32Array(data);
 }
 function defSpatMass() {
-	mainWindow.webContents.send("fromMain", "defSpatMass;")
+	mainWindow.webContents.send("fromMain", "defSpatMass;");
 }
 function defSpectrEdit() {
-	mainWindow.webContents.send("fromMain", "defSpectrEdit;")
+	mainWindow.webContents.send("fromMain", "defSpectrEdit;");
 }
 ipcMain.handle('get-app-paths', () => {
   return {
@@ -4173,8 +4173,8 @@ ipcMain.handle("infoFile", async (event, filePath) => {
   	 chans : parseInt(execSync(`"${soxPath}" --i -c "${filePath}"`).toString().trim(),10),
   	 rate : parseInt(execSync(`"${soxPath}" --i -r "${filePath}"`).toString().trim(),10),
   	 nbsamples : parseInt(execSync(`"${soxPath}" --i -s "${filePath}"`).toString().trim(),10)
-  	}
-  	console.log(info)
+  	};
+  	console.log(info);
   	return info;
 });
 ipcMain.handle("loadBuffers", async (event, filePath) => {
@@ -4204,7 +4204,7 @@ ipcMain.handle("loadBuffers", async (event, filePath) => {
         numSamples,
         channels
     };
-    return rt
+    return rt;
 });
 
 ipcMain.handle("loadFile", async (event, filePath) => {
@@ -4250,7 +4250,7 @@ ipcMain.handle("faust-load-file", async (event, path) => {
 });
 ipcMain.handle("saveAudioBuffer", async (event, payload) => {
     const { filePath, buffer } = payload;
-consolg.log("payload",payload)
+consolg.log("payload",payload);
     if (!buffer || !buffer.channels || buffer.channels.length === 0) {
         throw new Error("buffer.channels vide !");
     }
@@ -4423,7 +4423,7 @@ ipcMain.handle("load-multichannel-wav", async (event, filePath) => {
 function splitChannels(inputFile, outDir) {
     return new Promise((resolve, reject) => {
         if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-console.log("inputFile",inputFile,outDir)
+console.log("inputFile",inputFile,outDir);
         const info = spawn(soxPath, ["--i", "-c", inputFile]);
         info.on("error", (err) => {
     console.error("Spawn error INFO:", err);
@@ -4804,55 +4804,55 @@ function listImgFiles(dirPath,type) {
 }
 // ****************************************************************************************************************
 function mainExternes(txt) {
-	var defc=atob(txt).split(',')
-	console.log('importExterne',txt,defc)
-	editor=defc[0]
-	daw=defc[1]
-	cmdDaw=defc[2]
-	pdfPage=parseInt(defc[3])
-	pdfLandscape=defc[4]
-	pdfScale=parseFloat(defc[5])
-	pdfMgTop=parseFloat(defc[6])
-	pdfMgBot=parseFloat(defc[7])
-	pdfMgLeft=parseFloat(defc[8])
-	pdfMgRight=parseFloat(defc[9])
-	pdfBkg=parseInt(defc[10])
-	pdfAssCmd=defc[11]
-	pdfAppCmd=defc[12]
-	editAudioCmd=defc[13]
-	rubberband=defc[14]
-	console.log("rubber1",defc)
+	var defc=atob(txt).split(',');
+	console.log('importExterne',txt,defc);
+	editor=defc[0];
+	daw=defc[1];
+	cmdDaw=defc[2];
+	pdfPage=parseInt(defc[3]);
+	pdfLandscape=defc[4];
+	pdfScale=parseFloat(defc[5]);
+	pdfMgTop=parseFloat(defc[6]);
+	pdfMgBot=parseFloat(defc[7]);
+	pdfMgLeft=parseFloat(defc[8]);
+	pdfMgRight=parseFloat(defc[9]);
+	pdfBkg=parseInt(defc[10]);
+	pdfAssCmd=defc[11];
+	pdfAppCmd=defc[12];
+	editAudioCmd=defc[13];
+	rubberband=defc[14];
+	console.log("rubber1",defc);
 }
 function mainExternes2(txt) {
-	var defc=atob(txt).split(',')
-	console.log('importExterne',txt,defc)
-	projetName=defc[0]
-	projetPath=defc[1]
-	audioPath=defc[2]
-	imgPath=defc[3]
-	editor=defc[4]
-	daw=defc[5]
-	cmdDaw=defc[6]
-	pdfPage=defc[7]
-	pdfLandscape=defc[8]
-	pdfScale=defc[9]
-	pdfMgTop=defc[10]
-	pdfMgBot=defc[11]
-	pdfMgLeft=defc[12]
-	pdfMgRight=defc[13]
-	pdfBkg=defc[14]
-	pdfAssCmd=defc[15]
-	pdfAppCmd=defc[16]
-	editAudioCmd=defc[17]
-	rubberband=defc[18]
-	console.log("rubber",defc)
+	var defc=atob(txt).split(',');
+	console.log('importExterne',txt,defc);
+	projetName=defc[0];
+	projetPath=defc[1];
+	audioPath=defc[2];
+	imgPath=defc[3];
+	editor=defc[4];
+	daw=defc[5];
+	cmdDaw=defc[6];
+	pdfPage=defc[7];
+	pdfLandscape=defc[8];
+	pdfScale=defc[9];
+	pdfMgTop=defc[10];
+	pdfMgBot=defc[11];
+	pdfMgLeft=defc[12];
+	pdfMgRight=defc[13];
+	pdfBkg=defc[14];
+	pdfAssCmd=defc[15];
+	pdfAppCmd=defc[16];
+	editAudioCmd=defc[17];
+	rubberband=defc[18];
+	console.log("rubber",defc);
 }
 function mainRead3D() {
 	if(daw=='reaper'){
 		cmd=cmdDaw+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','tmp.rpp')+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','importKandiskyScore2.lua');
 	}else{
-		cmdDaw='ardour'
-		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Ardour/tmp/tmp.ardour'
+		cmdDaw='ardour';
+		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Ardour/tmp/tmp.ardour';
 
 	}
 	exec(cmd, (error, stdout, stderr) => {
@@ -4869,14 +4869,14 @@ function mainRead3D() {
 }
 
 function defProjet(){
-	mainWindow.webContents.send("fromMain", "configProjet")
+	mainWindow.webContents.send("fromMain", "configProjet");
 }
 function defTheme() {
-	mainWindow.webContents.send("fromMain", "defTheme")
+	mainWindow.webContents.send("fromMain", "defTheme");
 }
 function objetAudio(id) {
-	console.log("id2",id)
-	var rt=""
+	console.log("id2",id);
+	var rt="";
 	var audiofile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -4918,15 +4918,15 @@ function objetAudio(id) {
    		
    		(async () => {
    			
-   		console.time()
-   		console.log("inputFile",rt,base)
+   		console.time();
+   		console.log("inputFile",rt,base);
    		await splitChannels(rt,outputBaseDir).catch(err => console.error(err));
-   			console.timeEnd() 
+   			console.timeEnd(); 
 
     console.log("🎚️ Fichiers exportés dans :", dir);
    		})();
   		
-	})
+	});
 }
 ipcMain.handle("load-buffers-multichannel", async (_, path) => {
   // 1) lecture brute
@@ -5013,7 +5013,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
             lsgrp = lsgrp.split(",").map(n => Number(n));
         }
     }
-    console.log("audioPath",audioPath)
+    console.log("audioPath",audioPath);
 	if(lsgrp.length>0){
     const tmpDir = path.join(audioPath, "tmp");
     //if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
@@ -5041,7 +5041,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
             execSync(`"${wsoxPath}" --info -D "${input}"`).toString()
         		);
         }else{
-        	console.log("soxi",soxiPath)
+        	console.log("soxi",soxiPath);
 	        realDuration = parseFloat(execSync(`"${soxiPath}" -D "${input}"`).toString());
         }
 
@@ -5148,8 +5148,8 @@ function saveFxAudio(id,rt) {
 }
 
 function defBkgImg(id) {
-	console.log("id2",id)
-	var rt=""
+	console.log("id2",id);
+	var rt="";
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -5160,19 +5160,19 @@ function defBkgImg(id) {
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		console.log("result.filePaths",result.filePaths[0],id)
-   		rt=result.filePaths[0]
+   		console.log("result.filePaths",result.filePaths[0],id);
+   		rt=result.filePaths[0];
    	}
   		winGraphObj.webContents.send("fromMain", "defBkgImg;"+id+";"+rt);
   		if(winConfigEtat==1){
   			winConfig.webContents.send("fromMain", "defBkgImg;"+id+";"+rt);
   		}
   		mainWindow.webContents.send("fromMain", "defBkgImg;"+id+";"+rt);
-	})
+	});
 }
 function defBkgGrpImg(id) {
-	console.log("id2",id)
-	var rt=""
+	console.log("id2",id);
+	var rt="";
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -5183,8 +5183,8 @@ function defBkgGrpImg(id) {
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		console.log("result.filePaths",result.filePaths[0],id)
-   		rt=result.filePaths[0]
+   		console.log("result.filePaths",result.filePaths[0],id);
+   		rt=result.filePaths[0];
    	}
   		mainWindow.webContents.send("fromMain", "defBkgGrpImg;"+id+";"+rt);
   		if(winGraphGrpEtat==1){
@@ -5193,11 +5193,11 @@ function defBkgGrpImg(id) {
   		if(winPreDefEtat==1){
   			winPreDef.webContents.send("fromMain", "defGrpImg;"+id+";"+rt);
   		}
-	})
+	});
 }
 function defSymbBkgImg(id) {
-	console.log("id2",id)
-	var rt=""
+	console.log("id2",id);
+	var rt="";
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -5208,18 +5208,18 @@ function defSymbBkgImg(id) {
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		console.log("result.filePaths",result.filePaths[0],id)
-   		rt=result.filePaths[0]
+   		console.log("result.filePaths",result.filePaths[0],id);
+   		rt=result.filePaths[0];
    	}
   		winGraphSymb.webContents.send("fromMain", "defSymbBkgImg;"+id+";"+rt);
   		if(winConfigEtat==1){
   			winConfig.webContents.send("fromMain", "defBkgImg;"+id+";"+rt);
   		}
   		mainWindow.webContents.send("fromMain", "defSymbBkgImg;"+id+";"+rt);
-	})
+	});
 }
 function selectImg() {
-	var rt=""
+	var rt="";
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -5230,13 +5230,13 @@ function selectImg() {
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		rt=result.filePaths[0]
+   		rt=result.filePaths[0];
    	}
   		mainWindow.webContents.send("fromMain", "defSelectImg;"+rt);
-	})
+	});
 }
 function selectTheme() {
-	var rt=""
+	var rt="";
 	var themeFile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -5246,13 +5246,13 @@ function selectTheme() {
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		rt=result.filePaths[0]
+   		rt=result.filePaths[0];
    	}
   		mainWindow.webContents.send("fromMain", "selectTheme;"+result.filePaths[0]);
-	})
+	});
 }
 function interp() {
-	var rt=""
+	var rt="";
 	var themeFile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
@@ -5262,11 +5262,11 @@ function interp() {
   ]
    }).then(result => {
    	if(result.canceled==false){
-   		rt=result.filePaths[0]
+   		rt=result.filePaths[0];
    	}
   		//mainWindow.webContents.send("fromMain", "selectTheme;"+result.filePaths[0]);
   		mainWindow.webContents.send("fromMain", "interpreteur;"+rt);
-	})
+	});
 	
 }
 
@@ -5587,8 +5587,8 @@ ipcMain.handle('audioSelect', async (event) => {
 // que les applications et barre de menu restents actives jusqu'à ce que l'utilisateur quitte 
 // de manière explicite par Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
-})
+  if (process.platform !== 'darwin') app.quit();
+});
 
 // Dans ce fichier vous pouvez inclure le reste du code spécifique au processus principal. Vous pouvez également le mettre dans des fichiers séparés et les inclure ici.
 
