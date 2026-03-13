@@ -370,6 +370,7 @@ if (fs.existsSync(app.getPath('appData')+'/kandiskyscore/menuDefaut.js')) {
 
 //copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js')
 const Mn = require(app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
+if (typeof Mstretching === 'undefined') Mstretching = 'Stretching (objet)';
 console.log('copy menuDefaut');
 fs.access(app.getPath('appData')+'/kandiskyscore/Dsp', (err) => {
 	   if (err) {
