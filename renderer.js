@@ -314,6 +314,9 @@ window.api.receive("fromMain", (data) => {
 			case 'tempoAudio':
 				tempoAudio();
 				break;
+			case 'stretchingAudio':
+				stretchingAudio();
+				break;
 			case 'objetRayon':
 				objetRayon(cmd[1],cmd[2]);
 				break;
@@ -815,7 +818,7 @@ window.api.receive("fromMain", (data) => {
  				break;
  			case 'processRubberband':
 				(async () => {
-					if (cmd[2] === 'tempo') {
+					if (cmd[2] === 'tempo' || cmd[2] === 'stretching') {
 						document.getElementById("loading").style.display = "none";
 						const buffer = await window.api.readFile(cmd[3]);
 						const audioBuffer = await contextAudio.decodeAudioData(buffer);
