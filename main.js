@@ -2724,7 +2724,7 @@ function pdfSettings() {
   return option;
 }
 
-function buildPdfHtml(svgPath, nbPages) {
+function buildPdfHtml(nbPages) {
     const pageWidth = 1364;
     const pageHeight = 800;
     let pages = '';
@@ -2759,7 +2759,7 @@ function buildPdfHtml(svgPath, nbPages) {
   .page-inner {
     width: ${pageWidth * nbPages}px;
     height: ${pageHeight}px;
-    background-image: url('file://${svgPath}');
+    background-image: url('./tmpsvg.svg');
     background-repeat: no-repeat;
     background-size: auto;
   }
@@ -2776,7 +2776,7 @@ async function svgToPdf(svgPath) {
     const htmlPath = path.join(pdfDir, 'partition.html');
     const pdfPath = path.join(pdfDir, 'partition.pdf');
 
-    const html = buildPdfHtml(svgPath, NB_PAGES);
+    const html = buildPdfHtml(NB_PAGES);
     await fs.promises.writeFile(htmlPath, html, 'utf8');
 
     const win = new BrowserWindow({ show: false });
