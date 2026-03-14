@@ -810,8 +810,13 @@ function gArpege(obj){
 	document.getElementById(tableObjet[obj].id).innerHTML=txt;
 	var dupnode2=document.createElement('div');
 	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
+	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:none;");
 	document.getElementById("space").appendChild(dupnode2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	dupnode2.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege2(obj){
 	var t=tableObjet[obj];
@@ -875,8 +880,13 @@ function gArpege3(obj){
 	document.getElementById(tableObjet[obj].id).innerHTML=txt;
 	var dupnode2=document.createElement('div');
 	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
+	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:none;");
 	document.getElementById("space").appendChild(dupnode2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	dupnode2.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege4(obj){
 	var dupnode=document.createElement('div');
@@ -895,8 +905,13 @@ function gArpege4(obj){
 	document.getElementById(tableObjet[obj].id).innerHTML=txt;
 	var dupnode2=document.createElement('div');
 	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
+	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:none;");
 	document.getElementById("space").appendChild(dupnode2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	dupnode2.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege21(obj){
 	var dupnode=document.createElement('div');
