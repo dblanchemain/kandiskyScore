@@ -1115,24 +1115,26 @@ function gArpege24(obj){
 }
 
 function gArpege26(obj){
-	// x2 = longueur, y2 = demi-ouverture (dim y)
-	// p1 = pointe (étroite), sglis = pointe de la branche basse
+	// p1 = pointe étroite, sglis = centre de l'ouverture (axe), p2 = branche basse (écart)
 	var t=tableObjet[obj];
+	if(t.openH===undefined) t.openH=4;
 	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
-	var x2=parseFloat(t.x2), y2=parseFloat(t.y2)||4;
-	if(t.y2===undefined||t.y2==0){ t.y2=4; y2=4; }
-	var ay=Math.abs(y2);
-	var minX=Math.min(x1,x1+x2), minY=y1-ay;
-	var bw=Math.abs(x2)||10, bh=2*ay;
-	var txOff=x1-minX, tyOff=y1-minY; // tyOff = ay
-	t.rotate=0; t.scaleY2=1;
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy)||1;
+	var naturalLength=69.68;
+	var scaleX=dist/naturalLength;
+	var angle=Math.atan2(dy,dx)*180/Math.PI;
+	t.rotate=angle+90; t.scaleY2=scaleX;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",t.id);
 	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
 	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
-	txt+="<g stroke='"+t.objColor+"' fill='none' style='stroke-width:0.864'>";
-	txt+="<polyline points='"+txOff+","+tyOff+" "+(txOff+x2)+","+(tyOff-ay)+"'/>";
-	txt+="<polyline points='"+txOff+","+tyOff+" "+(txOff+x2)+","+(tyOff+ay)+"'/>";
+	txt+="<g stroke='"+t.objColor+"' fill='none' transform='translate("+txOff+","+tyOff+") rotate("+(angle+90)+",0,0) scale("+scaleX+",1)' style='stroke-width:0.864'>";
+	txt+="<polyline points='0,0 "+naturalLength+","+-t.openH+"'/><polyline points='0,0 "+naturalLength+","+t.openH+"'/>";
 	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
 	document.getElementById(t.id).innerHTML=txt;
@@ -1142,8 +1144,15 @@ function gArpege26(obj){
 	document.getElementById("space").appendChild(h1);
 	var h2=document.createElement('div');
 	h2.setAttribute("id","sglis"+nbObjets);
-	h2.setAttribute("style","position:absolute;top:"+(y1+y2-4)+"px;left:"+(x1+x2-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h2);
+	// p2 = pointe de la branche basse : openEnd + openH * perpCCW(-dy/dist, dx/dist)
+	var p2x=x2abs-t.openH*dy/dist;
+	var p2y=y2abs+t.openH*dx/dist;
+	var hp2=document.createElement('div');
+	hp2.setAttribute("id","p2"+nbObjets);
+	hp2.setAttribute("style","position:absolute;top:"+(p2y-4)+"px;left:"+(p2x-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(hp2);
 	var _actif=nbObjets;
 	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
 	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
@@ -1151,6 +1160,8 @@ function gArpege26(obj){
 	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
 	h2.onmouseenter=function(){showArpegeHandles(_actif);};
 	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	hp2.onmouseenter=function(){showArpegeHandles(_actif);};
+	hp2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function buildLiaisonPath(h){
 	var nL=63.578052;
@@ -1769,10 +1780,12 @@ function defSymbole(objType) {
 			tableObjet[objActif].x1=0;
 			tableObjet[objActif].y1=0;
 			tableObjet[objActif].x2=70;
-			tableObjet[objActif].y2=4;
+			tableObjet[objActif].y2=0;
+			tableObjet[objActif].openH=4;
 			gArpege26(objActif);
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
 			break;
 		case 27:
 			tableObjet[objActif].width=79;
@@ -2321,6 +2334,7 @@ function createSymbole2(objType) {
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
 			break;
 		case 27:
 			gArpege27(objActif);
@@ -2867,6 +2881,7 @@ function pasteSymbole(obj,copyX,copyY){
 			gArpege26(objActif);
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
 			break;
 		case 27:
 			graphSymbole(objActif,glyphLignesDentsdescie);
