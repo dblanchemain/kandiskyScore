@@ -255,7 +255,7 @@ async function transformSymbSvg(txt,lsgrp) {
 			}
 			// Pour les arpèges (bounding-box), aligner le rect sur minX/minY et non posX/posY
 			var rectXOff=0, rectYOff=0;
-			if([1,2,3,21,22,23,24,25,27,28,84].includes(lsgrp.type)){
+			if([1,2,3,21,22,23,24,25,26,27,28,84].includes(lsgrp.type)){
 				rectXOff=Math.min(0, parseFloat(lsgrp.x2)||0);
 				rectYOff=Math.min(0, parseFloat(lsgrp.y2)||0);
 			}
@@ -426,9 +426,11 @@ async function transformSymbSvg(txt,lsgrp) {
 			break;
 		}
 		case 26:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'   stroke='"+lsgrp.objColor+"'  >"+glyphLignesCrescendo+"</g>";
-			txt=txt+"</g>";
+		{	var scaleX26=lsgrp.scaleY2;
+			txt+="<g transform='rotate("+lsgrp.rotate+",0,0) scale("+scaleX26+",1)' fill='none' stroke='"+lsgrp.objColor+"' stroke-width='0.864'>"+
+			"<polyline points='0,0 69.68,-4'/><polyline points='0,0 69.68,4'/></g>";
 			break;
+		}
 		case 27:
 		{	var dist27=Math.hypot(lsgrp.width, lsgrp.height);
 			var nb27=Math.max(1,Math.floor(dist27/20));

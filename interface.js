@@ -649,7 +649,7 @@ function dragElement(elmnt) {
     }
 
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
-    	if (tableObjet[elmnt.id.substring(5)].type==1 || tableObjet[elmnt.id.substring(5)].type==2  || tableObjet[elmnt.id.substring(5)].type==3 || tableObjet[elmnt.id.substring(5)].type==21  || tableObjet[elmnt.id.substring(5)].type==22  || tableObjet[elmnt.id.substring(5)].type==23 || tableObjet[elmnt.id.substring(5)].type==24  || tableObjet[elmnt.id.substring(5)].type==27 || tableObjet[elmnt.id.substring(5)].type==28  || tableObjet[elmnt.id.substring(5)].type==84){
+    	if (tableObjet[elmnt.id.substring(5)].type==1 || tableObjet[elmnt.id.substring(5)].type==2  || tableObjet[elmnt.id.substring(5)].type==3 || tableObjet[elmnt.id.substring(5)].type==21  || tableObjet[elmnt.id.substring(5)].type==22  || tableObjet[elmnt.id.substring(5)].type==23 || tableObjet[elmnt.id.substring(5)].type==24  || tableObjet[elmnt.id.substring(5)].type==26 || tableObjet[elmnt.id.substring(5)].type==27 || tableObjet[elmnt.id.substring(5)].type==28  || tableObjet[elmnt.id.substring(5)].type==84){
    	document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
    	}
     }
@@ -804,7 +804,7 @@ function dragElement(elmnt) {
 	    				transposition(objActif,py);
 	    			}
 	    		}
-	    		if(tableObjet[objActif].class==3 && (tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23 || tableObjet[objActif].type==24 || tableObjet[objActif].type==25 || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84)){
+	    		if(tableObjet[objActif].class==3 && (tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23 || tableObjet[objActif].type==24 || tableObjet[objActif].type==25 || tableObjet[objActif].type==26 || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
@@ -1338,6 +1338,9 @@ function redrawArpege(actif) {
 					case 25:
 					txt+=buildLiaisonPath(t.curveH!==undefined?t.curveH:10);
 					break;
+					case 26:
+					txt+="<polyline style='fill:none;stroke-width:0.864' points='0,0 69.68,-4'/><polyline style='fill:none;stroke-width:0.864' points='0,0 69.68,4'/>"+"";  // stroke color set on group
+					break;
 				case 27:
 					var nb27=Math.max(1,Math.floor(nb/20));
 					for(var i=0;i<nb27;i++){
@@ -1361,10 +1364,10 @@ function redrawArpege(actif) {
 		orig.firstChild.setAttribute('width',bw); orig.firstChild.setAttribute('height',bh);
 		orig.firstChild.firstChild.innerHTML=txt;
 		var transf, tAngle, tScale;
-		if(t.type==25){
-			var naturalLength25=63.578052;
+		if(t.type==25||t.type==26){
+			var naturalLengthH=t.type==25?63.578052:69.68;
 			tAngle=angle+90;
-			tScale=naturalLength25>0?dist/naturalLength25:1;
+			tScale=naturalLengthH>0?dist/naturalLengthH:1;
 			transf="translate("+txOff+","+tyOff+") rotate("+tAngle+",0,0) scale("+tScale+",1)";
 		}else{
 			tAngle=angle; tScale=scaleY;
