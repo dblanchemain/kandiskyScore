@@ -2707,10 +2707,10 @@ function pdfSettings() {
         pageSize: pdfPage === 1 ? 'A4' : 'A3',
         margins: {
             marginType: 'custom',
-            top: pdfMgTop,
-            bottom: pdfMgBot,
-            left: pdfMgLeft,
-            right: pdfMgRight,
+            top: Number(pdfMgTop),
+            bottom: Number(pdfMgBot),
+            left: Number(pdfMgLeft),
+            right: Number(pdfMgRight),
         },
     };
     console.log(option);
