@@ -227,13 +227,13 @@ async function transformSymbSvg(txt,lsgrp) {
 		if(!lsgrp.scaleY2){
 			lsgrp.scaleY2=1;
 		}
-	/*	
+	/*
 	if(lsgrp.borderGs!="" && lsgrp.borderGw>0 && lsgrp.borderGr!="0%"){
 			var radius=lsgrp.borderGr.split(" ")
 			txt=txt+"<rect x='0' y='0' width='"+(lsgrp.bkgWidth)+"' height='"+(lsgrp.bkgHeight)+"' rx='"+parseFloat(radius[0])+"%' ry='"+parseFloat(radius[1])+"%' fill='"+lsgrp.bkgColor+"' stroke='"+lsgrp.borderGc+"' stroke-width='"+parseFloat(lsgrp.borderGw)+"' />\n"
-			
+
 		}else{
-		*/	
+		*/
 			var nopac=Math.round(parseFloat(lsgrp.bkgOpacity)*255);
 			var color=lsgrp.bkgColor+ (nopac.toString(16));
 			if(lsgrp.bkgTrp==true){
@@ -253,7 +253,13 @@ async function transformSymbSvg(txt,lsgrp) {
 					var dh=lsgrp.bkgHeight;
 					break;
 			}
-			txt=txt+"<rect x='0' y='0' width='"+(lsgrp.bkgWidth)+"' height='"+dh+"' fill='"+nc+"'  />\n";
+			// Pour les arpèges (bounding-box), aligner le rect sur minX/minY et non posX/posY
+			var rectXOff=0, rectYOff=0;
+			if([1,2,3,84].includes(lsgrp.type)){
+				rectXOff=Math.min(0, parseFloat(lsgrp.x2)||0);
+				rectYOff=Math.min(0, parseFloat(lsgrp.y2)||0);
+			}
+			txt=txt+"<rect x='"+rectXOff+"' y='"+rectYOff+"' width='"+(lsgrp.bkgWidth)+"' height='"+dh+"' fill='"+nc+"'  />\n";
 			
 			if(lsgrp.bkgImg!=""){
 				if(pdf==1){
