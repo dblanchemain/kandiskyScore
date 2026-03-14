@@ -1114,6 +1114,45 @@ function gArpege24(obj){
 	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 
+function gArpege25(obj){
+	var t=tableObjet[obj];
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
+	var naturalLength=63.578052;
+	var scaleX=naturalLength>0?dist/naturalLength:1;
+	var angle=Math.atan2(dy,dx)*180/Math.PI;
+	t.rotate=angle; t.scaleY2=scaleX;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||14, bh=Math.abs(dy)||14;
+	var txOff=x1-minX, tyOff=y1-minY;
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' fill='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale("+scaleX+",1)' style='stroke-width:0.264583'>";
+	txt+=glyphLignesLiaison;
+	txt+="</g></svg>";
+	document.getElementById("space").appendChild(dupnode);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+}
+
 function gArpege27(obj){
 	var t=tableObjet[obj];
 	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
@@ -1659,7 +1698,13 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=14;
 			tableObjet[objActif].bkgWidth=68;
 			tableObjet[objActif].bkgHeight=14;
-			graphSymbole(objActif,glyphLignesLiaison);
+			tableObjet[objActif].x1=0;
+			tableObjet[objActif].y1=0;
+			tableObjet[objActif].x2=68;
+			tableObjet[objActif].y2=0;
+			gArpege25(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 
 		case 26:
@@ -2205,7 +2250,10 @@ function createSymbole2(objType) {
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 25:
-			graphSymbole(objActif,glyphLignesLiaison);
+			gArpege25(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 26:
 			graphSymbole(objActif,glyphLignesCrescendo);
@@ -2746,7 +2794,9 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphBlocBordureCentree);
 			break;
 		case 25:
-			graphSymbole(objActif,glyphLignesLiaison);
+			gArpege25(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 26:
 			graphSymbole(objActif,glyphLignesCrescendo);

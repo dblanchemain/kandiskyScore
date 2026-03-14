@@ -255,7 +255,7 @@ async function transformSymbSvg(txt,lsgrp) {
 			}
 			// Pour les arpèges (bounding-box), aligner le rect sur minX/minY et non posX/posY
 			var rectXOff=0, rectYOff=0;
-			if([1,2,3,21,22,23,24,27,28,84].includes(lsgrp.type)){
+			if([1,2,3,21,22,23,24,25,27,28,84].includes(lsgrp.type)){
 				rectXOff=Math.min(0, parseFloat(lsgrp.x2)||0);
 				rectYOff=Math.min(0, parseFloat(lsgrp.y2)||0);
 			}
@@ -416,9 +416,12 @@ async function transformSymbSvg(txt,lsgrp) {
 			break;
 		}
 		case 25:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'   stroke='"+lsgrp.objColor+"'  >"+glyphLignesLiaison+"</g>";
-			txt=txt+"</g>";
+		{	var scaleX25=lsgrp.scaleY2;
+			txt+="<g transform='rotate("+lsgrp.rotate+",0,0) scale("+scaleX25+",1)' fill='"+lsgrp.objColor+"' stroke='"+lsgrp.objColor+"'>";
+			txt+=glyphLignesLiaison;
+			txt+="</g>";
 			break;
+		}
 		case 26:
 			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'   stroke='"+lsgrp.objColor+"'  >"+glyphLignesCrescendo+"</g>";
 			txt=txt+"</g>";
