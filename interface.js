@@ -1305,6 +1305,11 @@ function redrawArpege(actif) {
  		var minX=Math.min(posX,posX+x2), minY=Math.min(posY,posY+y2);
  		var bw=Math.abs(x2)||10, bh=Math.abs(y2)||10;
  		var txOff=posX-minX, tyOff=posY-minY;
+ 		if(t.type==26){
+ 			var ay26=Math.abs(y2)||4;
+ 			minY=posY-ay26; bh=2*ay26;
+ 			txOff=posX-minX; tyOff=ay26;
+ 		}
  		var txt="";
  		switch(t.type) {
     			case 1:
@@ -1339,7 +1344,9 @@ function redrawArpege(actif) {
 					txt+=buildLiaisonPath(t.curveH!==undefined?t.curveH:10);
 					break;
 					case 26:
-					txt+="<polyline style='fill:none;stroke-width:0.864' points='0,0 69.68,-4'/><polyline style='fill:none;stroke-width:0.864' points='0,0 69.68,4'/>"+"";  // stroke color set on group
+					var ay26r=Math.abs(y2)||4;
+					txt+="<polyline points='"+txOff+","+tyOff+" "+(txOff+x2)+","+(tyOff-ay26r)+"'/>"
+						+"<polyline points='"+txOff+","+tyOff+" "+(txOff+x2)+","+(tyOff+ay26r)+"'/>"; 
 					break;
 				case 27:
 					var nb27=Math.max(1,Math.floor(nb/20));
@@ -1364,11 +1371,14 @@ function redrawArpege(actif) {
 		orig.firstChild.setAttribute('width',bw); orig.firstChild.setAttribute('height',bh);
 		orig.firstChild.firstChild.innerHTML=txt;
 		var transf, tAngle, tScale;
-		if(t.type==25||t.type==26){
+		if(t.type==25){
 			var naturalLengthH=t.type==25?63.578052:69.68;
 			tAngle=angle+90;
 			tScale=naturalLengthH>0?dist/naturalLengthH:1;
 			transf="translate("+txOff+","+tyOff+") rotate("+tAngle+",0,0) scale("+tScale+",1)";
+		}else if(t.type==26){
+			tAngle=0; tScale=1;
+			transf="";
 		}else{
 			tAngle=angle; tScale=scaleY;
 			transf="translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")";
