@@ -417,8 +417,11 @@ async function transformSymbSvg(txt,lsgrp) {
 		}
 		case 25:
 		{	var scaleX25=lsgrp.scaleY2;
+			var curveH25=lsgrp.curveH!==undefined?lsgrp.curveH:10;
+			var nL25=63.578052; var ck25=-4*curveH25/3;
+			var dynPath25="<path style='fill-rule:evenodd;stroke-width:0.23542766;stroke-linecap:round;stroke-linejoin:round' d='M 0,0 C "+(nL25/3)+","+ck25+" "+(2*nL25/3)+","+ck25+" "+nL25+",0 C "+(2*nL25/3)+","+(ck25+2)+" "+(nL25/3)+","+(ck25+2)+" 0,0 Z' />";
 			txt+="<g transform='rotate("+lsgrp.rotate+",0,0) scale("+scaleX25+",1)' fill='"+lsgrp.objColor+"' stroke='"+lsgrp.objColor+"'>";
-			txt+=glyphLignesLiaison;
+			txt+=dynPath25;
 			txt+="</g>";
 			break;
 		}
