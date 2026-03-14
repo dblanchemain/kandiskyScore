@@ -1235,9 +1235,14 @@ function smarpegeP2(elmnt,px,py){
 	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
 	var x2=parseFloat(t.x2), y2=parseFloat(t.y2);
 	var dist=Math.hypot(x2,y2)||1;
-	var midX=posX+x2/2, midY=posY+y2/2;
 	var p2X=px+4, p2Y=py+4;
-	t.curveH=(p2X-midX)*y2/dist-(p2Y-midY)*x2/dist;
+	if(t.type==26){
+		var openEndX=posX+x2, openEndY=posY+y2;
+		t.openH=(p2Y-openEndY)*x2/dist-(p2X-openEndX)*y2/dist;
+	}else{
+		var midX=posX+x2/2, midY=posY+y2/2;
+		t.curveH=(p2X-midX)*y2/dist-(p2Y-midY)*x2/dist;
+	}
 	objActif=actif;
 	redrawArpege(actif);
 }
@@ -1305,11 +1310,6 @@ function redrawArpege(actif) {
  		var minX=Math.min(posX,posX+x2), minY=Math.min(posY,posY+y2);
  		var bw=Math.abs(x2)||10, bh=Math.abs(y2)||10;
  		var txOff=posX-minX, tyOff=posY-minY;
- 		if(t.type==26){
- 			var ay26=Math.abs(y2)||4;
- 			minY=posY-ay26; bh=2*ay26;
- 			txOff=posX-minX; tyOff=ay26;
- 		}
  		var txt="";
  		switch(t.type) {
     			case 1:
@@ -1344,9 +1344,10 @@ function redrawArpege(actif) {
 					txt+=buildLiaisonPath(t.curveH!==undefined?t.curveH:10);
 					break;
 					case 26:
-					var ay26r=Math.abs(y2)||4;
-					txt+="<polyline points='"+txOff+","+tyOff+" "+(txOff+x2)+","+(tyOff-ay26r)+"'/>"
-						+"<polyline points='"+txOff+","+tyOff+" "+(txOff+x2)+","+(tyOff+ay26r)+"'/>"; 
+					var nL26=69.68;
+					var openH26r=t.openH!==undefined?t.openH:4;
+					txt+="<polyline style='fill:none;stroke-width:0.864' points='0,0 "+nL26+","+-openH26r+"'/>"
+						+"<polyline style='fill:none;stroke-width:0.864' points='0,0 "+nL26+","+openH26r+"'/>";
 					break;
 				case 27:
 					var nb27=Math.max(1,Math.floor(nb/20));
@@ -1371,14 +1372,11 @@ function redrawArpege(actif) {
 		orig.firstChild.setAttribute('width',bw); orig.firstChild.setAttribute('height',bh);
 		orig.firstChild.firstChild.innerHTML=txt;
 		var transf, tAngle, tScale;
-		if(t.type==25){
+		if(t.type==25||t.type==26){
 			var naturalLengthH=t.type==25?63.578052:69.68;
 			tAngle=angle+90;
 			tScale=naturalLengthH>0?dist/naturalLengthH:1;
 			transf="translate("+txOff+","+tyOff+") rotate("+tAngle+",0,0) scale("+tScale+",1)";
-		}else if(t.type==26){
-			tAngle=0; tScale=1;
-			transf="";
 		}else{
 			tAngle=angle; tScale=scaleY;
 			transf="translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")";
@@ -1401,6 +1399,14 @@ function redrawArpege(actif) {
 				var _dist25=dist||1;
 				p2el.style.top=(posY+y2/2-curveH25*x2/_dist25-4)+"px";
 				p2el.style.left=(posX+x2/2+curveH25*y2/_dist25-4)+"px";
+			}
+		}else if(t.type==26){
+			var p2el26=document.getElementById("p2"+actif);
+			if(p2el26){
+				var openH26p=t.openH!==undefined?t.openH:4;
+				var _dist26p=dist||1;
+				p2el26.style.top=(posY+y2+openH26p*x2/_dist26p-4)+"px";
+				p2el26.style.left=(posX+x2-openH26p*y2/_dist26p-4)+"px";
 			}
 		}
 		showArpegeHandles(actif);
