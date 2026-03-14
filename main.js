@@ -2761,11 +2761,15 @@ async function svgToPdf(svgPath) {
     const htmlPath = path.join(pdfDir, 'partition.html');
     const pdfPath = path.join(pdfDir, 'partition.pdf');
 
+    await fs.promises.mkdir(pdfDir, { recursive: true });
+
     const html = buildPdfHtml(NB_PAGES);
     await fs.promises.writeFile(htmlPath, html, 'utf8');
 
     const win = new BrowserWindow({ show: false });
     await win.loadFile(htmlPath);
+    // Attendre que les images de fond soient chargées avant l'impression
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     const data = await win.webContents.printToPDF(pdfSettings());
     win.destroy();
@@ -2889,9 +2893,11 @@ function aenu(chn) {
   return decodeURIComponent(escape(atob(chn)));
 }
 async function spaceToSvg(projPath, txt) {
-    const svgPath = path.join(app.getPath('appData'), 'kandiskyscore', 'pdf', 'tmpsvg.svg');
+    const pdfDir = path.join(app.getPath('appData'), 'kandiskyscore', 'pdf');
+    const svgPath = path.join(pdfDir, 'tmpsvg.svg');
     const ntxt = aenu(txt).replaceAll("&nbsp;", "");
     try {
+        await fs.promises.mkdir(pdfDir, { recursive: true });
         await fs.promises.writeFile(svgPath, ntxt, 'utf8');
         await svgToPdf(svgPath);
     } catch (err) {
