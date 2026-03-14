@@ -1205,23 +1205,27 @@ function drawGain() {
 function smarpege(elmnt,px,py) {
  		var orig=document.getElementById("objet"+elmnt.id.substring(5));
  		var actif=elmnt.id.substring(5);
-
- 		var basey1=reservTop1;
- 		// Le div reste ancré en (x1,y1), le SVG déborde avec overflow:visible
  		orig.style.overflow="visible";
  		orig.firstChild.setAttribute('overflow','visible');
 
- 		if(py>basey1){
- 			orig.style.height=Math.abs(py-parseFloat(tableObjet[actif].posY))+"px";
- 			orig.firstChild.setAttribute('height',parseFloat(orig.style.height));
- 			
-    		var x1=0;
-    		var y1=0;
-    		var x2=px-parseFloat(tableObjet[actif].posX);
-    		var y2=py-parseFloat(tableObjet[actif].posY);
-    		
-    		var nb=Math.hypot(x2-x1, y2-y1);
-    		var nb2=nb/4.9222416;
+ 		var posX=parseFloat(tableObjet[actif].posX);
+ 		var posY=parseFloat(tableObjet[actif].posY);
+ 		var x2=px-posX;
+ 		var y2=py-posY;
+ 		var dist=Math.hypot(x2,y2);
+ 		var nb2=dist/4.9222416;
+ 		var naturalLength=(Math.floor(dist/5)-1)*4.9222416;
+ 		var scaleY=naturalLength>0?dist/naturalLength:1;
+ 		var angle=Math.atan2(y2,x2)*180/Math.PI-90;
+
+ 		orig.style.width=Math.abs(x2)+"px";
+ 		orig.style.height=Math.abs(y2)+"px";
+ 		orig.firstChild.setAttribute('width',Math.abs(x2)||1);
+ 		orig.firstChild.setAttribute('height',Math.abs(y2)||1);
+
+ 		{
+ 			var x1=0; var y1=0;
+    		var nb=dist;
     		var txt="";
     		switch(tableObjet[actif].type) {
     			case 1:
@@ -1267,35 +1271,25 @@ function smarpege(elmnt,px,py) {
 						txt=txt+'<path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971" /><path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971"  transform="translate(10,'+((nb2*5)-10)+') rotate(180 0 0)"/>';
 					break;
 			}
- 			var al=Math.round(Math.atan2(y2,x2)*180/Math.PI-90);
-
-			document.getElementById("objet"+actif).firstChild.setAttribute("height",Math.abs(y2-y1)||1);
-			document.getElementById("objet"+actif).firstChild.setAttribute("width",Math.abs(x2)||1);
-			document.getElementById("objet"+actif).style.height=Math.abs(y2-y1)+"px";
-			document.getElementById("objet"+actif).style.width=Math.abs(x2)+"px";
-			document.getElementById("objet"+actif).firstChild.firstChild.innerHTML=txt;
-			
-			var transf=" rotate("+al+" 0 0 "+") scale("+tableObjet[actif].scaleX+" "+tableObjet[actif].scaleY+") translate("+(tableObjet[actif].margeG)+" "+(tableObjet[actif].margeH)+")";
-			document.getElementById("objet"+actif).firstChild.firstChild.setAttribute("transform",transf);
-			tableObjet[actif].rotate=al;
-			
-			symbMGauche(actif,x2);
-			symbMHaut(actif,y2);
-			
+ 			orig.firstChild.firstChild.innerHTML=txt;
+			var transf="rotate("+angle+",0,0) scale(1,"+scaleY+")";
+			orig.firstChild.firstChild.setAttribute("transform",transf);
+			tableObjet[actif].rotate=angle;
+			tableObjet[actif].scaleY2=scaleY;
 			tableObjet[actif].x1=x1;
- 		tableObjet[actif].y1=y1;
- 		tableObjet[actif].x2=x2;
- 		tableObjet[actif].y2=y2;
- 		}else{
- 			orig.style.top=(py)+"px";
- 			orig.style.height=(py)+"px";
- 			orig.firstChild.setAttribute('height',parseFloat(orig.style.height));
- 			var x1=0;
-    		var y1=0;
-    		var x2=px-parseFloat(tableObjet[actif].posX);
-    		var y2=parseFloat(tableObjet[actif].posY)-py;
-    		var nb=Math.hypot(x2-x1, Math.abs(y2-y1));
-    		var nb2=nb/4.9222416;
+			tableObjet[actif].y1=y1;
+			tableObjet[actif].x2=x2;
+			tableObjet[actif].y2=y2;
+ 		}
+ 		objActif=actif;
+		tableObjet[actif].width=Math.abs(x2);
+		tableObjet[actif].height=Math.abs(y2);
+		tableObjet[actif].bkgWidth=Math.abs(x2);
+		tableObjet[actif].bkgHeight=Math.abs(y2);
+		document.getElementById("sglis"+actif).style.top=(posY+y2-4)+"px";
+		document.getElementById("sglis"+actif).style.left=(posX+x2-4)+"px";
+}
+function _smarpege_dead_code_removed(actif,nb,nb2) {  // ancienne branche else supprimée
     		var txt="";
     		switch(tableObjet[actif].type) {
     			case 1:
@@ -1343,30 +1337,7 @@ function smarpege(elmnt,px,py) {
 						txt=txt+'<path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971" /><path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971"  transform="translate(10,'+((nb2*5)-6)+') rotate(180 0 0)"/>';
 					break;
 				}
-			document.getElementById("objet"+actif).firstChild.setAttribute("height",Math.abs(y2-y1));
-			document.getElementById("objet"+actif).style.height=Math.abs(y2-y1)+"px";
-			document.getElementById("objet"+actif).style.width=Math.abs(x2)+"px";
-			document.getElementById("objet"+actif).firstChild.firstChild.innerHTML=txt;
-			var al=Math.round(Math.atan2(-y2,x2)*180/Math.PI-90);
-			var transf="rotate("+al+" 0 "+(0)+")  scale("+tableObjet[actif].scaleX+" "+tableObjet[actif].scaleY+") translate("+(tableObjet[actif].margeG+(0))+" "+(tableObjet[actif].margeH-(0))+") ";
-			document.getElementById("objet"+actif).firstChild.firstChild.setAttribute("transform",transf);
-			symbMGauche(actif,x2);
-			symbMHaut(actif,y1);
-			tableObjet[actif].rotate=al;
-			//console.log(al,py,nb,x1,y1,x2,y2,orig.style.top,orig,elmnt)
- 		   tableObjet[actif].x1=x1;
- 		tableObjet[actif].y1=y2;
- 		tableObjet[actif].x2=x2;
- 		tableObjet[actif].y2=y1;
-		}
- 			objActif=actif;
- 		tableObjet[actif].width=x2-x1;
- 		tableObjet[actif].height=Math.abs(y1-y2);
- 		tableObjet[actif].bkgWidth=x2-x1;
- 		tableObjet[actif].bkgHeight=Math.abs(y1-y2);
- 	
-	//console.log(al,px,x2,py,y2,orig,elmnt)
-}
+}  // fin _smarpege_dead_code_removed
 function updateFxAutomation(obj) {
 	var liste=tableObjet[objActif].tableFxParam;
 	var greffon=obj.parentNode.parentNode.parentNode.parentNode.parentNode.id;
