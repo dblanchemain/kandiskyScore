@@ -801,7 +801,7 @@ function dragElement(elmnt) {
 	    				transposition(objActif,py);
 	    			}
 	    		}
-	    		if(tableObjet[objActif].class==3 && (tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23 || tableObjet[objActif].type==24 || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84)){
+	    		if(tableObjet[objActif].class==3 && (tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23 || tableObjet[objActif].type==24 || tableObjet[objActif].type==25 || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
@@ -1299,6 +1299,9 @@ function redrawArpege(actif) {
 				case 24:
 						txt=txt+'<path d="m 16,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/><path d="M 22,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="4"/><path d="m 28,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>';
 					break;
+					case 25:
+					txt+=glyphLignesLiaison;
+					break;
 				case 27:
 					var nb27=Math.max(1,Math.floor(nb/20));
 					for(var i=0;i<nb27;i++){
@@ -1321,10 +1324,19 @@ function redrawArpege(actif) {
 		orig.style.width=bw+"px"; orig.style.height=bh+"px";
 		orig.firstChild.setAttribute('width',bw); orig.firstChild.setAttribute('height',bh);
 		orig.firstChild.firstChild.innerHTML=txt;
-		var transf="translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")";
+		var transf, tAngle, tScale;
+		if(t.type==25){
+			var naturalLength25=63.578052;
+			tAngle=angle+90;
+			tScale=naturalLength25>0?dist/naturalLength25:1;
+			transf="translate("+txOff+","+tyOff+") rotate("+tAngle+",0,0) scale("+tScale+",1)";
+		}else{
+			tAngle=angle; tScale=scaleY;
+			transf="translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")";
+		}
 		orig.firstChild.firstChild.setAttribute("transform",transf);
-		t.rotate=angle;
-		t.scaleY2=scaleY;
+		t.rotate=tAngle;
+		t.scaleY2=tScale;
 		t.width=bw;
 		t.height=bh;
 		t.bkgWidth=bw;
