@@ -843,13 +843,21 @@ function gArpege2(obj){
 	// Handle point1 (bleu)
 	var h1=document.createElement('div');
 	h1.setAttribute("id","p1"+nbObjets);
-	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:1px solid blue;cursor:move;");
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h1);
 	// Handle point2 (rouge)
 	var h2=document.createElement('div');
 	h2.setAttribute("id","sglis"+nbObjets);
-	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:1px solid red;cursor:move;");
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h2);
+	// Hover : affiche/cache les marqueurs
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege3(obj){
 	var dupnode=document.createElement('div');
