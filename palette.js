@@ -817,8 +817,8 @@ function gArpege2(obj){
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",tableObjet[obj].id);
 	var st=defCadre(obj);
-	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
+	dupnode.setAttribute("style",st+"overflow:visible;");
+	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
 	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)'  style='stroke-width:0.264583' >";
 	var nb=Math.sqrt(Math.pow((tableObjet[obj].x2-tableObjet[obj].x1),2)+Math.pow((tableObjet[obj].y2-tableObjet[obj].y1),2));
 	nb=Math.floor(nb/5);
@@ -831,7 +831,7 @@ function gArpege2(obj){
 	document.getElementById(tableObjet[obj].id).innerHTML=txt;
 	var dupnode2=document.createElement('div');
 	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
+	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].y2-4)+"px;left:"+(tableObjet[objActif].x2-4)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
 	document.getElementById("space").appendChild(dupnode2);
 }
 function gArpege3(obj){
