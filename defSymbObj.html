@@ -1376,6 +1376,18 @@ window.api.receive("fromMain", (data) => {
 						document.getElementById("plGauche").style.display='block'
 						document.getElementById("plHaut").style.display='block'
 						break
+					case "84":
+						var txt="<svg width='50' height='50'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >"
+	txt=txt+"<g transform='translate(20 2) scale(1.4 0.7)' fill='#000000' stroke='#000000'>"+glyphFlecheHaut+"</g></svg>"
+						document.getElementById("objImg").innerHTML=txt
+						document.getElementById("rotation").style.display='block'
+						document.getElementById("objDimXY").firstChild.innerHTML="Dim XY : "
+						document.getElementById("objDimXY").style.display='none'
+						document.getElementById("objLong").style.display='none'
+						document.getElementById("objHauteur").style.display='none'
+						document.getElementById("plGauche").style.display='block'
+						document.getElementById("plHaut").style.display='block'
+						break
 				}
 			
 	}      
