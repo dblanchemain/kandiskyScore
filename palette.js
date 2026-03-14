@@ -815,20 +815,22 @@ function gArpege(obj){
 }
 function gArpege2(obj){
 	var t=tableObjet[obj];
-	var x2=t.x2; var y2=t.y2;  // coordonnées relatives à (posX,posY)
-	var dist=Math.hypot(x2,y2);
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
 	var nb=Math.floor(dist/5);
 	var naturalLength=(nb-1)*4.9222416;
 	var scaleY=naturalLength>0?dist/naturalLength:1;
-	var angle=Math.atan2(y2,x2)*180/Math.PI-90;
+	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
 	t.rotate=angle; t.scaleY2=scaleY;
 
+	// div plein canvas, pointer-events:none
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",t.id);
-	var st=defCadre(obj);
-	dupnode.setAttribute("style",st+"overflow:visible;");
-	var txt="<svg width='"+(Math.abs(x2)||1)+"' height='"+(Math.abs(y2)||1)+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
-	txt+="<g stroke='"+t.objColor+"' transform='rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	dupnode.setAttribute("style","position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;");
+	var txt="<svg width='100%' height='100%' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+x1+","+y1+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
 	for(i=1;i<nb-1;i++){
 		txt+='<path d="m 2.8301032,'+i*4.9222416+' c 0,-0.275616 0.137821,-0.413411 0.413411,-0.413411 0.121285,0 0.216376,0.03445 0.285274,0.103346 l 3.381699,2.815326 c 0.190169,0.154358 0.285254,0.356235 0.285254,0.605657 0,0.249423 -0.2322,0.572585 -0.696598,0.9694604 -0.464399,0.396875 -0.826135,0.749644 -1.085207,1.058325 -0.413411,0.413412 -0.620117,0.866098 -0.620117,1.358059 0,0.491958 0.146074,0.910193 0.438216,1.254703 l 0.826823,0.669728 c 0.104733,0.08819 0.157096,0.1881 0.157096,0.299723 0,0.111619 -0.04341,0.21015 -0.130222,0.29559 -0.08682,0.08544 -0.181901,0.128156 -0.285256,0.128156 -0.103351,0 -0.189478,-0.03445 -0.258381,-0.103352 l -3.410651,-2.815333 c -0.190156,-0.137803 -0.285248,-0.336241 -0.285248,-0.595313 0,-0.259072 0.228759,-0.586356 0.68625,-0.981855 0.457518,-0.395499 0.85852,-0.778589 1.203034,-1.1492714 0.344514,-0.370707 0.516758,-0.797216 0.516758,-1.279525 0,-0.482309 -0.147426,-0.89572 -0.44233,-1.240234 l -0.826823,-0.669713 c -0.101971,-0.08821 -0.152982,-0.191559 -0.152982,-0.310066" />';
 	}
@@ -836,10 +838,16 @@ function gArpege2(obj){
 	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
 	document.getElementById(t.id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(t.posY+y2-4)+"px;left:"+(t.posX+x2-4)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
+	// Handle point1 (bleu)
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:1px solid blue;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	// Handle point2 (rouge)
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:1px solid red;cursor:move;");
+	document.getElementById("space").appendChild(h2);
 }
 function gArpege3(obj){
 	var dupnode=document.createElement('div');
@@ -1277,6 +1285,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].x2=0;
 			tableObjet[objActif].y2=56;
 			gArpege2(objActif);//graphSymbole(objActif,glyphFlecheHautArp)
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 3:
@@ -1935,6 +1944,7 @@ function createSymbole2(objType) {
 		case 2:
 			gArpege2(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 3:
