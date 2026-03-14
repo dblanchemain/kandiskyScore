@@ -962,147 +962,239 @@ function gArpege4(obj){
 	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege21(obj){
+	var t=tableObjet[obj];
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
+	var naturalLength=(Math.floor(dist/5)-1)*4.9222416;
+	var scaleY=naturalLength>0?dist/naturalLength:1;
+	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
+	t.rotate=angle; t.scaleY2=scaleY;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[obj].id);
-	var st=defCadre(obj);
-	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
-	
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"'   style='stroke-width:0.264583' >";
-	var x1=0;
- 	var y1=0;
- 	var x2=tableObjet[obj].bkgWidth;
- 	var y2=tableObjet[obj].bkgHeight;
- 	var nb=Math.hypot(x2-x1, y2-y1);
-	var nb2=Math.floor(nb/4.9222416);
-	txt=txt+'<path d="m 2,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="2"/>';
-	
-	txt=txt+"</g></svg>";
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	txt+='<path d="m 2,0 l 0,'+naturalLength+'"  stroke="#000000" stroke-width="2"/>';
+	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[obj].id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
-	console.log('obj',dupnode,tableObjet[obj]);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege22(obj){
+	var t=tableObjet[obj];
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
+	var naturalLength=(Math.floor(dist/5)-1)*4.9222416;
+	var scaleY=naturalLength>0?dist/naturalLength:1;
+	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
+	t.rotate=angle; t.scaleY2=scaleY;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[obj].id);
-	var st=defCadre(obj);
-	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)'  style='stroke-width:0.264583' >";
-	var x1=0;
- 	var y1=0;
- 	var x2=tableObjet[obj].bkgWidth;
- 	var y2=tableObjet[obj].bkgHeight;
- 	var nb=Math.hypot(x2-x1, y2-y1);
-	var nb2=Math.floor(nb/4.9222416);
-	txt=txt+'<path d="m 3,0 l 0,'+(nb2*5)+' M 6,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>';
-	txt=txt+"</g></svg>";
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	txt+='<path d="m 3,0 l 0,'+naturalLength+' M 6,0 l 0,'+naturalLength+'"  stroke="#000000" stroke-width="1"/>';
+	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[obj].id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege23(obj){
+	var t=tableObjet[obj];
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
+	var naturalLength=(Math.floor(dist/5)-1)*4.9222416;
+	var scaleY=naturalLength>0?dist/naturalLength:1;
+	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
+	t.rotate=angle; t.scaleY2=scaleY;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[obj].id);
-	var st=defCadre(obj);
-	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)'  style='stroke-width:0.264583' >";
-	var x1=0;
- 	var y1=0;
- 	var x2=tableObjet[obj].bkgWidth;
- 	var y2=tableObjet[obj].bkgHeight;
- 	var nb=Math.hypot(x2-x1, y2-y1);
-	var nb2=Math.floor(nb/4.9222416);
-		txt=txt+'<path d="m 10,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="4"/><path d="m 16,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>';
-	txt=txt+"</g></svg>";
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	txt+='<path d="m 10,0 l 0,'+naturalLength+'"  stroke="#000000" stroke-width="4"/><path d="m 16,0 l 0,'+naturalLength+'"  stroke="#000000" stroke-width="1"/>';
+	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[obj].id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege24(obj){
+	var t=tableObjet[obj];
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
+	var naturalLength=(Math.floor(dist/5)-1)*4.9222416;
+	var scaleY=naturalLength>0?dist/naturalLength:1;
+	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
+	t.rotate=angle; t.scaleY2=scaleY;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[obj].id);
-	var st=defCadre(obj);
-	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)'  style='stroke-width:0.264583' >";
-	var x1=0;
- 	var y1=0;
- 	var x2=tableObjet[obj].bkgWidth;
- 	var y2=tableObjet[obj].bkgHeight;
- 	var nb=Math.hypot(x2-x1, y2-y1);
-	var nb2=Math.floor(nb/4.9222416);
-		txt=txt+'<path d="m 16,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/><path d="M 22,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="4"/><path d="m 28,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>';
-	txt=txt+"</g></svg>";
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	txt+='<path d="m 16,0 l 0,'+naturalLength+'"  stroke="#000000" stroke-width="1"/><path d="M 22,0 l 0,'+naturalLength+'"  stroke="#000000" stroke-width="4"/><path d="m 28,0 l 0,'+naturalLength+'"  stroke="#000000" stroke-width="1"/>';
+	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[obj].id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 
 function gArpege27(obj){
+	var t=tableObjet[obj];
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
+	var nb=Math.max(1,Math.floor(dist/20));
+	var naturalLength=nb*20;
+	var scaleY=naturalLength>0?dist/naturalLength:1;
+	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
+	t.rotate=angle; t.scaleY2=scaleY;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[obj].id);
-	var st=defCadre(obj);
-	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)'  style='stroke-width:0.264583' >";
-	var x1=0;
- 	var y1=0;
- 	var x2=tableObjet[obj].bkgWidth;
- 	var y2=tableObjet[obj].bkgHeight;
-	var nb=Math.hypot(x2-x1, y2-y1);	
-	var nb2=nb/21;
-	for(i=0;i<5;i++){
-		for(i=0;i<nb;i++){
-			txt=txt+'<path d="m 14.363434,0.18913237 c 0.258693,0.013148 0.380911,0.1573854 0.366917,0.432726 -0.0062,0.1210228 -0.06372,0.2216822 -0.172436,0.3017283 L 1.6223882,9.6293854 13.608379,19.606306 c 0.100038,0.09066 0.147564,0.187649 0.142326,0.290703 -0.0053,0.103319 -0.04902,0.208654 -0.131845,0.316243 -0.08283,0.107588 -0.167575,0.15918 -0.254247,0.154775 -0.08667,-0.0044 -0.179246,-0.04381 -0.277488,-0.117689 L 0.67783617,9.8918714 c -0.1177947,-0.07486 -0.1730554,-0.181262 -0.1660585,-0.318932 0.006984,-0.137406 0.0727466,-0.237649 0.1975248,-0.300188 L 14.104858,0.22579657 c 0.0511,-0.030516 0.137289,-0.042827 0.258576,-0.036662" transform="translate(0,'+(i*20)+')"/>';
-					}
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	for(var i=0;i<nb;i++){
+		txt+='<path d="m 14.363434,0.18913237 c 0.258693,0.013148 0.380911,0.1573854 0.366917,0.432726 -0.0062,0.1210228 -0.06372,0.2216822 -0.172436,0.3017283 L 1.6223882,9.6293854 13.608379,19.606306 c 0.100038,0.09066 0.147564,0.187649 0.142326,0.290703 -0.0053,0.103319 -0.04902,0.208654 -0.131845,0.316243 -0.08283,0.107588 -0.167575,0.15918 -0.254247,0.154775 -0.08667,-0.0044 -0.179246,-0.04381 -0.277488,-0.117689 L 0.67783617,9.8918714 c -0.1177947,-0.07486 -0.1730554,-0.181262 -0.1660585,-0.318932 0.006984,-0.137406 0.0727466,-0.237649 0.1975248,-0.300188 L 14.104858,0.22579657 c 0.0511,-0.030516 0.137289,-0.042827 0.258576,-0.036662" transform="translate(0,'+(i*20)+')"/>';
 	}
-	txt=txt+"</g></svg>";
+	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[obj].id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gArpege28(obj){
+	var t=tableObjet[obj];
+	var x1=parseFloat(t.posX), y1=parseFloat(t.posY);
+	var x2abs=x1+parseFloat(t.x2), y2abs=y1+parseFloat(t.y2);
+	var dx=x2abs-x1, dy=y2abs-y1;
+	var dist=Math.hypot(dx,dy);
+	var nb=Math.max(1,Math.floor(dist/14));
+	var naturalLength=nb*14;
+	var scaleY=naturalLength>0?dist/naturalLength:1;
+	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
+	t.rotate=angle; t.scaleY2=scaleY;
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[obj].id);
-	var st=defCadre(obj);
-	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[obj].bkgWidth+"' height='"+tableObjet[obj].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  >";
-	txt=txt+"<g stroke='"+tableObjet[obj].objColor+"' transform='scale("+tableObjet[obj].scaleX+" "+tableObjet[obj].scaleY2+") translate("+tableObjet[obj].margeG+" "+tableObjet[obj].margeH+") rotate("+tableObjet[obj].rotate+" 0 0)'  style='stroke-width:0.264583' >";
-	var x1=0;
- 	var y1=0;
- 	var x2=tableObjet[obj].bkgWidth;
- 	var y2=tableObjet[obj].bkgHeight;
-	var nb=Math.hypot(x2-x1, y2-y1);	
-	var nb2=nb/21;
-	console.log(nb);
-	for(i=0;i<nb;i++){
-		txt=txt+'<path d="m 10.167981,15.973817 v 0.148562 c -0.02099,0.04898 -0.09601,0.07238 -0.2182617,0.07238 C 5.6722328,15.352847 2.827939,14.213761 1.4160494,12.773795 0.60102532,11.928078 0.19372322,11.257589 0.19372322,10.76238 c 0,-0.8685722 0.68758146,-1.6342943 2.06305888,-2.3047839 C 3.6323122,7.7871071 5.1569537,7.2842801 6.8307073,6.9490081 8.5044593,6.61379 10.106596,6.179477 11.63706,5.6461765 13.167578,5.1166849 14.039897,4.5375635 14.254015,3.9166492 13.083107,3.2499689 11.648446,2.7280416 9.9497193,2.3547312 9.6170768,2.2556897 9.2342253,1.882379 8.8019484,1.2385545 8.6104428,0.96809488 8.5149528,0.69377148 8.5149528,0.41950255 V 0.2709402 c 0.02624,-0.0489766 0.074504,-0.0761858 0.1437605,-0.0761858 1.4614707,0.32759902 2.6819607,0.68572668 3.6611547,1.081893 0.97956,0.3999755 1.840493,0.9790423 2.582797,1.7447641 0.860566,0.8952377 1.291058,1.6647691 1.291058,2.312403 0,0.838098 -0.663708,1.5809645 -1.991493,2.2285436 -1.327365,0.643825 -2.810138,1.1352775 -4.447532,1.470496 -1.6373932,0.335217 -3.2274082,0.754293 -4.7689445,1.2647379 -1.5418505,0.506635 -2.4696264,1.059092 -2.7836945,1.653396 1.7486764,0.891374 3.9006673,1.588528 6.4566543,2.083791 0.168419,0.02721 0.3237221,0.11428 0.4674821,0.262839 0.143759,0.152373 0.2927655,0.331408 0.4475445,0.54092 0.1547758,0.209511 0.2570887,0.339027 0.3069325,0.392357 0.1909786,0.297126 0.2869946,0.544782 0.2869946,0.742866"  transform="translate(0,'+i*14+')"/>';
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	for(var i=0;i<nb;i++){
+		txt+='<path d="m 10.167981,15.973817 v 0.148562 c -0.02099,0.04898 -0.09601,0.07238 -0.2182617,0.07238 C 5.6722328,15.352847 2.827939,14.213761 1.4160494,12.773795 0.60102532,11.928078 0.19372322,11.257589 0.19372322,10.76238 c 0,-0.8685722 0.68758146,-1.6342943 2.06305888,-2.3047839 C 3.6323122,7.7871071 5.1569537,7.2842801 6.8307073,6.9490081 8.5044593,6.61379 10.106596,6.179477 11.63706,5.6461765 13.167578,5.1166849 14.039897,4.5375635 14.254015,3.9166492 13.083107,3.2499689 11.648446,2.7280416 9.9497193,2.3547312 9.6170768,2.2556897 9.2342253,1.882379 8.8019484,1.2385545 8.6104428,0.96809488 8.5149528,0.69377148 8.5149528,0.41950255 V 0.2709402 c 0.02624,-0.0489766 0.074504,-0.0761858 0.1437605,-0.0761858 1.4614707,0.32759902 2.6819607,0.68572668 3.6611547,1.081893 0.97956,0.3999755 1.840493,0.9790423 2.582797,1.7447641 0.860566,0.8952377 1.291058,1.6647691 1.291058,2.312403 0,0.838098 -0.663708,1.5809645 -1.991493,2.2285436 -1.327365,0.643825 -2.810138,1.1352775 -4.447532,1.470496 -1.6373932,0.335217 -3.2274082,0.754293 -4.7689445,1.2647379 -1.5418505,0.506635 -2.4696264,1.059092 -2.7836945,1.653396 1.7486764,0.891374 3.9006673,1.588528 6.4566543,2.083791 0.168419,0.02721 0.3237221,0.11428 0.4674821,0.262839 0.143759,0.152373 0.2927655,0.331408 0.4475445,0.54092 0.1547758,0.209511 0.2570887,0.339027 0.3069325,0.392357 0.1909786,0.297126 0.2869946,0.544782 0.2869946,0.742866" transform="translate(0,'+(i*14)+')"/>';
 	}
-	txt=txt+"</g></svg>";
+	txt+="</g></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[obj].id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].bkgHeight)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].bkgWidth)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(y1-4)+"px;left:"+(x1-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(y2abs-4)+"px;left:"+(x2abs-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function copyRepete(obj){
 	var dupnode=document.createElement('div');
@@ -1511,6 +1603,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].y2=85;
 			tableObjet[objActif].rotate=174;
 			gArpege21(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 22:
@@ -1526,6 +1619,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].y2=85;
 			tableObjet[objActif].rotate=174;
 			gArpege22(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 23:
@@ -1541,6 +1635,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].y2=117;
 			tableObjet[objActif].rotate=166;
 			gArpege23(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 24:
@@ -1556,6 +1651,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].y2=117;
 			tableObjet[objActif].rotate=166;
 			gArpege24(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 25:
@@ -1586,6 +1682,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].y2=127;
 			tableObjet[objActif].rotate=148;
 			gArpege27(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 28:
@@ -1601,6 +1698,7 @@ function defSymbole(objType) {
 			tableObjet[objActif].y2=127;
 			tableObjet[objActif].rotate=148;
 			gArpege28(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 29:
@@ -2085,21 +2183,25 @@ function createSymbole2(objType) {
 		case 21:
 			gArpege21(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 22:
 			gArpege22(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 23:
 			gArpege23(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 24:
 			gArpege24(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 25:
@@ -2111,12 +2213,14 @@ function createSymbole2(objType) {
 		case 27:
 			gArpege27(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 28:
 			gArpege28(objActif);
-			dragElement(document.getElementById('sglis'+nbObjets));
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 29:
 			graphSymbole(objActif,glyphLignesDim);
