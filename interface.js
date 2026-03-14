@@ -801,6 +801,11 @@ function dragElement(elmnt) {
 	    				transposition(objActif,py);
 	    			}
 	    		}
+	    		if(tableObjet[objActif].class==3 && tableObjet[objActif].type==2){
+	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
+	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
+	    			redrawArpege(objActif);
+	    		}else{
 	    		if(tableObjet[objActif].class==3){
 	    			if(tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23  || tableObjet[objActif].type==24  || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84){
 	    				var lobj=document.getElementById("sglis"+elmnt.id.substring(5));
@@ -818,6 +823,7 @@ function dragElement(elmnt) {
 	    		tableObjet[objActif].posX=px;
 	    		tableObjet[objActif].posY=py;
 	    		tableObjet[objActif].basePosY=py*(1/ratioSpaceHeight);
+	    		}
 	    	}else if (elmnt.id.substring(0,2)=="fx"){
 				var px=elmnt.offsetLeft - pos1;
 				var py=elmnt.offsetTop - pos2;	
@@ -1158,7 +1164,7 @@ console.log('resultat',gainPoints,resultat);
    	document.getElementById("gliss"+elmnt.id.substring(5)).style.border='0px solid red';
    }
    if(elmnt.id.substring(0,5)=="sglis"){
-   	document.getElementById("sglis"+elmnt.id.substring(5)).style.border='0px solid red';
+   	document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
    }
    if(elmnt.id.substring(0,2)=="p1"){
    	document.getElementById("p1"+elmnt.id.substring(2)).style.border='1px solid blue';
@@ -1255,6 +1261,9 @@ function redrawArpege(actif) {
  		var scaleY=naturalLength>0?dist/naturalLength:1;
  		var angle=Math.atan2(y2,x2)*180/Math.PI-90;
  		var nb=dist;
+ 		var minX=Math.min(posX,posX+x2), minY=Math.min(posY,posY+y2);
+ 		var bw=Math.abs(x2)||10, bh=Math.abs(y2)||10;
+ 		var txOff=posX-minX, tyOff=posY-minY;
  		var txt="";
  		switch(t.type) {
     			case 1:
@@ -1301,15 +1310,18 @@ function redrawArpege(actif) {
 					break;
 			}
 		var orig=document.getElementById("objet"+actif);
+		orig.style.top=minY+"px"; orig.style.left=minX+"px";
+		orig.style.width=bw+"px"; orig.style.height=bh+"px";
+		orig.firstChild.setAttribute('width',bw); orig.firstChild.setAttribute('height',bh);
 		orig.firstChild.firstChild.innerHTML=txt;
-		var transf="translate("+posX+","+posY+") rotate("+angle+",0,0) scale(1,"+scaleY+")";
+		var transf="translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")";
 		orig.firstChild.firstChild.setAttribute("transform",transf);
 		t.rotate=angle;
 		t.scaleY2=scaleY;
-		t.width=Math.abs(x2);
-		t.height=Math.abs(y2);
-		t.bkgWidth=Math.abs(x2);
-		t.bkgHeight=Math.abs(y2);
+		t.width=bw;
+		t.height=bh;
+		t.bkgWidth=bw;
+		t.bkgHeight=bh;
 		document.getElementById("p1"+actif).style.top=(posY-4)+"px";
 		document.getElementById("p1"+actif).style.left=(posX-4)+"px";
 		document.getElementById("sglis"+actif).style.top=(posY+y2-4)+"px";
