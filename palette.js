@@ -824,13 +824,15 @@ function gArpege2(obj){
 	var scaleY=naturalLength>0?dist/naturalLength:1;
 	var angle=Math.atan2(dy,dx)*180/Math.PI-90;
 	t.rotate=angle; t.scaleY2=scaleY;
-
-	// div plein canvas, pointer-events:none
+	// div bounding-box, draggable
+	var minX=Math.min(x1,x2abs), minY=Math.min(y1,y2abs);
+	var bw=Math.abs(dx)||10, bh=Math.abs(dy)||10;
+	var txOff=x1-minX, tyOff=y1-minY;
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",t.id);
-	dupnode.setAttribute("style","position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;");
-	var txt="<svg width='100%' height='100%' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
-	txt+="<g stroke='"+t.objColor+"' transform='translate("+x1+","+y1+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g stroke='"+t.objColor+"' transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0) scale(1,"+scaleY+")' style='stroke-width:0.264583'>";
 	for(i=1;i<nb-1;i++){
 		txt+='<path d="m 2.8301032,'+i*4.9222416+' c 0,-0.275616 0.137821,-0.413411 0.413411,-0.413411 0.121285,0 0.216376,0.03445 0.285274,0.103346 l 3.381699,2.815326 c 0.190169,0.154358 0.285254,0.356235 0.285254,0.605657 0,0.249423 -0.2322,0.572585 -0.696598,0.9694604 -0.464399,0.396875 -0.826135,0.749644 -1.085207,1.058325 -0.413411,0.413412 -0.620117,0.866098 -0.620117,1.358059 0,0.491958 0.146074,0.910193 0.438216,1.254703 l 0.826823,0.669728 c 0.104733,0.08819 0.157096,0.1881 0.157096,0.299723 0,0.111619 -0.04341,0.21015 -0.130222,0.29559 -0.08682,0.08544 -0.181901,0.128156 -0.285256,0.128156 -0.103351,0 -0.189478,-0.03445 -0.258381,-0.103352 l -3.410651,-2.815333 c -0.190156,-0.137803 -0.285248,-0.336241 -0.285248,-0.595313 0,-0.259072 0.228759,-0.586356 0.68625,-0.981855 0.457518,-0.395499 0.85852,-0.778589 1.203034,-1.1492714 0.344514,-0.370707 0.516758,-0.797216 0.516758,-1.279525 0,-0.482309 -0.147426,-0.89572 -0.44233,-1.240234 l -0.826823,-0.669713 c -0.101971,-0.08821 -0.152982,-0.191559 -0.152982,-0.310066" />';
 	}
