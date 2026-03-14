@@ -1164,10 +1164,10 @@ console.log('resultat',gainPoints,resultat);
    	document.getElementById("gliss"+elmnt.id.substring(5)).style.border='0px solid red';
    }
    if(elmnt.id.substring(0,5)=="sglis"){
-   	document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
+   	showArpegeHandles(elmnt.id.substring(5));
    }
    if(elmnt.id.substring(0,2)=="p1"){
-   	document.getElementById("p1"+elmnt.id.substring(2)).style.border='1px solid blue';
+   	showArpegeHandles(elmnt.id.substring(2));
    }
    
    if(elmnt.id.substring(0,5)=="morph"){
@@ -1249,6 +1249,24 @@ function smarpegeP1(elmnt,px,py) {
  		redrawArpege(actif);
 }
 
+var arpegeHideTimers={};
+function showArpegeHandles(actif){
+	if(arpegeHideTimers[actif]){clearTimeout(arpegeHideTimers[actif]);delete arpegeHideTimers[actif];}
+	var p1=document.getElementById("p1"+actif);
+	var sg=document.getElementById("sglis"+actif);
+	if(p1)p1.style.border='1px solid blue';
+	if(sg)sg.style.border='1px solid red';
+}
+function startHideArpegeHandles(actif){
+	if(arpegeHideTimers[actif])clearTimeout(arpegeHideTimers[actif]);
+	arpegeHideTimers[actif]=setTimeout(function(){
+		var p1=document.getElementById("p1"+actif);
+		var sg=document.getElementById("sglis"+actif);
+		if(p1)p1.style.border='none';
+		if(sg)sg.style.border='none';
+		delete arpegeHideTimers[actif];
+	},200);
+}
 function redrawArpege(actif) {
  		var t=tableObjet[actif];
  		var posX=parseFloat(t.posX);
@@ -1327,6 +1345,7 @@ function redrawArpege(actif) {
 		document.getElementById("p1"+actif).style.left=(posX-4)+"px";
 		document.getElementById("sglis"+actif).style.top=(posY+y2-4)+"px";
 		document.getElementById("sglis"+actif).style.left=(posX+x2-4)+"px";
+		showArpegeHandles(actif);
 }
 function updateFxAutomation(obj) {
 	var liste=tableObjet[objActif].tableFxParam;
