@@ -801,24 +801,11 @@ function dragElement(elmnt) {
 	    				transposition(objActif,py);
 	    			}
 	    		}
-	    		if(tableObjet[objActif].class==3 && (tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==84)){
+	    		if(tableObjet[objActif].class==3 && (tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23 || tableObjet[objActif].type==24 || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
 	    		}else{
-	    		if(tableObjet[objActif].class==3){
-	    			if(tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23  || tableObjet[objActif].type==24  || tableObjet[objActif].type==27 || tableObjet[objActif].type==28){
-	    				var lobj=document.getElementById("sglis"+elmnt.id.substring(5));
-	    				var ly1=tableObjet[objActif].y1;
-	    				var ly2=tableObjet[objActif].y2;
-			    		if(ly1<ly2){
-			    			lobj.style.top=(tableObjet[objActif].posY+ly2)+"px";
-			    		}else{
-			    			lobj.style.top=(tableObjet[objActif].posY)+"px";
-			    		}
-			    		lobj.style.left=(parseFloat(elmnt.style.left)+tableObjet[objActif].x2)+"px";
-					}
-	    		}
 	    		position(px);
 	    		tableObjet[objActif].posX=px;
 	    		tableObjet[objActif].posY=py;
