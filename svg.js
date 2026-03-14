@@ -426,9 +426,11 @@ async function transformSymbSvg(txt,lsgrp) {
 			break;
 		}
 		case 26:
-		{	var scaleX26=lsgrp.scaleY2;
-			txt+="<g transform='rotate("+lsgrp.rotate+",0,0) scale("+scaleX26+",1)' fill='none' stroke='"+lsgrp.objColor+"' stroke-width='0.864'>"+
-			"<polyline points='0,0 69.68,-4'/><polyline points='0,0 69.68,4'/></g>";
+		{	var svgX2=parseFloat(lsgrp.x2)||70, svgY2=parseFloat(lsgrp.y2)||4;
+			var ay26s=Math.abs(svgY2); var txs=Math.max(0,-svgX2); var tys=ay26s;
+			txt+="<g fill='none' stroke='"+lsgrp.objColor+"' stroke-width='0.864'>";
+			txt+="<polyline points='"+txs+","+tys+" "+(txs+svgX2)+","+(tys-ay26s)+"'/>";
+			txt+="<polyline points='"+txs+","+tys+" "+(txs+svgX2)+","+(tys+ay26s)+"'/></g>";
 			break;
 		}
 		case 27:
