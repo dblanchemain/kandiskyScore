@@ -831,7 +831,7 @@ function gArpege2(obj){
 	document.getElementById(tableObjet[obj].id).innerHTML=txt;
 	var dupnode2=document.createElement('div');
 	dupnode2.setAttribute("id","sglis"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].y2-4)+"px;left:"+(tableObjet[objActif].x2-4)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
+	dupnode2.setAttribute("style","position:absolute;top:"+(tableObjet[objActif].posY+tableObjet[objActif].y2-4)+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].x2-4)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
 	document.getElementById("space").appendChild(dupnode2);
 }
 function gArpege3(obj){

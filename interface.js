@@ -1271,8 +1271,8 @@ function smarpege(elmnt,px,py) {
 
 			document.getElementById("objet"+actif).firstChild.setAttribute("height",Math.abs(y2-y1)||1);
 			document.getElementById("objet"+actif).firstChild.setAttribute("width",Math.abs(x2)||1);
-			document.getElementById("objet"+actif).style.height=(y2-y1)+"px";
-			document.getElementById("objet"+actif).style.width=x2+"px";
+			document.getElementById("objet"+actif).style.height=Math.abs(y2-y1)+"px";
+			document.getElementById("objet"+actif).style.width=Math.abs(x2)+"px";
 			document.getElementById("objet"+actif).firstChild.firstChild.innerHTML=txt;
 			
 			var transf=" rotate("+al+" 0 0 "+") scale("+tableObjet[actif].scaleX+" "+tableObjet[actif].scaleY+") translate("+(tableObjet[actif].margeG)+" "+(tableObjet[actif].margeH)+")";
@@ -1345,9 +1345,9 @@ function smarpege(elmnt,px,py) {
 				}
 			document.getElementById("objet"+actif).firstChild.setAttribute("height",Math.abs(y2-y1));
 			document.getElementById("objet"+actif).style.height=Math.abs(y2-y1)+"px";
-			document.getElementById("objet"+actif).style.width=x2+"px";
+			document.getElementById("objet"+actif).style.width=Math.abs(x2)+"px";
 			document.getElementById("objet"+actif).firstChild.firstChild.innerHTML=txt;
-			var al=90-Math.floor(Math.asin(Math.abs(y1-y2)/nb)*180/Math.PI);
+			var al=Math.round(Math.atan2(-y2,x2)*180/Math.PI-90);
 			var transf="rotate("+al+" 0 "+(0)+")  scale("+tableObjet[actif].scaleX+" "+tableObjet[actif].scaleY+") translate("+(tableObjet[actif].margeG+(0))+" "+(tableObjet[actif].margeH-(0))+") ";
 			document.getElementById("objet"+actif).firstChild.firstChild.setAttribute("transform",transf);
 			symbMGauche(actif,x2);
