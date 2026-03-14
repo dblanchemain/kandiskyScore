@@ -644,6 +644,9 @@ function dragElement(elmnt) {
     if(elmnt.id.substring(0,2)=="p1"){
    	document.getElementById("p1"+elmnt.id.substring(2)).style.border='1px solid blue';
     }
+    if(elmnt.id.substring(0,2)=="p2"){
+   	document.getElementById("p2"+elmnt.id.substring(2)).style.border='1px solid green';
+    }
 
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
     	if (tableObjet[elmnt.id.substring(5)].type==1 || tableObjet[elmnt.id.substring(5)].type==2  || tableObjet[elmnt.id.substring(5)].type==3 || tableObjet[elmnt.id.substring(5)].type==21  || tableObjet[elmnt.id.substring(5)].type==22  || tableObjet[elmnt.id.substring(5)].type==23 || tableObjet[elmnt.id.substring(5)].type==24  || tableObjet[elmnt.id.substring(5)].type==27 || tableObjet[elmnt.id.substring(5)].type==28  || tableObjet[elmnt.id.substring(5)].type==84){
@@ -995,7 +998,16 @@ function dragElement(elmnt) {
 				    		tableObjet[actif].height=parseFloat(orig.style.height);
 				    		tableObjet[actif].bkgWidth=parseFloat(orig.style.width);
 				    		tableObjet[actif].bkgHeight=parseFloat(orig.style.height);
-			    		}else if(elmnt.id.substring(0,2)=="p1"){
+			    		}else if(elmnt.id.substring(0,2)=="p2"){
+				var px=(elmnt.offsetLeft - pos1);
+				var py=(elmnt.offsetTop - pos2);
+				if(py<1){ py=0; }
+				if(py>714){ py=714; }
+				if(px<1){ px=0; }
+				elmnt.style.top = py + "px";
+				elmnt.style.left = px + "px";
+				smarpegeP2(elmnt,px,py);
+			}else if(elmnt.id.substring(0,2)=="p1"){
 				var px=(elmnt.offsetLeft - pos1);
 				var py=(elmnt.offsetTop - pos2);
 				if(py<1){ py=0; }
@@ -1156,7 +1168,10 @@ console.log('resultat',gainPoints,resultat);
    if(elmnt.id.substring(0,2)=="p1"){
    	showArpegeHandles(elmnt.id.substring(2));
    }
-   
+   if(elmnt.id.substring(0,2)=="p2"){
+   	showArpegeHandles(elmnt.id.substring(2));
+   }
+
    if(elmnt.id.substring(0,5)=="morph"){
    	document.getElementById("morph"+elmnt.id.substring(5)).style.border='0px solid red';
    }
@@ -1209,6 +1224,23 @@ function drawGain() {
  		
  		
 }
+function buildLiaisonPath(h){
+	var nL=63.578052;
+	var ck=-4*h/3;
+	return "<path style='fill-rule:evenodd;stroke-width:0.23542766;stroke-linecap:round;stroke-linejoin:round' d='M 0,0 C "+(nL/3)+","+ck+" "+(2*nL/3)+","+ck+" "+nL+",0 C "+(2*nL/3)+","+(ck+2)+" "+(nL/3)+","+(ck+2)+" 0,0 Z' />";
+}
+function smarpegeP2(elmnt,px,py){
+	var actif=elmnt.id.substring(2);
+	var t=tableObjet[actif];
+	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
+	var x2=parseFloat(t.x2), y2=parseFloat(t.y2);
+	var dist=Math.hypot(x2,y2)||1;
+	var midX=posX+x2/2, midY=posY+y2/2;
+	var p2X=px+4, p2Y=py+4;
+	t.curveH=(p2X-midX)*y2/dist-(p2Y-midY)*x2/dist;
+	objActif=actif;
+	redrawArpege(actif);
+}
 function smarpege(elmnt,px,py) {
  		var actif=elmnt.id.substring(5);
  		var posX=parseFloat(tableObjet[actif].posX);
@@ -1241,16 +1273,20 @@ function showArpegeHandles(actif){
 	if(arpegeHideTimers[actif]){clearTimeout(arpegeHideTimers[actif]);delete arpegeHideTimers[actif];}
 	var p1=document.getElementById("p1"+actif);
 	var sg=document.getElementById("sglis"+actif);
+	var p2=document.getElementById("p2"+actif);
 	if(p1)p1.style.border='1px solid blue';
 	if(sg)sg.style.border='1px solid red';
+	if(p2)p2.style.border='1px solid green';
 }
 function startHideArpegeHandles(actif){
 	if(arpegeHideTimers[actif])clearTimeout(arpegeHideTimers[actif]);
 	arpegeHideTimers[actif]=setTimeout(function(){
 		var p1=document.getElementById("p1"+actif);
 		var sg=document.getElementById("sglis"+actif);
+		var p2=document.getElementById("p2"+actif);
 		if(p1)p1.style.border='none';
 		if(sg)sg.style.border='none';
+		if(p2)p2.style.border='none';
 		delete arpegeHideTimers[actif];
 	},200);
 }
@@ -1300,7 +1336,7 @@ function redrawArpege(actif) {
 						txt=txt+'<path d="m 16,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/><path d="M 22,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="4"/><path d="m 28,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>';
 					break;
 					case 25:
-					txt+=glyphLignesLiaison;
+					txt+=buildLiaisonPath(t.curveH!==undefined?t.curveH:10);
 					break;
 				case 27:
 					var nb27=Math.max(1,Math.floor(nb/20));
@@ -1343,8 +1379,17 @@ function redrawArpege(actif) {
 		t.bkgHeight=bh;
 		document.getElementById("p1"+actif).style.top=(posY-4)+"px";
 		document.getElementById("p1"+actif).style.left=(posX-4)+"px";
-		document.getElementById("sglis"+actif).style.top=(posY+y2-4)+"px";
+		document.getElementById("sglis"+actif).style.top=(posY+y2-4)+ "px";
 		document.getElementById("sglis"+actif).style.left=(posX+x2-4)+"px";
+		if(t.type==25){
+			var p2el=document.getElementById("p2"+actif);
+			if(p2el){
+				var curveH25=t.curveH!==undefined?t.curveH:10;
+				var _dist25=dist||1;
+				p2el.style.top=(posY+y2/2-curveH25*x2/_dist25-4)+"px";
+				p2el.style.left=(posX+x2/2+curveH25*y2/_dist25-4)+"px";
+			}
+		}
 		showArpegeHandles(actif);
 }
 function updateFxAutomation(obj) {
