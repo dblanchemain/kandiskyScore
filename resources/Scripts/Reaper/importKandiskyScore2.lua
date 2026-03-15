@@ -1,8 +1,8 @@
 --Script import Kandiskyscore objects
 -- D.Blanchemain
 -- Licence GPL2 (GNU)
-local TARGET_PROJECT = reaper.GetResourcePath():match("(.*/)") and
-  os.getenv("HOME") .. "/kandiskyscore/Scripts/Reaper/tmp.rpp"
+local script_dir = debug.getinfo(1, "S").source:match("@?(.+[/\\])")
+local TARGET_PROJECT = script_dir .. "tmp.rpp"
 
 local function wait_for_project()
 
@@ -53,7 +53,7 @@ local function parse_number(v)
 end
 function main()
 --retval, filepath = reaper.GetUserFileNameForRead("", "Select a file", "")
-filepath="/home/dominique/kandiskyscore/Projets/autoInsert.txt"
+filepath=os.getenv("HOME") .. "/kandiskyscore/Projets/autoInsert.txt"
 file, err = io.open(filepath, "r")
 lines = {}
 local countLines=0
