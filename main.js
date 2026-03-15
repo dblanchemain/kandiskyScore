@@ -328,20 +328,20 @@ var copyFileOutsideOfElectronAsar = function (sourceInAsarArchive, destOutsideAs
     }
 
 };
-if (fs.existsSync(app.getPath('appData')+'/kandiskyscore')) {
+if (fs.existsSync(path.join(app.getPath('appData'), 'kandiskyscore'))) {
   console.log('The directory exists');
 } else {
   console.log('The directory does NOT exist');
-  fs.mkdir(app.getPath('appData')+'/kandiskyscore', (err) => { 
+  fs.mkdir(path.join(app.getPath('appData'), 'kandiskyscore'), (err) => {
     if (err) { 
         return console.error(err); 
     } 
     console.log('Directory created successfully!'); 
 	}); 
 }
-fs.access(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
+fs.access(path.join(app.getPath('home'), 'kandiskyscore', 'Projets'), (err) => {
   if (err) {
-    fs.mkdir(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
+    fs.mkdir(path.join(app.getPath('home'), 'kandiskyscore', 'Projets'), (err) => {
       if (err) { return console.error(err); }
       console.log('Directory Projets created successfully!');
     });
@@ -349,13 +349,13 @@ fs.access(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
 });
 
 
-if (fs.existsSync(app.getPath('appData')+'/kandiskyscore/config.js')) {
+if (fs.existsSync(path.join(app.getPath('appData'), 'kandiskyscore', 'config.js'))) {
 	 console.log('config');
 	}else{
-    copyFileOutsideOfElectronAsar('./config.js', app.getPath('appData')+'/kandiskyscore/config.js');
+    copyFileOutsideOfElectronAsar('./config.js', path.join(app.getPath('appData'), 'kandiskyscore', 'config.js'));
    }
-copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
-const Mn = require(app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
+copyFileOutsideOfElectronAsar('./menuDefaut.js', path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
+const Mn = require(path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
 if (typeof Mstretching === 'undefined') Mstretching = 'Stretching (objet)';
 console.log('copy menuDefaut');
 
@@ -392,13 +392,13 @@ let winSpectWamEtat=0;
 let winTrajectoryEtat=0;
 let winSvgEtat=0;
 let projetName='';
-let projetPath=app.getPath('home')+'/kandiskyscore/Projets';
-let audioPath=app.getPath('home')+'/kandiskyscore/Projets';
-let imgPath=app.getPath('home')+'/kandiskyscore/Projets';
+let projetPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
+let audioPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
+let imgPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 let editor='libreoffice --draw';
 let editAudioCmd='audacity';
 let daw=0;
-let cmdDaw=app.getPath('home')+'/Reaper/reaper_linux_x86_64/REAPER/reaper';
+let cmdDaw=path.join(app.getPath('home'), 'Reaper', 'reaper_linux_x86_64', 'REAPER', 'reaper');
 let pdfPage=1;
 let pdfLandscape=1;
 let pdfScale=1;
@@ -411,7 +411,7 @@ let pdfAssCmd='pdfunite';
 let pdfAppCmd='atril';
 let rubberband="";
 
-let currentProjet=app.getPath('home')+'/kandiskyscore/Projets';
+let currentProjet=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 app.disableHardwareAcceleration();
 const createWindow = () => {
   // Création de la fenêtre de navigateur.
@@ -916,15 +916,15 @@ ipcMain.handle('saveAudioTempo', async (event, filePath, arrayBuffer) => {
 
 
 ipcMain.on("save-File", (event, { filename, data }) => {
-  const savePath = path.join(app.getPath('home')+'/kandiskyscore', filename);
+  const savePath = path.join(app.getPath('home'), 'kandiskyscore', filename);
   console.log(savePath);
 	
   dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName),
+        defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
-        
+
     }).then(file => {
         // Stating whether dialog operation was cancelled or not.
         console.log(file.canceled);
@@ -1076,8 +1076,8 @@ function createStudio() {
 }
 
 function copyDefautMenu(lang) {
-   copyFileOutsideOfElectronAsar('/Local/'+lang+'/menu-'+lang+'.js', app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
-   console.log('./Local/'+lang+'/menu-'+lang+'.js was copied to '+app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
+   copyFileOutsideOfElectronAsar(path.join('Local', lang, 'menu-'+lang+'.js'), path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
+   console.log(path.join('Local', lang, 'menu-'+lang+'.js')+' was copied to '+path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
     mainWindow.webContents.send("fromMain", 'configSave;'+lang);
 //});
 }
@@ -1161,7 +1161,7 @@ var testfile = dialog.showOpenDialog({
 function renameProjetAs() {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
+        defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets'),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
         filters: [
@@ -1173,7 +1173,7 @@ function renameProjetAs() {
         // Stating whether dialog operation was cancelled or not.
         console.log(file.canceled);
         if (!file.canceled) {
-            var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName);
+            var base=path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName);
             // Creating and Writing to the sample.txt file
             
             if (fs.lstatSync(base).isDirectory()) {
@@ -1200,7 +1200,7 @@ function delProjet() {
 	  }).then(({ response, checkboxChecked }) => {
 	    console.log(`response: ${response}`);
 	    if (response) {
-	    	var base=path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName);
+	    	var base=path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName);
 	    	if (fs.lstatSync(base).isDirectory()) {
 			      fs.rmSync(base, { recursive: true });
 			      mainWindow.webContents.send("fromMain", 'newProject;');
@@ -1359,7 +1359,7 @@ function saveModifProjet(txt) {
 function saveModifProjetAs(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName),
+        defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
         filters: [
@@ -1391,7 +1391,7 @@ function stdSelect() {
 	var themeFile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: app.getPath('appData')+"/kandiskyscore/Dsp",
+   defaultPath: path.join(app.getPath('appData'), 'kandiskyscore', 'Dsp'),
 	filters: [
 	 { name: 'Studio', extensions: ['std'] },
     { name: 'All Files', extensions: ['*'] }
@@ -1508,7 +1508,7 @@ function saveTheme(txt) {
 function saveSvgAs(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-       defaultPath: path.join( app.getPath('home'), '/kandiskyscore/Projets/',projetName,'/Images'),
+       defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName, 'Images'),
         // defaultPath: path.join(__dirname, '../assets/'),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
@@ -1748,7 +1748,7 @@ function defExportFile(dir,cmd) {
 function exportSelect(block) {
 	console.log("block",block);
   // Stating whether dialog operation was cancelled or not.
-  	file=app.getPath('home')+'/kandiskyscore/Projets/autoInsert.txt';
+  	file=path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'autoInsert.txt');
    // Creating and Writing to the sample.txt file
    fs.writeFile(file, 
                 atob(block), function (err) {
@@ -1810,7 +1810,8 @@ function configClose() {
 function spectrEdit(id,fpath,obj) {
 	if(winSpectrEditEtat==0){
 		var npath=path.join(audioPath,fpath);
-		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+app.getPath('home')+'/kandiskyscore/Projets/spectrogram.png', (error, stdout, stderr) => {
+		const spectroOutPath1 = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'spectrogram.png');
+		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+spectroOutPath1, (error, stdout, stderr) => {
 		    if (error) {
 		        console.log(`error: ${error.message}`);
 		        return;
@@ -2495,7 +2496,8 @@ function imgViewer() {
 		//winImgViewer.webContents.openDevTools()
 		winImgViewerEtat=1;
 		winImgViewer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winImgViewer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+app.getPath('home')+'/kandiskyscore;'+currentProjet);
+    		const kandiskyPath = path.join(app.getPath('home'), 'kandiskyscore');
+    		winImgViewer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+kandiskyPath+";"+currentProjet);
   		});
 
 		winImgViewer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -2760,7 +2762,8 @@ function host() {
 function soxSpectrogram(npath) {
 	var txt="";
 	if(winSpectroEtat==0){
-		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+app.getPath('home')+'/kandiskyscore/Projets/spectrogram.png', (error, stdout, stderr) => {
+		const spectroOutPath2 = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'spectrogram.png');
+		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+spectroOutPath2, (error, stdout, stderr) => {
 		    if (error) {
 		        console.log(`error: ${error.message}`);
 		        return;
@@ -2769,7 +2772,7 @@ function soxSpectrogram(npath) {
 		        //console.log(`stderr: ${stderr}`);
 		        //return;
 		    }
-		setTimeout(function(){    
+		setTimeout(function(){
 		exec(soxPath+" "+npath+" -n stats ", (error, stdout, stderr) => {
 		    if (error) {
 		        //console.log(`error: ${error.message}`);
@@ -2804,7 +2807,8 @@ function soxSpectrogram(npath) {
 				//winSpectro.webContents.openDevTools()
 				winSpectroEtat=1;
 				winSpectro.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-		    		winSpectro.webContents.send("fromMain", "defSpectro;"+app.getPath('home')+'/kandiskyscore/Projets;'+uena(txt)+";"+npath);
+		    		const kandiskyProjetsPath = path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
+	    		winSpectro.webContents.send("fromMain", "defSpectro;"+kandiskyProjetsPath+";"+uena(txt)+";"+npath);
 		  		});
 				winSpectro.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
 			   e.preventDefault();
@@ -3914,16 +3918,18 @@ ipcMain.on ("toMain", (event, args) => {
 			  const chans = parseInt(execSync(`"${soxPath}" --i -c "${cmd[1]}"`).toString().trim(),10);
 			  const rate = parseInt(execSync(`"${soxPath}" --i -r "${cmd[1]}"`).toString().trim(),10);
 			  const nbsamples = parseInt(execSync(`"${soxPath}" --i -s "${cmd[1]}"`).toString().trim(),10);
-  			  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 750 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`);
-  			  winMediaExplorer.webContents.send("fromMain", "infoFile;"+chans+";"+rate+";"+nbsamples+";"+cmd[1]+";"+app.getPath('home')+"/kandiskyscore/Projets/spectrogram.png");
+  			  const spectroPath1 = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'spectrogram.png');
+  			  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 750 -y 100 -o "${spectroPath1}"`);
+  			  winMediaExplorer.webContents.send("fromMain", "infoFile;"+chans+";"+rate+";"+nbsamples+";"+cmd[1]+";"+spectroPath1);
 			} catch (err) {
 			  console.error("Erreur lors de l'exécution de sox --i :", err);
 			}
      	  	break;
      	  case "wasmSpectrogram":
      	  		console.log(`openObjetParam ${args} from param`);
-     	  	  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 250 -y 100 -o "${app.getPath('home')}/kandiskyscore/Projets/spectrogram.png"`);
-  			  winSpatMass.webContents.send("fromMain", "spectrogram;"+app.getPath('home')+"/kandiskyscore/Projets/spectrogram.png");
+     	  	  const spectroPath2 = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'spectrogram.png');
+     	  	  execSync(`"${soxPath}" "${cmd[1]}" -n remix 1 spectrogram -x 250 -y 100 -o "${spectroPath2}"`);
+  			  winSpatMass.webContents.send("fromMain", "spectrogram;"+spectroPath2);
 
      	   break;
      	  case "playFile":
@@ -3994,9 +4000,9 @@ ipcMain.on ("toMain", (event, args) => {
 			(async () => {
 			  try {
 			    //await splitChannels(cmd[1]);
-			    	const path=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]+".wav";
-	     	  	const outputDir=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1];
-	     	  	await splitW64ToWav(path, outputDir, 18, "stem");
+			    	const audioFilePath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'Projet3', 'Audios', cmd[1]+".wav");
+	     	  	const outputDir=path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'Projet3', 'Audios', cmd[1]);
+	     	  	await splitW64ToWav(audioFilePath, outputDir, 18, "stem");
     console.log("🎚️ Fichiers exportés dans :", outputDir);
 			  } catch (err) {
 			    console.error(err);
@@ -4835,7 +4841,7 @@ function mainRead3D() {
 		cmd=cmdDaw+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','tmp.rpp')+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','importKandiskyScore2.lua');
 	}else{
 		cmdDaw='ardour';
-		cmd=cmdDaw+' '+app.getPath('home')+'/kandiskyscore/Scripts/Ardour/tmp/tmp.ardour';
+		cmd=cmdDaw+' '+path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp', 'tmp.ardour');
 
 	}
 	exec(cmd, (error, stdout, stderr) => {
@@ -5136,7 +5142,7 @@ function defBkgImg(id) {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/'+projetName,
+   defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName),
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -5159,7 +5165,7 @@ function defBkgGrpImg(id) {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
+   defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets'),
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -5184,7 +5190,7 @@ function defSymbBkgImg(id) {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/',
+   defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets'),
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -5206,7 +5212,7 @@ function selectImg() {
 	var imgfile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: app.getPath('home')+'/kandiskyscore/Projets/'+projetName,
+   defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName),
 	filters: [
     { name: 'img', extensions: ['png', 'jpg', 'svg'] },
     { name: 'All Files', extensions: ['*'] }
@@ -5239,7 +5245,7 @@ function interp() {
 	var themeFile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: app.getPath('home')+'/kandiskyscore/Actions',
+   defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Actions'),
 	filters: [
     { name: 'Js', extensions: ['js'] }
   ]
@@ -5552,7 +5558,7 @@ ipcMain.handle('filtreSelection', async (event, currentBuffers,sampleRate, objSe
 ipcMain.handle('audioSelect', async (event) => {
 	const result = await dialog.showOpenDialog({
     properties: ['openFile'],
-    defaultPath: app.getPath('home') + '/kandiskyscore/Projets',
+    defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets'),
     filters: [
       { name: 'Wave', extensions: ['wav'] }
     ]
