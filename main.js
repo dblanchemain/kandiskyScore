@@ -339,25 +339,6 @@ if (fs.existsSync(app.getPath('appData')+'/kandiskyscore')) {
     console.log('Directory created successfully!'); 
 	}); 
 }
-if (fs.existsSync(app.getPath('home')+'/kandiskyscore')) {
-  console.log('The directory exists');
-    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts');
-} else {
-  console.log('The directory does NOT exist');
-  fs.mkdir(app.getPath('home')+'/kandiskyscore', (err) => {
-    if (err) {
-        return console.error(err);
-    }
-    console.log('Directory '+app.getPath('home')+'/kandiskyscore created successfully!');
-    copyFileOutsideOfElectronAsar('./Pdf', app.getPath('home')+'/kandiskyscore/Pdf');
-    copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts');
-    copyFileOutsideOfElectronAsar('./Dsp', app.getPath('home')+'/kandiskyscore/Dsp');
-    fs.mkdir(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
-      if (err) { return console.error(err); }
-      console.log('Directory Projets created successfully!');
-    });
-	});
-}
 fs.access(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
   if (err) {
     fs.mkdir(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
