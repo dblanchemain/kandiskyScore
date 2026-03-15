@@ -136,9 +136,6 @@
 			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>Éditeur Audio</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='audioEditor' type="texte" style="width:520px" value='' /></td></tr>
-			<tr ><td colspan="4"> <b>Rubberband</b> </td></tr>
-			<tr><td></td><td colspan="3"><input id='rubberband' type="texte" style="width:520px" value='' /></td></tr>
-			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>PDF</b> </td></tr>
 			<tr ><td >Page </td><td id="pagePdf"  ><div style="margin:20px;" ><select id="selectPage" size="1"  >
 			<option value="1" >A4</option>
@@ -150,8 +147,6 @@
 			<tr><td >Marge-left </td><td ><input id="pdfLeft" type="number"  value='0.2' min="0.1" max="10" step="0.1" /></td>
 			<td >Marge-right </td><td ><input id="pdfRight" type="number"  value='0.2' min="0.1" max="10" step="0.1" /></td></tr>
 			<tr ><td >Imprimer bkg </td><td  colspan="3">Oui<input type="radio"  name="pdfBkg" checked  id="pdfBkg0" />Non<input type="radio"  name="pdfBkg"  id="pdfBkg1" /></td></tr>
-			<tr ><td >Ass. cmd </td><td  colspan="4"><input id="AssPdf"type="text" style="width:520px" value=' ' /></td></tr>
-			<tr ><td>App. pdf </td><td colspan="4"><input id="appPdf" type="text" style="width:520px" value=' ' /></td></tr>
 		</tbody>
 	</table>
 	<div style="position:absolute;top:615px;left:450px;"><button id="Annul3D" style="margin-left:180px;" onclick='annulConfig();'>Annuler</button> <button id="validRead3D"  onclick='exportExterne();'>Valider2</button></div>
@@ -277,11 +272,11 @@ console.log(`Received ${data} from renderer process`);
 			case 'defProjet':
 				lang=cmd[1]
 				importLang('./Local/'+lang+'/configInterf-'+lang+".txt")
-				console.log('tableLang',cmd[6])
+				console.log('tableLang',cmd[5])
 				importProjet(cmd[2])
-				importInterface(cmd[4])
-				importPalette(cmd[5])
-				importExterne(cmd[6])
+				importInterface(cmd[3])
+				importPalette(cmd[4])
+				importExterne(cmd[5])
 				configProjet()
 				configInterface()
 				configPalette()
@@ -579,32 +574,10 @@ function defautProjet(){
 }
 
 function importProjet(txt){
-   tableProjet=txt.split(',')
-	paramProjet={
-	name:tableProjet[0],
-	start:tableProjet[1],
-	end:tableProjet[2],
-	comment:tableProjet[3],
-	path:tableProjet[4],
-	audioPath:tableProjet[5],
-	imgPath:tableProjet[6],
-	greffon3D:tableProjet[7],
-	greffonC:tableProjet[8],
-	regle:tableProjet[9],
-	mesure:tableProjet[10],
-	grille:tableProjet[11],
-	width:tableProjet[12],
-	height:tableProjet[13],
-	zoom:tableProjet[14],
-	svgRegle:tableProjet[15],
-	svgMesure:tableProjet[16],
-	svgGrille:tableProjet[17],
-	spaceSeconde:tableProjet[18],
-	svgSeconde:tableProjet[19],
-	}
-	if(tableProjet[7]==""){
-	paramProjet.greffon3D="stereo";
-	paramProjet.greffonC=2;
+	paramProjet=JSON.parse(txt);
+	if(paramProjet.greffon3D==""){
+		paramProjet.greffon3D="stereo";
+		paramProjet.greffonC=2;
 	}
 	console.log("configprojet",paramProjet)
 }
@@ -723,8 +696,7 @@ window.api.send("toMain", 'exportInterface;'+txt)
 }
 function exportExterne() {
 defExterne()
-var txt=paramExterne.editor+','+paramExterne.daw+','+paramExterne.cmdDaw+','+paramExterne.pdfPage+','+paramExterne.pdfLandscape+','+paramExterne.pdfScale+','+paramExterne.pdfMgTop+','+paramExterne.pdfMgBot+','+paramExterne.pdfMgLeft+','+paramExterne.pdfMgRight+','+paramExterne.pdfBkg+','+paramExterne.pdfAssCmd+','+paramExterne.pdfAppCmd+','+paramExterne.editAudioCmd
-txt=txt+","+paramExterne.rubberband
+var txt=paramExterne.editor+','+paramExterne.daw+','+paramExterne.cmdDaw+','+paramExterne.pdfPage+','+paramExterne.pdfLandscape+','+paramExterne.pdfScale+','+paramExterne.pdfMgTop+','+paramExterne.pdfMgBot+','+paramExterne.pdfMgLeft+','+paramExterne.pdfMgRight+','+paramExterne.pdfBkg+','+paramExterne.editAudioCmd
 console.log('exportExterne',txt)
 window.api.send("toMain", 'exportExterne;'+btoa(txt))
 }
@@ -1039,16 +1011,12 @@ function externeRestore() {
 	pdfMgLeft:0.2,
 	pdfMgRight:0.2,
 	pdfBkg:0,
-	pdfAssCmd:'pdfunite',
-	pdfAppCmd:'atril',
 	editAudioCmd:'audacity',
-	rubberband:""
 	}
 }
 function importExterne(txt){
 	var exterf=txt.split(',')
 	console.log('importExterne',exterf)
-	paramExterne={}
 	paramExterne={
 	editor:exterf[0],
 	daw:exterf[1],
@@ -1061,10 +1029,7 @@ function importExterne(txt){
 	pdfMgLeft:exterf[8],
 	pdfMgRight:exterf[9],
 	pdfBkg:exterf[10],
-	pdfAssCmd:exterf[11],
-	pdfAppCmd:exterf[12],
-	editAudioCmd:exterf[13],
-	rubberband:exterf[14]
+	editAudioCmd:exterf[11],
 	}
 }
 function configExterne(txt) {
@@ -1092,9 +1057,6 @@ function configExterne(txt) {
 	}else{
 		document.getElementById("pdfBkg1").checked=true
 	}
-	document.getElementById("AssPdf").value=paramExterne.pdfAssCmd
-	document.getElementById("appPdf").value=paramExterne.pdfAppCmd
-	document.getElementById("rubberband").value=paramExterne.rubberband
 }
 function defExterne(txt) {
 	paramExterne.editor=document.getElementById("defEditor").value;
@@ -1121,10 +1083,7 @@ function defExterne(txt) {
 	}else{
 		paramExterne.pdfBkg=1;
 	}
-	paramExterne.pdfAssCmd=document.getElementById("AssPdf").value;
-	paramExterne.pdfAppCmd=document.getElementById("appPdf").value;
 	paramExterne.editAudioCmd=document.getElementById("audioEditor").value;
-	paramExterne.rubberband=document.getElementById("rubberband").value;
 }
 
 /* ************************************************* palette *************************************** */
