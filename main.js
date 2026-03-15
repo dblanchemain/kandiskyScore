@@ -2404,7 +2404,8 @@ function mediaExplorer() {
 		//winMediaExplorer.webContents.openDevTools()
 		winMediaExplorerEtat=1;
 		winMediaExplorer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winMediaExplorer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+path.join(app.getPath('home'),'kandiskyscore')+';'+currentProjet);
+    		const toSlash = p => p.split(path.sep).join('/');
+    		winMediaExplorer.webContents.send("fromMain", "defParam;"+toSlash(app.getPath('home'))+";"+toSlash(path.join(app.getPath('home'),'kandiskyscore'))+';'+toSlash(currentProjet));
   		});
 
 		winMediaExplorer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -3684,9 +3685,9 @@ ipcMain.on ("toMain", (event, args) => {
 			pro54Preset();
 	  		break;
 	  	case 'readNewSelect':
-		   console.log(`openObjetParam ${args} from param`);
-			const folders = listSubfolders(cmd[1]);
-		   const files = listAudioFiles(cmd[1],cmd[2]);
+			const toSlash = p => p.split(path.sep).join('/');
+		   const folders = listSubfolders(cmd[1]).map(toSlash);
+		   const files = listAudioFiles(cmd[1],cmd[2]).map(toSlash);
 		   var fsize=[];
 		   var mtime=[];
 		   var ninfo;
@@ -3695,9 +3696,8 @@ ipcMain.on ("toMain", (event, args) => {
 				fsize[i]=ninfo.size;
 				mtime[i]=ninfo.mtime;
 			}
-				console.log("size",fsize,mtime);
 			winMediaExplorer.webContents.send("fromMain", "retReadDir;"+JSON.stringify({
-			  path: cmd[1],
+			  path: toSlash(cmd[1]),
 			  folders: folders,
 			  files: files,
 			  fsize: fsize,
