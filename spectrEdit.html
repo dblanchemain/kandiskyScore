@@ -276,7 +276,7 @@ async function rtWasmHost(canal,buffer){
 async function wasm() {
 	console.log("wasm",mode);
 	const appPaths = await window.api.getPaths();
-	window.api.send("toMain", `openSpectWasm;${0};${appPaths.userData}/renduout.wav;${sampleRate};${mode}`);
+	window.api.send("toMain", `openSpectWasm;${0};${window.api.joinPath(appPaths.userData, 'renduout.wav')};${sampleRate};${mode}`);
 	
 }
 

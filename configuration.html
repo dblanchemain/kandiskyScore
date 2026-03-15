@@ -190,7 +190,7 @@ function defLang (txt) {
 	interfaceLang ()
 }
 
-window.api.send("toMain", 'readListSpat;/home/dominique/Electron/kandiskyscore-dev/resources/Dsp');
+window.api.send("toMain", 'readListSpat;' + window.api.joinPath(window.api.resources, 'Dsp'));
 
 
 function interfaceLang () {

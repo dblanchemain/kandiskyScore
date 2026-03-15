@@ -3334,13 +3334,13 @@ convolObjet(objActif,0);\
 fadeInTypeObjet(objActif,0);\
 fadeOutTypeObjet(objActif,0);\
 envObjet(objActif,0,0.2,0.08,0.288,0.245,0.86,0.49,0.99,0.725,0.86,0.8,0.58,0.978,0.5);\
-loadAudioTableBuffer(objActif,'/home/dominique/kandiskyscore/Projets/Projet1/Audios/kurt1-1s.wav');";
+loadAudioTableBuffer(objActif,'');";
 	
 var wtxt3 = "createObjet(45,1,1,5,'red');\
 	dbfObjet(objActif,0.4,0.9);\
 	convolObjet(objActif,0);\
 	reverseObjet(objActif,'false');\
-	loadAudioTableBuffer(objActif,'/home/dominique/kandiskyscore/Projets/Projet1/Audios/kurt1-1s.wav');\
+	loadAudioTableBuffer(objActif,'');\
 	var interface=`<table align='center' border='1' style='font-size:1em;margin-top:10px;' cellpadding='4' cellspacing='0' ><tbody><tr >\n\<td><div id='butto1' style='position:relative;top:0px;left:0px;width:100px;height:100px;border:1px solid black;'>`+ibutton2+`</div></td><td style='padding:10px;height:100px;'><span class='slider-wrapper' ><input id='sliderBPFQ' class='slider-wrapper' type='range' value='1' min='0.5' max='10' step='0.01'  /></span></td>\n\</tr></tbody></table>	\n\<div style='margin-top:20px;margin-left:80px;'><button onclick=defautFxParam('BPFOberheim')>Defaut</button> <button id='bvalid' >Valider</button></div>`;\
 	document.getElementById('tableParam').innerHTML=interface;\
 	var paramValid=new Function(`console.log('Valid',document.getElementById('sliderBPFQ').value)`);\
