@@ -4806,11 +4806,7 @@ function mainExternes(txt) {
 	pdfMgLeft=parseFloat(defc[8]);
 	pdfMgRight=parseFloat(defc[9]);
 	pdfBkg=parseInt(defc[10]);
-	pdfAssCmd=defc[11];
-	pdfAppCmd=defc[12];
-	editAudioCmd=defc[13];
-	rubberband=defc[14];
-	console.log("rubber1",defc);
+	editAudioCmd=defc[11];
 }
 function mainExternes2(txt) {
 	var defc=atob(txt).split(',');

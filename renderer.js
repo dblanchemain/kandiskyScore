@@ -1185,22 +1185,16 @@ function defautExterne() {
 	pdfMgLeft=0.2;
 	pdfMgRight=0.2;
 	pdfBkg=0;
-	pdfAssCmd='';
-	pdfAppCmd='';
 	editAudioCmd='';
-	rubberband="";
 }
 function exportConfig() {
 
-var txt=paramProjet.name+","+paramProjet.start+","+paramProjet.end+","+paramProjet.comment+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+paramProjet.greffon3D+","+paramProjet.greffonC+","+paramProjet.regle+","+paramProjet.mesure+","+paramProjet.grille+","+paramProjet.width+","+paramProjet.height+","+paramProjet.zoom+","+paramProjet.svgRegle+","+paramProjet.svgMesure+","+paramProjet.svgGrille+","+paramProjet.spaceSeconde+","+paramProjet.svgSeconde;
-
-var txt2=paramSpace.lForwardX+","+paramSpace.lForwardY+","+paramSpace.lForwardZ+","+paramSpace.lUpX+","+paramSpace.lUpY+","+paramSpace.lUpZ+","+paramSpace.lPosX+","+paramSpace.lPosY+","+paramSpace.lPosZ+","+paramSpace.PModel+","+paramSpace.DModel+","+paramSpace.refD+","+paramSpace.maxD+","+paramSpace.rolF+","+paramSpace.coneIA+","+paramSpace.coneOA+","+paramSpace.coneOG+","+paramSpace.orX+","+paramSpace.orY+","+paramSpace.orZ;
+var txt=JSON.stringify(paramProjet);
 var txt3=paletteBkg+":"+fontPalette+":"+ fontPaletteSize+":"+ separateurPalette+":0:"+ bkgInfo+":"+ fontInfoSize+":"+ fontInfoColor+":"+ regleBackground+":"+ regleFontSize+":"+ regleFontColor+":"+ intervalBackground+":"+ intervalFontSize+":"+ fontIntervalColor+":"+ workSpaceBkg+":"+ spaceGrilleOpacity+":"+ colorGrille+":"+ suiveurBkg+":"+ popupTitreBkg+":"+ popupHeaderFontSize+":"+ popupFontTitreColor+":"+ popupFontColor+":"+ popupBkgColor+":"+ popupFontSize+":"+ popupOngletFontColor+":"+ popupFontOngletSize+":"+ popupOngletBkg+":"+popupOngletActifBkg+":"+lang+":"+ vueSvgBackground+":"+vueSvgFontSize+":"+vueSvgFontColor;
 var txt4=paletteDisque+","+paletteCarre+","+paletteTriangle+","+paletteEllipse+","+paletteRectangle+","+paletteTrianglelong+","+paletteRondlong+","+paletteCarrelong+","+paletteCrescendo+","+paletteLigne+","+paletteGlissando+","+paletteBlock+","+paletteDecresc+","+paletteDecrescb+","+paletteCresc+","+paletteCrescb+","+paletteAgregat+","+paletteArpege+","+paletteMultilignes+","+paletteNuage+","+paletteTexture+","+paletteImage+","+paletteSymb+","+paletteFleche+","+paletteMarque1+","+paletteMarque2+","+paletteLecteur;
 
-txt5=editor+','+daw+','+cmdDaw+','+pdfPage+','+pdfLandscape+','+pdfScale+','+pdfMgTop+','+pdfMgBot+','+pdfMgLeft+','+pdfMgRight+','+pdfBkg+','+pdfAssCmd+','+pdfAppCmd+','+editAudioCmd;
-txt5=txt5+","+rubberband;
-window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt2+";"+txt3+";"+txt4+";"+txt5);
+txt5=editor+','+daw+','+cmdDaw+','+pdfPage+','+pdfLandscape+','+pdfScale+','+pdfMgTop+','+pdfMgBot+','+pdfMgLeft+','+pdfMgRight+','+pdfBkg+','+editAudioCmd;
+window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt3+";"+txt4+";"+txt5);
 }
 function objetParamsToString(id) {
 	return JSON.stringify(tableObjet[id]);
@@ -2822,10 +2816,7 @@ function importExterne(txt){
 	pdfMgLeft=parseFloat(defc[8]);
 	pdfMgRight=parseFloat(defc[9]);
 	pdfBkg=parseInt(defc[10]);
-	pdfAssCmd=defc[11];
-	pdfAppCmd=defc[12];
-	editAudioCmd=defc[13];
-	rubberband=[14];
+	editAudioCmd=defc[11];
 	if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png";
 	}else{
