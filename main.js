@@ -4793,20 +4793,20 @@ function listImgFiles(dirPath,type) {
 }
 // ****************************************************************************************************************
 function mainExternes(txt) {
-	var defc=atob(txt).split(',');
-	console.log('importExterne',txt,defc);
-	editor=defc[0];
-	daw=defc[1];
-	cmdDaw=defc[2];
-	pdfPage=parseInt(defc[3]);
-	pdfLandscape=defc[4];
-	pdfScale=parseFloat(defc[5]);
-	pdfMgTop=parseFloat(defc[6]);
-	pdfMgBot=parseFloat(defc[7]);
-	pdfMgLeft=parseFloat(defc[8]);
-	pdfMgRight=parseFloat(defc[9]);
-	pdfBkg=parseInt(defc[10]);
-	editAudioCmd=defc[11];
+	var defc=JSON.parse(atob(txt));
+	console.log('importExterne',defc);
+	editor=defc.editor;
+	daw=defc.daw;
+	cmdDaw=defc.cmdDaw;
+	pdfPage=parseInt(defc.pdfPage);
+	pdfLandscape=defc.pdfLandscape;
+	pdfScale=parseFloat(defc.pdfScale);
+	pdfMgTop=parseFloat(defc.pdfMgTop);
+	pdfMgBot=parseFloat(defc.pdfMgBot);
+	pdfMgLeft=parseFloat(defc.pdfMgLeft);
+	pdfMgRight=parseFloat(defc.pdfMgRight);
+	pdfBkg=parseInt(defc.pdfBkg);
+	editAudioCmd=defc.editAudioCmd;
 }
 function mainExternes2(txt) {
 	var defc=atob(txt).split(',');
