@@ -344,16 +344,28 @@ if (fs.existsSync(app.getPath('home')+'/kandiskyscore')) {
     copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts');
 } else {
   console.log('The directory does NOT exist');
-  fs.mkdir(app.getPath('home')+'/kandiskyscore', (err) => { 
-    if (err) { 
-        return console.error(err); 
-    } 
-    console.log('Directory '+app.getPath('home')+'/kandiskyscore created successfully!'); 
+  fs.mkdir(app.getPath('home')+'/kandiskyscore', (err) => {
+    if (err) {
+        return console.error(err);
+    }
+    console.log('Directory '+app.getPath('home')+'/kandiskyscore created successfully!');
     copyFileOutsideOfElectronAsar('./Pdf', app.getPath('home')+'/kandiskyscore/Pdf');
     copyFileOutsideOfElectronAsar('./Scripts', app.getPath('home')+'/kandiskyscore/Scripts');
     copyFileOutsideOfElectronAsar('./Dsp', app.getPath('home')+'/kandiskyscore/Dsp');
-	}); 
+    fs.mkdir(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
+      if (err) { return console.error(err); }
+      console.log('Directory Projets created successfully!');
+    });
+	});
 }
+fs.access(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
+  if (err) {
+    fs.mkdir(app.getPath('home')+'/kandiskyscore/Projets', (err) => {
+      if (err) { return console.error(err); }
+      console.log('Directory Projets created successfully!');
+    });
+  }
+});
 
 
 if (fs.existsSync(app.getPath('appData')+'/kandiskyscore/config.js')) {
@@ -422,9 +434,9 @@ let winSpectWamEtat=0;
 let winTrajectoryEtat=0;
 let winSvgEtat=0;
 let projetName='';
-let projetPath=app.getPath('home')+'/kandiskyscore/projets';
-let audioPath=app.getPath('home')+'/kandiskyscore/projets';
-let imgPath=app.getPath('home')+'/kandiskyscore/projets';
+let projetPath=app.getPath('home')+'/kandiskyscore/Projets';
+let audioPath=app.getPath('home')+'/kandiskyscore/Projets';
+let imgPath=app.getPath('home')+'/kandiskyscore/Projets';
 let editor='libreoffice --draw';
 let editAudioCmd='audacity';
 let daw=0;
