@@ -444,41 +444,39 @@ function restoreInterface() {
  lang='Fr'
 }
 function importInterface(txt){
-var interf=txt.split(':')
-console.log(interf)
- paletteBkg=interf[0]
- fontPalette=interf[1]
- fontPaletteSize=interf[2]
- separateurPalette=interf[3]
- fontSizeMenu=interf[4]
- bkgInfo=interf[5]
- fontInfoSize=interf[6]
- fontInfoColor=interf[7]
- regleBackground=interf[8]
- regleFontSize=interf[9]
- regleFontColor=interf[10]
- intervalBackground=interf[11]
- intervalFontSize=interf[12]
- fontIntervalColor=interf[13]
- workSpaceBkg=interf[14]
- spaceGrilleOpacity=interf[15]
- colorGrille=interf[16]
- suiveurBkg=interf[17]
- popupTitreBkg=interf[18]
- popupHeaderFontSize=interf[19]
- popupFontTitreColor=interf[20]
- popupFontColor=interf[21]
- popupBkgColor=interf[22]
- popupFontSize=interf[23]
- popupOngletFontColor=interf[24]
- popupFontOngletSize=interf[25]
- popupOngletBkg=interf[26]
- popupOngletActifBkg=interf[27]
- lang=interf[28]
- vueSvgBackground=interf[29]
- vueSvgFontSize=interf[30]
- vueSvgFontColor=interf[31]
- console.log(lang)
+ var interf=JSON.parse(txt);
+ paletteBkg=interf.paletteBkg;
+ fontPalette=interf.fontPalette;
+ fontPaletteSize=interf.fontPaletteSize;
+ separateurPalette=interf.separateurPalette;
+ fontSizeMenu=interf.fontSizeMenu;
+ bkgInfo=interf.bkgInfo;
+ fontInfoSize=interf.fontInfoSize;
+ fontInfoColor=interf.fontInfoColor;
+ regleBackground=interf.regleBackground;
+ regleFontSize=interf.regleFontSize;
+ regleFontColor=interf.regleFontColor;
+ intervalBackground=interf.intervalBackground;
+ intervalFontSize=interf.intervalFontSize;
+ fontIntervalColor=interf.fontIntervalColor;
+ workSpaceBkg=interf.workSpaceBkg;
+ spaceGrilleOpacity=interf.spaceGrilleOpacity;
+ colorGrille=interf.colorGrille;
+ suiveurBkg=interf.suiveurBkg;
+ popupTitreBkg=interf.popupTitreBkg;
+ popupHeaderFontSize=interf.popupHeaderFontSize;
+ popupFontTitreColor=interf.popupFontTitreColor;
+ popupFontColor=interf.popupFontColor;
+ popupBkgColor=interf.popupBkgColor;
+ popupFontSize=interf.popupFontSize;
+ popupOngletFontColor=interf.popupOngletFontColor;
+ popupFontOngletSize=interf.popupFontOngletSize;
+ popupOngletBkg=interf.popupOngletBkg;
+ popupOngletActifBkg=interf.popupOngletActifBkg;
+ lang=interf.lang;
+ vueSvgBackground=interf.vueSvgBackground;
+ vueSvgFontSize=interf.vueSvgFontSize;
+ vueSvgFontColor=interf.vueSvgFontColor;
 }
 function defInterface() {
  paletteBkg=document.getElementById("clPaletteBkg").style.backgroundColor
@@ -691,14 +689,14 @@ window.api.send("toMain", 'exportProjet;'+txt)
 
 function exportInterface() {
 defInterface()
-var txt=paletteBkg+":"+ fontPalette+":"+ fontPaletteSize+":"+ separateurPalette+":"+ fontSizeMenu+":"+ bkgInfo+":"+ fontInfoSize+":"+ fontInfoColor+":"+ regleBackground+":"+ regleFontSize+":"+ regleFontColor+":"+ intervalBackground+":"+ intervalFontSize+":"+ fontIntervalColor+":"+ workSpaceBkg+":"+ spaceGrilleOpacity+":"+ colorGrille+":"+ suiveurBkg+":"+ popupTitreBkg+":"+ popupHeaderFontSize+":"+ popupFontTitreColor+":"+ popupFontColor+":"+ popupBkgColor+":"+ popupFontSize+":"+ popupOngletFontColor+":"+ popupFontOngletSize+":"+ popupOngletBkg+":"+ popupOngletActifBkg+":"+lang+":"+ vueSvgBackground+":"+vueSvgFontSize+":"+vueSvgFontColor
+var txt=JSON.stringify({paletteBkg, fontPalette, fontPaletteSize, separateurPalette, fontSizeMenu, bkgInfo, fontInfoSize, fontInfoColor, regleBackground, regleFontSize, regleFontColor, intervalBackground, intervalFontSize, fontIntervalColor, workSpaceBkg, spaceGrilleOpacity, colorGrille, suiveurBkg, popupTitreBkg, popupHeaderFontSize, popupFontTitreColor, popupFontColor, popupBkgColor, popupFontSize, popupOngletFontColor, popupFontOngletSize, popupOngletBkg, popupOngletActifBkg, lang, vueSvgBackground, vueSvgFontSize, vueSvgFontColor})
 window.api.send("toMain", 'exportInterface;'+txt)
 }
 function exportExterne() {
 defExterne()
-var txt=paramExterne.editor+','+paramExterne.daw+','+paramExterne.cmdDaw+','+paramExterne.pdfPage+','+paramExterne.pdfLandscape+','+paramExterne.pdfScale+','+paramExterne.pdfMgTop+','+paramExterne.pdfMgBot+','+paramExterne.pdfMgLeft+','+paramExterne.pdfMgRight+','+paramExterne.pdfBkg+','+paramExterne.editAudioCmd
+var txt=btoa(JSON.stringify(paramExterne))
 console.log('exportExterne',txt)
-window.api.send("toMain", 'exportExterne;'+btoa(txt))
+window.api.send("toMain", 'exportExterne;'+txt)
 }
 /* ************************************************* interface *************************************** */
 
@@ -1015,22 +1013,8 @@ function externeRestore() {
 	}
 }
 function importExterne(txt){
-	var exterf=txt.split(',')
-	console.log('importExterne',exterf)
-	paramExterne={
-	editor:exterf[0],
-	daw:exterf[1],
-	cmdDaw:exterf[2],
-	pdfPage:exterf[3],
-	pdfLandscape:exterf[4],
-	pdfScale:exterf[5],
-	pdfMgTop:exterf[6],
-	pdfMgBot:exterf[7],
-	pdfMgLeft:exterf[8],
-	pdfMgRight:exterf[9],
-	pdfBkg:exterf[10],
-	editAudioCmd:exterf[11],
-	}
+	paramExterne=JSON.parse(atob(txt));
+	console.log('importExterne',paramExterne)
 }
 function configExterne(txt) {
 	document.getElementById("defEditor").value=paramExterne.editor
@@ -1122,35 +1106,34 @@ function paletteRestore() {
 	paletteLecteur="#2373b2"
 }
 function importPalette(txt){
-	var interf=txt.split(',')
-	console.log(interf)
-	paletteDisque=interf[0]
-	paletteCarre=interf[1]
-	paletteTriangle=interf[2]
-	paletteEllipse=interf[3]
-	paletteRectangle=interf[4]
-	paletteTrianglelong=interf[5]
-	paletteRondlong=interf[6]
-	paletteCarrelong=interf[7]
-	paletteCrescendo=interf[8]
-	paletteLigne=interf[9]
-	paletteGlissando=interf[10]
-	paletteBlock=interf[11]
-	paletteDecresc=interf[12]
-	paletteDecrescb=interf[13]
-	paletteCresc=interf[14]
-	paletteCrescb=interf[15]
-	paletteAgregat=interf[16]
-	paletteArpege=interf[17]
-	paletteMultilignes=interf[18]
-	paletteNuage=interf[19]
-	paletteTexture=interf[20]
-	paletteImage=interf[21]
-	paletteSymb=interf[22]
-	paletteFleche=interf[23]
-	paletteMarque1=interf[24]
-	paletteMarque2=interf[25]
-	paletteLecteur=interf[26]
+	var interf=JSON.parse(txt);
+	paletteDisque=interf.paletteDisque;
+	paletteCarre=interf.paletteCarre;
+	paletteTriangle=interf.paletteTriangle;
+	paletteEllipse=interf.paletteEllipse;
+	paletteRectangle=interf.paletteRectangle;
+	paletteTrianglelong=interf.paletteTrianglelong;
+	paletteRondlong=interf.paletteRondlong;
+	paletteCarrelong=interf.paletteCarrelong;
+	paletteCrescendo=interf.paletteCrescendo;
+	paletteLigne=interf.paletteLigne;
+	paletteGlissando=interf.paletteGlissando;
+	paletteBlock=interf.paletteBlock;
+	paletteDecresc=interf.paletteDecresc;
+	paletteDecrescb=interf.paletteDecrescb;
+	paletteCresc=interf.paletteCresc;
+	paletteCrescb=interf.paletteCrescb;
+	paletteAgregat=interf.paletteAgregat;
+	paletteArpege=interf.paletteArpege;
+	paletteMultilignes=interf.paletteMultilignes;
+	paletteNuage=interf.paletteNuage;
+	paletteTexture=interf.paletteTexture;
+	paletteImage=interf.paletteImage;
+	paletteSymb=interf.paletteSymb;
+	paletteFleche=interf.paletteFleche;
+	paletteMarque1=interf.paletteMarque1;
+	paletteMarque2=interf.paletteMarque2;
+	paletteLecteur=interf.paletteLecteur;
 }
 function configPalette(txt) {
 	document.getElementById("Disque").firstChild.firstChild.setAttribute('fill',paletteDisque)
@@ -1212,7 +1195,7 @@ function configPalette(txt) {
 	document.getElementById("Lecteur").firstChild.firstChild.setAttribute('fill',paletteLecteur)
 }
 function exportPalette() {
-var txt=paletteDisque+","+paletteCarre+","+paletteTriangle+","+paletteEllipse+","+paletteRectangle+","+paletteTrianglelong+","+paletteRondlong+","+paletteCarrelong+","+paletteCrescendo+","+paletteLigne+","+paletteGlissando+","+paletteBlock+","+paletteDecresc+","+paletteDecrescb+","+paletteCresc+","+paletteCrescb+","+paletteAgregat+","+paletteArpege+","+paletteMultilignes+","+paletteNuage+","+paletteTexture+","+paletteImage+","+paletteSymb+","+paletteFleche+","+paletteMarque1+","+paletteMarque2+","+paletteLecteur
+var txt=JSON.stringify({paletteDisque, paletteCarre, paletteTriangle, paletteEllipse, paletteRectangle, paletteTrianglelong, paletteRondlong, paletteCarrelong, paletteCrescendo, paletteLigne, paletteGlissando, paletteBlock, paletteDecresc, paletteDecrescb, paletteCresc, paletteCrescb, paletteAgregat, paletteArpege, paletteMultilignes, paletteNuage, paletteTexture, paletteImage, paletteSymb, paletteFleche, paletteMarque1, paletteMarque2, paletteLecteur})
 window.api.send("toMain", 'exportPalette;'+txt)
 }
 const refDisque = document.getElementById("inpDisque");

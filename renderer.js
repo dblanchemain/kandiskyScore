@@ -1190,10 +1190,10 @@ function defautExterne() {
 function exportConfig() {
 
 var txt=JSON.stringify(paramProjet);
-var txt3=paletteBkg+":"+fontPalette+":"+ fontPaletteSize+":"+ separateurPalette+":0:"+ bkgInfo+":"+ fontInfoSize+":"+ fontInfoColor+":"+ regleBackground+":"+ regleFontSize+":"+ regleFontColor+":"+ intervalBackground+":"+ intervalFontSize+":"+ fontIntervalColor+":"+ workSpaceBkg+":"+ spaceGrilleOpacity+":"+ colorGrille+":"+ suiveurBkg+":"+ popupTitreBkg+":"+ popupHeaderFontSize+":"+ popupFontTitreColor+":"+ popupFontColor+":"+ popupBkgColor+":"+ popupFontSize+":"+ popupOngletFontColor+":"+ popupFontOngletSize+":"+ popupOngletBkg+":"+popupOngletActifBkg+":"+lang+":"+ vueSvgBackground+":"+vueSvgFontSize+":"+vueSvgFontColor;
-var txt4=paletteDisque+","+paletteCarre+","+paletteTriangle+","+paletteEllipse+","+paletteRectangle+","+paletteTrianglelong+","+paletteRondlong+","+paletteCarrelong+","+paletteCrescendo+","+paletteLigne+","+paletteGlissando+","+paletteBlock+","+paletteDecresc+","+paletteDecrescb+","+paletteCresc+","+paletteCrescb+","+paletteAgregat+","+paletteArpege+","+paletteMultilignes+","+paletteNuage+","+paletteTexture+","+paletteImage+","+paletteSymb+","+paletteFleche+","+paletteMarque1+","+paletteMarque2+","+paletteLecteur;
+var txt3=JSON.stringify({paletteBkg, fontPalette, fontPaletteSize, separateurPalette, fontSizeMenu:0, bkgInfo, fontInfoSize, fontInfoColor, regleBackground, regleFontSize, regleFontColor, intervalBackground, intervalFontSize, fontIntervalColor, workSpaceBkg, spaceGrilleOpacity, colorGrille, suiveurBkg, popupTitreBkg, popupHeaderFontSize, popupFontTitreColor, popupFontColor, popupBkgColor, popupFontSize, popupOngletFontColor, popupFontOngletSize, popupOngletBkg, popupOngletActifBkg, lang, vueSvgBackground, vueSvgFontSize, vueSvgFontColor});
+var txt4=JSON.stringify({paletteDisque, paletteCarre, paletteTriangle, paletteEllipse, paletteRectangle, paletteTrianglelong, paletteRondlong, paletteCarrelong, paletteCrescendo, paletteLigne, paletteGlissando, paletteBlock, paletteDecresc, paletteDecrescb, paletteCresc, paletteCrescb, paletteAgregat, paletteArpege, paletteMultilignes, paletteNuage, paletteTexture, paletteImage, paletteSymb, paletteFleche, paletteMarque1, paletteMarque2, paletteLecteur});
 
-txt5=editor+','+daw+','+cmdDaw+','+pdfPage+','+pdfLandscape+','+pdfScale+','+pdfMgTop+','+pdfMgBot+','+pdfMgLeft+','+pdfMgRight+','+pdfBkg+','+editAudioCmd;
+txt5=btoa(JSON.stringify({editor, daw, cmdDaw, pdfPage, pdfLandscape, pdfScale, pdfMgTop, pdfMgBot, pdfMgLeft, pdfMgRight, pdfBkg, editAudioCmd}));
 window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt3+";"+txt4+";"+txt5);
 }
 function objetParamsToString(id) {
@@ -2658,69 +2658,69 @@ function importConfigSpace(){
  pannerOrientationZ=paramSpace.orZ;
 }
 function importInterface(txt){
-var interf=txt.split(':');
- paletteBkg=interf[0];
- fontPalette=interf[1];
- fontPaletteSize=parseFloat(interf[2]);
- separateurPalette=interf[3];
- fontSizeMenu=parseFloat(interf[4]);
- bkgInfo=interf[5];
- fontInfoSize=parseFloat(interf[6]);
- fontInfoColor=interf[7];
- regleBackground=interf[8];
- regleFontSize=parseFloat(interf[9]);
- regleFontColor=interf[10];
- intervalBackground=interf[11];
- intervalFontSize=parseFloat(interf[12]);
- fontIntervalColor=interf[13];
- workSpaceBkg=interf[14];
- spaceGrilleOpacity=parseFloat(interf[15]);
- colorGrille=interf[16];
- suiveurBkg=interf[17];
- popupTitreBkg=interf[18];
- popupHeaderFontSize=parseFloat(interf[19]);
- popupFontTitreColor=interf[20];
- popupFontColor=interf[21];
- popupBkgColor=interf[22];
- popupFontSize=parseFloat(interf[23]);
- popupOngletFontColor=interf[24];
- popupFontOngletSize=parseFloat(interf[25]);
- popupOngletBkg=interf[26];
- popupOngletActifBkg=interf[27];
- lang=interf[28];
- vueSvgBackground=interf[29];
- vueSvgFontSize=interf[30];
- vueSvgFontColor=interf[31];
+ var interf=JSON.parse(txt);
+ paletteBkg=interf.paletteBkg;
+ fontPalette=interf.fontPalette;
+ fontPaletteSize=parseFloat(interf.fontPaletteSize);
+ separateurPalette=interf.separateurPalette;
+ fontSizeMenu=parseFloat(interf.fontSizeMenu);
+ bkgInfo=interf.bkgInfo;
+ fontInfoSize=parseFloat(interf.fontInfoSize);
+ fontInfoColor=interf.fontInfoColor;
+ regleBackground=interf.regleBackground;
+ regleFontSize=parseFloat(interf.regleFontSize);
+ regleFontColor=interf.regleFontColor;
+ intervalBackground=interf.intervalBackground;
+ intervalFontSize=parseFloat(interf.intervalFontSize);
+ fontIntervalColor=interf.fontIntervalColor;
+ workSpaceBkg=interf.workSpaceBkg;
+ spaceGrilleOpacity=parseFloat(interf.spaceGrilleOpacity);
+ colorGrille=interf.colorGrille;
+ suiveurBkg=interf.suiveurBkg;
+ popupTitreBkg=interf.popupTitreBkg;
+ popupHeaderFontSize=parseFloat(interf.popupHeaderFontSize);
+ popupFontTitreColor=interf.popupFontTitreColor;
+ popupFontColor=interf.popupFontColor;
+ popupBkgColor=interf.popupBkgColor;
+ popupFontSize=parseFloat(interf.popupFontSize);
+ popupOngletFontColor=interf.popupOngletFontColor;
+ popupFontOngletSize=parseFloat(interf.popupFontOngletSize);
+ popupOngletBkg=interf.popupOngletBkg;
+ popupOngletActifBkg=interf.popupOngletActifBkg;
+ lang=interf.lang;
+ vueSvgBackground=interf.vueSvgBackground;
+ vueSvgFontSize=interf.vueSvgFontSize;
+ vueSvgFontColor=interf.vueSvgFontColor;
 }
 function importPalette(txt){
-	var interf=txt.split(',');
-	paletteDisque=interf[0];
-	paletteCarre=interf[1];
-	paletteTriangle=interf[2];
-	paletteEllipse=interf[3];
-	paletteRectangle=interf[4];
-	paletteTrianglelong=interf[5];
-	paletteRondlong=interf[6];
-	paletteCarrelong=interf[7];
-	paletteCrescendo=interf[8];
-	paletteLigne=interf[9];
-	paletteGlissando=interf[10];
-	paletteBlock=interf[11];
-	paletteDecresc=interf[12];
-	paletteDecrescb=interf[13];
-	paletteCresc=interf[14];
-	paletteCrescb=interf[15];
-	paletteAgregat=interf[16];
-	paletteArpege=interf[17];
-	paletteMultilignes=interf[18];
-	paletteNuage=interf[19];
-	paletteTexture=interf[20];
-	paletteImage=interf[21];
-	paletteSymb=interf[22];
-	paletteFleche=interf[23];
-	paletteMarque1=interf[24];
-	paletteMarque2=interf[25];
-	paletteLecteur=interf[26];
+	var interf=JSON.parse(txt);
+	paletteDisque=interf.paletteDisque;
+	paletteCarre=interf.paletteCarre;
+	paletteTriangle=interf.paletteTriangle;
+	paletteEllipse=interf.paletteEllipse;
+	paletteRectangle=interf.paletteRectangle;
+	paletteTrianglelong=interf.paletteTrianglelong;
+	paletteRondlong=interf.paletteRondlong;
+	paletteCarrelong=interf.paletteCarrelong;
+	paletteCrescendo=interf.paletteCrescendo;
+	paletteLigne=interf.paletteLigne;
+	paletteGlissando=interf.paletteGlissando;
+	paletteBlock=interf.paletteBlock;
+	paletteDecresc=interf.paletteDecresc;
+	paletteDecrescb=interf.paletteDecrescb;
+	paletteCresc=interf.paletteCresc;
+	paletteCrescb=interf.paletteCrescb;
+	paletteAgregat=interf.paletteAgregat;
+	paletteArpege=interf.paletteArpege;
+	paletteMultilignes=interf.paletteMultilignes;
+	paletteNuage=interf.paletteNuage;
+	paletteTexture=interf.paletteTexture;
+	paletteImage=interf.paletteImage;
+	paletteSymb=interf.paletteSymb;
+	paletteFleche=interf.paletteFleche;
+	paletteMarque1=interf.paletteMarque1;
+	paletteMarque2=interf.paletteMarque2;
+	paletteLecteur=interf.paletteLecteur;
 	configPalette();
 	for(let i=1;i<50;i++){
 		document.getElementById("symb"+i).firstChild.firstChild.setAttribute("fill",paletteSymb);
@@ -2804,19 +2804,19 @@ function setPalette(){
 	
 }
 function importExterne(txt){
-	var defc=atob(txt).split(',');
-	editor=defc[0];
-	daw=defc[1];
-	cmdDaw=defc[2];
-	pdfPage=parseInt(defc[3]);
-	pdfLandscape=parseFloat(defc[4]);
-	pdfScale=parseFloat(defc[5]);
-	pdfMgTop=parseFloat(defc[6]);
-	pdfMgBot=parseFloat(defc[7]);
-	pdfMgLeft=parseFloat(defc[8]);
-	pdfMgRight=parseFloat(defc[9]);
-	pdfBkg=parseInt(defc[10]);
-	editAudioCmd=defc[11];
+	var defc=JSON.parse(atob(txt));
+	editor=defc.editor;
+	daw=defc.daw;
+	cmdDaw=defc.cmdDaw;
+	pdfPage=parseInt(defc.pdfPage);
+	pdfLandscape=parseFloat(defc.pdfLandscape);
+	pdfScale=parseFloat(defc.pdfScale);
+	pdfMgTop=parseFloat(defc.pdfMgTop);
+	pdfMgBot=parseFloat(defc.pdfMgBot);
+	pdfMgLeft=parseFloat(defc.pdfMgLeft);
+	pdfMgRight=parseFloat(defc.pdfMgRight);
+	pdfBkg=parseInt(defc.pdfBkg);
+	editAudioCmd=defc.editAudioCmd;
 	if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png";
 	}else{
