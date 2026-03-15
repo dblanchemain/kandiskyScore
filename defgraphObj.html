@@ -864,46 +864,7 @@ function objetGraphToString() {
 		return txt
 }
 function objetStringToGraph(txt) {
-	var ntxt=txt.split(':')
-	objGraph = {
-	bkgColor:ntxt[0],
-	bkgHeight:ntxt[1],
-	bkgImg:ntxt[2],
-	bkgOpacity:ntxt[3],
-	bkgTrp:ntxt[4],
-	bkgWidth:ntxt[5],
-	borderBc:ntxt[6],
-	borderBr:ntxt[7],
-	borderBs:ntxt[8],
-	borderBw:ntxt[9],
-	borderDc:ntxt[10],
-	borderDr:ntxt[11],
-	borderDs:ntxt[12],
-	borderDw:ntxt[13],
-	borderGc:ntxt[14],
-	borderGr:ntxt[15],
-	borderGs:ntxt[16],
-	borderGw:ntxt[17],
-	borderHc:ntxt[18],
-	borderHr:ntxt[19],
-	borderHs:ntxt[20],
-	borderHw:ntxt[21],
-	cx:ntxt[22],
-	cy:ntxt[23],
-	height:ntxt[24],
-	margeG:ntxt[25],
-	margeH:ntxt[26],
-	objBorderC:ntxt[27],
-	objBorderW:ntxt[28],
-	objColor:ntxt[29],
-	objOpacity:ntxt[30],
-	radius:ntxt[31],
-	rotate:parseFloat(ntxt[32]),
-	scaleX:ntxt[33],
-	scaleY:ntxt[34],
-	scaleY2:ntxt[35],
-	width:ntxt[36]
-	}
+	objGraph = JSON.parse(txt);
 }
 function objGraphValid() {
 	window.api.send("toMain", "objGraphValid;"+objId)

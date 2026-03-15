@@ -1702,52 +1702,7 @@ function objetGraphToString() {
 		return txt
 }
 function objetStringToGraph(txt) {
-	var ntxt=txt.split(':')
-	objGraph = {
-	bkgColor:ntxt[0],
-	bkgHeight:parseFloat(ntxt[1]).toFixed(2),
-	bkgImg:ntxt[2],
-	bkgOpacity:parseFloat(ntxt[3]),
-	bkgTrp:ntxt[4],
-	bkgWidth:parseFloat(ntxt[5]).toFixed(2),
-	borderBc:ntxt[6],
-	borderBr:ntxt[7],
-	borderBs:ntxt[8],
-	borderBw:parseFloat(ntxt[9]),
-	borderDc:ntxt[10],
-	borderDr:ntxt[11],
-	borderDs:ntxt[12],
-	borderDw:parseFloat(ntxt[13]),
-	borderGc:ntxt[14],
-	borderGr:ntxt[15],
-	borderGs:ntxt[16],
-	borderGw:parseFloat(ntxt[17]),
-	borderHc:ntxt[18],
-	borderHr:ntxt[19],
-	borderHs:ntxt[20],
-	borderHw:parseFloat(ntxt[21]),
-	height:parseFloat(ntxt[24]),
-	margeG:parseFloat(ntxt[25]),
-	margeH:parseFloat(ntxt[26]),
-	objBorderC:ntxt[27],
-	objBorderW:parseFloat(ntxt[28]),
-	objColor:ntxt[29],
-	objOpacity:parseFloat(ntxt[30]),
-	rayon:parseFloat(ntxt[31]),
-	rotate:parseFloat(ntxt[32]),
-	scaleX:parseFloat(ntxt[33]),
-	scaleY:parseFloat(ntxt[34]),
-	scaleY2:parseFloat(ntxt[35]),
-	width:parseFloat(ntxt[36]),
-	type:ntxt[38],
-	nom:ntxt[37]
-	}
-	
-	if(objGraph.bkgTrp=="true"){
-		objGraph.bkgTrp=true
-	}else{
-		objGraph.bkgTrp=false
-	}
+	objGraph = JSON.parse(txt);
 }
 function symbGraphValid() {
 	window.api.send("toMain", "symbGraphValid;"+objId)

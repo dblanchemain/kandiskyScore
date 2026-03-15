@@ -1211,8 +1211,7 @@ function preDefToString(id) {
 	return txt;
 }
 function objetGrapĥToString(id) {
-	var txt=tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].height+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].r+":"+tableObjet[id].rotate+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].scaleY2+":"+tableObjet[id].width+":"+tableObjet[id].nom;
-	return txt;
+	return JSON.stringify(tableObjet[id]);
 }
 function grpGrapĥToString(id) {
 	var txt=tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].height+":"+tableObjet[id].nom+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].width;
