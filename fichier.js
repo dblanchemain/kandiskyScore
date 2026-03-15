@@ -330,10 +330,7 @@ function defProjetConf(txt) {
 	<externepdfleft value='"+pdfMgLeft+"'></externepdfleft>\n\
 	<externepdfright value='"+pdfMgRight+"'></externepdfright>\n\
 	<externepdfbkg value='"+pdfBkg+"'></externepdfbkg>\n\
-	<externepdfass value='"+pdfAssCmd+"'></externepdfass>\n\
-	<externepdfapp value='"+pdfAppCmd+"'></externepdfapp>\n\
 	<externeaudioedit value='"+editAudioCmd+"'></externeaudioedit>\n\
-	<rubberbandPath value='"+ rubberband+"'></rubberbandPath>\n\
 	</externe>\n";
 	return txt;
 }
@@ -768,9 +765,8 @@ function defObjets(i,liste,dx,dy){
 						break;
 				}
 			}
-			var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd+","+editAudioCmd;
-			txt=txt+","+rubberband;			
-			window.api.send("toMain", 'defExterne;'+btoa(txt));
+			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:paramProjet.audioPath,imgPath:paramProjet.imgPath,editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
+			window.api.send("toMain", 'defExterne;'+txt);
 }
 function initTableBuffer(i,liste,dx,dy) {
 	var request = new XMLHttpRequest();
@@ -1096,14 +1092,7 @@ function defExterneConfig() {
 		pdfMgLeft = parseFloat(obj.getElementsByTagName("externepdfleft")[0].getAttribute("value"));
 		pdfMgRight = parseFloat(obj.getElementsByTagName("externepdfright")[0].getAttribute("value"));
 		pdfBkg = obj.getElementsByTagName("externepdfbkg")[0].getAttribute("value");
-		pdfAssCmd = obj.getElementsByTagName("externepdfass")[0].getAttribute("value");
-		pdfAppCmd = obj.getElementsByTagName("externepdfapp")[0].getAttribute("value");
 		editAudioCmd = obj.getElementsByTagName("externeaudioedit")[0].getAttribute("value");
-		if( obj.getElementsByTagName("rubberbandPath")[0]){
-			rubberband = obj.getElementsByTagName("rubberbandPath")[0].getAttribute("value");
-		}else{
-			rubberband = "";
-		}
 		if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png";
 		}else{
@@ -1295,9 +1284,7 @@ var txt=lg+"\n"
 +pdfMgBot+"\n"
 +pdfMgLeft+"\n"
 +pdfMgRight+"\n"
-+pdfBkg+"\n"
-+pdfAssCmd+"\n"
-+pdfAppCmd+"\n";
++pdfBkg+"\n";
 window.api.send("toMain", 'saveConfig;'+btoa(txt));
 }
 function defTheme() {
