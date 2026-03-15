@@ -1203,9 +1203,7 @@ txt5=txt5+","+rubberband;
 window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt2+";"+txt3+";"+txt4+";"+txt5);
 }
 function objetParamsToString(id) {
-	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width+":"+tableObjet[id].reverse+";"+tableObjet[id].rmsdb;
-	
-	return txt;
+	return JSON.stringify(tableObjet[id]);
 }
 function preDefToString(id) {
 	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].liste+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width;
@@ -1221,81 +1219,8 @@ function grpGrapĥToString(id) {
 	return txt;
 }
 function objetStringToParams(id,txt) {
-	var tbtxt=txt.split(',');
-	tableObjet[id].basePosY=tbtxt[0];
-	tableObjet[id].bkgColor=tbtxt[1];
-	tableObjet[id].bkgHeight=parseFloat(tbtxt[2]);
-	tableObjet[id].bkgImg=tbtxt[3];
-	tableObjet[id].bkgOpacity=tbtxt[4];
-	tableObjet[id].bkgTrp=tbtxt[5];
-	tableObjet[id].bkgWidth=parseFloat(tbtxt[6]);
-	tableObjet[id].borderBc=tbtxt[7];
-	tableObjet[id].borderBr=tbtxt[8];
-	tableObjet[id].borderBs=tbtxt[9];
-	tableObjet[id].borderBw=parseFloat(tbtxt[10]);
-	tableObjet[id].borderDc=tbtxt[11];
-	tableObjet[id].borderDr=tbtxt[12];
-	tableObjet[id].borderDs=tbtxt[13];
-	tableObjet[id].borderDw=parseFloat(tbtxt[14]);
-	tableObjet[id].borderGc=tbtxt[15];
-	tableObjet[id].borderGr=tbtxt[16];
-	tableObjet[id].borderGs=tbtxt[17];
-	tableObjet[id].borderGw=parseFloat(tbtxt[18]);
-	tableObjet[id].borderHc=tbtxt[19];
-	tableObjet[id].borderHr=tbtxt[20];
-	tableObjet[id].borderHs=tbtxt[21];
-	tableObjet[id].borderHw=parseFloat(tbtxt[22]);
-	tableObjet[id].buffer=tbtxt[23];
-	tableObjet[id].class=tbtxt[24];
-	tableObjet[id].convolver=tbtxt[25];
-	tableObjet[id].cx=tbtxt[26];
-	tableObjet[id].cy=tbtxt[27];
-	tableObjet[id].debut=tbtxt[28];
-	tableObjet[id].detune=tbtxt[29];
-	tableObjet[id].duree=tbtxt[30];
-	tableObjet[id].fadeIn=tbtxt[31];
-	tableObjet[id].fadeOut=tbtxt[32];
-	tableObjet[id].envX=tbtxt[33];
-	tableObjet[id].etat=tbtxt[34];
-	tableObjet[id].file=tbtxt[35];
-	tableObjet[id].fin=tbtxt[36];
-	tableObjet[id].flagTranspo=tbtxt[37];
-	tableObjet[id].gain=tbtxt[38];
-	tableObjet[id].height=tbtxt[39];
-	tableObjet[id].id=tbtxt[40];
-	tableObjet[id].img=tbtxt[41];
-	tableObjet[id].margeG=tbtxt[42];
-	tableObjet[id].margeH=tbtxt[43];
-	tableObjet[id].mute=tbtxt[44];
-	tableObjet[id].nom=tbtxt[45];
-	tableObjet[id].objBorderC=tbtxt[46];
-	tableObjet[id].objBorderW=tbtxt[47];
-	tableObjet[id].objColor=tbtxt[48];
-	tableObjet[id].objOpacity=tbtxt[49];
-	tableObjet[id].piste=tbtxt[50];
-	tableObjet[id].posX=tbtxt[51];
-	tableObjet[id].posY=tbtxt[52];
-	tableObjet[id].r=tbtxt[53];
-	tableObjet[id].radius=tbtxt[54];
-	tableObjet[id].rotate=tbtxt[55];
-	tableObjet[id].scaleX=tbtxt[56];
-	tableObjet[id].scaleY=tbtxt[57];
-	tableObjet[id].spD=tbtxt[58];
-	tableObjet[id].spT=tbtxt[59];
-	tableObjet[id].spX=tbtxt[60];
-	tableObjet[id].spY=tbtxt[61];
-	tableObjet[id].spZ=tbtxt[62];
-	tableObjet[id].tableFx=tbtxt[63];
-	tableObjet[id].tableFxParam=tbtxt[64];
-	tableObjet[id].transposition=tbtxt[65];
-	tableObjet[id].type=tbtxt[66];
-	tableObjet[id].vueDuree=tbtxt[67];
-	tableObjet[id].x1=tbtxt[68];
-	tableObjet[id].x2=tbtxt[69];
-	tableObjet[id].y1=tbtxt[70];
-	tableObjet[id].y2=tbtxt[71];
-	tableObjet[id].width=tbtxt[71];
-		
+	var obj=JSON.parse(txt);
+	Object.assign(tableObjet[id], obj);
 }
 function objetToGraphParams(id) {
 	objGraph={
