@@ -375,7 +375,6 @@ let winTrajectoireEtat=0;
 let winStudioEtat=0;
 let winStudio3DEtat=0;
 let winSpectrEditEtat=0;
-let winPreDefEtat=0;
 let winAideEtat=0;
 let newStudioEtat=0;
 let winVueStudio3DEtat=0;
@@ -2030,53 +2029,6 @@ function openSpectWasm(id,file,rate,mode) {
 const menu2 = Menu.buildFromTemplate(template2);
 
 
-function createPreDef(objId,lang,obj) {
-	if(winPreDefEtat==0){
-		winPreDef = new BrowserWindow({width:980,height:620,
-		webPreferences: {
-	            nodeIntegration: true,
-	            contextIsolation: true,
-	            enableRemoteModule: false, // turn off remote
-	            preload: path.join(__dirname, 'preload.js')
-	        }
-		});
-		winPreDef.loadFile('preDefGrp.html');
-		winPreDef.removeMenu();
-		//winPreDef.webContents.openDevTools()
-		winPreDefEtat=1;
-		winPreDef.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winPreDef.webContents.send("fromMain", "defPreDef;"+objId+";"+lang+";"+obj);
-  		});
-		
-		winPreDef.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
-	   e.preventDefault();
-	   dialog.showMessageBox({
-	    type: 'info',
-	    buttons: [Qcont, Qok],
-	    cancelId: 1,
-	    defaultId: 0,
-	    title: Qwarning,
-	    detail: Qquit
-	  }).then(({ response, checkboxChecked }) => {
-	    console.log(`response: ${response}`);
-	    if (response) {
-	      winPreDef.destroy();
-	      winPreDefEtat=0;
-	    }
-	  });
-	}); 
-	}else{
-		dialog.showMessageBox({
-	    type: 'info',
-	    buttons: [Qok],
-	    cancelId: 1,
-	    defaultId: 0,
-	    title: Qwarning,
-	    detail: AlertWinOpen
-	  });
-		console.log('');
-	}
-}
 function createWinGraph(id,lang,param,type) {
 	if(winGraphObjEtat==0){
 		winGraphObj = new BrowserWindow({width:575,height:544,alwaysOnTop:true,
@@ -2934,10 +2886,6 @@ ipcMain.on ("toMain", (event, args) => {
 			console.log(`openGrpParam ${args} from param`);
 			createWinGrp(cmd[1],cmd[2],cmd[3]);
 			break;
-		case 'openPreDef':
-			//console.log(`openGrpParam ${args} from param`);
-			createPreDef(cmd[1],cmd[2],cmd[3]);
-			break;
 		case 'objParamAnnul':
 			//console.log(`Restore ${args} from param`);
 			mainWindow.webContents.send("fromMain", "annulModifObj;"+cmd[1]);
@@ -3123,17 +3071,10 @@ ipcMain.on ("toMain", (event, args) => {
 			//console.log(`openObjetParam ${args} from param`);
 			winConfig.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			break;
-		case 'fileAudioPreDef':
-			console.log("id1",cmd[1]);
-			winPreDef.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
-			break;
 		case 'mute':
 			if(winConfigEtat==1){
 				mainWindow.webContents.send("fromMain", "audioMute;"+cmd[1]+";"+cmd[2]);
 			}
-			break;
-		case 'mutePreDef':
-				mainWindow.webContents.send("fromMain", "preDefMute;"+cmd[1]+";"+cmd[2]);
 			break;
 		case 'gain':
 			if(winConfigEtat==1){
@@ -3142,9 +3083,6 @@ ipcMain.on ("toMain", (event, args) => {
 			break;
 		case 'reverse':
 				mainWindow.webContents.send("fromMain", "defReverse;"+cmd[1]+";"+cmd[2]);
-			break;
-		case 'preDefGain':
-			mainWindow.webContents.send("fromMain", "preDefGain;"+cmd[1]+";"+cmd[2]);
 			break;
 		case 'fadeInType':
 			if(winConfigEtat==1){
@@ -3156,23 +3094,14 @@ ipcMain.on ("toMain", (event, args) => {
 				mainWindow.webContents.send("fromMain", "fadeOutType;"+cmd[1]+";"+cmd[2]);
 			}
 			break;
-		case 'envPreDefType':
-			mainWindow.webContents.send("fromMain", "preDefEnvType;"+cmd[1]+";"+cmd[2]);
-			break;
 		case 'flagTranspo':
 			if(winConfigEtat==1){
 				mainWindow.webContents.send("fromMain", "audioFlagTranspo;"+cmd[1]+";"+cmd[2]);
 			}
 			break;
-		case 'preDefFlagTranspo':
-			mainWindow.webContents.send("fromMain", "preDefFlagTranspo;"+cmd[1]+";"+cmd[2]);
-			break;
 		case 'transposition':
 			if(winConfigEtat==1){
 				winConfig.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2]);
-			}
-			if(winPreDefEtat==1){
-				winPreDef.webContents.send("fromMain", "transposition;"+cmd[1]+";"+cmd[2]);
 			}
 			break;
 		case 'detune':
@@ -3180,58 +3109,31 @@ ipcMain.on ("toMain", (event, args) => {
 				mainWindow.webContents.send("fromMain", "audioDetune;"+cmd[1]+";"+cmd[2]);
 			}
 			break;
-		case 'preDefDetune':
-			mainWindow.webContents.send("fromMain", "preDefDetune;"+cmd[1]+";"+cmd[2]);
-			break;
 		case 'debut':
 			mainWindow.webContents.send("fromMain", "audioDebut;"+cmd[1]+";"+cmd[2]);
 			break;
-		case 'preDefDebut':
-			mainWindow.webContents.send("fromMain", "preDefDebut;"+cmd[1]+";"+cmd[2]);
-			break;
 		case 'fin':
 			mainWindow.webContents.send("fromMain", "audioFin;"+cmd[1]+";"+cmd[2]);
-			break;
-		case 'preDefFin':
-			mainWindow.webContents.send("fromMain", "preDefFin;"+cmd[1]+";"+cmd[2]);
 			break;
 		case 'position':
 			if(winConfigEtat==1){
 				winConfig.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
 			}
-			if(winPreDefEtat==1){
-				winPreDef.webContents.send("fromMain", "position;"+cmd[1]+";"+cmd[2]+";"+cmd[3]);
-			}
 			break;
 		case 'nom':
 			mainWindow.webContents.send("fromMain", "audioNom;"+cmd[1]+";"+cmd[2]);
 			break;
-		case 'preDefNom':
-			mainWindow.webContents.send("fromMain", "preDefNom;"+cmd[1]+";"+cmd[2]);
-			break;
-		case 'preDefColor':
-			mainWindow.webContents.send("fromMain", "preDefColor;"+cmd[1]+";"+cmd[2]);
-			break;
 		case 'piste':
 			mainWindow.webContents.send("fromMain", "audioPiste;"+cmd[1]+";"+cmd[2]);
 			break;
-		case 'preDefPiste':
-			mainWindow.webContents.send("fromMain", "preDefPiste;"+cmd[1]+";"+cmd[2]);
-			break;
 		case 'convolver':
 			mainWindow.webContents.send("fromMain", "audioConvolver;"+cmd[1]+";"+cmd[2]);
-			break;
-		case 'preDefConvolver':
-			mainWindow.webContents.send("fromMain", "preDefConvolver;"+cmd[1]+";"+cmd[2]);
 			break;
 		case 'env':
 			mainWindow.webContents.send("fromMain", "audioEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			break;
 		case 'defEnv':
 			mainWindow.webContents.send("fromMain", "defEnv;"+cmd[1]);
-			break;
-		case 'preDefEnv':
-			mainWindow.webContents.send("fromMain", "preDefEnv;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			break;
 		case 'objRayon':
 			mainWindow.webContents.send("fromMain", "objetRayon;"+cmd[1]+";"+cmd[2]);
@@ -5174,9 +5076,6 @@ function defBkgGrpImg(id) {
   		mainWindow.webContents.send("fromMain", "defBkgGrpImg;"+id+";"+rt);
   		if(winGraphGrpEtat==1){
   			winGraphGrp.webContents.send("fromMain", "defGrpImg;"+id+";"+rt);
-  		}
-  		if(winPreDefEtat==1){
-  			winPreDef.webContents.send("fromMain", "defGrpImg;"+id+";"+rt);
   		}
 	});
 }
