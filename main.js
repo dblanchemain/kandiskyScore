@@ -4727,10 +4727,10 @@ function mainExternes2(txt) {
 }
 function mainRead3D() {
 	if(daw=='reaper'){
-		cmd=cmdDaw+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','tmp.rpp')+' '+path.join(app.getPath('home'),'kandiskyscore','Scripts','Reaper','importKandiskyScore2.lua');
+		cmd=cmdDaw+' '+path.join(process.resourcesPath,'Scripts','Reaper','tmp.rpp')+' '+path.join(process.resourcesPath,'Scripts','Reaper','importKandiskyScore2.lua');
 	}else{
 		cmdDaw='ardour';
-		cmd=cmdDaw+' '+path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp', 'tmp.ardour');
+		cmd=cmdDaw+' '+path.join(process.resourcesPath, 'Scripts', 'Ardour', 'tmp.ardour');
 
 	}
 	exec(cmd, (error, stdout, stderr) => {
