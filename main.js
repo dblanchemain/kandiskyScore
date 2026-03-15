@@ -358,14 +358,6 @@ copyFileOutsideOfElectronAsar('./menuDefaut.js', app.getPath('appData')+'/kandis
 const Mn = require(app.getPath('appData')+'/kandiskyscore/menuDefaut.js');
 if (typeof Mstretching === 'undefined') Mstretching = 'Stretching (objet)';
 console.log('copy menuDefaut');
-fs.access(app.getPath('appData')+'/kandiskyscore/Dsp', (err) => {
-	   if (err) {
-	      console.log('does not exist');
-			copyFileOutsideOfElectronAsar('./Dsp', app.getPath('appData')+'/kandiskyscore/Dsp');
-	    } else {
-	      console.log('exists');
-	    }
-   });
 fs.access(app.getPath('appData')+'/kandiskyscore/Pdf', (err) => {
 	   if (err) {
 	      console.log('does not exist');
