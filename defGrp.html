@@ -410,36 +410,7 @@ function grpGraphToString() {
 		return txt
 }
 function grpStringToGraph(txt) {
-	var ntxt=txt.split(':')
-	objGraph = {
-	bkgColor:ntxt[0],
-	bkgHeight:parseFloat(ntxt[1]),
-	bkgImg:ntxt[2],
-	bkgOpacity:parseFloat(ntxt[3]),
-	bkgTrp:ntxt[4],
-	bkgWidth:parseFloat(ntxt[5]),
-	borderBc:ntxt[6],
-	borderBr:ntxt[7],
-	borderBs:ntxt[8],
-	borderBw:parseFloat(ntxt[9]),
-	borderDc:ntxt[10],
-	borderDr:ntxt[11],
-	borderDs:ntxt[12],
-	borderDw:parseFloat(ntxt[13]),
-	borderGc:ntxt[14],
-	borderGr:ntxt[15],
-	borderGs:ntxt[16],
-	borderGw:parseFloat(ntxt[17]),
-	borderHc:ntxt[18],
-	borderHr:ntxt[19],
-	borderHs:ntxt[20],
-	borderHw:parseFloat(ntxt[21]),
-	height:parseFloat(ntxt[22]),
-	nom:ntxt[23],
-	scaleX:parseFloat(ntxt[24]),
-	scaleY:parseFloat(ntxt[25]),
-	width:parseFloat(ntxt[26]),
-	}
+	objGraph = JSON.parse(txt);
 }
 function symbGraphValid() {
 	window.api.send("toMain", "grpValid;"+objId)
