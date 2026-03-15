@@ -236,17 +236,11 @@ window.api.receive("fromMain", (data) => {
 			case 'audioMute':
 				audioMute(cmd[1],cmd[2]);
 				break;
-			case 'preDefMute':
-				preDefMute(cmd[1],cmd[2]);
-				break;
 			case 'audioGain':
 				audioGain(cmd[1],cmd[2]);
 				break;
 			case 'defReverse':
 				defReverse(cmd[1],cmd[2]);
-				break;
-			case 'preDefGain':
-				preDefGain(cmd[1],cmd[2]);
 				break;
 			case 'fadeInType':
 				audioFadeInType(cmd[1],cmd[2]);
@@ -254,62 +248,32 @@ window.api.receive("fromMain", (data) => {
 			case 'fadeOutType':
 				audioFadeOutType(cmd[1],cmd[2]);
 				break;
-			case 'preDefEnvType':
-				preDefEnvType(cmd[1],cmd[2]);
-				break;
 			case 'audioFlagTranspo':
 				audioFlagTranspo(cmd[1],cmd[2]);
-				break;
-			case 'preDefFlagTranspo':
-				preDefFlagTranspo(cmd[1],cmd[2]);
 				break;
 			case 'audioDetune':
 				audioDetune(cmd[1],cmd[2]);
 				break;
-			case 'preDefDetune':
-				preDefDetune(cmd[1],cmd[2]);
-				break;
 			case 'audioDebut':
 				audioDebut(cmd[1],cmd[2]);
-				break;
-			case 'preDefDebut':
-				preDefDebut(cmd[1],cmd[2]);
 				break;
 			case 'audioFin':
 				audioFin(cmd[1],cmd[2]);
 				break;
-			case 'preDefFin':
-				preDefFin(cmd[1],cmd[2]);
-				break;
 			case 'audioNom':
 				audioNom(cmd[1],cmd[2]);
-				break;
-			case 'preDefNom':
-				preDefNom(cmd[1],cmd[2]);
-				break;
-			case 'preDefColor':
-				preDefColor(cmd[1],cmd[2]);
 				break;
 			case 'audioPiste':
 				audioPiste(cmd[1],cmd[2]);
 				break;
-			case 'preDefPiste':
-				preDefPiste(cmd[1],cmd[2]);
-				break;
 			case 'audioConvolver':
 				audioConvolver(cmd[1],cmd[2]);
-				break;
-			case 'preDefConvolver':
-				preDefConvolver(cmd[1],cmd[2]);
 				break;
 			case 'audioEnv':
 				audioEnv(cmd[1],cmd[2],cmd[3],cmd[4]);
 				break;
 			case 'defEnv':
 				defEnv(cmd[1]);
-				break;
-			case 'preDefEnv':
-				preDefEnv(cmd[1],cmd[2],cmd[3],cmd[4]);
 				break;
 			case 'tempoAudio':
 				tempoAudio();
@@ -1082,12 +1046,7 @@ function selectBkgObj(e){
    			var ntxt="openGrpParam;"+objActif+";"+lang+";"+grpGrapĥToString(objActif);				
 		      window.api.send("toMain", ntxt );
    		}
-			if(tableObjet[objActif].class==2){
-   			objetSaveParams(objActif);
-   			var ntxt="openPreDef;"+objActif+";"+lang+";"+preDefToString(objActif);					
-		      window.api.send("toMain", ntxt );
-   		}
-     		/*
+	     		/*
      		console.log("type",tableObjet[objActif].type)
      		let id=e.target.id.substring(3)
      		switch(tableObjet[objActif].type) {
@@ -1198,11 +1157,6 @@ window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt3+";"+txt4+";"+txt
 }
 function objetParamsToString(id) {
 	return JSON.stringify(tableObjet[id]);
-}
-function preDefToString(id) {
-	var txt=tableObjet[id].basePosY+":"+tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].buffer+":"+tableObjet[id].class+":"+tableObjet[id].convolver+":"+tableObjet[id].cx+":"+tableObjet[id].cy+":"+tableObjet[id].debut+":"+tableObjet[id].detune+":"+tableObjet[id].duree+":"+tableObjet[id].fadeIn+":"+tableObjet[id].envX+":"+tableObjet[id].etat+":"+tableObjet[id].file+":"+tableObjet[id].fin+":"+tableObjet[id].flagTranspo+":"+tableObjet[id].gain+":"+tableObjet[id].height+":"+tableObjet[id].id+":"+tableObjet[id].img+":"+tableObjet[id].liste+":"+tableObjet[id].margeG+":"+tableObjet[id].margeH+":"+tableObjet[id].mute+":"+tableObjet[id].nom+":"+tableObjet[id].objBorderC+":"+tableObjet[id].objBorderW+":"+tableObjet[id].objColor+":"+tableObjet[id].objOpacity+":"+tableObjet[id].piste+":"+tableObjet[id].posX+":"+tableObjet[id].posY+":"+tableObjet[id].r+":"+tableObjet[id].radius+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].spD+":"+tableObjet[id].spT+":"+tableObjet[id].spX+":"+tableObjet[id].spY+":"+tableObjet[id].spZ+":"+tableObjet[id].tableFx+":"+tableObjet[id].tableFxParam+":"+tableObjet[id].transposition+":"+tableObjet[id].type+":"+tableObjet[id].vueDuree+":"+tableObjet[id].x1+":"+tableObjet[id].x2+":"+tableObjet[id].y1+":"+tableObjet[id].y2+":"+tableObjet[id].width;
-	
-	return txt;
 }
 function objetGrapĥToString(id) {
 	return JSON.stringify(tableObjet[id]);
@@ -1494,29 +1448,14 @@ function defTempo(){
 const resultat = tempoPoints.find((obj) => obj.id === "tmp1");
 console.log(tempoPoints,resultat.id);
 }
-function audioMute(id,m) {  
+function audioMute(id,m) {
 	tableObjet[id].mute=m;
-}
-function preDefMute(id,m) {
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.mute = m;
-   }
-   tableObjet[id].mute=m;
 }
 function audioGain(id,m) {  
 	tableObjet[id].gain=parseFloat(m);
 }
-function defReverse(id,m) {  
+function defReverse(id,m) {
 	tableObjet[id].reverse=JSON.parse(m);
-}
-function preDefGain(id,m) {
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.gain = parseFloat(m);
-   }
-   tableObjet[id].gain=parseFloat(m);
-  
 }
 function audioFadeInType(id,m) {
    tableObjet[id].fadeIn=m;
@@ -1524,47 +1463,11 @@ function audioFadeInType(id,m) {
 function audioFadeOutType(id,m) {
    tableObjet[id].fadeOut=m;
 }
-function preDefEnvType(id,m) {
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.envType = parseInt(m);
-   }
-   tableObjet[id].envType=parseInt(m);
-}
-
-function preDefFlagTranspo(id,m) {
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.flagTranspo = parseInt(m);
-   }
-   tableObjet[id].flagTranspo=parseInt(m); 
-}
 function audioFlagTranspo(id,m) {  
 	tableObjet[id].flagTranspo=m;
 }
-function audioDetune(id,m) {  
+function audioDetune(id,m) {
 	tableObjet[id].detune=parseFloat(m);
-}
-function preDefDetune(id,m) {
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.detune = parseFloat(m);
-   } 
-	tableObjet[id].detune=parseFloat(m);
-}
-function preDefDebut(id,m) {
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.debut = parseFloat(m);
-   }   
-	tableObjet[id].debut=parseFloat(m);
-}
-function preDefFin(id,m) {
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.fin = parseFloat(m);
-   }   
-	tableObjet[id].fin=parseFloat(m);
 }
 function audioDebut(id,m) {  
 	tableObjet[id].debut=parseFloat(m);
@@ -1572,59 +1475,22 @@ function audioDebut(id,m) {
 function audioFin(id,m) {  
 	tableObjet[id].fin=parseFloat(m);
 }
-function audioNom(id,m) {  
+function audioNom(id,m) {
 	tableObjet[id].nom=m;
 	document.getElementById(tableObjet[id].id).title=m;
 }
-function preDefNom(id,m) {  
-	if(tableObjet[id].type==74){	
-		tableObjet[id].nom=m;	
-		document.getElementById(tableObjet[id].id).firstChild.firstChild.firstChild.firstChild.innerHTML=m;
-	}
-}
-function preDefColor(id,m) { 
- 	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.piste = m;
-     document.getElementById(ls.id).firstChild.firstChild.setAttribute("fill",m);
-   }
-	tableObjet[id].piste=m;
-}
-function audioPiste(id,m) {  
+function audioPiste(id,m) {
 	tableObjet[id].piste=parseInt(m);
 }
-function preDefPiste(id,m) { 
- 	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.piste = parseFloat(m);
-   }
-	tableObjet[id].piste=parseInt(m);
-}
-function audioConvolver(id,m) {  
-	tableObjet[id].convolver=m;
-}
-function preDefConvolver(id,m) {  
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.convolver = m;
-   }
+function audioConvolver(id,m) {
 	tableObjet[id].convolver=m;
 }
 function audioEnv(id,ev,x) {  
 	tableObjet[id].envX[ev]=parseFloat(x);
 }
-function defEnv(x) {  
+function defEnv(x) {
 	var nx=JSON.parse(x);
 	tableObjet[objActif].envX=nx;
-}
-function preDefEnv(id,ev,x,y) {  
-	for(let i=0;i<tableObjet[id].liste.length;i++){
-  	  var ls=tableObjet[tableObjet[id].liste[i]];
-     ls.envX[ev]=parseFloat(x);
-	  ls.envY[ev]=parseFloat(y);
-   }
-	tableObjet[id].envX[ev]=parseFloat(x);
-	tableObjet[id].envY[ev]=parseFloat(y);
 }
 function objetRayon(id,r) {  
 	document.getElementById("objet"+id).firstChild.firstChild.setAttribute("r",r);
