@@ -82,11 +82,9 @@
    var contextAudio=new AudioContext({latencyHint: "interactive"})
    
    window.api.receive("fromMain", (data) => {
-console.log(`objparam ${data} from renderer process`);
 	var cmd=data.split(";")
 	switch(cmd[0]){
 			case 'defParam':
-				console.log('home',cmd[1],'kandiskyscore',cmd[2],'projets',cmd[3])
 				home=cmd[1];
 				kandiskyscore=cmd[2];
 				projets=cmd[3]
@@ -107,12 +105,11 @@ console.log(`objparam ${data} from renderer process`);
 				let lg=0
 				//let d=cmd[1].folders.split(",")
 				const data = JSON.parse(cmd[1]);
-				console.log('folders',data.folders)
-				txt="<table  border='0' cellspacing='0'><tbody><tr><td style='width:32px'> </td><td style='width:400px'> Nom</td><td style='width:60px'> Taille</td><td style='padding:20px;text-align:right'> Dernière modification</td><tr>"
+					txt="<table  border='0' cellspacing='0'><tbody><tr><td style='width:32px'> </td><td style='width:400px'> Nom</td><td style='width:60px'> Taille</td><td style='padding:20px;text-align:right'> Dernière modification</td><tr>"
 				for(let k=0;k<data.folders.length;k++){
 					ndir=data.folders[k].split("/")
 					lg=ndir.length-1;
-					txt=txt+"<tr class='dir' data-path="+data.folders[k]+" onclick='defDir.call(this)'><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td><td> </td><td></td></tr>"	
+					txt=txt+"<tr class='dir' data-path='"+data.folders[k]+"' onclick='defDir.call(this)'><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td><td> </td><td></td></tr>"
 				}
 			
 				ndir=[]
@@ -159,27 +156,22 @@ console.log(`objparam ${data} from renderer process`);
 	function selectType() {
 		defType=this.value
 		window.api.send("toMain", 'readNewSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
-		console.log(defType)
 	}
 	function sVolume() {
 		document.getElementById("volume").value=document.getElementById("svolume").value
 		defGain=parseFloat(document.getElementById("volume").value)
 	}
 	function dirNSelect() {
-   	console.log('dirNewSelect',this,this.innerHTML)
    	readNSelect();
    }
 	function dirSelect() {
-   	console.log('dirSelect',this.getAttribute('href'))
    	document.getElementById("dirCourant").innerHTML=this.getAttribute('href')
    	readNSelect();
    }
    function readNSelect() {
-   	console.log('readNewSelect',document.getElementById("dirCourant").innerHTML)
    	window.api.send("toMain", 'readNewSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
    }
    function defDir() {
-   	console.log('readdir',this.dataset.path)
    	const dirPath = this.dataset.path;
    	document.getElementById("dirCourant").textContent = dirPath;
    	window.api.send("toMain", 'readNewSelect;'+dirPath+';'+defType)
@@ -194,20 +186,15 @@ async   function selectFile(dr) {
 		window.api.send("toMain", 'infoSpectrogram;'+dr)
    }
    function dirReadSup() {
-   	console.log('dirReadSup')
    	var nd=document.getElementById("dirCourant").innerHTML.split("/");
-   	if(nd.length>3){
-	   	var txt=""
-	   	for(i=1;i<nd.length-1;i++){
-	   		txt=txt+"/"+nd[i];
-	   	}
-	   	document.getElementById("dirCourant").innerHTML=txt
+   	if(nd.length>2){
+	   	nd.pop();
+	   	var txt=nd.join("/");
+	   	document.getElementById("dirCourant").innerHTML=txt;
 	   	readNSelect();
-	   	console.log(nd,txt);
    	}
    }
    function dirReload() {
-   	console.log('dirReload')
    	readNSelect();
    }
    function fileRead() {
@@ -217,7 +204,6 @@ async   function selectFile(dr) {
 	window.api.send("toMain", 'playFile;'+filePath+";0;"+gain+";"+defLoop);
    }
    function filePause() {
-   	console.log('filePause')
    }
    function fileStop() {
   		waStart=0;
@@ -229,7 +215,6 @@ async   function selectFile(dr) {
    	window.api.send("toMain", 'killPlay')
    }
    function fileLoop() {
-   	console.log('fileLoop')
    	if(defLoop==0){
    		defLoop=1
    		document.getElementById("fileLoop").src="./images/png/loopInv.png"		
@@ -358,7 +343,6 @@ function suspend() {
 function fooBar() {
 	var rt=800/(duree*20)
 	var delay=50;
-	console.log("rt",duree,rt)
 	var posx=parseFloat(document.getElementById('bvert').getAttribute("x1"))+rt
 	document.getElementById('bvert').setAttribute("x1",posx)
 	document.getElementById('bvert').setAttribute("x2",posx)
