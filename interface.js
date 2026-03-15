@@ -544,8 +544,7 @@ function defTempoFoo() {
 						}
 						n=0;
 						
-						console.log('tempoFoo',i,tempoPoints[i+1].X,tempoPoints[i+1].Y,pt,px,ps,inctp);
-					}	
+						}	
 					
 					var p={
 							X:12960,
@@ -558,8 +557,7 @@ function defTempoFoo() {
 						};
 					tempoFoo[0]=p;		
 				}
-				console.log('tempoPoints',tempoPoints,'tempoFoo',tempoFoo);
-				
+					
 				document.querySelector("#reglette").innerHTML="";
 		createReglette(zoomScale,"reglette",regleBackground,parseFloat(regleFontSize),regleFontColor);	
 }

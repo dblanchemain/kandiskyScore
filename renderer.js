@@ -213,7 +213,6 @@ for (var i in listeFx){
 window.api.receive("fromMain", (data) => {
 	var nsize=data;
 	var cmd=data.split(";");
-	console.log(`openObjet ${data} from param`);
 	switch(cmd[0]){
 			case 'dconfig':
 				baseDatatPath=cmd[1];
