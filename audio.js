@@ -1216,7 +1216,7 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
     console.log("faust",appPaths.basedir,faust);
     const faustPkg = await import(`file://${faust}`);
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
-    const faustModule = await instantiateFaustModuleFromFile(`${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`);
+    const faustModule = await instantiateFaustModuleFromFile(window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'libfaust-wasm', 'libfaust-wasm.js'));
     const libFaust = new LibFaust(faustModule);
     const compiler = new FaustCompiler(libFaust);
 
@@ -1313,7 +1313,7 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
 async function loadLayoutJSON(layoutName) {
 	console.log("layoutName",layoutName);
   const appPaths = await window.api.getPaths();
-		  const buf = await window.api.readFile(`${appPaths.basedir}/resources/Dsp/${layoutName}.json`);
+		  const buf = await window.api.readFile(window.api.joinPath(window.api.resources, 'Dsp', layoutName + '.json'));
 		  console.log("layoutPath",`${appPaths}/resources/Dsp/${layoutName}.json`);
     	  const txt = new TextDecoder("utf-8").decode(buf);
     	  return JSON.parse(txt);  
@@ -1390,11 +1390,12 @@ async function createLayout(layout, numChannels) {
 	 const NP = layoutJSON.speakers.length;
     // ===== INIT FAUST & COMPILE DSP =====
     const appPaths = await window.api.getPaths();
+    const faustIdx = window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'dist', 'esm', 'index.js');
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } =
-        await import(`${appPaths.basedir}/resources/@grame/faustwasm/dist/esm/index.js`);
+        await import(`file://${faustIdx}`);
 
     const faustModule = await instantiateFaustModuleFromFile(
-        `${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`
+        window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'libfaust-wasm', 'libfaust-wasm.js')
     );
 
     const libFaust = new LibFaust(faustModule);
