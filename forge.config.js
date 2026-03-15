@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const allResources = ["resources/bin","resources/Dsp","resources/@grame","resources/images"];
+const allResources = ["resources/bin","resources/Dsp","resources/@grame","resources/images","resources/Scripts"];
 const extraResource = allResources.filter(p => fs.existsSync(p));
 
 module.exports = {
