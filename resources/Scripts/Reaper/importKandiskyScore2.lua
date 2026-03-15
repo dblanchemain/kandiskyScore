@@ -2,7 +2,7 @@
 -- D.Blanchemain
 -- Licence GPL2 (GNU)
 local script_dir = debug.getinfo(1, "S").source:match("@?(.+[/\\])")
-local TARGET_PROJECT = script_dir .. "tmp.rpp"
+local TARGET_PROJECT = (script_dir .. "tmp.rpp"):gsub("\\", "/")
 
 local function wait_for_project()
 
@@ -13,7 +13,7 @@ local function wait_for_project()
   end
 
   -- attendre que le BON projet soit chargé
-  if proj_fn ~= TARGET_PROJECT then
+  if proj_fn:gsub("\\", "/") ~= TARGET_PROJECT then
     reaper.defer(wait_for_project)
     return
   end
@@ -53,7 +53,7 @@ local function parse_number(v)
 end
 function main()
 --retval, filepath = reaper.GetUserFileNameForRead("", "Select a file", "")
-filepath=os.getenv("HOME") .. "/kandiskyscore/Projets/autoInsert.txt"
+filepath=(os.getenv("HOME") or os.getenv("USERPROFILE")) .. "/kandiskyscore/Projets/autoInsert.txt"
 file, err = io.open(filepath, "r")
 lines = {}
 local countLines=0
