@@ -161,9 +161,6 @@ function defconfig(conf) {
   pdfMgLeft=parseFloat(defc[113]);
   pdfMgRight=parseFloat(defc[114]);
   pdfBkg=parseInt(defc[115]);
-  pdfAssCmd=defc[116];
-  pdfAppCmd=defc[117];
-  rubberband=defc[118];
 }
 
 dragElement(document.getElementById("listNewFx"));
@@ -2395,8 +2392,8 @@ var tableProjet=txt.split(',');
 	};
 	zoomInit(100);
 	upDateWorkSpace(1);
-	var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd;
-	window.api.send("toMain", 'defExterne;'+btoa(txt));
+	var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:paramProjet.audioPath,imgPath:paramProjet.imgPath,editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
+	window.api.send("toMain", 'defExterne;'+txt);
 }
 
 function renameProjet(nname) {
