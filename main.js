@@ -4726,11 +4726,12 @@ function mainExternes2(txt) {
 	editAudioCmd=defc.editAudioCmd;
 }
 function mainRead3D() {
+	const scriptsPath = app.isPackaged ? path.join(process.resourcesPath, 'Scripts') : path.join(__dirname, 'resources', 'Scripts');
 	if(daw=='reaper'){
-		cmd=cmdDaw+' '+path.join(process.resourcesPath,'Scripts','Reaper','tmp.rpp')+' '+path.join(process.resourcesPath,'Scripts','Reaper','importKandiskyScore2.lua');
+		cmd=cmdDaw+' '+path.join(scriptsPath,'Reaper','tmp.rpp')+' '+path.join(scriptsPath,'Reaper','importKandiskyScore2.lua');
 	}else{
 		cmdDaw='ardour';
-		cmd=cmdDaw+' '+path.join(process.resourcesPath, 'Scripts', 'Ardour', 'tmp.ardour');
+		cmd=cmdDaw+' '+path.join(scriptsPath, 'Ardour', 'tmp.ardour');
 
 	}
 	exec(cmd, (error, stdout, stderr) => {
