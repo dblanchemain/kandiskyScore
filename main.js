@@ -4673,7 +4673,6 @@ function listSubfolders(dirPath) {
 function listAudioFiles(dirPath,type) {
   try {
     const entries = fs.readdirSync(dirPath);
-    console.log("liste files :", dirPath,type,entries);
     return entries
       .filter(f => f.endsWith("."+type))
     .map(f => path.join(dirPath, f));
