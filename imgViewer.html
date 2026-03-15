@@ -8,7 +8,7 @@
     #imgcontainer { border-top: 3px solid #000000; border-left: 3px solid #000000; border-right: 1px solid #000000; border-bottom: 1px solid #000000;width: 248px; height: 248px;float:right;margin-top:80px; }
     #dirCourant { border: 1px solid #000000; width: 100%;}
     #barVerticale {background-color:#ff0000;width:2px;height:50px;}
-   
+
   </style>
 </head>
 <body>
@@ -32,12 +32,12 @@
   <div id="blockMaj" ><button id="lbvalid"  style="margin-left:80%;width:60px;" onclick='quit();'>Ok</button></div>
 	<script type="text/javascript" src="./logger.js"></script>
   <script>
-	document.getElementById("dirSup").addEventListener('click',dirReadSup)  
-   document.getElementById("reloadDir").addEventListener('click',dirReload) 
-   document.getElementById("typeselect").addEventListener('change',selectType) 
-   document.getElementById("dirCourant").addEventListener('click',dirNSelect) 
+	document.getElementById("dirSup").addEventListener('click',dirReadSup)
+   document.getElementById("reloadDir").addEventListener('click',dirReload)
+   document.getElementById("typeselect").addEventListener('change',selectType)
+   document.getElementById("dirCourant").addEventListener('click',dirNSelect)
    document.getElementById("img").addEventListener('click',insertImg)
-  
+
    let defLoop=0;
    let home="";
    let kandiskyscore="";
@@ -50,125 +50,107 @@
   latencyHint: "interactive",
   sampleRate: 48000}
   )
-  
+
    window.api.receive("fromMain", (data) => {
-console.log(`objparam ${data} from renderer process`);
 	var cmd=data.split(";")
 	switch(cmd[0]){
 			case 'defParam':
-				console.log('home',cmd[1],'kandiskyscore',cmd[2],'projets',cmd[3])
 				home=cmd[1];
 				kandiskyscore=cmd[2];
 				projets=cmd[3]
 				dirCourant=home;
-				var txt="<ul><li id='dhome' href="+home+">Home</li>"
-				txt=txt+"<li id='dirKds' href="+kandiskyscore+">kandiskyscore</li>"
-				txt=txt+"<li id='dirProjets' href="+projets+">Projets</li>"
+				var txt="<ul><li id='dhome' href='"+home+"'>Home</li>"
+				txt=txt+"<li id='dirKds' href='"+kandiskyscore+"'>kandiskyscore</li>"
+				txt=txt+"<li id='dirProjets' href='"+projets+"'>Projets</li>"
 				txt=txt+"</ul>"
 				document.getElementById("dliste").innerHTML=txt
-				document.getElementById("dhome").addEventListener('click',dirSelect) 
+				document.getElementById("dhome").addEventListener('click',dirSelect)
    			document.getElementById("dirKds").addEventListener('click',dirSelect)
    			document.getElementById("dirProjets").addEventListener('click',dirSelect)
 				document.getElementById("dirCourant").innerHTML=dirCourant
 				break
-			case 'retImgDir':
+			case 'retImgDir': {
 				txt="";
 				let ndir=[]
 				let lg=0
-				let d=cmd[1].split(",")
+				const data = JSON.parse(cmd[1]);
 				txt="<table  border='0' cellspacing='0'><tbody><tr><td style='width:32px'> </td><td style='width:400px'> Nom</td><tr>"
-				
-				for(let k=0;k<d.length;k++){
-					ndir=d[k].split("/")
-					console.log(ndir)
+
+				for(let k=0;k<data.folders.length;k++){
+					ndir=data.folders[k].split("/")
 					lg=ndir.length-1;
-					txt=txt+"<tr onclick=\"defDir('"+d[k]+"');\"><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td></tr>"	
+					txt=txt+"<tr onclick=\"defDir('"+data.folders[k]+"');\"><td><img src='./images/png/dir.png' alt='dir' /><td  > "+ndir[lg]+"</td></tr>"
 				}
 				txt=txt+"</tbody></table><table  border='0' cellspacing='0'><tbody>"
 				ndir=[]
 				lg=0
-				d=cmd[2].split(",");
-				console.log(d)
-				for(let k=0;k<d.length;k=k+3){
-				ndir=d[k].split("/")
-					console.log(ndir[ndir.length-1])
+				for(let k=0;k<data.files.length;k=k+3){
+					ndir=data.files[k].split("/")
 					lg=ndir.length-1;
-					txt=txt+"<tr ><td> </td><td  onclick=\"selectFile('"+d[k]+"');\" > <img src='"+d[k]+"' alt='' style='width:128px;' title='"+ndir[ndir.length-1]+"' /></td>"
-					if(k+1<d.length){
-					ndir=d[k+1].split("/")
-					txt=txt+"<td  onclick=\"selectFile('"+d[k+1]+"');\"> <img src='"+d[k+1]+"' alt='' style='width:128px'  title='"+ndir[ndir.length-1]+"'/></td>"
+					txt=txt+"<tr ><td> </td><td  onclick=\"selectFile('"+data.files[k]+"');\" > <img src='"+data.files[k]+"' alt='' style='width:128px;' title='"+ndir[lg]+"' /></td>"
+					if(k+1<data.files.length){
+						ndir=data.files[k+1].split("/")
+						txt=txt+"<td  onclick=\"selectFile('"+data.files[k+1]+"');\"> <img src='"+data.files[k+1]+"' alt='' style='width:128px'  title='"+ndir[ndir.length-1]+"'/></td>"
 					}else{
-					txt=txt+"<td  > </td>"
+						txt=txt+"<td  > </td>"
 					}
-					if(k+2<d.length){
-					ndir=d[k+2].split("/")
-					txt=txt+"<td  onclick=\"selectFile('"+d[k+2]+"');\"> <img src='"+d[k+2]+"' alt='' style='width:128px'  title='"+ndir[ndir.length-1]+"'/></td>"
+					if(k+2<data.files.length){
+						ndir=data.files[k+2].split("/")
+						txt=txt+"<td  onclick=\"selectFile('"+data.files[k+2]+"');\"> <img src='"+data.files[k+2]+"' alt='' style='width:128px'  title='"+ndir[ndir.length-1]+"'/></td>"
 					}else{
-					txt=txt+"<td  > </td>"
+						txt=txt+"<td  > </td>"
 					}
 					txt=txt+"</td >"
 				}
-				
+
 				txt=txt+"</tbody></table>"
 				document.getElementById("fileList").innerHTML=txt
-				
-				break
-   	}  
-     
+				break; }
+   	}
+
 	});
 	function quit() {
 		window.api.send("toMain", 'imagesViewerQuit')
 	}
 
 	function dirNSelect() {
-   	console.log('readImgsSelect',this,this.innerHTML)
    	readNSelect();
    }
 	function dirSelect() {
-   	console.log('readImgs',this.getAttribute('href'))
    	document.getElementById("dirCourant").innerHTML=this.getAttribute('href')
    	readNSelect();
    }
    function readNSelect() {
-   	console.log('readImgSelect',document.getElementById("dirCourant").innerHTML)
    	window.api.send("toMain", 'readImgsSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
    }
    function defDir(dr) {
-   	console.log('readdir',dr)
    	document.getElementById("dirCourant").innerHTML=dr
    	window.api.send("toMain", 'readImgsSelect;'+dr+";"+defType)
    }
 function selectType() {
 	defType=this.value
 	window.api.send("toMain", 'readImgsSelect;'+document.getElementById("dirCourant").innerHTML+";"+defType)
-	console.log(defType)
 }
 function selectFile(dr) {
    document.getElementById("img").src=dr
-   ndir=dr.split("/")
+   var ndir=dr.split("/")
    document.getElementById("nimg").innerHTML=ndir[ndir.length-1]
    }
    function dirReadSup() {
-   	console.log('dirReadSup')
    	var nd=document.getElementById("dirCourant").innerHTML.split("/");
-   	if(nd.length>3){
-	   	var txt=""
-	   	for(i=1;i<nd.length-1;i++){
-	   		txt=txt+"/"+nd[i];
-	   	}
-	   	document.getElementById("dirCourant").innerHTML=txt
+   	if(nd.length>2){
+	   	nd.pop();
+	   	var txt=nd.join("/");
+	   	document.getElementById("dirCourant").innerHTML=txt;
 	   	readNSelect();
-	   	console.log(nd,txt);
    	}
    }
    function dirReload() {
-   	console.log('dirReload')
    	readNSelect();
    }
  function insertImg() {
-   	console.log('insertImg')
    	window.api.send("toMain", 'insertImgSelect;'+document.getElementById("img").src)
-   }  
+   }
   </script>
 </body>
 </html>

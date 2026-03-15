@@ -2447,7 +2447,8 @@ function imgViewer() {
 		winImgViewerEtat=1;
 		winImgViewer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		const kandiskyPath = path.join(app.getPath('home'), 'kandiskyscore');
-    		winImgViewer.webContents.send("fromMain", "defParam;"+app.getPath('home')+";"+kandiskyPath+";"+currentProjet);
+    		const toSlashI = p => p.split(path.sep).join('/');
+    		winImgViewer.webContents.send("fromMain", "defParam;"+toSlashI(app.getPath('home'))+";"+toSlashI(kandiskyPath)+";"+toSlashI(currentProjet));
   		});
 
 		winImgViewer.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -3716,13 +3717,12 @@ ipcMain.on ("toMain", (event, args) => {
 			}
 			winProjet.webContents.send("fromMain", "rtSpatList;"+f);
 	  		break;
-	  	case 'readImgsSelect':
-		   console.log(`openObjetParam ${args} from param`);
-			const ifolders = listSubfolders(cmd[1]);
-		   const ifiles = listImgFiles(cmd[1],cmd[2]);
-			
-			winImgViewer.webContents.send("fromMain", "retImgDir;"+ifolders+";"+ifiles);
-	  		break;
+	  	case 'readImgsSelect': {
+		   const toSlashJ = p => p.split(path.sep).join('/');
+			const ifolders = listSubfolders(cmd[1]).map(toSlashJ);
+		   const ifiles = listImgFiles(cmd[1],cmd[2]).map(toSlashJ);
+			winImgViewer.webContents.send("fromMain", "retImgDir;"+JSON.stringify({folders:ifolders,files:ifiles}));
+	  		break; }
 	  	case 'insertImgSelect':
 			mainWindow.webContents.send("fromMain", "insertImgSelect;"+cmd[1]);
 	  		break;
