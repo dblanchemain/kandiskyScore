@@ -1214,8 +1214,7 @@ function objetGrapĥToString(id) {
 	return JSON.stringify(tableObjet[id]);
 }
 function grpGrapĥToString(id) {
-	var txt=tableObjet[id].bkgColor+":"+tableObjet[id].bkgHeight+":"+tableObjet[id].bkgImg+":"+tableObjet[id].bkgOpacity+":"+tableObjet[id].bkgTrp+":"+tableObjet[id].bkgWidth+":"+tableObjet[id].borderBc+":"+tableObjet[id].borderBr+":"+tableObjet[id].borderBs+":"+tableObjet[id].borderBw+":"+tableObjet[id].borderDc+":"+tableObjet[id].borderDr+":"+tableObjet[id].borderDs+":"+tableObjet[id].borderDw+":"+tableObjet[id].borderGc+":"+tableObjet[id].borderGr+":"+tableObjet[id].borderGs+":"+tableObjet[id].borderGw+":"+tableObjet[id].borderHc+":"+tableObjet[id].borderHr+":"+tableObjet[id].borderHs+":"+tableObjet[id].borderHw+":"+tableObjet[id].height+":"+tableObjet[id].nom+":"+tableObjet[id].scaleX+":"+tableObjet[id].scaleY+":"+tableObjet[id].width;
-	return txt;
+	return JSON.stringify(tableObjet[id]);
 }
 function objetStringToParams(id,txt) {
 	var obj=JSON.parse(txt);
