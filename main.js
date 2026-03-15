@@ -406,9 +406,6 @@ let pdfMgBot=0.2;
 let pdfMgLeft=0.2;
 let pdfMgRight=0.2;
 let pdfBkg=0;
-let pdfAssCmd='pdfunite';
-let pdfAppCmd='atril';
-let rubberband="";
 
 let currentProjet=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 app.disableHardwareAcceleration();
@@ -4710,28 +4707,23 @@ function mainExternes(txt) {
 	editAudioCmd=defc.editAudioCmd;
 }
 function mainExternes2(txt) {
-	var defc=atob(txt).split(',');
-	console.log('importExterne',txt,defc);
-	projetName=defc[0];
-	projetPath=defc[1];
-	audioPath=defc[2];
-	imgPath=defc[3];
-	editor=defc[4];
-	daw=defc[5];
-	cmdDaw=defc[6];
-	pdfPage=defc[7];
-	pdfLandscape=defc[8];
-	pdfScale=defc[9];
-	pdfMgTop=defc[10];
-	pdfMgBot=defc[11];
-	pdfMgLeft=defc[12];
-	pdfMgRight=defc[13];
-	pdfBkg=defc[14];
-	pdfAssCmd=defc[15];
-	pdfAppCmd=defc[16];
-	editAudioCmd=defc[17];
-	rubberband=defc[18];
-	console.log("rubber",defc);
+	var defc=JSON.parse(atob(txt));
+	projetName=defc.name;
+	projetPath=defc.path;
+	audioPath=defc.audioPath;
+	imgPath=defc.imgPath;
+	editor=defc.editor;
+	daw=defc.daw;
+	cmdDaw=defc.cmdDaw;
+	pdfPage=parseInt(defc.pdfPage);
+	pdfLandscape=defc.pdfLandscape;
+	pdfScale=parseFloat(defc.pdfScale);
+	pdfMgTop=parseFloat(defc.pdfMgTop);
+	pdfMgBot=parseFloat(defc.pdfMgBot);
+	pdfMgLeft=parseFloat(defc.pdfMgLeft);
+	pdfMgRight=parseFloat(defc.pdfMgRight);
+	pdfBkg=parseInt(defc.pdfBkg);
+	editAudioCmd=defc.editAudioCmd;
 }
 function mainRead3D() {
 	if(daw=='reaper'){
