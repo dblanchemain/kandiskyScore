@@ -499,6 +499,7 @@ function gainInsetPoint(e) {
 	nbGainPoints++;
 }
 function defTempoFoo() {
+	console.log("[defTempoFoo] CALLED tempoPoints="+tempoPoints.length);
 	//document.getElementById("renduWav").preservesPitch=true;
 				tempoFoo=[];
 				
