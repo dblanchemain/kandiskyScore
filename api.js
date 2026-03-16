@@ -1726,8 +1726,6 @@ function appExternes(ledit,sequenceur,dawPath,AssCmd,AppCmd) {
 	editor=ledit;
 	daw=sequenceur;
    cmdDaw=dawPath;
-	pdfAssCmd=AssCmd;
-   pdfAppCmd=AppCmd;
 }
 function pdfConfig(page,landscape,scale,margeT,margeL,margeB,margeR,Bkg) {
 	pdfPage=page;
@@ -1740,6 +1738,6 @@ function pdfConfig(page,landscape,scale,margeT,margeL,margeB,margeR,Bkg) {
   	pdfBkg=Bkg;
 }
 function apiParamProjet() {
-	var txt=paramProjet.name+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+editor+","+daw+","+cmdDaw+","+pdfPage+","+ pdfLandscape+","+pdfScale+","+pdfMgTop+","+pdfMgBot+","+pdfMgLeft+','+pdfMgRight+","+pdfBkg+","+pdfAssCmd+","+pdfAppCmd;	
+	var txt=JSON.stringify(paramProjet);
 	window.api.send("toMain", 'defExterne;'+btoa(txt));
 }
