@@ -4756,9 +4756,11 @@ function mainRead3D() {
 		// Générer la session Ardour complète depuis autoInsert.txt
 		try {
 			const { buildArdourSession } = require('./buildArdourSession');
+			const templatePath      = path.join(scriptsPath, 'Ardour', 'template.ardour');
 			const autoInsertContent = fs.readFileSync(autoInsertTxt, 'utf8');
-			const templateXml       = fs.readFileSync(tmpArdour, 'utf8');
+			const templateXml       = fs.readFileSync(templatePath, 'utf8');
 			const generatedXml      = buildArdourSession(autoInsertContent, templateXml);
+			fs.ensureDirSync(path.dirname(tmpArdour));
 			fs.writeFileSync(tmpArdour, generatedXml);
 			console.log('Session Ardour générée depuis autoInsert.txt');
 		} catch(e) {

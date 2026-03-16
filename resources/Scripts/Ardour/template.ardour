@@ -1,0 +1,742 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Session version="7003" name="tmp" sample-rate="48000" session-range-is-free="1" id-counter="24430" rg-counter="35" name-counter="1" event-counter="0" vca-counter="1">
+  <ProgramVersion created-with="Ardour 8.1.0~ds-1librazik1" modified-with="Ardour 8.6.0~ds-1librazik1"/>
+  <MIDIPorts>
+    <Port name="Cue Control in" type="midi" direction="Input"/>
+    <Port name="MIDI Clock out" type="midi" direction="Output"/>
+    <Port name="MMC in" type="midi" direction="Input"/>
+    <Port name="MMC out" type="midi" direction="Output"/>
+    <Port name="MTC out" type="midi" direction="Output"/>
+    <Port name="Scene in" type="midi" direction="Input"/>
+    <Port name="Scene out" type="midi" direction="Output"/>
+    <Port name="x-virtual-keyboard" type="midi" direction="Output"/>
+  </MIDIPorts>
+  <Config>
+    <Option name="use-region-fades" value="1"/>
+    <Option name="use-transport-fades" value="1"/>
+    <Option name="use-monitor-fades" value="1"/>
+    <Option name="native-file-data-format" value="FormatFloat"/>
+    <Option name="native-file-header-format" value="WAVE"/>
+    <Option name="auto-play" value="0"/>
+    <Option name="auto-return" value="0"/>
+    <Option name="auto-input" value="1"/>
+    <Option name="triggerbox-overrides-disk-monitoring" value="1"/>
+    <Option name="cue-behavior" value="FollowCues"/>
+    <Option name="punch-in" value="0"/>
+    <Option name="punch-out" value="0"/>
+    <Option name="count-in" value="0"/>
+    <Option name="session-monitoring" value=""/>
+    <Option name="record-mode" value="RecLayered"/>
+    <Option name="draw-opaque-midi_regions" value="0"/>
+    <Option name="subframes-per-frame" value="100"/>
+    <Option name="timecode-format" value="timecode_30"/>
+    <Option name="minitimeline-span" value="120"/>
+    <Option name="raid-path" value=""/>
+    <Option name="audio-search-path" value=""/>
+    <Option name="midi-search-path" value=""/>
+    <Option name="track-name-number" value="0"/>
+    <Option name="track-name-take" value="1"/>
+    <Option name="take-name" value="Take1"/>
+    <Option name="jack-time-master" value="1"/>
+    <Option name="use-video-sync" value="0"/>
+    <Option name="video-pullup" value="0"/>
+    <Option name="external-sync" value="0"/>
+    <Option name="insert-merge-policy" value="InsertMergeRelax"/>
+    <Option name="timecode-offset" value="0"/>
+    <Option name="timecode-offset-negative" value="1"/>
+    <Option name="slave-timecode-offset" value=" 00:00:00:00"/>
+    <Option name="timecode-generator-offset" value=" 00:00:00:00"/>
+    <Option name="midi-copy-is-fork" value="1"/>
+    <Option name="tracks-follow-session-time" value="0"/>
+    <Option name="realtime-export" value="0"/>
+    <Option name="use-surround-master" value="0"/>
+    <Option name="use-video-file-fps" value="0"/>
+    <Option name="videotimeline-pullup" value="1"/>
+    <Option name="wave-amplitude-zoom" value="0"/>
+    <Option name="wave-zoom-factor" value="2"/>
+    <Option name="show-summary" value="1"/>
+    <Option name="show-group-tabs" value="1"/>
+    <Option name="show-region-fades" value="1"/>
+    <Option name="show-busses-on-meterbridge" value="0"/>
+    <Option name="show-master-on-meterbridge" value="1"/>
+    <Option name="show-midi-on-meterbridge" value="1"/>
+    <Option name="show-rec-on-meterbridge" value="1"/>
+    <Option name="show-mute-on-meterbridge" value="0"/>
+    <Option name="show-solo-on-meterbridge" value="0"/>
+    <Option name="show-monitor-on-meterbridge" value="0"/>
+    <Option name="show-name-on-meterbridge" value="1"/>
+    <Option name="show-fader-on-meterbridge" value="0"/>
+    <Option name="meterbridge-label-height" value="0"/>
+    <Option name="default-time-domain" value="BeatTime"/>
+  </Config>
+  <Metadata/>
+  <Sources/>
+  <TriggerBindings/>
+  <Regions/>
+  <Selection/>
+  <Locations>
+    <Location id="11015" name="session" start="b0" end="b116925" flags="IsSessionRange" locked="0" timestamp="1709028292" cue="0"/>
+  </Locations>
+  <Bundles/>
+  <VCAManager/>
+  <Routes>
+    <Route version="7003" id="75" name="Master" default-type="audio" strict-io="1" volume-applies-to-output="1" active="1" denormal-protection="0" meter-point="MeterOutput" disk-io-point="DiskIOPreFader" meter-type="MeterK14">
+      <PresentationInfo order="0" flags="MasterOut,OrderSet" color="2855877119"/>
+      <Controllable name="solo" id="83" flags="Toggle,RealTime" value="0" self-solo="0" soloed-by-upstream="0" soloed-by-downstream="0"/>
+      <Controllable name="solo-iso" id="89" flags="Toggle,RealTime" value="0" solo-isolated="0"/>
+      <Controllable name="solo-safe" id="91" flags="Toggle" value="0" solo-safe="0"/>
+      <IO name="Master" id="103" direction="Input" default-type="audio">
+        <Port name="Master/audio_in 1" type="audio" direction="Input">
+          <Connection other="track1/audio_out 1"/>
+          <Connection other="track2/audio_out 1"/>
+          <Connection other="track3/audio_out 1"/>
+          <Connection other="track4/audio_out 1"/>
+          <Connection other="track5/audio_out 1"/>
+        </Port>
+        <Port name="Master/audio_in 2" type="audio" direction="Input">
+          <Connection other="track1/audio_out 2"/>
+          <Connection other="track2/audio_out 2"/>
+          <Connection other="track3/audio_out 2"/>
+          <Connection other="track4/audio_out 2"/>
+          <Connection other="track5/audio_out 2"/>
+        </Port>
+        <Port name="Master/audio_in 3" type="audio" direction="Input">
+          <Connection other="track1/audio_out 3"/>
+          <Connection other="track2/audio_out 3"/>
+          <Connection other="track3/audio_out 3"/>
+          <Connection other="track4/audio_out 3"/>
+          <Connection other="track5/audio_out 3"/>
+        </Port>
+        <Port name="Master/audio_in 4" type="audio" direction="Input">
+          <Connection other="track1/audio_out 4"/>
+          <Connection other="track2/audio_out 4"/>
+          <Connection other="track3/audio_out 4"/>
+          <Connection other="track4/audio_out 4"/>
+          <Connection other="track5/audio_out 4"/>
+        </Port>
+        <Port name="Master/audio_in 5" type="audio" direction="Input">
+          <Connection other="track1/audio_out 5"/>
+          <Connection other="track2/audio_out 5"/>
+          <Connection other="track3/audio_out 5"/>
+          <Connection other="track4/audio_out 5"/>
+          <Connection other="track5/audio_out 5"/>
+        </Port>
+        <Port name="Master/audio_in 6" type="audio" direction="Input">
+          <Connection other="track1/audio_out 6"/>
+          <Connection other="track2/audio_out 6"/>
+          <Connection other="track3/audio_out 6"/>
+          <Connection other="track4/audio_out 6"/>
+          <Connection other="track5/audio_out 6"/>
+        </Port>
+        <Port name="Master/audio_in 7" type="audio" direction="Input">
+          <Connection other="track1/audio_out 7"/>
+          <Connection other="track2/audio_out 7"/>
+          <Connection other="track3/audio_out 7"/>
+          <Connection other="track4/audio_out 7"/>
+          <Connection other="track5/audio_out 7"/>
+        </Port>
+        <Port name="Master/audio_in 8" type="audio" direction="Input">
+          <Connection other="track1/audio_out 8"/>
+          <Connection other="track2/audio_out 8"/>
+          <Connection other="track3/audio_out 8"/>
+          <Connection other="track4/audio_out 8"/>
+          <Connection other="track5/audio_out 8"/>
+        </Port>
+        <Port name="Master/audio_in 9" type="audio" direction="Input">
+          <Connection other="track1/audio_out 9"/>
+          <Connection other="track2/audio_out 9"/>
+          <Connection other="track3/audio_out 9"/>
+          <Connection other="track4/audio_out 9"/>
+          <Connection other="track5/audio_out 9"/>
+        </Port>
+        <Port name="Master/audio_in 10" type="audio" direction="Input">
+          <Connection other="track1/audio_out 10"/>
+          <Connection other="track2/audio_out 10"/>
+          <Connection other="track3/audio_out 10"/>
+          <Connection other="track4/audio_out 10"/>
+          <Connection other="track5/audio_out 10"/>
+        </Port>
+        <Port name="Master/audio_in 11" type="audio" direction="Input">
+          <Connection other="track1/audio_out 11"/>
+          <Connection other="track2/audio_out 11"/>
+          <Connection other="track3/audio_out 11"/>
+          <Connection other="track4/audio_out 11"/>
+          <Connection other="track5/audio_out 11"/>
+        </Port>
+        <Port name="Master/audio_in 12" type="audio" direction="Input">
+          <Connection other="track1/audio_out 12"/>
+          <Connection other="track2/audio_out 12"/>
+          <Connection other="track3/audio_out 12"/>
+          <Connection other="track4/audio_out 12"/>
+          <Connection other="track5/audio_out 12"/>
+        </Port>
+        <Port name="Master/audio_in 13" type="audio" direction="Input">
+          <Connection other="track1/audio_out 13"/>
+          <Connection other="track2/audio_out 13"/>
+          <Connection other="track3/audio_out 13"/>
+          <Connection other="track4/audio_out 13"/>
+          <Connection other="track5/audio_out 13"/>
+        </Port>
+        <Port name="Master/audio_in 14" type="audio" direction="Input">
+          <Connection other="track1/audio_out 14"/>
+          <Connection other="track2/audio_out 14"/>
+          <Connection other="track3/audio_out 14"/>
+          <Connection other="track4/audio_out 14"/>
+          <Connection other="track5/audio_out 14"/>
+        </Port>
+        <Port name="Master/audio_in 15" type="audio" direction="Input">
+          <Connection other="track1/audio_out 15"/>
+          <Connection other="track2/audio_out 15"/>
+          <Connection other="track3/audio_out 15"/>
+          <Connection other="track4/audio_out 15"/>
+          <Connection other="track5/audio_out 15"/>
+        </Port>
+        <Port name="Master/audio_in 16" type="audio" direction="Input">
+          <Connection other="track1/audio_out 16"/>
+          <Connection other="track2/audio_out 16"/>
+          <Connection other="track3/audio_out 16"/>
+          <Connection other="track4/audio_out 16"/>
+          <Connection other="track5/audio_out 16"/>
+        </Port>
+        <Port name="Master/audio_in 17" type="audio" direction="Input">
+          <Connection other="track1/audio_out 17"/>
+          <Connection other="track2/audio_out 17"/>
+          <Connection other="track3/audio_out 17"/>
+          <Connection other="track4/audio_out 17"/>
+          <Connection other="track5/audio_out 17"/>
+        </Port>
+        <Port name="Master/audio_in 18" type="audio" direction="Input">
+          <Connection other="track1/audio_out 18"/>
+          <Connection other="track2/audio_out 18"/>
+          <Connection other="track3/audio_out 18"/>
+          <Connection other="track4/audio_out 18"/>
+          <Connection other="track5/audio_out 18"/>
+        </Port>
+      </IO>
+      <IO name="Master" id="104" direction="Output" default-type="audio">
+        <Port name="Master/audio_out 1" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="system:playback_1"/>
+        </Port>
+        <Port name="Master/audio_out 2" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.1:in-1"/>
+          <ExtConnection for="JACK" other="system:playback_2"/>
+        </Port>
+        <Port name="Master/audio_out 3" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.2:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 4" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.3:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 5" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.4:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 6" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.5:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 7" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.6:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 8" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.7:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 9" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.8:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 10" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.9:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 11" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.10:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 12" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.11:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 13" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.12:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 14" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.13:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 15" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.14:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 16" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.15:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 17" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.16:in-1"/>
+        </Port>
+        <Port name="Master/audio_out 18" type="audio" direction="Output">
+          <ExtConnection for="JACK"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.17:in-1"/>
+          <ExtConnection for="JACK" other="Non-Mixer/Unnamed.18:in-1"/>
+        </Port>
+      </IO>
+      <MuteMaster mute-point="PostFader,Listen,Main,SurroundSend" muted="0"/>
+      <Controllable name="mute" id="85" flags="Toggle,RealTime" value="0"/>
+      <Controllable name="phase" id="87" flags="Toggle" value="0" phase-invert="000000000000000000"/>
+      <Controllable name="mastervolume" id="111" flags="GainLike,NotAutomatable" value="1"/>
+      <Automation>
+        <AutomationList automation-id="solo" id="11033" interpolation-style="Discrete" time-domain="AudioTime" state="Off"/>
+        <AutomationList automation-id="solo-iso" id="11039" interpolation-style="Discrete" time-domain="AudioTime" state="Off"/>
+        <AutomationList automation-id="solo-safe" id="11041" interpolation-style="Discrete" time-domain="AudioTime" state="Off"/>
+        <AutomationList automation-id="mute" id="11035" interpolation-style="Discrete" time-domain="AudioTime" state="Off"/>
+        <AutomationList automation-id="phase" id="11037" interpolation-style="Discrete" time-domain="AudioTime" state="Off"/>
+      </Automation>
+      <Pannable>
+        <Controllable name="pan-azimuth" id="94" flags="" value="0.5"/>
+        <Controllable name="pan-width" id="98" flags="" value="0"/>
+        <Controllable name="pan-elevation" id="96" flags="" value="0"/>
+        <Controllable name="pan-frontback" id="100" flags="" value="0"/>
+        <Controllable name="pan-lfe" id="102" flags="" value="0"/>
+        <Automation>
+          <AutomationList automation-id="pan-azimuth" id="93" interpolation-style="Linear" time-domain="BeatTime" state="Off"/>
+          <AutomationList automation-id="pan-elevation" id="95" interpolation-style="Linear" time-domain="BeatTime" state="Off"/>
+          <AutomationList automation-id="pan-width" id="97" interpolation-style="Linear" time-domain="BeatTime" state="Off"/>
+          <AutomationList automation-id="pan-frontback" id="99" interpolation-style="Linear" time-domain="BeatTime" state="Off"/>
+          <AutomationList automation-id="pan-lfe" id="101" interpolation-style="Linear" time-domain="BeatTime" state="Off"/>
+        </Automation>
+      </Pannable>
+      <Processor id="106" name="Polarity" active="1" user-latency="0" use-user-latency="0" type="polarity"/>
+      <Processor id="107" name="Amp" active="1" user-latency="0" use-user-latency="0" type="trim">
+        <Automation>
+          <AutomationList automation-id="trim" id="11031" interpolation-style="Logarithmic" time-domain="AudioTime" state="Off"/>
+        </Automation>
+        <Controllable name="trimcontrol" id="81" flags="GainLike" value="1"/>
+      </Processor>
+      <Processor id="105" name="Amp" active="1" user-latency="0" use-user-latency="0" type="amp">
+        <Automation>
+          <AutomationList automation-id="gain" id="11029" interpolation-style="Exponential" time-domain="AudioTime" state="Off"/>
+        </Automation>
+        <Controllable name="gaincontrol" id="79" flags="GainLike" value="0.47358846664428711"/>
+      </Processor>
+      <Processor id="109" name="Master" active="1" user-latency="0" use-user-latency="0" own-input="1" own-output="0" output="Master" type="main-outs" role="Main">
+        <PannerShell bypassed="1" user-panner="" linked-to-route="1"/>
+      </Processor>
+      <Processor id="108" name="meter-Master" active="1" user-latency="0" use-user-latency="0" type="meter"/>
+      <Slavable/>
+    </Route>
+  </Routes>
+  <Playlists/>
+  <UnusedPlaylists/>
+  <RouteGroups/>
+  <Click>
+    <IO name="Click" id="72" direction="Output" default-type="audio">
+      <Port name="Click/audio_out 1" type="audio" direction="Output">
+        <ExtConnection for="JACK"/>
+        <ExtConnection for="JACK" other="system:playback_1"/>
+      </Port>
+      <Port name="Click/audio_out 2" type="audio" direction="Output">
+        <ExtConnection for="JACK"/>
+        <ExtConnection for="JACK" other="system:playback_2"/>
+      </Port>
+    </IO>
+    <Processor id="73" name="Amp" active="1" user-latency="0" use-user-latency="0" type="amp">
+      <Automation>
+        <AutomationList automation-id="gain" id="66" interpolation-style="Exponential" time-domain="AudioTime" state="Off"/>
+      </Automation>
+      <Controllable name="gaincontrol" id="71" flags="GainLike" value="1"/>
+    </Processor>
+  </Click>
+  <Speakers>
+    <Speaker azimuth="240" elevation="0" distance="1"/>
+    <Speaker azimuth="120" elevation="0" distance="1"/>
+  </Speakers>
+  <TempoMap superclocks-per-second="282240000">
+    <Tempos>
+      <Tempo npm="120" enpm="120" note-type="4" type="Constant" locked-to-meter="0" continuing="0" active="1" sclock="0" quarters="0:0" bbt="1|1|0" omega="0"/>
+    </Tempos>
+    <Meters>
+      <Meter note-value="4" divisions-per-bar="4" sclock="0" quarters="0:0" bbt="1|1|0"/>
+    </Meters>
+    <MusicTimes/>
+  </TempoMap>
+  <ControlProtocols>
+    <Protocol name="Ableton Push 2" active="0" session-state="0"/>
+    <Protocol name="ContourDesign" active="0" session-state="0"/>
+    <Protocol name="Generic MIDI" active="0" session-state="0"/>
+    <Protocol name="Mackie" active="0" session-state="0"/>
+    <Protocol name="Novation Launch Control XL" active="0" session-state="0"/>
+    <Protocol name="Novation LaunchPad Mini" active="0" session-state="0"/>
+    <Protocol name="Novation LaunchPad Pro" active="0" session-state="0"/>
+    <Protocol name="Novation LaunchPad X" active="0" session-state="0"/>
+    <Protocol name="Open Sound Control (OSC)" feedback="19" debugmode="0" address-only="1" remote-port="8000" banksize="0" striptypes="31" gainmode="0" send-page-size="0" plug-page-size="0" active="0" session-state="0"/>
+    <Protocol name="PreSonus FaderPort" active="0" session-state="0"/>
+    <Protocol name="PreSonus FaderPort16" active="0" session-state="0"/>
+    <Protocol name="PreSonus FaderPort2" active="0" session-state="0"/>
+    <Protocol name="PreSonus FaderPort8" active="0" session-state="0"/>
+    <Protocol name="SSL 360: UF8 UF1" active="0" session-state="0"/>
+    <Protocol name="Softube Console1" active="0" session-state="0"/>
+    <Protocol name="Steinberg CC121" active="0" session-state="0"/>
+    <Protocol name="Tascam US-2400" active="0" session-state="0"/>
+    <Protocol name="WebSockets Server (Experimental)" active="0" session-state="0"/>
+    <Protocol name="Wiimote" active="0" session-state="0"/>
+  </ControlProtocols>
+  <Extra>
+    <AddRouteDialog LastRouteType="AudioTrack"/>
+    <UI>
+      <Window name="key-editor" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="session-options-editor" visible="0" x-off="2892" y-off="848" x-size="1189" y-size="523"/>
+      <Window name="speaker-config" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="about" visible="0" x-off="3588" y-off="718" x-size="502" y-size="667"/>
+      <Window name="add-routes" visible="0" x-off="-1" y-off="-1" x-size="1008" y-size="534"/>
+      <Window name="add-video" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="inspector" visible="0" x-off="3090" y-off="414" x-size="620" y-size="370"/>
+      <Window name="audio-midi-setup" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="video-export" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="script-manager" visible="1" x-off="2641" y-off="1597" x-size="422" y-size="321"/>
+      <Window name="bundle-manager" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="locations" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="big-clock" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="big-transport" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="virtual-keyboard" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="library-downloader" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="audio-connection-manager" visible="0" x-off="2378" y-off="348" x-size="1536" y-size="864"/>
+      <Window name="midi-connection-manager" visible="0" x-off="2962" y-off="163" x-size="800" y-size="814"/>
+      <Window name="luawindow" visible="0" x-off="2162" y-off="709" x-size="1105" y-size="943"/>
+      <Window name="idle-o-meter" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="io-plugins" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="plugin-manager" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="plugin-dsp-load" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="dsp-statistics" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="transport-masters" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="RPM-75" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="RPM-917" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="RPM-5201" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="RPM-5381" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="RPM-5561" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="RPM-5741" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="P-917-2587" visible="0" x-off="2653" y-off="281" x-size="503" y-size="109" custom-ui="1"/>
+      <Window name="PM-917-2587" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="P-5201-5284" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1" custom-ui="1"/>
+      <Window name="PM-5201-5284" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="P-5381-5464" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1" custom-ui="1"/>
+      <Window name="PM-5381-5464" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="P-5561-5644" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1" custom-ui="1"/>
+      <Window name="PM-5561-5644" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <Window name="P-5741-5824" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1" custom-ui="1"/>
+      <Window name="PM-5741-5824" visible="0" x-off="-1" y-off="-1" x-size="-1" y-size="-1"/>
+      <GUIObjectState>
+        <Object id="rtav 75" height="84"/>
+        <Object id="automation 79" height="84" visible="0"/>
+        <Object id="automation 81" height="84" visible="0"/>
+        <Object id="automation 75 12/0/0" height="84" visible="0"/>
+        <Object id="automation 94" height="84" visible="0"/>
+        <Object id="strip 75">
+          <Object id="processor 105">
+            <Object id="control 79" visible="0"/>
+          </Object>
+          <Object id="processor 378">
+            <Object id="control 380" visible="0"/>
+            <Object id="control 382" visible="0"/>
+            <Object id="control 384" visible="0"/>
+            <Object id="control 386" visible="0"/>
+            <Object id="control 388" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="strip 174">
+          <Object id="processor 221">
+            <Object id="control 195" visible="0"/>
+          </Object>
+          <Object id="processor 392">
+            <Object id="control 394" visible="0"/>
+            <Object id="control 396" visible="0"/>
+            <Object id="control 398" visible="0"/>
+            <Object id="control 400" visible="0"/>
+            <Object id="control 402" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="rtav 174" height="84"/>
+        <Object id="automation 195" height="84" visible="0"/>
+        <Object id="automation 197" height="84" visible="0"/>
+        <Object id="automation 174 12/0/0" height="84" visible="0"/>
+        <Object id="automation 210" height="84" visible="0"/>
+        <Object id="strip 264">
+          <Object id="processor 311">
+            <Object id="control 285" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="automation 394" height="84" visible="1"/>
+        <Object id="automation 396" height="84" visible="1"/>
+        <Object id="automation 398" height="84" visible="1"/>
+        <Object id="automation 402" height="84" visible="1"/>
+        <Object id="automation 214" height="84" visible="0"/>
+        <Object id="automation 212" height="84" visible="0"/>
+        <Object id="automation 98" height="84" visible="0"/>
+        <Object id="rtav 917" height="84"/>
+        <Object id="automation 938" height="84" visible="0"/>
+        <Object id="automation 940" height="84" visible="0"/>
+        <Object id="automation 917 12/0/0" height="84" visible="0"/>
+        <Object id="automation 953" height="84" visible="0"/>
+        <Object id="automation 957" height="84" visible="0"/>
+        <Object id="rtav 1070" height="84"/>
+        <Object id="automation 1091" height="84" visible="0"/>
+        <Object id="automation 1093" height="84" visible="0"/>
+        <Object id="automation 1070 12/0/0" height="84" visible="0"/>
+        <Object id="automation 1106" height="84" visible="0"/>
+        <Object id="automation 1110" height="84" visible="0"/>
+        <Object id="rtav 1223" height="84"/>
+        <Object id="automation 1244" height="84" visible="0"/>
+        <Object id="automation 1246" height="84" visible="0"/>
+        <Object id="automation 1223 12/0/0" height="84" visible="0"/>
+        <Object id="automation 1259" height="84" visible="0"/>
+        <Object id="automation 1263" height="84" visible="0"/>
+        <Object id="rtav 1376" height="84"/>
+        <Object id="automation 1397" height="84" visible="0"/>
+        <Object id="automation 1399" height="84" visible="0"/>
+        <Object id="automation 1376 12/0/0" height="84" visible="0"/>
+        <Object id="automation 1412" height="84" visible="0"/>
+        <Object id="automation 1416" height="84" visible="0"/>
+        <Object id="strip 917">
+          <Object id="processor 964">
+            <Object id="control 938" visible="0"/>
+          </Object>
+          <Object id="processor 993">
+            <Object id="control 995" visible="0"/>
+            <Object id="control 997" visible="0"/>
+            <Object id="control 999" visible="0"/>
+            <Object id="control 1001" visible="0"/>
+            <Object id="control 1003" visible="0"/>
+            <Object id="control 1005" visible="0"/>
+            <Object id="control 1007" visible="0"/>
+            <Object id="control 1009" visible="0"/>
+            <Object id="control 1011" visible="0"/>
+            <Object id="control 1013" visible="0"/>
+            <Object id="control 1015" visible="0"/>
+            <Object id="control 1017" visible="0"/>
+            <Object id="control 1019" visible="0"/>
+            <Object id="control 1021" visible="0"/>
+            <Object id="control 1023" visible="0"/>
+            <Object id="control 1025" visible="0"/>
+            <Object id="control 1027" visible="0"/>
+            <Object id="control 1029" visible="0"/>
+            <Object id="control 1031" visible="0"/>
+            <Object id="control 1033" visible="0"/>
+          </Object>
+          <Object id="processor 2587">
+            <Object id="control 2589" visible="0"/>
+            <Object id="control 2591" visible="0"/>
+            <Object id="control 2593" visible="0"/>
+            <Object id="control 2595" visible="0"/>
+            <Object id="control 2597" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="strip 1070">
+          <Object id="processor 1117">
+            <Object id="control 1091" visible="0"/>
+          </Object>
+          <Object id="processor 1146">
+            <Object id="control 1148" visible="0"/>
+            <Object id="control 1150" visible="0"/>
+            <Object id="control 1152" visible="0"/>
+            <Object id="control 1154" visible="0"/>
+            <Object id="control 1156" visible="0"/>
+            <Object id="control 1158" visible="0"/>
+            <Object id="control 1160" visible="0"/>
+            <Object id="control 1162" visible="0"/>
+            <Object id="control 1164" visible="0"/>
+            <Object id="control 1166" visible="0"/>
+            <Object id="control 1168" visible="0"/>
+            <Object id="control 1170" visible="0"/>
+            <Object id="control 1172" visible="0"/>
+            <Object id="control 1174" visible="0"/>
+            <Object id="control 1176" visible="0"/>
+            <Object id="control 1178" visible="0"/>
+            <Object id="control 1180" visible="0"/>
+            <Object id="control 1182" visible="0"/>
+            <Object id="control 1184" visible="0"/>
+            <Object id="control 1186" visible="0"/>
+          </Object>
+          <Object id="processor 2603">
+            <Object id="control 2605" visible="0"/>
+            <Object id="control 2607" visible="0"/>
+            <Object id="control 2609" visible="0"/>
+            <Object id="control 2611" visible="0"/>
+            <Object id="control 2613" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="strip 1223">
+          <Object id="processor 1270">
+            <Object id="control 1244" visible="0"/>
+          </Object>
+          <Object id="processor 1299">
+            <Object id="control 1301" visible="0"/>
+            <Object id="control 1303" visible="0"/>
+            <Object id="control 1305" visible="0"/>
+            <Object id="control 1307" visible="0"/>
+            <Object id="control 1309" visible="0"/>
+            <Object id="control 1311" visible="0"/>
+            <Object id="control 1313" visible="0"/>
+            <Object id="control 1315" visible="0"/>
+            <Object id="control 1317" visible="0"/>
+            <Object id="control 1319" visible="0"/>
+            <Object id="control 1321" visible="0"/>
+            <Object id="control 1323" visible="0"/>
+            <Object id="control 1325" visible="0"/>
+            <Object id="control 1327" visible="0"/>
+            <Object id="control 1329" visible="0"/>
+            <Object id="control 1331" visible="0"/>
+            <Object id="control 1333" visible="0"/>
+            <Object id="control 1335" visible="0"/>
+            <Object id="control 1337" visible="0"/>
+            <Object id="control 1339" visible="0"/>
+          </Object>
+          <Object id="processor 2619">
+            <Object id="control 2621" visible="0"/>
+            <Object id="control 2623" visible="0"/>
+            <Object id="control 2625" visible="0"/>
+            <Object id="control 2627" visible="0"/>
+            <Object id="control 2629" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="strip 1376">
+          <Object id="processor 1423">
+            <Object id="control 1397" visible="0"/>
+          </Object>
+          <Object id="processor 1452">
+            <Object id="control 1454" visible="0"/>
+            <Object id="control 1456" visible="0"/>
+            <Object id="control 1458" visible="0"/>
+            <Object id="control 1460" visible="0"/>
+            <Object id="control 1462" visible="0"/>
+            <Object id="control 1464" visible="0"/>
+            <Object id="control 1466" visible="0"/>
+            <Object id="control 1468" visible="0"/>
+            <Object id="control 1470" visible="0"/>
+            <Object id="control 1472" visible="0"/>
+            <Object id="control 1474" visible="0"/>
+            <Object id="control 1476" visible="0"/>
+            <Object id="control 1478" visible="0"/>
+            <Object id="control 1480" visible="0"/>
+            <Object id="control 1482" visible="0"/>
+            <Object id="control 1484" visible="0"/>
+            <Object id="control 1486" visible="0"/>
+            <Object id="control 1488" visible="0"/>
+            <Object id="control 1490" visible="0"/>
+            <Object id="control 1492" visible="0"/>
+          </Object>
+          <Object id="processor 2635">
+            <Object id="control 2637" visible="0"/>
+            <Object id="control 2639" visible="0"/>
+            <Object id="control 2641" visible="0"/>
+            <Object id="control 2643" visible="0"/>
+            <Object id="control 2645" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="automation 2589" height="84" visible="0"/>
+        <Object id="automation 2637" height="84" visible="1"/>
+        <Object id="automation 2591" height="84" visible="0"/>
+        <Object id="automation 2593" height="84" visible="0"/>
+        <Object id="automation 2597" height="84" visible="0"/>
+        <Object id="rtav 5201" height="84"/>
+        <Object id="automation 5265" height="84" visible="0"/>
+        <Object id="automation 5262" height="84" visible="0"/>
+        <Object id="automation 5201 12/0/0" height="84" visible="0"/>
+        <Object id="automation 5279" height="84" visible="0"/>
+        <Object id="automation 5280" height="84" visible="0"/>
+        <Object id="automation 5281" height="84" visible="0"/>
+        <Object id="automation 5283" height="84" visible="0"/>
+        <Object id="automation 5210" height="84" visible="0"/>
+        <Object id="automation 5211" height="84" visible="0"/>
+        <Object id="rtav 5381" height="84"/>
+        <Object id="automation 5445" height="84" visible="0"/>
+        <Object id="automation 5442" height="84" visible="0"/>
+        <Object id="automation 5381 12/0/0" height="84" visible="0"/>
+        <Object id="automation 5459" height="84" visible="0"/>
+        <Object id="automation 5460" height="84" visible="0"/>
+        <Object id="automation 5461" height="84" visible="0"/>
+        <Object id="automation 5463" height="84" visible="0"/>
+        <Object id="automation 5390" height="84" visible="0"/>
+        <Object id="automation 5391" height="84" visible="0"/>
+        <Object id="rtav 5561" height="84"/>
+        <Object id="automation 5625" height="84" visible="0"/>
+        <Object id="automation 5622" height="84" visible="0"/>
+        <Object id="automation 5561 12/0/0" height="84" visible="0"/>
+        <Object id="automation 5639" height="84" visible="0"/>
+        <Object id="automation 5640" height="84" visible="0"/>
+        <Object id="automation 5641" height="84" visible="0"/>
+        <Object id="automation 5643" height="84" visible="0"/>
+        <Object id="automation 5570" height="84" visible="0"/>
+        <Object id="automation 5571" height="84" visible="0"/>
+        <Object id="rtav 5741" height="84"/>
+        <Object id="automation 5805" height="84" visible="0"/>
+        <Object id="automation 5802" height="84" visible="0"/>
+        <Object id="automation 5741 12/0/0" height="84" visible="0"/>
+        <Object id="automation 5819" height="84" visible="0"/>
+        <Object id="automation 5820" height="84" visible="0"/>
+        <Object id="automation 5821" height="84" visible="0"/>
+        <Object id="automation 5823" height="84" visible="0"/>
+        <Object id="automation 5750" height="84" visible="0"/>
+        <Object id="automation 5751" height="84" visible="0"/>
+        <Object id="strip 5201">
+          <Object id="processor 5263">
+            <Object id="control 5265" visible="0"/>
+          </Object>
+          <Object id="processor 5284">
+            <Object id="control 5279" visible="0"/>
+            <Object id="control 5280" visible="0"/>
+            <Object id="control 5281" visible="0"/>
+            <Object id="control 5282" visible="0"/>
+            <Object id="control 5283" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="strip 5381">
+          <Object id="processor 5443">
+            <Object id="control 5445" visible="0"/>
+          </Object>
+          <Object id="processor 5464">
+            <Object id="control 5459" visible="0"/>
+            <Object id="control 5460" visible="0"/>
+            <Object id="control 5461" visible="0"/>
+            <Object id="control 5462" visible="0"/>
+            <Object id="control 5463" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="strip 5561">
+          <Object id="processor 5623">
+            <Object id="control 5625" visible="0"/>
+          </Object>
+          <Object id="processor 5644">
+            <Object id="control 5639" visible="0"/>
+            <Object id="control 5640" visible="0"/>
+            <Object id="control 5641" visible="0"/>
+            <Object id="control 5642" visible="0"/>
+            <Object id="control 5643" visible="0"/>
+          </Object>
+        </Object>
+        <Object id="strip 5741">
+          <Object id="processor 5803">
+            <Object id="control 5805" visible="0"/>
+          </Object>
+          <Object id="processor 5824">
+            <Object id="control 5819" visible="0"/>
+            <Object id="control 5820" visible="0"/>
+            <Object id="control 5821" visible="0"/>
+            <Object id="control 5822" visible="0"/>
+            <Object id="control 5823" visible="0"/>
+          </Object>
+        </Object>
+      </GUIObjectState>
+    </UI>
+    <Videomonitor active="0"/>
+  </Extra>
+  <Script lua="Lua 5.3">c2NyaXB0cyA9IHt9IA==</Script>
+  <IOPlugins/>
+</Session>
