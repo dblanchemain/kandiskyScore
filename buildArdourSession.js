@@ -119,14 +119,40 @@ function buildArdourSession(autoInsertContent, templateXml) {
   })[plugin3D] || `https://faustlv2.bitbucket.io/${plugin3D}`;
 
   // ── SOURCES ────────────────────────────────────────────────────────────────
+  const REGION_ATTRS = (id, name, len, pos, wholefile, s0, s1) =>
+    `name="${name}" muted="0" opaque="1" locked="0" video-locked="0" automatic="0" ` +
+    `whole-file="${wholefile}" import="0" external="1" sync-marked="0" ` +
+    `left-of-split="0" right-of-split="0" hidden="0" position-locked="0" ` +
+    `valid-transients="0" start="0" length="${len}" position="${pos}" beat="0" ` +
+    `sync-position="0" ancestral-start="0" ancestral-length="0" stretch="1" shift="1" ` +
+    `positional-lock-style="AudioTime" layering-index="0" envelope-active="0" ` +
+    `default-fade-in="0" default-fade-out="0" fade-in-active="1" fade-out-active="1" ` +
+    `scale-amplitude="1" id="${id}" type="audio" first-edit="nothing" ` +
+    `source-0="${s0}"${s1 ? ` source-1="${s1}"` : ''} ` +
+    `master-source-0="${s0}"${s1 ? ` master-source-1="${s1}"` : ''} ` +
+    `channels="${s1 ? 2 : 1}"`;
+
+  const FADE_XML = (fi_id, fo_id, ifo_id, ifi_id) =>
+    `        <Envelope default="yes"/>\n` +
+    `        <FadeIn>\n` +
+    `          <AutomationList automation-id="fadein" id="${fi_id}" interpolation-style="Curved" state="Off"><events>0 1.0000000116860974e-07\n64 1\n</events></AutomationList>\n` +
+    `        </FadeIn>\n` +
+    `        <InverseFadeIn>\n` +
+    `          <AutomationList automation-id="fadein" id="${ifi_id}" interpolation-style="Curved" state="Off"><events>0 1\n64 1.0000000116860974e-07\n</events></AutomationList>\n` +
+    `        </InverseFadeIn>\n` +
+    `        <FadeOut>\n` +
+    `          <AutomationList automation-id="fadeout" id="${fo_id}" interpolation-style="Curved" state="Off"><events>0 1\n64 1.0000000116860974e-07\n</events></AutomationList>\n` +
+    `        </FadeOut>\n` +
+    `        <InverseFadeOut>\n` +
+    `          <AutomationList automation-id="fadeout" id="${ifo_id}" interpolation-style="Curved" state="Off"><events>0 1.0000000116860974e-07\n64 1\n</events></AutomationList>\n` +
+    `        </InverseFadeOut>\n`;
+
   let sources = '<Sources>\n';
   for (const [name, fi] of Object.entries(files)) {
     for (const ch of [0, 1]) {
       const sid = ch === 0 ? fi.s0 : fi.s1;
-      sources += `  <Source type="audio" name="${name}.wav" id="${sid}" ` +
-        `origin="${fi.path}" flags="CanRename,ExternalToSession" ` +
-        `natural-position="0" natural-length="${fi.len}" length="${fi.len}" ` +
-        `start="0" channel="${ch}" captured-xruns="" timeline-position="0"/>\n`;
+      sources += `  <Source name="${name}.wav" type="audio" flags="ExternalToSession" ` +
+        `id="${sid}" channel="${ch}" origin="${fi.path}" gain="1"/>\n`;
     }
   }
   sources += '</Sources>';
@@ -134,15 +160,7 @@ function buildArdourSession(autoInsertContent, templateXml) {
   // ── RÉGIONS WHOLE-FILE ─────────────────────────────────────────────────────
   let regions = '<Regions>\n';
   for (const [name, fi] of Object.entries(files)) {
-    regions += `  <Region id="${fi.wr}" name="${name}" ` +
-      `start="0" length="${fi.len}" position="0" ` +
-      `sync-marked="0" left-of-split="0" right-of-split="0" ` +
-      `ancestral-start="0" ancestral-length="${fi.len}" ` +
-      `scale-amplitude="1" whole-file="1" import="0" external="1" ` +
-      `opaque="1" locked="0" video-locked="0" automatic="0" three-sixty="0" ` +
-      `used="1" is-embedded="1" ` +
-      `source-0="${fi.s0}" source-1="${fi.s1}" ` +
-      `master-source-0="${fi.s0}" master-source-1="${fi.s1}"/>\n`;
+    regions += `  <Region ${REGION_ATTRS(fi.wr, name, fi.len, 0, 1, fi.s0, fi.s1)}/>\n`;
   }
   regions += '</Regions>';
 
@@ -286,15 +304,10 @@ ${outMap}
       const fi     = files[obj.filename];
       const pos    = Math.max(0, Math.floor(obj.position / fileSR * sessionSR) - offsetpos);
       const rid    = objRids[objects.indexOf(obj)];
-      playlists += `    <Region id="${rid}" name="${obj.filename}" ` +
-        `start="0" length="${fi.len}" position="${pos}" ` +
-        `sync-marked="0" left-of-split="0" right-of-split="0" ` +
-        `ancestral-start="0" ancestral-length="${fi.len}" ` +
-        `scale-amplitude="1" whole-file="0" import="0" external="1" ` +
-        `opaque="1" locked="0" video-locked="0" automatic="0" three-sixty="0" ` +
-        `used="1" is-embedded="1" ` +
-        `source-0="${fi.s0}" source-1="${fi.s1}" ` +
-        `master-source-0="${fi.s0}" master-source-1="${fi.s1}"/>\n`;
+      const fi_id  = nid(), fo_id = nid(), ifo_id = nid(), ifi_id = nid();
+      playlists += `    <Region ${REGION_ATTRS(rid, obj.filename, fi.len, pos, 0, fi.s0, fi.s1)}>\n`;
+      playlists += FADE_XML(fi_id, fo_id, ifo_id, ifi_id);
+      playlists += `    </Region>\n`;
     }
     playlists += `  </Playlist>\n`;
   }
