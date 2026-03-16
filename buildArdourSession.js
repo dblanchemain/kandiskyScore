@@ -142,11 +142,10 @@ function buildArdourSession(autoInsertContent, templateXml) {
   // ── RÉGIONS WHOLE-FILE ─────────────────────────────────────────────────────
   let regions = '<Regions>\n';
   for (const [name, fi] of Object.entries(files)) {
-    const scLen = Math.round(fi.len * SC / sessionSR);
     regions += `  <Region id="${fi.wr}" name="${name}" ` +
-      `start="0" length="${scLen}" position="0" ` +
+      `start="0" length="${fi.len}" position="0" ` +
       `sync-marked="0" left-of-split="0" right-of-split="0" ` +
-      `ancestral-start="0" ancestral-length="${scLen}" ` +
+      `ancestral-start="0" ancestral-length="${fi.len}" ` +
       `scale-amplitude="1" whole-file="1" import="0" external="1" ` +
       `opaque="1" locked="0" video-locked="0" automatic="0" three-sixty="0" ` +
       `used="1" is-embedded="1" ` +
@@ -294,13 +293,11 @@ ${outMap}
     for (const obj of objs) {
       const fi     = files[obj.filename];
       const pos    = Math.max(0, Math.floor(obj.position / fileSR * sessionSR) - offsetpos);
-      const scLen  = Math.round(fi.len * SC / sessionSR);
-      const scPos  = Math.round(pos    * SC / sessionSR);
       const rid    = objRids[objects.indexOf(obj)];
       playlists += `    <Region id="${rid}" name="${obj.filename}" ` +
-        `start="0" length="${scLen}" position="${scPos}" ` +
+        `start="0" length="${fi.len}" position="${pos}" ` +
         `sync-marked="0" left-of-split="0" right-of-split="0" ` +
-        `ancestral-start="0" ancestral-length="${scLen}" ` +
+        `ancestral-start="0" ancestral-length="${fi.len}" ` +
         `scale-amplitude="1" whole-file="0" import="0" external="1" ` +
         `opaque="1" locked="0" video-locked="0" automatic="0" three-sixty="0" ` +
         `used="1" is-embedded="1" ` +
