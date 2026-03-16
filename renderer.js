@@ -1424,18 +1424,15 @@ function loadPreDefSound(id,url) {
 function defTempo(){
 	grilleSpace(zoomScale,"space",colorGrille);
 	var bpm=parseFloat(document.getElementById("tempo").value);
-	var px={
-		id:"tmp0",
-		X:0,
-		Y:(240-bpm)*0.4167
-		};
-	tempoPoints[0]=px;
-	px={
-		id:"tmp1",
-		X:12960,
-		Y:(240-bpm)*0.4167
-		};
-	tempoPoints[1]=px;
+	var y=(240-bpm)*0.4167;
+	// Mettre à jour tmp0 et tmp1 par ID pour ne pas écraser les points utilisateur
+	var i0=tempoPoints.findIndex(p=>p.id==="tmp0");
+	if(i0>=0){ tempoPoints[i0].Y=y; }
+	else { tempoPoints.unshift({id:"tmp0",X:0,Y:y}); }
+	var i1=tempoPoints.findIndex(p=>p.id==="tmp1");
+	if(i1>=0){ tempoPoints[i1].Y=y; }
+	else { tempoPoints.push({id:"tmp1",X:12960,Y:y}); }
+	tempoPoints.sort((a,b)=>a.X-b.X);
 	defTempoFoo();
 	if(setSignRegle==true){
 		regSolfege(zoomScale,"reglette",parseFloat(regleFontSize),regleFontColor,regleFontColor,1);

@@ -948,37 +948,34 @@ async function convolveMultiBuffers(rt, irBuffer) {
 }
 async function createTempoMap(id){
 	var tempoMap=[];
-	var indDebut=tempoFoo.find((element) => element.X>=tableObjet[id].posX);
-	var nfin=tableObjet[id].posX+(tableObjet[id].duree*18);
-	var indFin=tempoFoo.find((element) => element.X>=nfin);
-	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
-	var i=0;
 	var base=tableObjet[id].posX;
-	
-	tempoMap[0]={
-			x:0,
-			y:indDebut.Y/60
-			};
-			console.log("tempoMap",lsgrp,indDebut,indFin,nfin,j);
-			i++;
-	while(tempoPoints[j].X<indFin.X){
+	var nfin=base+(tableObjet[id].duree*18);
+	var indDebut=tempoFoo.find((element) => element.X>=base) || tempoFoo[tempoFoo.length-1];
+	var indFin=tempoFoo.find((element) => element.X>=nfin) || tempoFoo[tempoFoo.length-1];
+	if(!indDebut || !indFin){
+		return [{x:0,y:1},{x:tableObjet[id].duree,y:1}];
+	}
+	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
+	if(j<0) j=0;
+	var i=0;
+
+	tempoMap[0]={x:0, y:indDebut.Y/60};
+	console.log("tempoMap",indDebut,indFin,nfin,j);
+	i++;
+	while(j<tempoPoints.length && tempoPoints[j].X<indFin.X){
 		console.log("tempoMap",j,indDebut.X,(tempoPoints[j].X-base)/18,(240-(parseFloat(tempoPoints[j].Y)/0.4167)));
 		if(tempoPoints[j].X>indDebut.X){
-		tempoMap[i]={
-			x:(parseFloat(tempoPoints[j].X)-base)/18,
-			y:(240-(parseFloat(tempoPoints[j].Y)/0.4167))/60
+			tempoMap[i]={
+				x:(parseFloat(tempoPoints[j].X)-base)/18,
+				y:(240-(parseFloat(tempoPoints[j].Y)/0.4167))/60
 			};
 			i++;
-		 }
-			j++;
+		}
+		j++;
 	}
-	tempoMap[i]={
-			x:(parseFloat(indFin.X)-base)/18,
-			y:indFin.Y/60
-			};
-	i++;
-	
-	console.log("tempoMap",tempoPoints,tempoMap,indDebut,indFin);	
+	tempoMap[i]={x:(parseFloat(indFin.X)-base)/18, y:indFin.Y/60};
+
+	console.log("tempoMap",tempoPoints,tempoMap,indDebut,indFin);
 	return tempoMap;
 }
 // ======================================================================
