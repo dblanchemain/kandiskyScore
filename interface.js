@@ -461,6 +461,7 @@ function tempoInsetPoint(e) {
 	dragElement(document.getElementById("tmp"+nbTempoPoints));
 	if(tempoPoints.length>1){
 		drawTempo();
+		defTempoFoo();
 	}
 	nbTempoPoints++;
 }
@@ -567,6 +568,7 @@ function dragElement(elmnt) {
 				const x = tempoPoints.splice(pos, 1);
 				console.log("tempoPoints",pos,tempoPoints);
 			   drawTempo();
+			   defTempoFoo();
     	}else{
     		console.log(elmnt.style.backgroundColor);
    		elmnt.style.backgroundColor='green';
