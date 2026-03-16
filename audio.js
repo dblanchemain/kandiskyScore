@@ -1184,7 +1184,7 @@ async function readSimpleAudioA(id,mode) {
 	 
 	  
 	 
-	 if(tempoPoints.length>2){
+	 if(tempoPoints.length>=2){
 	 	 await window.api.saveAudioBuffer({
         filePath: window.api.joinPath(`${baseDatatPath}`,"renduin.wav"),
         buffer: { sampleRate, channels: [monoBuffer] }
