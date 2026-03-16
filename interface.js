@@ -168,49 +168,25 @@ function createReglette(scale,dest,bkg,fontSize,fontColor){
 	//var tempo=60/parseFloat(document.getElementById("tempo").value)
 	var tempo=1;
 	document.querySelector("#"+dest).innerHTML="";
+	// Graduations mineures : 1 graduation par seconde réelle, position via timeToPixel
 	var t=0;
-	var delta=18*scale;
-	var indx={};
-	var ptfoo=0;
-	var lpos=0; 
-	
-	for(let i=0;i<nbmax;i+=delta){
+	while(t<7200){
+		var pixPos=timeToPixel(t);
+		if(isNaN(pixPos)||pixPos>=nbmax) break;
 		var dupnode=document.createElementNS("http://www.w3.org/2000/svg",'line');
-		if(tempoFoo.length>1){
-			if(i<tempoFoo[tempoFoo.length-1].X){
-			indx=tempoFoo.find((element) => element.X>lpos);
-			if(indx === undefined) indx=tempoFoo[tempoFoo.length-1];
-			//console.log("tempoDelta","i",i,"lpos",lpos,indx,delta);
-			delta=((18/(indx.Y/60))*scale);
-
-			lpos+=delta;
-			}else{
-				delta=(18/(tempoFoo[tempoFoo.length-1].Y/60))*scale;
-				lpos+=delta;
-			}
-		}else{
-			delta=18*scale;
-			lpos+=delta;
-		}
-		dupnode.setAttribute("x1",lpos);
+		dupnode.setAttribute("x1",pixPos);
 		dupnode.setAttribute("y1",0);
-		dupnode.setAttribute("x2",lpos);
+		dupnode.setAttribute("x2",pixPos);
 		dupnode.setAttribute("y2",10);
 		dupnode.setAttribute("style","stroke:"+fontColor+";stroke-width:1;");
 		document.querySelector("#"+dest).appendChild(dupnode);
-		//document.querySelector("#"+dest).appendChild(dupnode2);
-		if(t<90){
-			t+=10;
-		}else{
-			t=0;
-		}
-		
+		t+=1;
 	}
 	// Étiquettes de temps tenant compte du tempo (toutes les 10 secondes réelles)
 	t=0;
 	while(true){
 		var pixPos = timeToPixel(t);
-		if(pixPos >= nbmax) break;
+		if(isNaN(pixPos)||pixPos >= nbmax) break;
 		var dupnode=document.createElementNS("http://www.w3.org/2000/svg",'line');
 		dupnode.setAttribute("x1",pixPos);
 		dupnode.setAttribute("y1",0);
@@ -528,24 +504,27 @@ function defTempoFoo() {
 				if(tempoPoints.length>1){
 					var j=0;
 					for(i=0;i<tempoPoints.length-1;i++){
-						var pt=240-(Math.abs(tempoPoints[i+1].Y-tempoPoints[i].Y)/0.4167); // ecart Tempo
-						var px=tempoPoints[i+1].X-tempoPoints[i].X;  //ecart X en points
-						var ps=px/Math.abs(tempoPoints[i+1].Y-tempoPoints[i].Y); // ratio delta X/delta Y incrément sur X
-						var inctp=px/ps;
-						inctp=(tempoPoints[i+1].Y-tempoPoints[i].Y)/inctp; // incrément sur Y
-						var dk=Math.abs(tempoPoints[i+1].Y-tempoPoints[i].Y)/px;
-						var n=0;
-						for(k=tempoPoints[i].X;k<tempoPoints[i+1].X;k=k+Math.abs(ps)){
-							var p={
-								X:k,
-								Y:240-(tempoPoints[i].Y+(inctp*n))/0.4167
-							};
-							tempoFoo[j]=p;
+						var px=tempoPoints[i+1].X-tempoPoints[i].X;
+						var deltaY=tempoPoints[i+1].Y-tempoPoints[i].Y;
+						if(Math.abs(deltaY)<0.001){
+							// Segment horizontal : BPM constant, une seule entrée
+							tempoFoo[j]={X:tempoPoints[i].X, Y:240-tempoPoints[i].Y/0.4167};
 							j++;
-							n++;
+						} else {
+							var ps=px/Math.abs(deltaY);
+							var inctp=deltaY/Math.abs(deltaY); // ±1 : signe de la pente
+							var n=0;
+							for(k=tempoPoints[i].X;k<tempoPoints[i+1].X;k=k+Math.abs(ps)){
+								var p={
+									X:k,
+									Y:240-(tempoPoints[i].Y+(inctp*n))/0.4167
+								};
+								tempoFoo[j]=p;
+								j++;
+								n++;
+							}
 						}
-						n=0;
-						
+
 						}	
 					
 					var p={
