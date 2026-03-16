@@ -136,34 +136,14 @@ function foo() {
 		 */
 		 document.getElementById("work").scrollLeft=nbp2*1200;
 		
-		dsecondes=Math.round(dsecondes+1);
-		//dsecondes=document.getElementById("renduWav").currentTime+0.01
-	 	if(dsecondes>59){
-	 		dminutes=dminutes+1;
-	 		dsecondes=0;
-	 	}
-	 	if(dminutes>59){
-	 		dheures=dheures+1;
-	 		dminutes=0;
-	 		dsecondes=0;
-	 	}
-	 	if(dminutes<10){
-	 		mt="0"+dminutes;
-	 	}else{
-	 		mt=dminutes;
-	 	}
-	 	if(dheures<10){
-	 		ht="0"+dheures;
-	 	}
-	 	else{
-	 		ht=dheures;
-	 	}
-	 	
-	 	if(dsecondes<10){
-	 		st="0"+dsecondes.toFixed(2);
-	 	}else{
-	 		st=dsecondes.toFixed(2);
-	 	}
+		// Temps réel calculé depuis la position de la barre, en tenant compte du tempo
+		var _totalSec = pixelToTime(parseFloat(document.getElementById("barVerticale").style.left));
+		dheures   = Math.floor(_totalSec / 3600);
+		dminutes  = Math.floor((_totalSec % 3600) / 60);
+		dsecondes = _totalSec % 60;
+		ht = dheures  < 10 ? "0"+dheures  : ""+dheures;
+		mt = dminutes < 10 ? "0"+dminutes : ""+dminutes;
+		st = dsecondes < 10 ? "0"+dsecondes.toFixed(2) : dsecondes.toFixed(2);
 	 	 document.getElementById("compteurH").innerHTML = ht+" : ";
 		 document.getElementById("compteurM").innerHTML = mt+" : ";
 		 document.getElementById("compteurS").innerHTML = st;
@@ -307,12 +287,55 @@ function defTypeDb(objDb) {
 	return rt;
 }
 
+// Convertit une position CSS (px) en temps réel (secondes) en tenant compte du tempoFoo
+function pixelToTime(cssPosX) {
+	if (tempoFoo.length <= 1) {
+		return cssPosX / (18 * zoomScale);
+	}
+	var seconds = 0;
+	var prevX = 0;
+	for (var _i = 0; _i < tempoFoo.length; _i++) {
+		var entry = tempoFoo[_i];
+		if (entry.X >= cssPosX) {
+			seconds += (cssPosX - prevX) * 60 / (entry.Y * 18 * zoomScale);
+			return seconds;
+		}
+		seconds += (entry.X - prevX) * 60 / (entry.Y * 18 * zoomScale);
+		prevX = entry.X;
+	}
+	var lastBPM = tempoFoo[tempoFoo.length - 1].Y;
+	seconds += (cssPosX - prevX) * 60 / (lastBPM * 18 * zoomScale);
+	return seconds;
+}
+
+// Convertit un temps réel (secondes) en position CSS (px) en tenant compte du tempoFoo
+function timeToPixel(seconds) {
+	if (tempoFoo.length <= 1) {
+		return seconds * 18 * zoomScale;
+	}
+	var remain = seconds;
+	var prevX = 0;
+	for (var _i = 0; _i < tempoFoo.length; _i++) {
+		var entry = tempoFoo[_i];
+		var segDur = (entry.X - prevX) * 60 / (entry.Y * 18 * zoomScale);
+		if (segDur >= remain) {
+			return prevX + remain * entry.Y * 18 * zoomScale / 60;
+		}
+		remain -= segDur;
+		prevX = entry.X;
+	}
+	var lastBPM = tempoFoo[tempoFoo.length - 1].Y;
+	return prevX + remain * lastBPM * 18 * zoomScale / 60;
+}
+
 function defTime(elem) {
-	tmp=((parseInt(document.getElementById(elem).style.left)/zoomScale)*(720/12960))+1;
+	var _posCSS = parseInt(document.getElementById(elem).style.left);
 	if(elem=="barDebut"){
-		tmp=(((parseInt(document.getElementById(elem).style.left)+40)/zoomScale)*(720/12960));
+		tmp = pixelToTime(_posCSS + 40);
 	}else if(elem=="barFin"){
-		tmp=(((parseInt(document.getElementById(elem).style.left))/zoomScale)*(720/12960));
+		tmp = pixelToTime(_posCSS);
+	}else{
+		tmp = pixelToTime(_posCSS) + 1;
 	}
 	document.getElementById("compteurH").innerHTML = " 00 : ";
 	document.getElementById("compteurM").innerHTML = " 00 : ";

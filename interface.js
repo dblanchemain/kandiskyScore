@@ -203,24 +203,23 @@ function createReglette(scale,dest,bkg,fontSize,fontColor){
 		}
 		
 	}
+	// Étiquettes de temps tenant compte du tempo (toutes les 10 secondes réelles)
 	t=0;
-	
-	for(let i=0;i<nbmax;i+=(180*scale/tempo)){
-		
+	while(true){
+		var pixPos = timeToPixel(t);
+		if(pixPos >= nbmax) break;
 		var dupnode=document.createElementNS("http://www.w3.org/2000/svg",'line');
-		dupnode.setAttribute("x1",i);
+		dupnode.setAttribute("x1",pixPos);
 		dupnode.setAttribute("y1",0);
-		dupnode.setAttribute("x2",i);
+		dupnode.setAttribute("x2",pixPos);
 		dupnode.setAttribute("y2",15);
-		dupnode.setAttribute("style","stroke:"+fontColor+";stroke-width:1;"); 
+		dupnode.setAttribute("style","stroke:"+fontColor+";stroke-width:1;");
 		var dupnode3=document.createElementNS("http://www.w3.org/2000/svg",'text');
-		dupnode3.setAttribute("x",i+2);
+		dupnode3.setAttribute("x",pixPos+2);
 		dupnode3.setAttribute("y",24);
 		dupnode3.setAttribute("style","fill:"+fontColor+";font: "+fontSize+"em sans-serif;");
 		var textNode = document.createTextNode(t);
 		dupnode3.appendChild(textNode);
-		//document.querySelector("#"+dest).appendChild(dupnode);
-		//document.querySelector("#"+dest).appendChild(dupnode2);
 		document.querySelector("#"+dest).appendChild(dupnode3);
 		t+=10;
 	}
