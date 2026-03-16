@@ -1349,5 +1349,35 @@ popupFontOngletSize=theme[30];
 popupOngletBkg=theme[31];
 popupOngletActifBkg=theme[32];
 
+if (theme[33]) paletteDisque=theme[33];
+if (theme[34]) paletteCarre=theme[34];
+if (theme[35]) paletteTriangle=theme[35];
+if (theme[36]) paletteEllipse=theme[36];
+if (theme[37]) paletteRectangle=theme[37];
+if (theme[38]) paletteTrianglelong=theme[38];
+if (theme[39]) paletteRondlong=theme[39];
+if (theme[40]) paletteCarrelong=theme[40];
+if (theme[41]) paletteCrescendo=theme[41];
+if (theme[42]) paletteLigne=theme[42];
+if (theme[43]) paletteGlissando=theme[43];
+if (theme[44]) paletteBlock=theme[44];
+if (theme[45]) paletteDecresc=theme[45];
+if (theme[46]) paletteDecrescb=theme[46];
+if (theme[47]) paletteCresc=theme[47];
+if (theme[48]) paletteCrescb=theme[48];
+if (theme[49]) paletteAgregat=theme[49];
+if (theme[50]) paletteArpege=theme[50];
+if (theme[51]) paletteMultilignes=theme[51];
+if (theme[52]) paletteNuage=theme[52];
+if (theme[53]) paletteTexture=theme[53];
+if (theme[54]) paletteImage=theme[54];
+if (theme[55]) paletteSymb=theme[55];
+if (theme[56]) paletteFleche=theme[56];
+if (theme[57]) paletteMarque1=theme[57];
+if (theme[58]) paletteMarque2=theme[58];
+if (theme[59]) paletteLecteur=theme[59];
+
 defInterface();
+configPalette();
+symbCreate();
 }
