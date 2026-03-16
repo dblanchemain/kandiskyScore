@@ -4750,24 +4750,30 @@ function mainRead3D() {
 		cmd=cmdDaw+' '+path.join(scriptsPath,'Reaper','tmp.rpp')+' '+path.join(scriptsPath,'Reaper','importKandiskyScore2.lua');
 	}else{
 		cmdDaw='ardour';
-		const tmpArdour     = path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp', 'tmp.ardour');
+		const tmpDir        = path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp');
+		const tmpArdour     = path.join(tmpDir, 'tmp.ardour');
 		const autoInsertTxt = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'autoInsert.txt');
 
 		// Générer la session Ardour complète depuis autoInsert.txt
+		let ardourReady = false;
 		try {
 			const { buildArdourSession } = require('./buildArdourSession');
 			const templatePath      = path.join(scriptsPath, 'Ardour', 'template.ardour');
 			const autoInsertContent = fs.readFileSync(autoInsertTxt, 'utf8');
 			const templateXml       = fs.readFileSync(templatePath, 'utf8');
 			const generatedXml      = buildArdourSession(autoInsertContent, templateXml);
-			fs.ensureDirSync(path.dirname(tmpArdour));
+			fs.ensureDirSync(tmpDir);
 			fs.writeFileSync(tmpArdour, generatedXml);
-			console.log('Session Ardour générée depuis autoInsert.txt');
+			console.log('Session Ardour générée :', tmpArdour);
+			ardourReady = true;
 		} catch(e) {
 			console.log('Erreur génération session Ardour:', e.message);
+			require('electron').dialog.showErrorBox('KandiskyScore', 'Erreur génération session Ardour :\n' + e.message);
 		}
 
-		cmd=cmdDaw+' '+tmpArdour;
+		if (!ardourReady) return;
+		// Ardour attend le répertoire de session (pas le fichier .ardour)
+		cmd = cmdDaw + ' ' + tmpDir;
 	}
 	exec(cmd, (error, stdout, stderr) => {
     if (error) {
