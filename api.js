@@ -1738,6 +1738,20 @@ function pdfConfig(page,landscape,scale,margeT,margeL,margeB,margeR,Bkg) {
   	pdfBkg=Bkg;
 }
 function apiParamProjet() {
-	var txt=JSON.stringify(paramProjet);
-	window.api.send("toMain", 'defExterne;'+btoa(txt));
+	var obj = Object.assign({}, paramProjet, {
+		editor: editor,
+		daw: daw,
+		cmdDaw: cmdDaw,
+		pdfPage: pdfPage,
+		pdfLandscape: pdfLandscape,
+		pdfScale: pdfScale,
+		pdfMgTop: pdfMgTop,
+		pdfMgBot: pdfMgBot,
+		pdfMgLeft: pdfMgLeft,
+		pdfMgRight: pdfMgRight,
+		pdfBkg: pdfBkg,
+		editAudioCmd: editAudioCmd
+	});
+	var txt = JSON.stringify(obj);
+	window.api.send("toMain", 'defExterne;'+btoa(unescape(encodeURIComponent(txt))));
 }

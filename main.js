@@ -4726,7 +4726,7 @@ function mainExternes(txt) {
 	editAudioCmd=defc.editAudioCmd;
 }
 function mainExternes2(txt) {
-	var defc=JSON.parse(atob(txt));
+	var defc=JSON.parse(decodeURIComponent(escape(atob(txt))));
 	projetName=defc.name;
 	projetPath=defc.path;
 	audioPath=defc.audioPath;
