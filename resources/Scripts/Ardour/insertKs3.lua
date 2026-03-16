@@ -54,7 +54,7 @@ function factory () return function ()
 		-- print(nfile)
 		-- file, err = io.open(nfile, "r")
 	-- end	
-	local filepath = Session:path () .. '/../../../Projets/autoInsert.txt'
+	local filepath = (os.getenv("HOME") or os.getenv("USERPROFILE")) .. "/kandiskyscore/Projets/autoInsert.txt"
 	local file, err = io.open(filepath, "r")
 	if not file then
 		print("Erreur ouverture fichier : " .. (err or filepath))
