@@ -4748,14 +4748,17 @@ function mainRead3D() {
 	const scriptsPath = app.isPackaged ? path.join(process.resourcesPath, 'Scripts') : path.join(__dirname, 'resources', 'Scripts');
 	if(daw=='reaper'){
 		cmd=cmdDaw+' '+path.join(scriptsPath,'Reaper','tmp.rpp')+' '+path.join(scriptsPath,'Reaper','importKandiskyScore2.lua');
+		exec(cmd, (error, stdout, stderr) => {
+		    if (error) { console.log(`error: ${error.message}`); return; }
+		    if (stderr) { console.log(`stderr: ${stderr}`); return; }
+		    console.log(`stdout: ${stdout}`);
+		});
 	}else{
-		cmdDaw='ardour';
 		const tmpDir        = path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp');
 		const tmpArdour     = path.join(tmpDir, 'tmp.ardour');
 		const autoInsertTxt = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'autoInsert.txt');
 
 		// Générer la session Ardour complète depuis autoInsert.txt
-		let ardourReady = false;
 		try {
 			const { buildArdourSession } = require('./buildArdourSession');
 			const templatePath      = path.join(scriptsPath, 'Ardour', 'template.ardour');
@@ -4765,27 +4768,18 @@ function mainRead3D() {
 			fs.ensureDirSync(tmpDir);
 			fs.writeFileSync(tmpArdour, generatedXml);
 			console.log('Session Ardour générée :', tmpArdour);
-			ardourReady = true;
+			dialog.showMessageBox(mainWindow, {
+				type: 'info',
+				title: 'Session Ardour prête',
+				message: 'La session a été générée.\nOuvrez-la dans Ardour :',
+				detail: tmpDir,
+				buttons: ['OK']
+			});
 		} catch(e) {
 			console.log('Erreur génération session Ardour:', e.message);
-			require('electron').dialog.showErrorBox('KandiskyScore', 'Erreur génération session Ardour :\n' + e.message);
+			dialog.showErrorBox('KandiskyScore', 'Erreur génération session Ardour :\n' + e.message);
 		}
-
-		if (!ardourReady) return;
-		// Ardour attend le répertoire de session (pas le fichier .ardour)
-		cmd = cmdDaw + ' ' + tmpDir;
 	}
-	exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-        console.log(`error: ${error.message}`);
-        return;
-    }
-    if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-    }
-    console.log(`stdout: ${stdout}`);
-});
 }
 
 function defProjet(){
