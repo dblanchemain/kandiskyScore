@@ -541,7 +541,9 @@ function defTempoFoo() {
 				}
 					
 				document.querySelector("#reglette").innerHTML="";
-		createReglette(zoomScale,"reglette",regleBackground,parseFloat(regleFontSize),regleFontColor);	
+		console.log("[defTempoFoo] tempoFoo length="+tempoFoo.length+" points="+JSON.stringify(tempoFoo.slice(0,5)));
+		console.log("[defTempoFoo] timeToPixel(10)="+timeToPixel(10)+" timeToPixel(60)="+timeToPixel(60));
+		createReglette(zoomScale,"reglette",regleBackground,parseFloat(regleFontSize),regleFontColor);
 }
 function dragElement(elmnt) {
   var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, Y1;
