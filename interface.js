@@ -499,7 +499,6 @@ function gainInsetPoint(e) {
 	nbGainPoints++;
 }
 function defTempoFoo() {
-	console.log("[defTempoFoo] CALLED tempoPoints="+tempoPoints.length);
 	//document.getElementById("renduWav").preservesPitch=true;
 				tempoFoo=[];
 				
@@ -542,8 +541,6 @@ function defTempoFoo() {
 				}
 					
 				document.querySelector("#reglette").innerHTML="";
-		console.log("[defTempoFoo] tempoFoo length="+tempoFoo.length+" points="+JSON.stringify(tempoFoo.slice(0,5)));
-		console.log("[defTempoFoo] timeToPixel(10)="+timeToPixel(10)+" timeToPixel(60)="+timeToPixel(60));
 		createReglette(zoomScale,"reglette",regleBackground,parseFloat(regleFontSize),regleFontColor);
 }
 function dragElement(elmnt) {
