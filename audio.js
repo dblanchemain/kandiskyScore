@@ -137,7 +137,9 @@ function foo() {
 		 document.getElementById("work").scrollLeft=nbp2*1200;
 		
 		// Temps réel calculé depuis la position de la barre, en tenant compte du tempo
-		var _totalSec = pixelToTime(parseFloat(document.getElementById("barVerticale").style.left));
+		var _barLeft = parseFloat(document.getElementById("barVerticale").style.left);
+		var _totalSec;
+		try { _totalSec = pixelToTime(_barLeft); } catch(e) { _totalSec = _barLeft / (18 * zoomScale); }
 		dheures   = Math.floor(_totalSec / 3600);
 		dminutes  = Math.floor((_totalSec % 3600) / 60);
 		dsecondes = _totalSec % 60;
@@ -191,7 +193,7 @@ function foo() {
 	// console.log('time',document.getElementById("renduWav").currentTime)
 
 	 
-	 if(parseFloat(document.getElementById("barVerticale").style.left)>tempoFoo[curTempo].X){
+	 if(curTempo < tempoFoo.length && parseFloat(document.getElementById("barVerticale").style.left)>tempoFoo[curTempo].X){
 	 	//document.getElementById("renduWav").playbackRate =tempoFoo[curTempo].Y/60;
 	 	document.getElementById("tempo").value=tempoFoo[curTempo].Y.toFixed(2);
 	 	 curTempo++;

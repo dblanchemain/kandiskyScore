@@ -179,15 +179,18 @@ function createReglette(scale,dest,bkg,fontSize,fontColor){
 		if(tempoFoo.length>1){
 			if(i<tempoFoo[tempoFoo.length-1].X){
 			indx=tempoFoo.find((element) => element.X>lpos);
+			if(indx === undefined) indx=tempoFoo[tempoFoo.length-1];
 			//console.log("tempoDelta","i",i,"lpos",lpos,indx,delta);
 			delta=((18/(indx.Y/60))*scale);
-		
+
 			lpos+=delta;
 			}else{
-				delta=tempoFoo[tempoFoo.length-1].Y;
+				delta=(18/(tempoFoo[tempoFoo.length-1].Y/60))*scale;
+				lpos+=delta;
 			}
 		}else{
 			delta=18*scale;
+			lpos+=delta;
 		}
 		dupnode.setAttribute("x1",lpos);
 		dupnode.setAttribute("y1",0);
