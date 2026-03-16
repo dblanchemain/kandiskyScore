@@ -4750,23 +4750,19 @@ function mainRead3D() {
 		cmd=cmdDaw+' '+path.join(scriptsPath,'Reaper','tmp.rpp')+' '+path.join(scriptsPath,'Reaper','importKandiskyScore2.lua');
 	}else{
 		cmdDaw='ardour';
-		const tmpArdour = path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp', 'tmp.ardour');
+		const tmpArdour     = path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp', 'tmp.ardour');
+		const autoInsertTxt = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'autoInsert.txt');
 
-		// Injecter le script d'import dans la session Ardour pour auto-exécution
+		// Générer la session Ardour complète depuis autoInsert.txt
 		try {
-			const scriptSrc = path.join(scriptsPath, 'Ardour', 'importKandiskyScore2.lua');
-			const scriptContent = fs.readFileSync(scriptSrc, 'utf8');
-			const match = scriptContent.match(/function factory \(\) return function \(\)([\s\S]*?)end end/);
-			if (match) {
-				const innerScript = match[1].trim();
-				const encoded = Buffer.from(innerScript).toString('base64');
-				let ardourXml = fs.readFileSync(tmpArdour, 'utf8');
-				ardourXml = ardourXml.replace(/<Script lua="Lua 5\.3">[\s\S]*?<\/Script>/, `<Script lua="Lua 5.3">${encoded}</Script>`);
-				fs.writeFileSync(tmpArdour, ardourXml);
-				console.log('Script KandiskyScore injecté dans tmp.ardour');
-			}
+			const { buildArdourSession } = require('./buildArdourSession');
+			const autoInsertContent = fs.readFileSync(autoInsertTxt, 'utf8');
+			const templateXml       = fs.readFileSync(tmpArdour, 'utf8');
+			const generatedXml      = buildArdourSession(autoInsertContent, templateXml);
+			fs.writeFileSync(tmpArdour, generatedXml);
+			console.log('Session Ardour générée depuis autoInsert.txt');
 		} catch(e) {
-			console.log('Erreur injection script Ardour:', e.message);
+			console.log('Erreur génération session Ardour:', e.message);
 		}
 
 		cmd=cmdDaw+' '+tmpArdour;
