@@ -4768,12 +4768,9 @@ function mainRead3D() {
 			fs.ensureDirSync(tmpDir);
 			fs.writeFileSync(tmpArdour, generatedXml);
 			console.log('Session Ardour générée :', tmpArdour);
-			dialog.showMessageBox(mainWindow, {
-				type: 'info',
-				title: 'Session Ardour prête',
-				message: 'La session a été générée.\nOuvrez-la dans Ardour :',
-				detail: tmpDir,
-				buttons: ['OK']
+			// Lancer Ardour sans argument pour qu'il propose son dialog de sélection de session
+			exec('ardour', (error) => {
+				if (error) console.log(`Ardour error: ${error.message}`);
 			});
 		} catch(e) {
 			console.log('Erreur génération session Ardour:', e.message);
