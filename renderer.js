@@ -1422,27 +1422,25 @@ function loadPreDefSound(id,url) {
     request.send();
 }
 function defTempo(){
-	if(setTimeRegle==true){
-		createReglette(zoomScale,"reglette",regleBackground,parseFloat(regleFontSize),regleFontColor);
-	}
-	if(setSignRegle==true){
-		regSolfege(zoomScale,"reglette",parseFloat(regleFontSize),regleFontColor,regleFontColor,1);
-	}
 	grilleSpace(zoomScale,"space",colorGrille);
+	var bpm=parseFloat(document.getElementById("tempo").value);
 	var px={
 		id:"tmp0",
 		X:0,
-		Y:0.4167*parseFloat(document.getElementById("tempo").value)
+		Y:(240-bpm)*0.4167
 		};
 	tempoPoints[0]=px;
 	px={
 		id:"tmp1",
 		X:12960,
-		Y:0.4167*parseFloat(document.getElementById("tempo").value)
+		Y:(240-bpm)*0.4167
 		};
 	tempoPoints[1]=px;
-const resultat = tempoPoints.find((obj) => obj.id === "tmp1");
-console.log(tempoPoints,resultat.id);
+	defTempoFoo();
+	if(setSignRegle==true){
+		regSolfege(zoomScale,"reglette",parseFloat(regleFontSize),regleFontColor,regleFontColor,1);
+	}
+	console.log(tempoPoints);
 }
 function audioMute(id,m) {
 	tableObjet[id].mute=m;
