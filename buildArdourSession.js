@@ -211,7 +211,7 @@ function buildArdourSession(autoInsertContent, templateXml) {
   <Route version="7003" id="${ti.route}" name="track${tn}" default-type="audio"
          strict-io="0" active="1" denormal-protection="0"
          meter-point="MeterPostFader" disk-io-point="DiskIOPreFader"
-         meter-type="MeterPeak" audio-playlist="${ti.playlist}"
+         meter-type="MeterPeak" audio-playlist="track${tn}"
          saved-meter-point="MeterPostFader" alignment-choice="Automatic" mode="Normal">
     <PresentationInfo order="${tn}" flags="AudioTrack,OrderSet" color="${col}"/>
     <IO name="track${tn}" id="${ti.inIo}" direction="Input" default-type="audio">
