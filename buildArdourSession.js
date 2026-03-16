@@ -1,9 +1,6 @@
 'use strict';
 const fs = require('fs');
 
-// Ardour 7/8 : 1 seconde = 508 032 000 superclocks
-const SC = 508032000;
-
 // ---------- helpers ----------------------------------------------------------
 
 function readWavSamples(filePath) {
@@ -20,11 +17,6 @@ function readWavSamples(filePath) {
     console.error('readWavSamples:', e.message, filePath);
     return 48000; // fallback 1 s
   }
-}
-
-// Samples → superclocks (préfixe 'a' + décimal, format Ardour 8)
-function toSC(samples, sr) {
-  return 'a' + Math.round(samples * SC / sr);
 }
 
 // "rrggbb[aa]" → entier ARGB uint32
@@ -162,7 +154,7 @@ function buildArdourSession(autoInsertContent, templateXml) {
       if (m) {
         const t   = parseFloat(m[1]) || 0;
         const mul = Math.max(0.0001, parseFloat(m[2]) || 0.0001);
-        masterGainEvts += `${toSC(t * sessionSR, sessionSR)} ${mul}\n`;
+        masterGainEvts += `${Math.floor(t * sessionSR)} ${mul}\n`;
       }
     }
   }
@@ -197,10 +189,10 @@ function buildArdourSession(autoInsertContent, templateXml) {
 
       for (let i = 0; i < st.length; i++) {
         const abs = pos + Math.floor(st[i] * rl);
-        ev[0] += `${toSC(abs, sessionSR)} ${sx[i]}\n`;
-        ev[1] += `${toSC(abs, sessionSR)} ${sy[i]}\n`;
-        ev[2] += `${toSC(abs, sessionSR)} ${sz[i]}\n`;
-        ev[4] += `${toSC(abs, sessionSR)} ${sd[i]}\n`;
+        ev[0] += `${abs} ${sx[i]}\n`;
+        ev[1] += `${abs} ${sy[i]}\n`;
+        ev[2] += `${abs} ${sz[i]}\n`;
+        ev[4] += `${abs} ${sd[i]}\n`;
       }
     }
 
