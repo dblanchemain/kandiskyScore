@@ -152,24 +152,29 @@ function foo() {
 		 points=0;
 		 
 		 for(i=0;i<tableListSource.length;i++){
-			if(tableListSource[i].etat==0 && tableListSource[i].start<parseFloat(document.getElementById("barVerticale").style.left)/18){
+			if(tableListSource[i].etat==0 && tableListSource[i].start<=parseFloat(document.getElementById("barVerticale").style.left)/18){
+				try {
 				var obj=tableObjet[tableListSource[i].obj];
 				var outPath=window.api.joinPath(`${paramProjet.audioPath}`,'tmp',`${obj.id}-fx.wav`);
 				 tableListSource[i].etat=1;
 				const options = {
-			    pitchSemitones: obj.detune,  // équivalent à -500 cents
-			    speedFactor: obj.transposition,       // speed 2x
+			    pitchSemitones: obj.detune,
+			    speedFactor: obj.transposition,
 			    gain: obj.gain,
 			    startSec: obj.debut,
 			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
 				 };
 				 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
-				 const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
+				 const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
+				 const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
+				 const fadeIn = obj.fadeIn || 0;
+				 const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
 				 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
 		 		window.api.playDirectFile(1, outPath, soxParams);
-		 		console.log("obj",obj.id,options,cmd);
+		 		console.log("obj",obj.id,options);
+				} catch(e) { console.error("playback trigger error",e); }
 		 	}
-		 }		
+		 }
 		 
 		 if(vueStudio==1 ){
 		 	
