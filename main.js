@@ -4731,7 +4731,7 @@ function mainRead3D() {
 		cmd=cmdDaw+' '+path.join(scriptsPath,'Reaper','tmp.rpp')+' '+path.join(scriptsPath,'Reaper','importKandiskyScore2.lua');
 	}else{
 		cmdDaw='ardour';
-		cmd=cmdDaw+' '+path.join(scriptsPath, 'Ardour', 'tmp.ardour');
+		cmd=cmdDaw+' '+path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp', 'tmp.ardour');
 
 	}
 	exec(cmd, (error, stdout, stderr) => {
