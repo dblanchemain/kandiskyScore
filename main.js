@@ -359,6 +359,25 @@ const Mn = require(path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefau
 if (typeof Mstretching === 'undefined') Mstretching = 'Stretching (objet)';
 console.log('copy menuDefaut');
 
+// Copie des scripts Ardour vers ~/.config/ardour*/scripts/
+const ardourScriptsSrc = app.isPackaged
+  ? path.join(process.resourcesPath, 'Scripts', 'Ardour')
+  : path.join(__dirname, 'resources', 'Scripts', 'Ardour');
+const ardourScripts = ['insertKs3.lua', 'importKandiskyScore2.lua'];
+[6, 7, 8].forEach(function(v) {
+  const dest = path.join(app.getPath('home'), '.config', 'ardour' + v, 'scripts');
+  if (fs.existsSync(path.join(app.getPath('home'), '.config', 'ardour' + v))) {
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    ardourScripts.forEach(function(script) {
+      const src = path.join(ardourScriptsSrc, script);
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, path.join(dest, script));
+        console.log('Ardour script copied: ' + script + ' → ardour' + v);
+      }
+    });
+  }
+});
+
 
 
 const isMac = process.platform === 'darwin';
