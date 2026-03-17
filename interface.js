@@ -631,7 +631,7 @@ function dragElement(elmnt) {
 
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
     	var _t56=tableObjet[elmnt.id.substring(5)].type;
-    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84 || _t56==63 || _t56==64 || _t56==65 || _t56==66 || _t56==67 || _t56==68){
+    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84 || _t56==63 || _t56==64 || _t56==65 || _t56==66 || _t56==67 || _t56==68 || _t56==75 || _t56==76 || _t56==77){
    		document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
    	}
     }
@@ -787,7 +787,7 @@ function dragElement(elmnt) {
 	    			}
 	    		}
 	    		var _type56=tableObjet[objActif].type;
-	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68)){
+	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68 || _type56==75 || _type56==76 || _type56==77)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
@@ -1324,6 +1324,56 @@ function redrawArpege(actif) {
  				inner63="<g transform='scale("+sc68+",1) translate(0,-10)'><line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' /><line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' /><line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' /><line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' /><line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='12' x2='34' y2='20' /><line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='15' x2='34' y2='20' /><line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' /></g>";
  			}
  			orig63.firstChild.firstChild.innerHTML=inner63;
+ 			document.getElementById("p1"+actif).style.top=(posY-4)+"px";
+ 			document.getElementById("p1"+actif).style.left=(posX-4)+"px";
+ 			document.getElementById("sglis"+actif).style.top=(posY+y2-4)+"px";
+ 			document.getElementById("sglis"+actif).style.left=(posX+x2-4)+"px";
+ 			showArpegeHandles(actif);
+ 			return;
+ 		}
+ 		if(t.type>=75&&t.type<=77){
+ 			var nw75=(t.type==77)?56:64;
+ 			var yc75=(t.type==77)?11:15;
+ 			var angle75=Math.atan2(y2,x2)*180/Math.PI;
+ 			var minX75=Math.min(posX,posX+x2), minY75=Math.min(posY,posY+y2);
+ 			var bw75=Math.abs(x2)||10, bh75=Math.abs(y2)||10;
+ 			var txOff75=posX-minX75, tyOff75=posY-minY75;
+ 			var orig75=document.getElementById(t.id);
+ 			orig75.style.top=minY75+"px"; orig75.style.left=minX75+"px";
+ 			orig75.style.width=bw75+"px"; orig75.style.height=bh75+"px";
+ 			var sc75=(Math.hypot(x2,y2)||nw75)/nw75;
+ 			var inner75="";
+ 			if(t.type==75){
+ 				inner75="<g transform='scale("+sc75+",1) translate(0,-15)'>";
+ 				inner75+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='8' cy='15' r='7' />";
+ 				inner75+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='18' y='13' width='4' height='4' />";
+ 				inner75+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='32' cy='15' r='7' />";
+ 				inner75+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='42' y='13' width='4' height='4' />";
+ 				inner75+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='56' cy='15' r='7' />";
+ 				inner75+="<path fill='none' stroke='#000000' stroke-width='1' d='M 7,7 L 7,1 55,1 55,7 M 32,1 32,7' />";
+ 				inner75+="<path fill='none' stroke='#000000' stroke-width='1' d='M 20,17 L 20,25 43,25 43,17' />";
+ 				inner75+="</g>";
+ 			}else if(t.type==76){
+ 				inner75="<g transform='scale("+sc75+",1) translate(0,-15)'>";
+ 				inner75+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='8' cy='22' r='7' />";
+ 				inner75+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='32' cy='22' r='7' />";
+ 				inner75+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='56' cy='22' r='7' />";
+ 				inner75+="<path fill='none' stroke='#000000' stroke-width='1' d='M 7,6 L 7,0 55,0 55,10' />";
+ 				inner75+="<path fill='#000000' stroke='none' d='M 5,6 L 9,6 7,10 5,6' />";
+ 				inner75+="</g>";
+ 			}else{
+ 				inner75="<g transform='scale("+sc75+",1) translate(0,-11)'>";
+ 				inner75+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='0' y='1' width='8' height='8' />";
+ 				inner75+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='16' y='8' width='4' height='4' />";
+ 				inner75+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='28' cy='15' r='4' />";
+ 				inner75+="<rect fill='#000000' stroke='#000000' stroke-width='1' x='40' y='8' width='4' height='4' />";
+ 				inner75+="<rect fill='#000000' stroke='#000000' stroke-width='1' x='48' y='1' width='8' height='8' />";
+ 				inner75+="<line stroke='#000000' stroke-width='1' x1='28' y1='2' x2='28' y2='22' />";
+ 				inner75+="</g>";
+ 			}
+ 			var svg75="<svg width='"+bw75+"' height='"+bh75+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+ 			svg75+="<g transform='translate("+txOff75+","+tyOff75+") rotate("+angle75+",0,0)'>"+inner75+"</g></svg>";
+ 			orig75.innerHTML=svg75;
  			document.getElementById("p1"+actif).style.top=(posY-4)+"px";
  			document.getElementById("p1"+actif).style.left=(posX-4)+"px";
  			document.getElementById("sglis"+actif).style.top=(posY+y2-4)+"px";

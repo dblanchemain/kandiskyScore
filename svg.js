@@ -255,7 +255,7 @@ async function transformSymbSvg(txt,lsgrp) {
 			}
 			// Pour les arpèges (bounding-box), aligner le rect sur minX/minY et non posX/posY
 			var rectXOff=0, rectYOff=0;
-			if([1,2,3,21,22,23,24,25,26,27,28,56,57,58,59,63,64,65,66,67,68,84].includes(lsgrp.type)){
+			if([1,2,3,21,22,23,24,25,26,27,28,56,57,58,59,63,64,65,66,67,68,75,76,77,84].includes(lsgrp.type)){
 				rectXOff=Math.min(0, parseFloat(lsgrp.x2)||0);
 				rectYOff=Math.min(0, parseFloat(lsgrp.y2)||0);
 			}
@@ -747,17 +747,53 @@ async function transformSymbSvg(txt,lsgrp) {
 			txt=txt+"</g>";
 			break;
 		case 75:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphInsertion+"</g>";
-			txt=txt+"</g>";
+		{	var x2_75=parseFloat(lsgrp.x2)||64, y2_75=parseFloat(lsgrp.y2)||0;
+			var dist75=Math.hypot(x2_75,y2_75)||64;
+			var angle75=Math.atan2(y2_75,x2_75)*180/Math.PI;
+			var sc75=dist75/64;
+			txt+="<g transform='rotate("+angle75+",0,0)'>";
+			txt+="<g transform='scale("+sc75+",1) translate(0,-15)'>";
+			txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='8' cy='15' r='7' />";
+			txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='18' y='13' width='4' height='4' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='32' cy='15' r='7' />";
+			txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='42' y='13' width='4' height='4' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='56' cy='15' r='7' />";
+			txt+="<path fill='none' stroke='#000000' stroke-width='1' d='M 7,7 L 7,1 55,1 55,7 M 32,1 32,7' />";
+			txt+="<path fill='none' stroke='#000000' stroke-width='1' d='M 20,17 L 20,25 43,25 43,17' />";
+			txt+="</g></g>";
 			break;
+		}
 		case 76:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphPermutation+"</g>";
-			txt=txt+"</g>";
+		{	var x2_76=parseFloat(lsgrp.x2)||64, y2_76=parseFloat(lsgrp.y2)||0;
+			var dist76=Math.hypot(x2_76,y2_76)||64;
+			var angle76=Math.atan2(y2_76,x2_76)*180/Math.PI;
+			var sc76=dist76/64;
+			txt+="<g transform='rotate("+angle76+",0,0)'>";
+			txt+="<g transform='scale("+sc76+",1) translate(0,-15)'>";
+			txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='8' cy='22' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='32' cy='22' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='56' cy='22' r='7' />";
+			txt+="<path fill='none' stroke='#000000' stroke-width='1' d='M 7,6 L 7,0 55,0 55,10' />";
+			txt+="<path fill='#000000' stroke='none' d='M 5,6 L 9,6 7,10 5,6' />";
+			txt+="</g></g>";
 			break;
+		}
 		case 77:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphPalindrome+"</g>";
-			txt=txt+"</g>";
+		{	var x2_77=parseFloat(lsgrp.x2)||56, y2_77=parseFloat(lsgrp.y2)||0;
+			var dist77=Math.hypot(x2_77,y2_77)||56;
+			var angle77=Math.atan2(y2_77,x2_77)*180/Math.PI;
+			var sc77=dist77/56;
+			txt+="<g transform='rotate("+angle77+",0,0)'>";
+			txt+="<g transform='scale("+sc77+",1) translate(0,-11)'>";
+			txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='0' y='1' width='8' height='8' />";
+			txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='16' y='8' width='4' height='4' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='28' cy='15' r='4' />";
+			txt+="<rect fill='#000000' stroke='#000000' stroke-width='1' x='40' y='8' width='4' height='4' />";
+			txt+="<rect fill='#000000' stroke='#000000' stroke-width='1' x='48' y='1' width='8' height='8' />";
+			txt+="<line stroke='#000000' stroke-width='1' x1='28' y1='2' x2='28' y2='22' />";
+			txt+="</g></g>";
 			break;
+		}
 		case 78:
 			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  style='fill:"+lsgrp.objColor+";fill-opacity:1;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1'><line x1='4' y1='0' x2='4' y2='25' /><line x1='12' y1='0' x2='12' y2='25' /><line x1='20' y1='0' x2='20' y2='25' /><line x1='0' y1='4' x2='25' y2='4' /><line x1='0' y1='12' x2='25' y2='12' /><line x1='0' y1='20' x2='25' y2='20' /></g>";
 			txt=txt+"</g>";

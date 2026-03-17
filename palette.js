@@ -1696,6 +1696,132 @@ function copyFastRitardando(obj){
 	h2.onmouseenter=function(){showArpegeHandles(_actif);};
 	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
+function copyInsertion(obj){
+	var t=tableObjet[obj];
+	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
+	var x2=parseFloat(t.x2)||64, y2=parseFloat(t.y2)||0;
+	var dist=Math.hypot(x2,y2)||64;
+	var angle=Math.atan2(y2,x2)*180/Math.PI;
+	var minX=Math.min(posX,posX+x2), minY=Math.min(posY,posY+y2);
+	var bw=Math.abs(x2)||10, bh=Math.abs(y2)||10;
+	var txOff=posX-minX, tyOff=posY-minY;
+	t.bkgWidth=bw; t.bkgHeight=bh;
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var sc=(dist/64);
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0)'>";
+	txt+="<g transform='scale("+sc+",1) translate(0,-15)'>";
+	txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='8' cy='15' r='7' />";
+	txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='18' y='13' width='4' height='4' />";
+	txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='32' cy='15' r='7' />";
+	txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='42' y='13' width='4' height='4' />";
+	txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='56' cy='15' r='7' />";
+	txt+="<path fill='none' stroke='#000000' stroke-width='1' d='M 7,7 L 7,1 55,1 55,7 M 32,1 32,7' />";
+	txt+="<path fill='none' stroke='#000000' stroke-width='1' d='M 20,17 L 20,25 43,25 43,17' />";
+	txt+="</g></g></svg>";
+	document.getElementById("space").appendChild(dupnode);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(posY-4)+"px;left:"+(posX-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(posY+y2-4)+"px;left:"+(posX+x2-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+}
+function copyPermutation(obj){
+	var t=tableObjet[obj];
+	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
+	var x2=parseFloat(t.x2)||64, y2=parseFloat(t.y2)||0;
+	var dist=Math.hypot(x2,y2)||64;
+	var angle=Math.atan2(y2,x2)*180/Math.PI;
+	var minX=Math.min(posX,posX+x2), minY=Math.min(posY,posY+y2);
+	var bw=Math.abs(x2)||10, bh=Math.abs(y2)||10;
+	var txOff=posX-minX, tyOff=posY-minY;
+	t.bkgWidth=bw; t.bkgHeight=bh;
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var sc=(dist/64);
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0)'>";
+	txt+="<g transform='scale("+sc+",1) translate(0,-15)'>";
+	txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='8' cy='22' r='7' />";
+	txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='32' cy='22' r='7' />";
+	txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='56' cy='22' r='7' />";
+	txt+="<path fill='none' stroke='#000000' stroke-width='1' d='M 7,6 L 7,0 55,0 55,10' />";
+	txt+="<path fill='#000000' stroke='none' d='M 5,6 L 9,6 7,10 5,6' />";
+	txt+="</g></g></svg>";
+	document.getElementById("space").appendChild(dupnode);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(posY-4)+"px;left:"+(posX-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(posY+y2-4)+"px;left:"+(posX+x2-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+}
+function copyPalindrome(obj){
+	var t=tableObjet[obj];
+	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
+	var x2=parseFloat(t.x2)||56, y2=parseFloat(t.y2)||0;
+	var dist=Math.hypot(x2,y2)||56;
+	var angle=Math.atan2(y2,x2)*180/Math.PI;
+	var minX=Math.min(posX,posX+x2), minY=Math.min(posY,posY+y2);
+	var bw=Math.abs(x2)||10, bh=Math.abs(y2)||10;
+	var txOff=posX-minX, tyOff=posY-minY;
+	t.bkgWidth=bw; t.bkgHeight=bh;
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var sc=(dist/56);
+	var txt="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<g transform='translate("+txOff+","+tyOff+") rotate("+angle+",0,0)'>";
+	txt+="<g transform='scale("+sc+",1) translate(0,-11)'>";
+	txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='0' y='1' width='8' height='8' />";
+	txt+="<rect fill='#ffffff' stroke='#000000' stroke-width='1' x='16' y='8' width='4' height='4' />";
+	txt+="<circle fill='#ffffff' stroke='#000000' stroke-width='1' cx='28' cy='15' r='4' />";
+	txt+="<rect fill='#000000' stroke='#000000' stroke-width='1' x='40' y='8' width='4' height='4' />";
+	txt+="<rect fill='#000000' stroke='#000000' stroke-width='1' x='48' y='1' width='8' height='8' />";
+	txt+="<line stroke='#000000' stroke-width='1' x1='28' y1='2' x2='28' y2='22' />";
+	txt+="</g></g></svg>";
+	document.getElementById("space").appendChild(dupnode);
+	document.getElementById(t.id).innerHTML=txt;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(posY-4)+"px;left:"+(posX-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(posY+y2-4)+"px;left:"+(posX+x2-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+}
 function transpoInf(obj){
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",tableObjet[obj].id);
@@ -2499,21 +2625,30 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=28;
 			tableObjet[objActif].bkgWidth=64;
 			tableObjet[objActif].bkgHeight=28;
-			graphSymbole(objActif,glyphInsertion);
+			tableObjet[objActif].x2=64; tableObjet[objActif].y2=0;
+			copyInsertion(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 76:
 			tableObjet[objActif].width=64;
 			tableObjet[objActif].height=32;
 			tableObjet[objActif].bkgWidth=64;
 			tableObjet[objActif].bkgHeight=32;
-			graphSymbole(objActif,glyphPermutation);
+			tableObjet[objActif].x2=64; tableObjet[objActif].y2=0;
+			copyPermutation(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 77:
 			tableObjet[objActif].width=60;
 			tableObjet[objActif].height=24;
 			tableObjet[objActif].bkgWidth=60;
 			tableObjet[objActif].bkgHeight=24;
-			graphSymbole(objActif,glyphPalindrome);
+			tableObjet[objActif].x2=56; tableObjet[objActif].y2=0;
+			copyPalindrome(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 78:
 			tableObjet[objActif].width=26;
@@ -2865,13 +3000,22 @@ function createSymbole2(objType) {
 			graphSymbole(objActif,glyphLigneTxt);
 			break;
 		case 75:
-			graphSymbole(objActif,glyphInsertion);
+			copyInsertion(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 76:
-			graphSymbole(objActif,glyphPermutation);
+			copyPermutation(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
-		case 77:	
-			graphSymbole(objActif,glyphPalindrome);
+		case 77:
+			copyPalindrome(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 78:
 			graphSymbole(objActif,glyphGrille);
@@ -3425,13 +3569,22 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphLigneTxt);
 			break;
 		case 75:
-			graphSymbole(objActif,glyphInsertion);
+			copyInsertion(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 76:
-			graphSymbole(objActif,glyphPermutation);
+			copyPermutation(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 77:
-			graphSymbole(objActif,glyphPalindrome);
+			copyPalindrome(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 	}
 	dragElement(document.getElementById(selectObj));
