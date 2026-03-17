@@ -40,7 +40,7 @@
 		
 		</span>
 		<span  style="position:absolute;top:40px;left:145px;" onclick='fxParam(0);'>
-			<img src="./images/png/clesFx.png" style="width=24px;" alt="">
+			<img src="./images/png/clesFx.png" style="width:24px;" alt="">
 		</span>
 	</form>
 	<div style="position:absolute;top:240px;left:90px;" >
@@ -54,7 +54,7 @@
 		
 		</span>
 		<span  style="position:absolute;top:40px;left:145px;" onclick='fxParam(0);'>
-			<img src="./images/png/clesFx.png" style="width=24px;" alt="">
+			<img src="./images/png/clesFx.png" style="width:24px;" alt="">
 		</span>
 	</form>
 	<div style="position:absolute;top:240px;left:90px;" >
@@ -115,7 +115,6 @@ function rdBaseName(path) {
 	return baseName;
 }
 window.api.receive("fromMain", (args) => {
-console.log(`objparam ${args} from renderer process`);
 if (args && typeof args === "object" && args.type) {
 	switch (args.type) {
 		case 'rtWasmHost':
@@ -132,11 +131,9 @@ if (args && typeof args === "object" && args.type) {
 				audioPath=cmd[2]
 				const obj = JSON.parse(cmd[3]);
 				mode=parseInt(cmd[4]);
-				console.log("id",id,"obj",obj);
 				defObjet(id,obj);
 				break;
 			case 'playStop':
-				console.log("playStop");
 				playerStat=0;
 				document.getElementById("renderPlay").src="./images/png/lecture.png";
 				clearTimeout(timer);
@@ -144,7 +141,6 @@ if (args && typeof args === "object" && args.type) {
 				break;
 			case 'spectrogram':
 			   var source = `${cmd[1]}?v=${Date.now()}`;
-			   console.log("source",source)
 				document.getElementById("spectrogram").src=source;
 				break;
 	}  
@@ -170,7 +166,6 @@ let currentChannels =[];
 let saveChannels=[];
 async function defObjet(id,obj) {
 	filePath =window.api.joinPath(audioPath, obj.file);
-	console.log("file",filePath);
    const dir = rdDirName(filePath);
    const baseName = rdBaseName(filePath).split(".")[0];
    const inPath = `${dir}/${baseName}.wav`;
@@ -182,7 +177,6 @@ async function defObjet(id,obj) {
    numSamples = rt.numSamples;
    sampleRate = rt.sampleRate;
    duree=numSamples/sampleRate;
-	console.log("file",filePath,"numChannels",numChannels,"length",numSamples);
 	currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
 	for(i=0;i<rt.numChannels;i++){
 		saveChannels[i]=currentChannels[i];
@@ -219,7 +213,7 @@ function defMass(numSorties,mode) {
 		dupnode12.setAttribute("id","fx"+i);
 	   var dupnode13=document.createElement('img');
 	   dupnode13.setAttribute("src","./images/png/speakers.png");
-	   var st="width;24px;height:24px;";
+	   var st="width:24px;height:24px;";
 	   dupnode13.setAttribute("style",st);
 	   dupnode13.setAttribute("id","spkin"+i);
 	   dupnode13.addEventListener('click',spkInput);
@@ -260,7 +254,7 @@ function defMass(numSorties,mode) {
 		dupnode8.appendChild(dupnode9);
 		dupnode.appendChild(dupnode8);
 		var dupnode10=document.createElement('td');
-		var st="width;24px;height:24px;";
+		var st="width:24px;height:24px;";
 	   dupnode10.setAttribute("style",st);
 		dupnode10.setAttribute("id","fx"+i);
 		dupnode10.setAttribute("title","fx"+i);
@@ -272,7 +266,7 @@ function defMass(numSorties,mode) {
 	   dupnode10.appendChild(dupnode11);
 		dupnode.appendChild(dupnode10);
 		var dupnode12=document.createElement('td');
-		var st="width;24px;height:24px;";
+		var st="width:24px;height:24px;";
 	   dupnode12.setAttribute("style",st);
 	   var dupnode13=document.createElement('img');
 	   dupnode13.setAttribute("src","./images/png/gnome-run.png");
@@ -283,7 +277,7 @@ function defMass(numSorties,mode) {
 	   dupnode12.appendChild(dupnode13);
 		dupnode.appendChild(dupnode12);
 		var dupnode12=document.createElement('td');
-		var st="width;24px;height:24px;";
+		var st="width:24px;height:24px;";
 	   dupnode12.setAttribute("style",st);
 	   var dupnode13=document.createElement('img');
 	   dupnode13.setAttribute("src","./images/refresh.svg");
@@ -338,7 +332,7 @@ function defMass(numSorties,mode) {
 		   dpnode.setAttribute("style",st);
 		   var dpnode2=document.createElement('img');
 		   dpnode2.setAttribute("src","./images/png/clesFx2.png");
-	   	var st="width;24px;height:24px;";
+	   	var st="width:24px;height:24px;";
 	   	dpnode2.setAttribute("style",st);
 	  		dpnode2.setAttribute("id","fr"+j);
 	   	dpnode2.addEventListener('click',fxOut);
@@ -425,7 +419,7 @@ function defMass(numSorties,mode) {
 		   dpnode3.setAttribute("style",st);
 		   var dpnode4=document.createElement('img');
 		   dpnode4.setAttribute("src","./images/png/speakers.png");
-	   	var st="width;24px;height:24px;";
+	   	var st="width:24px;height:24px;";
 	   	dpnode4.setAttribute("style",st);
 	  		dpnode4.setAttribute("id","spkOut"+j);
 	   	dpnode4.addEventListener('click',spkOut);
@@ -455,7 +449,6 @@ function dragElement(elmnt) {
     e = e || window.event;
     e.preventDefault();
     e.stopPropagation();
-   console.log(elmnt)
     if(elmnt.id.substring(0,2)=="fx"){
     	selectPointFx=elmnt.id
     	if(e.button==2 && parseInt(elmnt.id.substring(2,3))>0){
@@ -550,7 +543,6 @@ function dragElement(elmnt) {
 				updateFxAutomationB(tableObjOut,outActif,elmnt);
 			}
     	}else if(elmnt.id.substring(0,2)=="cn"){
-    	console.log(elmnt)
     		var px=elmnt.offsetLeft - pos1;
 			var py=elmnt.offsetTop - pos2;	
     		if(px<0){
@@ -578,9 +570,7 @@ function dragElement(elmnt) {
   		   document.getElementById("curD").value=1-(dt*0.006);
   		    var act=elmnt.id.substring(2)
   		   tableObjOut[act].distance=1-(dt*0.006);
-  		   console.log("dist",act,"tableObjOut",tableObjOut,tableObjOut[act].distance);
 	    }else if(elmnt.id.substring(0,2)=="ct"){
-    	console.log(elmnt)
     		var px=elmnt.offsetLeft - pos1;
 			var py=elmnt.offsetTop - pos2;	
     		if(px<0){
@@ -608,7 +598,6 @@ function dragElement(elmnt) {
   		   document.getElementById("curD").value=1-(dt*0.006);
   		   var act=elmnt.id.substring(2)
   		   tableObjOut[act].distance=1-(dt*0.006);
-  		   console.log("dist",act,tableObjOut[act].distance);
 	    }else{
 	    	elmnt.style.top = (elmnt.offsetTop - pos2)+'px';
 			elmnt.style.left =(elmnt.offsetLeft - pos1)+'px';
@@ -652,7 +641,6 @@ function updateFxAutomation(obj) {
 }
 function updateFxAutomationB(tableObjet,objActif,obj) {
 	var liste=tableObjet[objActif].tableFxParam;
-	console.log(obj)
 	var greffon=obj.parentNode.parentNode.parentNode.parentNode.parentNode.id
 	var index=tableObjet[objActif].tableFx.indexOf(greffon)
 	var fxParam=liste[index].split("/")
@@ -727,6 +715,9 @@ function drawFxAutomation(tableObjet,objActif,greffon) {
 		}
 	}
 }
+function fxParam(id) {
+	fxPParam(range, id);
+}
 function fxPParam(m,id) {
 	if (m==0){
 		fxPParamB(tableObjIn,inActif,id);
@@ -776,7 +767,6 @@ function validFxParam(greffon) {
 	}
 }
 function validFxParamB(tableObjet,objActif,greffon) {
-console.log(range,listeFx[greffon])
 	var tableLabel=listeFx[greffon].label.split(',')
 	var npoints;
 	var txt=""
@@ -805,11 +795,9 @@ console.log(range,listeFx[greffon])
 	var index=tableObjet[objActif].tableFx.indexOf(greffon)
 	tableObjet[objActif].tableFxParam[index]=txt
 	closePopup(greffon)
-	console.log(tableObjet)
 }
 async function applyFxBuffersMono(obj, currentBuffer, numSamples, sampleRate) {
 
-    console.log("listeFx", obj, obj.tableFx);
 
     const fxSlots = obj.tableFx || [];
     const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
@@ -947,7 +935,6 @@ function openPopup(title,x,y,width,height,padding,content) {
 	document.getElementById('popup'+title+"Header").innerHTML="<b>"+title+"</b>"
 	document.getElementById('popupContent'+title).innerHTML=content
 	document.getElementById('popup'+title).style.display='block';
-	console.log(dupnode)
 }
 function closePopup(title) {
 	document.getElementById('popup'+title).style.display='none';
@@ -963,14 +950,12 @@ function selectElement(id, valueToSelect) {
 }
 
 function sgain() {
-	console.log(this.id,this.value);
 	var canal=this.id.substring(4);
 	document.getElementById("inpg"+canal).value=this.value;
 }
 function inpGain() {
 	var canal=this.id.substring(4);
 	document.getElementById("slid"+canal).value=this.value;
-	console.log(document.getElementById("slid"+canal),this.id,this.value);
 }
 function selectFx() {
 	inActif=this.id.substring(2);
@@ -979,10 +964,8 @@ function selectFx() {
 	for(let j=0;j<7;j++){
 		selectElement("selecInFx"+j,tableObjIn[inActif].tableFx[j] );
 	}
-	console.log("tableObjIn",tableObjIn)
 }
 function grille() {
-	console.log("grille",this.id);
 	if(this.style.backgroundColor=="green"){
 		this.style.backgroundColor="#eaeaea";
 		var indx=tableInOut.indexOf(this.id);
@@ -992,14 +975,11 @@ function grille() {
 		tableInOut.push(this.id);
 		
 	}
-	console.log("tableInOut",tableInOut)
 }
 function nbOutput() {
-	console.log("nbOutput",this.value);
 	defMass(this.value,1);
 }
 async function spkInput() {
-	console.log("selectInput",this.id);
 	inActif=this.id.substring(5);
 	readInput(this.id);
 	const appPaths = await window.api.getPaths();
@@ -1007,17 +987,14 @@ async function spkInput() {
 	window.api.send("toMain", `wasmSpectrogram;${window.api.joinPath(appPaths.userData, 'renduout.wav')}`);
 }
 function fxOut() {
-	console.log("fxOnput",this.id);
 	outActif=this.id.substring(2);
 	range=1;
 	document.getElementById("listOutFx").style.display="block";
 	for(let j=0;j<7;j++){
 		selectElement("selecOutFx"+j,tableObjOut[outActif].tableFx[j] );
 	}
-	console.log("tableObjOut",tableObjOut)
 }
 async function spkOut() {
-	console.log("selectOutput",this.id);
 	outActif=this.id.substring(6);
 	var buf= await readOutput(this.id,0);
 	const appPaths = await window.api.getPaths();
@@ -1032,7 +1009,7 @@ function defSelectInFx(){
 			txt=txt+"<option value='"+listeFx[i].name+"'>"+listeFx[i].name+"</option>"
 		}
 		txt=txt+"</select></span>"
-		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width=24px;'  onclick='fxPParam(0,"+j+");'></span>"
+		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width:24px;'  onclick='fxPParam(0,"+j+");'></span>"
 	}
 	document.getElementById("formInFx").innerHTML=txt
 	
@@ -1047,31 +1024,27 @@ function defSelectOutFx(){
 			txt=txt+"<option value='"+listeFx[i].name+"'>"+listeFx[i].name+"</option>"
 		}
 		txt=txt+"</select></span>"
-		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width=24px;'  onclick='fxPParam(1,"+j+");'></span>"
+		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width:24px;'  onclick='fxPParam(1,"+j+");'></span>"
 	}
 	document.getElementById("formOutFx").innerHTML=txt
 	
 }
 function selectSlider(){
 	outActif=this.id.substring(4);
-	console.log("selectOutput",this.id,outActif,this.value);
 	document.getElementById("inps"+outActif).value=this.value;
 }
 function selectInps(){
 	outActif=this.id.substring(4);
-	console.log("selectOutput",this.id,outActif,this.value);
 	document.getElementById("slid"+outActif).value=this.value;
 }
 function fxInChange(id,filtre) {
 	idFxParam=id;
-	console.log("inActif",id,inActif)
 	tableObjIn[inActif].tableFx[id]=listeFx[filtre].name;
 	tableObjIn[inActif].tableFxParam[id]=listeFx[filtre].defaut
 }
 
 function fxOutChange(id,filtre) {
 	idFxParam=id
-	console.log("outActif",outActif)
 	tableObjOut[outActif].tableFx[id]=listeFx[filtre].name;
 	tableObjOut[outActif].tableFxParam[id]=listeFx[filtre].defaut
 }
@@ -1123,18 +1096,15 @@ async function readInput(c) {
 	var source = contextAudio.createBufferSource();
 	var canal=c.substring(5);
 	var curChannel = currentChannels[canal];
-	console.log("read",c,curChannel)
 	if (document.getElementById("check"+canal).checked == true) {
         curChannel = await reverseMonoBufferFloat32(curChannel);
     }
    curChannel = await applyFxBuffersMono(tableObjIn[inActif],curChannel,numSamples,sampleRate);
 	const audioBuffer = contextAudio.createBuffer(1,numSamples, sampleRate);
-	 console.log(curChannel)
 	audioBuffer.copyToChannel(curChannel[0], 0);
    source.buffer = audioBuffer;
    var gainNode = contextAudio.createGain();
    gainNode.gain.value = parseFloat(document.getElementById("inpg"+canal).value);
-   console.log(gainNode.gain.value);
    source.connect(gainNode);
    
 	gainNode.connect(contextAudio.destination);
@@ -1156,7 +1126,6 @@ async function readOutput(c,mode) {
         }
     }
 
-    console.log(c, "canal", canal, "tbIn", tbIn);
 
     // --- Boucle sur toutes les inputs du canal ---
     for (let i = 0; i < tbIn.length; i++) {
@@ -1199,7 +1168,6 @@ async function readOutput(c,mode) {
     
     let ngain=processedOut;
     let distance=document.getElementById("inps"+outActif).value;
-    console.log("distance",outActif,tableObjOut,distance)
    
     const gained2 = new Float32Array(numSamples);
         for (let s = 0; s < numSamples; s++) {
@@ -1240,7 +1208,6 @@ function player() {
 	 startSec: startx,
 	 lengthSec:dureePlayer-startx
 	 };
-	 console.log("player",filePath,"duree",dureePlayer,parseFloat(document.getElementById("renderPos").value),options);
 	 document.getElementById("renderPlay").src="./images/png/pauseLect.png";
 	 document.getElementById("renderPos").value=0;
 	 foo();
@@ -1257,7 +1224,6 @@ function annulAudio(){
 }
 async function saveRenduAudio(duree,file){
 dureePlayer = duree;
-console.log("duree",duree);
 	var a;
 	document.getElementById("renderAudio").style.display="block";
 	if(document.getElementById("rubber")){
@@ -1288,21 +1254,18 @@ async function readMasterOutput() {
 		outActif=i;
 		masterChannels[i]=await readOutput("spkOut"+i,1);
 	}
-	console.log(masterChannels);
 	const appPaths = await window.api.getPaths();
 	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduout.wav'), buffer: { sampleRate, channels: masterChannels } });
 	saveRenduAudio(numSamples/sampleRate, window.api.joinPath(appPaths.userData, 'renduout.wav'));
 }
 
 async function wasm() {
-	console.log("wasm",inActif,parseFloat(document.getElementById("inpg"+inActif).value));
 	var curChannel = currentChannels[inActif];
 	if (document.getElementById("check"+inActif).checked == true) {
         curChannel = await reverseMonoBufferFloat32(curChannel);
     }
    curChannel = await applyFxBuffersMono(tableObjIn[inActif],curChannel,numSamples,sampleRate);
    const appPaths = await window.api.getPaths();
-   console.log(curChannel);
    const mode=0;
 	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduout.wav'), buffer: { sampleRate, channels: curChannel } });
 	window.api.send("toMain", `openMassWasm;${inActif};${window.api.joinPath(appPaths.userData, 'renduout.wav')};${sampleRate};${mode}`);
@@ -1314,7 +1277,6 @@ async function rtWasmHost(canal,buffer){
 	tableObjIn[canal].tableFxParam=[];
 }
 async function restoreCanal(){
-	console.log("restore",this.id)
 	currentChannels[this.id.substring(3)]=saveChannels[this.id.substring(3)];
 }
 </script>
