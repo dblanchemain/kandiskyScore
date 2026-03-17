@@ -54,3 +54,11 @@ Dsp.zip
 # OS
 .DS_Store
 Thumbs.db
+
+# Données de session Ardour
+resources/Scripts/Ardour/interchange/
+resources/Scripts/Ardour/peaks/
+resources/Scripts/Ardour/tmp/
+resources/Scripts/Ardour/instant.xml
+resources/Scripts/Ardour/*.ardour.bak
+resources/Scripts/Ardour/Sans-titre-*/
