@@ -255,7 +255,7 @@ async function transformSymbSvg(txt,lsgrp) {
 			}
 			// Pour les arpèges (bounding-box), aligner le rect sur minX/minY et non posX/posY
 			var rectXOff=0, rectYOff=0;
-			if([1,2,3,21,22,23,24,25,26,27,28,84].includes(lsgrp.type)){
+			if([1,2,3,21,22,23,24,25,26,27,28,56,57,58,59,63,64,65,66,67,68,84].includes(lsgrp.type)){
 				rectXOff=Math.min(0, parseFloat(lsgrp.x2)||0);
 				rectYOff=Math.min(0, parseFloat(lsgrp.y2)||0);
 			}
@@ -563,29 +563,55 @@ async function transformSymbSvg(txt,lsgrp) {
 			txt=txt+"</g>";
 			break;
 		case 56:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >";
-			var lx=47*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));	
-			txt=txt+"<g transform='scale(1 1)'><circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='8.0' cy='8.0' r='7' /><circle  fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+lx+"' cy='8.0' r='7' /><line fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6'  x1='15' y1='8' x2='"+(lx-8)+"' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 47,8 L 47,8 40,4 40,12 47,8' transform='translate("+(lx-51)+" 0)' /></g>";
-			txt=txt+"</g>";
+		{	var x2_56=parseFloat(lsgrp.x2)||94, y2_56=parseFloat(lsgrp.y2)||0;
+			var dist56=Math.hypot(x2_56,y2_56)||94;
+			var angle56=Math.atan2(y2_56,x2_56)*180/Math.PI;
+			txt+="<g transform='rotate("+angle56+",0,0)'>";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist56+"' cy='0' r='7' />";
+			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist56-7)+"' y2='0' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+(dist56-4)+",0 L "+(dist56-11)+",-4 "+(dist56-11)+",4 Z' />";
+			txt+="</g>";
 			break;
+		}
 		case 57:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >";
-			var lx=47*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-			txt=txt+"<g transform='scale(1 1)'><circle style='fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.6;stroke-opacity:1' cx='8.0' cy='8.0' r='7' /><circle style='fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.6;stroke-opacity:1' cx='"+lx+"' cy='8.0' r='7' /><line style='fill:none;;stroke:#000000;stroke-width:0.60;stroke-opacity:1' x1='15' y1='8' x2='"+(lx-8)+"' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 15,8 L 15,8 22,4 22,12 15,8' /></g>";
-			txt=txt+"</g>";
+		{	var x2_57=parseFloat(lsgrp.x2)||94, y2_57=parseFloat(lsgrp.y2)||0;
+			var dist57=Math.hypot(x2_57,y2_57)||94;
+			var angle57=Math.atan2(y2_57,x2_57)*180/Math.PI;
+			txt+="<g transform='rotate("+angle57+",0,0)'>";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist57+"' cy='0' r='7' />";
+			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist57-7)+"' y2='0' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 4,0 L 11,-4 11,4 Z' />";
+			txt+="</g>";
 			break;
+		}
 		case 58:
-			var lx=47*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));	
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >";
-			txt=txt+"<g transform='scale(1 1)'><circle style='fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.6;stroke-opacity:1' cx='8.0' cy='8.0' r='7' /><circle style='fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.6;stroke-opacity:1' cx='"+lx+"' cy='8.0' r='7' /><line style='fill:none;stroke:#000000;stroke-width:0.60;stroke-opacity:1' x1='15' y1='8' x2='"+(lx-8)+"' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 47,8 L 47,8 40,4 40,12 47,8' transform='translate("+(lx-51)+")'/><g transform='translate("+(lx/2)+" 0) scale(6 6)' ><path style='fill:none;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='#000000' /><path style='fill:#000000;stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /> </g></g>";
-			txt=txt+"</g>";
+		{	var x2_58=parseFloat(lsgrp.x2)||94, y2_58=parseFloat(lsgrp.y2)||0;
+			var dist58=Math.hypot(x2_58,y2_58)||94;
+			var angle58=Math.atan2(y2_58,x2_58)*180/Math.PI;
+			txt+="<g transform='rotate("+angle58+",0,0)'>";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist58+"' cy='0' r='7' />";
+			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist58-7)+"' y2='0' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+(dist58-4)+",0 L "+(dist58-11)+",-4 "+(dist58-11)+",4 Z' />";
+			txt+="<g transform='translate("+(dist58/2)+",-8) scale(6,6)'><path style='fill:none;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='#000000' /><path style='fill:#000000;stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /></g>";
+			txt+="</g>";
 			break;
+		}
 		case 59:
-			var lx=47*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));	
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >";
-			txt=txt+"<g transform='scale(1 1)'><circle style='fill:#ffffff;fill-opacity:1;stroke-width:0.6;stroke:#000000;stroke-opacity:1' cx='8.0' cy='8.0' r='7' /><circle style='fill:#ffffff;fill-opacity:1;stroke-width:0.6;stroke:#000000;stroke-opacity:1' cx='"+lx+"' cy='8.0' r='7' /><line style='fill:none;stroke-width:0.60;stroke:#000000;stroke-opacity:1' x1='15' y1='8' x2='"+(lx-8)+"' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 15,8 L 15,8 22,4 22,12 15,8' /><g transform='translate("+(lx/2)+" 0) scale(6 6)' ><path style='fill:none;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145'  stroke='#000000' /><path style='fill:#000000;stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /> </g></g>";
-			txt=txt+"</g>";
+		{	var x2_59=parseFloat(lsgrp.x2)||94, y2_59=parseFloat(lsgrp.y2)||0;
+			var dist59=Math.hypot(x2_59,y2_59)||94;
+			var angle59=Math.atan2(y2_59,x2_59)*180/Math.PI;
+			txt+="<g transform='rotate("+angle59+",0,0)'>";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist59+"' cy='0' r='7' />";
+			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist59-7)+"' y2='0' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 4,0 L 11,-4 11,4 Z' />";
+			txt+="<g transform='translate("+(dist59/2)+",-8) scale(6,6)'><path style='fill:none;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='#000000' /><path style='fill:#000000;stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /></g>";
+			txt+="</g>";
 			break;
+		}
 		case 60:
 			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphSuperposition+"</g>";
 			txt=txt+"</g>";
@@ -599,33 +625,93 @@ async function transformSymbSvg(txt,lsgrp) {
 			txt=txt+"</g>";
 			break;
 		case 63:
-			var lx=47*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >";
-			txt=txt+"<g transform='translate(0 -8)'><line style='fill:none;stroke-width:0.80;stroke:#000000;stroke-opacity:1' x1='0' y1='24' x2='0' y2='8' /><line style='fill:none;stroke-width:0.80;stroke:#000000;stroke-opacity:1' x1='0' y1='16' x2='"+lx+"' y2='16' /><line style='fill:none;stroke-width:0.80;stroke:#000000;stroke-opacity:1' x1='"+lx+"' y1='8' x2='"+lx+"' y2='24' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 1,16 L 1,16 8,12 8,20 1,16' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 46,16 L 46,16 39,12 39,20 46,16' transform='translate("+(lx-47)+" 0)'/></g>";
-			txt=txt+"</g>";
+		{	var x2_63=parseFloat(lsgrp.x2)||94, y2_63=parseFloat(lsgrp.y2)||0;
+			var dist63=Math.hypot(x2_63,y2_63)||94;
+			var angle63=Math.atan2(y2_63,x2_63)*180/Math.PI;
+			txt+="<g transform='rotate("+angle63+",0,0)'>";
+			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='-8' x2='0' y2='8' />";
+			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist63+"' y2='0' />";
+			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='"+dist63+"' y1='-8' x2='"+dist63+"' y2='8' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 1,0 L 8,-4 8,4 Z' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+(dist63-1)+",0 L "+(dist63-8)+",-4 "+(dist63-8)+",4 Z' />";
+			txt+="</g>";
 			break;
+		}
 		case 64:
-			var lx=47*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >";
-			txt=txt+"<g transform='translate(0 -8)'><line style='fill:none;stroke-width:0.80;stroke:#000000;stroke-opacity:1' x1='8' y1='24' x2='8' y2='8' /><line style='fill:none;stroke-width:0.80;stroke:#000000;stroke-opacity:1' x1='0' y1='16' x2='"+lx+"' y2='16' /><line style='fill:none;stroke-width:0.80;stroke:#000000;stroke-opacity:1' x1='"+lx+"' y1='8' x2='"+lx+"' y2='24' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 0,12 L 0,12 0,20 7,16 0,12' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 47,16 L 47,16 54,12 54,20 47,16'  transform='translate("+(lx-47)+" 0)'/></g>";
-			txt=txt+"</g>";
+		{	var x2_64=parseFloat(lsgrp.x2)||94, y2_64=parseFloat(lsgrp.y2)||0;
+			var dist64=Math.hypot(x2_64,y2_64)||94;
+			var angle64=Math.atan2(y2_64,x2_64)*180/Math.PI;
+			txt+="<g transform='rotate("+angle64+",0,0)'>";
+			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='8' y1='-8' x2='8' y2='8' />";
+			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist64+"' y2='0' />";
+			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='"+dist64+"' y1='-8' x2='"+dist64+"' y2='8' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 7,0 L 0,-4 0,4 Z' />";
+			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+dist64+",0 L "+(dist64+7)+",-4 "+(dist64+7)+",4 Z' />";
+			txt+="</g>";
 			break;
+		}
 		case 65:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphAccelerando+"</g>";
-			txt=txt+"</g>";
+		{	var x2_65=parseFloat(lsgrp.x2)||36, y2_65=parseFloat(lsgrp.y2)||0;
+			var dist65=Math.hypot(x2_65,y2_65)||36;
+			var angle65=Math.atan2(y2_65,x2_65)*180/Math.PI;
+			txt+="<g transform='rotate("+angle65+",0,0)'>";
+			txt+="<g transform='scale("+(dist65/36)+",1) translate(0,-14)'>";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' />";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='16' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' />";
+			txt+="</g></g>";
 			break;
+		}
 		case 66:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphFastAccelerando+"</g>";
-			txt=txt+"</g>";
+		{	var x2_66=parseFloat(lsgrp.x2)||36, y2_66=parseFloat(lsgrp.y2)||0;
+			var dist66=Math.hypot(x2_66,y2_66)||36;
+			var angle66=Math.atan2(y2_66,x2_66)*180/Math.PI;
+			txt+="<g transform='rotate("+angle66+",0,0)'>";
+			txt+="<g transform='scale("+(dist66/36)+",1) translate(0,-14)'>";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' />";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='14' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='17' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' />";
+			txt+="</g></g>";
 			break;
+		}
 		case 67:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphRitardando+"</g>";
-			txt=txt+"</g>";
+		{	var x2_67=parseFloat(lsgrp.x2)||36, y2_67=parseFloat(lsgrp.y2)||0;
+			var dist67=Math.hypot(x2_67,y2_67)||36;
+			var angle67=Math.atan2(y2_67,x2_67)*180/Math.PI;
+			txt+="<g transform='rotate("+angle67+",0,0)'>";
+			txt+="<g transform='scale("+(dist67/36)+",1) translate(0,-10)'>";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' />";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='14' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' />";
+			txt+="</g></g>";
 			break;
+		}
 		case 68:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' >"+glyphFastRitardando+"</g>";
-			txt=txt+"</g>";
+		{	var x2_68=parseFloat(lsgrp.x2)||36, y2_68=parseFloat(lsgrp.y2)||0;
+			var dist68=Math.hypot(x2_68,y2_68)||36;
+			var angle68=Math.atan2(y2_68,x2_68)*180/Math.PI;
+			txt+="<g transform='rotate("+angle68+",0,0)'>";
+			txt+="<g transform='scale("+(dist68/36)+",1) translate(0,-10)'>";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' />";
+			txt+="<line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='12' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='15' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' />";
+			txt+="</g></g>";
 			break;
+		}
 		case 69:
 			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >";
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
