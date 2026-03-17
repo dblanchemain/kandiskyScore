@@ -631,7 +631,7 @@ function dragElement(elmnt) {
 
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
     	var _t56=tableObjet[elmnt.id.substring(5)].type;
-    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84){
+    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84 || _t56==63 || _t56==64 || _t56==65 || _t56==66 || _t56==67 || _t56==68){
    		document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
    	}
     }
@@ -787,7 +787,7 @@ function dragElement(elmnt) {
 	    			}
 	    		}
 	    		var _type56=tableObjet[objActif].type;
-	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84)){
+	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
@@ -1285,6 +1285,52 @@ function redrawArpege(actif) {
  		var x2=parseFloat(t.x2);
  		var y2=parseFloat(t.y2);
  		// Redessinage spécifique pour types 56-59 (symboles copie avec rotation)
+ 		if(t.type>=63&&t.type<=68){
+ 			var dist63=Math.hypot(x2,y2)||36;
+ 			var angle63=Math.atan2(y2,x2)*180/Math.PI;
+ 			var minX63=Math.min(posX,posX+x2), minY63=Math.min(posY,posY+y2);
+ 			var bw63=Math.abs(x2)||10, bh63=Math.abs(y2)||10;
+ 			var txOff63=posX-minX63, tyOff63=posY-minY63;
+ 			t.bkgWidth=bw63; t.bkgHeight=bh63;
+ 			var orig63=document.getElementById("objet"+actif);
+ 			orig63.style.top=minY63+"px"; orig63.style.left=minX63+"px";
+ 			orig63.style.width=bw63+"px"; orig63.style.height=bh63+"px";
+ 			orig63.firstChild.setAttribute('width',bw63); orig63.firstChild.setAttribute('height',bh63);
+ 			orig63.firstChild.firstChild.setAttribute("transform","translate("+txOff63+","+tyOff63+") rotate("+angle63+",0,0)");
+ 			var inner63="";
+ 			if(t.type==63){
+ 				inner63="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='-8' x2='0' y2='8' />";
+ 				inner63+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist63+"' y2='0' />";
+ 				inner63+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='"+dist63+"' y1='-8' x2='"+dist63+"' y2='8' />";
+ 				inner63+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 1,0 L 8,-4 8,4 Z' />";
+ 				inner63+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+(dist63-1)+",0 L "+(dist63-8)+",-4 "+(dist63-8)+",4 Z' />";
+ 			}else if(t.type==64){
+ 				inner63="<line stroke='#000000' stroke-width='0.80' fill='none' x1='8' y1='-8' x2='8' y2='8' />";
+ 				inner63+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist63+"' y2='0' />";
+ 				inner63+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='"+dist63+"' y1='-8' x2='"+dist63+"' y2='8' />";
+ 				inner63+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 7,0 L 0,-4 0,4 Z' />";
+ 				inner63+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+dist63+",0 L "+(dist63+7)+",-4 "+(dist63+7)+",4 Z' />";
+ 			}else if(t.type==65){
+ 				var sc65=dist63/36;
+ 				inner63="<g transform='scale("+sc65+",1) translate(0,-14)'><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' /><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='16' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' /></g>";
+ 			}else if(t.type==66){
+ 				var sc66=dist63/36;
+ 				inner63="<g transform='scale("+sc66+",1) translate(0,-14)'><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' /><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='14' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='17' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' /></g>";
+ 			}else if(t.type==67){
+ 				var sc67=dist63/36;
+ 				inner63="<g transform='scale("+sc67+",1) translate(0,-10)'><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' /><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='14' x2='34' y2='20' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' /></g>";
+ 			}else if(t.type==68){
+ 				var sc68=dist63/36;
+ 				inner63="<g transform='scale("+sc68+",1) translate(0,-10)'><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' /><line style='fill:none;stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' /><line style='fill:none;stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='12' x2='34' y2='20' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='15' x2='34' y2='20' /><line style='fill:none;stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' /></g>";
+ 			}
+ 			orig63.firstChild.firstChild.innerHTML=inner63;
+ 			document.getElementById("p1"+actif).style.top=(posY-4)+"px";
+ 			document.getElementById("p1"+actif).style.left=(posX-4)+"px";
+ 			document.getElementById("sglis"+actif).style.top=(posY+y2-4)+"px";
+ 			document.getElementById("sglis"+actif).style.left=(posX+x2-4)+"px";
+ 			showArpegeHandles(actif);
+ 			return;
+ 		}
  		if(t.type>=56&&t.type<=59){
  			var dist56=Math.hypot(x2,y2)||94;
  			var angle56=Math.atan2(y2,x2)*180/Math.PI;
