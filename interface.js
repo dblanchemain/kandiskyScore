@@ -165,42 +165,42 @@ function upDateWorkSpace(type){
 
 function createReglette(scale,dest,bkg,fontSize,fontColor){
 	var nbmax=12960*scale;
-	//var tempo=60/parseFloat(document.getElementById("tempo").value)
-	var tempo=1;
 	document.querySelector("#"+dest).innerHTML="";
-	// Graduations mineures : 1 graduation par seconde réelle, position via timeToPixel
-	var t=0;
-	while(t<7200){
-		var pixPos=timeToPixel(t);
-		if(isNaN(pixPos)||pixPos>=nbmax) break;
+	// Retourne le BPM local à une position pixel donnée
+	function getBPMat(px){
+		if(tempoFoo.length<=1) return 60;
+		for(var i=0;i<tempoFoo.length;i++){
+			if(tempoFoo[i].X>=px) return tempoFoo[i].Y;
+		}
+		return tempoFoo[tempoFoo.length-1].Y;
+	}
+	// Itère par pixel : pas inversement proportionnel au BPM
+	// → plus le tempo est élevé, plus les ticks sont serrés
+	var p=0;
+	var tickCount=0;
+	while(p<nbmax){
+		var bpm=getBPMat(p);
+		var step=18*scale*60/bpm;
+		if(step<=0) break;
+		var isMajor=(tickCount%10===0);
 		var dupnode=document.createElementNS("http://www.w3.org/2000/svg",'line');
-		dupnode.setAttribute("x1",pixPos);
+		dupnode.setAttribute("x1",p);
 		dupnode.setAttribute("y1",0);
-		dupnode.setAttribute("x2",pixPos);
-		dupnode.setAttribute("y2",10);
+		dupnode.setAttribute("x2",p);
+		dupnode.setAttribute("y2",isMajor?15:10);
 		dupnode.setAttribute("style","stroke:"+fontColor+";stroke-width:1;");
 		document.querySelector("#"+dest).appendChild(dupnode);
-		t+=1;
-	}
-	// Étiquettes de temps tenant compte du tempo (toutes les 10 secondes réelles)
-	t=0;
-	while(true){
-		var pixPos = timeToPixel(t);
-		if(isNaN(pixPos)||pixPos >= nbmax) break;
-		var dupnode=document.createElementNS("http://www.w3.org/2000/svg",'line');
-		dupnode.setAttribute("x1",pixPos);
-		dupnode.setAttribute("y1",0);
-		dupnode.setAttribute("x2",pixPos);
-		dupnode.setAttribute("y2",15);
-		dupnode.setAttribute("style","stroke:"+fontColor+";stroke-width:1;");
-		var dupnode3=document.createElementNS("http://www.w3.org/2000/svg",'text');
-		dupnode3.setAttribute("x",pixPos+2);
-		dupnode3.setAttribute("y",24);
-		dupnode3.setAttribute("style","fill:"+fontColor+";font: "+fontSize+"em sans-serif;");
-		var textNode = document.createTextNode(t);
-		dupnode3.appendChild(textNode);
-		document.querySelector("#"+dest).appendChild(dupnode3);
-		t+=10;
+		if(isMajor){
+			var timeVal=pixelToTime(p);
+			var dupnode3=document.createElementNS("http://www.w3.org/2000/svg",'text');
+			dupnode3.setAttribute("x",p+2);
+			dupnode3.setAttribute("y",24);
+			dupnode3.setAttribute("style","fill:"+fontColor+";font: "+fontSize+"em sans-serif;");
+			dupnode3.appendChild(document.createTextNode(Math.round(timeVal)));
+			document.querySelector("#"+dest).appendChild(dupnode3);
+		}
+		p+=step;
+		tickCount++;
 	}
 }
 function regSolfege(scale,dest,fontSize,fontColor,bkg,opac){
