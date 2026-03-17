@@ -630,8 +630,9 @@ function dragElement(elmnt) {
     }
 
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
-    	if (tableObjet[elmnt.id.substring(5)].type==1 || tableObjet[elmnt.id.substring(5)].type==2  || tableObjet[elmnt.id.substring(5)].type==3 || tableObjet[elmnt.id.substring(5)].type==21  || tableObjet[elmnt.id.substring(5)].type==22  || tableObjet[elmnt.id.substring(5)].type==23 || tableObjet[elmnt.id.substring(5)].type==24  || tableObjet[elmnt.id.substring(5)].type==26 || tableObjet[elmnt.id.substring(5)].type==27 || tableObjet[elmnt.id.substring(5)].type==28  || tableObjet[elmnt.id.substring(5)].type==84){
-   	document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
+    	var _t56=tableObjet[elmnt.id.substring(5)].type;
+    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84){
+   		document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
    	}
     }
     if(elmnt.id.substring(0,2)=="fx"){
@@ -785,7 +786,8 @@ function dragElement(elmnt) {
 	    				transposition(objActif,py);
 	    			}
 	    		}
-	    		if(tableObjet[objActif].class==3 && (tableObjet[objActif].type==1 || tableObjet[objActif].type==2 || tableObjet[objActif].type==3 || tableObjet[objActif].type==21 || tableObjet[objActif].type==22 || tableObjet[objActif].type==23 || tableObjet[objActif].type==24 || tableObjet[objActif].type==25 || tableObjet[objActif].type==26 || tableObjet[objActif].type==27 || tableObjet[objActif].type==28 || tableObjet[objActif].type==84)){
+	    		var _type56=tableObjet[objActif].type;
+	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
