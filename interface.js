@@ -1282,6 +1282,34 @@ function redrawArpege(actif) {
  		var posY=parseFloat(t.posY);
  		var x2=parseFloat(t.x2);
  		var y2=parseFloat(t.y2);
+ 		// Redessinage spécifique pour types 56-59 (symboles copie horizontaux)
+ 		if(t.type>=56&&t.type<=59){
+ 			var lx=x2||94;
+ 			var bw=lx+10, bh=16;
+ 			t.bkgWidth=bw; t.bkgHeight=bh; t.x2=lx; t.y2=0;
+ 			var orig=document.getElementById("objet"+actif);
+ 			orig.style.top=posY+"px"; orig.style.left=posX+"px";
+ 			orig.style.width=bw+"px"; orig.style.height=bh+"px";
+ 			orig.firstChild.setAttribute('width',bw); orig.firstChild.setAttribute('height',bh);
+ 			var inner="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='8' cy='8' r='7' />";
+ 			inner+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+lx+"' cy='8' r='7' />";
+ 			inner+="<line stroke='#000000' stroke-width='0.6' x1='15' y1='8' x2='"+(lx-8)+"' y2='8' />";
+ 			if(t.type==56||t.type==58){
+ 				inner+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 47,8 L 47,8 40,4 40,12 47,8' transform='translate("+(lx-51)+" 0)' />";
+ 			}else{
+ 				inner+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 15,8 L 15,8 22,4 22,12 15,8' />";
+ 			}
+ 			if(t.type==58||t.type==59){
+ 				inner+="<g transform='translate("+(lx/2)+" 0) scale(6 6)'><path style='fill:none;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='#000000' /><path style='fill:#000000;stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /></g>";
+ 			}
+ 			orig.firstChild.firstChild.innerHTML=inner;
+ 			document.getElementById("p1"+actif).style.top=(posY-4)+"px";
+ 			document.getElementById("p1"+actif).style.left=(posX-4)+"px";
+ 			document.getElementById("sglis"+actif).style.top=(posY-4)+"px";
+ 			document.getElementById("sglis"+actif).style.left=(posX+lx-4)+"px";
+ 			showArpegeHandles(actif);
+ 			return;
+ 		}
  		var dist=Math.hypot(x2,y2);
  		var nb2=dist/4.9222416;
  		var naturalLength=(Math.floor(dist/5)-1)*4.9222416;
