@@ -84,7 +84,7 @@ function findSoxiPath() {
   let localPath;
   switch (platform) {
     case "win32":
-      localPath = path.join(baseDir, "win", "soxi.exe ");
+      localPath = path.join(baseDir, "win", "soxi.exe");
       break;
     case "darwin":
       localPath = path.join(baseDir, "mac", "soxi");
@@ -92,7 +92,6 @@ function findSoxiPath() {
     default:
       localPath = path.join(baseDir, "linux", "soxi");
   }
-	console.log("loaclPath",localPath);
   if (existsSync(localPath)) return localPath;
   return "soxi"; // fallback global
 }
@@ -365,8 +364,11 @@ const ardourScriptsSrc = app.isPackaged
   : path.join(__dirname, 'resources', 'Scripts', 'Ardour');
 const ardourScripts = ['insertKs3.lua', 'importKandiskyScore2.lua'];
 [6, 7, 8].forEach(function(v) {
-  const dest = path.join(app.getPath('home'), '.config', 'ardour' + v, 'scripts');
-  if (fs.existsSync(path.join(app.getPath('home'), '.config', 'ardour' + v))) {
+  const ardourConfigBase = process.platform === 'win32'
+    ? path.join(app.getPath('appData'), 'Ardour' + v)
+    : path.join(app.getPath('home'), '.config', 'ardour' + v);
+  const dest = path.join(ardourConfigBase, 'scripts');
+  if (fs.existsSync(ardourConfigBase)) {
     if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
     ardourScripts.forEach(function(script) {
       const src = path.join(ardourScriptsSrc, script);
@@ -1581,16 +1583,14 @@ function saveModifGrp(txt) {
     });
 }
 function nouvelEspace() {
-	exec(app.getAppPath()+"/out/kandiskyscore-linux-x64/kandiskyscore", (error, stdout, stderr) => {
-    if (error) {
-        console.log(`error: ${error.message}`);
-        return;
-    }
-    if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-    }
-    console.log(`stdout: ${stdout}`);
+	const _plt = os.platform();
+	const _execName = _plt === 'win32'
+		? path.join('kandiskyscore-win32-x64', 'kandiskyscore.exe')
+		: _plt === 'darwin'
+			? path.join('kandiskyscore-darwin-x64', 'kandiskyscore')
+			: path.join('kandiskyscore-linux-x64', 'kandiskyscore');
+	exec(path.join(app.getAppPath(), 'out', _execName), (error) => {
+    if (error) { console.error(`nouvelEspace error: ${error.message}`); return; }
 });
 }
 function neweditor(cmd) {
@@ -1826,9 +1826,9 @@ function spectrEdit(id,fpath,obj) {
 	if(winSpectrEditEtat==0){
 		var npath=path.join(audioPath,fpath);
 		const spectroOutPath1 = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'spectrogram.png');
-		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+spectroOutPath1, (error, stdout, stderr) => {
+		exec(`"${soxPath}" "${npath}" -n remix 1 spectrogram -x 2000 -o "${spectroOutPath1}"`, (error, stdout, stderr) => {
 		    if (error) {
-		        console.log(`error: ${error.message}`);
+		        console.error(`error: ${error.message}`);
 		        return;
 		    }
 		    if (stderr) {
@@ -2733,9 +2733,9 @@ function soxSpectrogram(npath) {
 	var txt="";
 	if(winSpectroEtat==0){
 		const spectroOutPath2 = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'spectrogram.png');
-		exec(soxPath+" "+npath+"  -n remix 1  spectrogram -x 2000 -o "+spectroOutPath2, (error, stdout, stderr) => {
+		exec(`"${soxPath}" "${npath}" -n remix 1 spectrogram -x 2000 -o "${spectroOutPath2}"`, (error, stdout, stderr) => {
 		    if (error) {
-		        console.log(`error: ${error.message}`);
+		        console.error(`error: ${error.message}`);
 		        return;
 		    }
 		    if (stderr) {
@@ -2743,7 +2743,7 @@ function soxSpectrogram(npath) {
 		        //return;
 		    }
 		setTimeout(function(){
-		exec(soxPath+" "+npath+" -n stats ", (error, stdout, stderr) => {
+		exec(`"${soxPath}" "${npath}" -n stats`, (error, stdout, stderr) => {
 		    if (error) {
 		        //console.log(`error: ${error.message}`);
 		        return;
@@ -2815,10 +2815,9 @@ function saveSpectro(npath) {
         properties: []
     }).then(file => {
         // Stating whether dialog operation was cancelled or not.
-        console.log(file.canceled);
-        exec("sox "+npath+"  -n remix 1  spectrogram -x 2000 -o "+file.filePath.toString(), (error, stdout, stderr) => {
+        exec(`"${soxPath}" "${npath}" -n remix 1 spectrogram -x 2000 -o "${file.filePath.toString()}"`, (error, stdout, stderr) => {
 		    if (error) {
-		        console.log(`error: ${error.message}`);
+		        console.error(`error: ${error.message}`);
 		        return;
 		    }
 		    if (stderr) {
@@ -4747,7 +4746,7 @@ function mainExternes2(txt) {
 function mainRead3D() {
 	const scriptsPath = app.isPackaged ? path.join(process.resourcesPath, 'Scripts') : path.join(__dirname, 'resources', 'Scripts');
 	if(daw=='reaper'){
-		cmd=cmdDaw+' '+path.join(scriptsPath,'Reaper','tmp.rpp')+' '+path.join(scriptsPath,'Reaper','importKandiskyScore2.lua');
+		cmd=`"${cmdDaw}" "${path.join(scriptsPath,'Reaper','tmp.rpp')}" "${path.join(scriptsPath,'Reaper','importKandiskyScore2.lua')}"`;
 		exec(cmd, (error, stdout, stderr) => {
 		    if (error) { console.log(`error: ${error.message}`); return; }
 		    if (stderr) { console.log(`stderr: ${stderr}`); return; }
@@ -4769,8 +4768,9 @@ function mainRead3D() {
 			fs.writeFileSync(tmpArdour, generatedXml);
 			console.log('Session Ardour générée :', tmpArdour);
 			// Lancer Ardour sans argument pour qu'il propose son dialog de sélection de session
-			exec('ardour', (error) => {
-				if (error) console.log(`Ardour error: ${error.message}`);
+			const ardourCmd = process.platform === 'win32' ? 'ardour.exe' : 'ardour';
+			exec(ardourCmd, (error) => {
+				if (error) console.error(`Ardour error: ${error.message}`);
 			});
 		} catch(e) {
 			console.log('Erreur génération session Ardour:', e.message);
