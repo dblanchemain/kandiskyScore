@@ -83,7 +83,7 @@
 		
 		</span>
 		<span  style="position:absolute;top:40px;left:145px;" onclick='fxParam(0);'>
-			<img src="./images/png/clesFx.png" style="width=24px;" alt="">
+			<img src="./images/png/clesFx.png" style="width:24px;" alt="">
 		</span>
 	</form>
 	<div style="position:absolute;top:240px;left:90px;" >
@@ -162,7 +162,9 @@ let wamBuffers=[];
 let fxBuffers=[];
 let undoStack=[];
 let redoStack=[];
+let undoBuffers=[];
 let idxUndo=0;
+let idFxParam=0;
 
 let objSelect={
 debut:0,
@@ -245,7 +247,6 @@ if (data && typeof data === "object" && data.type) {
 					audioPath=cmd[3];
 					baseDatatPath=cmd[4];
 					objSelect.duree=parseFloat(obj.duree);
-					console.log("id",id,obj,mode);
 					defSpectro();
 					break
 				
@@ -261,7 +262,6 @@ function quiter(){
 }
 async function rtWasmHost(canal,buffer){
 	pushUndoState(gainBuffers);
-	console.log('canal : ',canal,buffer.length,objSelect);
 	mouseX=objSelect.debut;
 	mouseY=objSelect.Fh;
 	gainBuffers=await pasteWam(gainBuffers);
@@ -274,7 +274,6 @@ async function rtWasmHost(canal,buffer){
 	 updateSpectro();
 }
 async function wasm() {
-	console.log("wasm",mode);
 	const appPaths = await window.api.getPaths();
 	window.api.send("toMain", `openSpectWasm;${0};${window.api.joinPath(appPaths.userData, 'renduout.wav')};${sampleRate};${mode}`);
 	
@@ -502,7 +501,6 @@ function updateSelection(e) {
     objSelect.fin=xToTime(left + width);
     objSelect.Fh = yToFrequency(top);
     objSelect.Fl = yToFrequency(top+height);
-    console.log('selectObj',objSelect)
 }
 
 function logKey(e) {
@@ -579,7 +577,6 @@ function dragElement(elmnt) {
     e = e || window.event;
     e.preventDefault();
     e.stopPropagation();
-    console.log(elmnt.id,e.target.id)
     
     
     if(e.target.id=="spectrogram" && e.button==0){
@@ -592,7 +589,6 @@ function dragElement(elmnt) {
     if(e.target.id=="spectrogram" && e.button==2){
     	mouseX=parseFloat(xToTime(e.clientX).toFixed(2));
     	mouseY=parseFloat(yToFrequency(e.clientY).toFixed(2));
-    	console.log("mouse",e.button,mouseX,mouseY);
     	numButton=2;
     }
     // get the mouse cursor position at startup:
@@ -910,7 +906,6 @@ async function defSpectro() {
     // Clone des buffers pour traitement
     currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
     gainBuffers = currentChannels.map(c => new Float32Array(c));
-    console.log("length",rt.numChannels,numSamples,rt.sampleRate,currentChannels);
     var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
 	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  gainBuffers  } });
 	 initWaveformCanvas();
@@ -955,7 +950,7 @@ function defSelectListeFx(){
 			txt=txt+"<option value='"+listeFx[i].name+"'>"+listeFx[i].name+"</option>"
 		}
 		txt=txt+"</select></span>"
-		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width=24px;'  onclick='fxParam("+j+");'></span>"
+		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width:24px;'  onclick='fxParam("+j+");'></span>"
 	}
 	document.getElementById("formSelecFx").innerHTML=txt
 }
@@ -969,7 +964,6 @@ async function fxValidAddPlugin(filtre){
 	fxBuffers= await applyFxBuffers(objSelect,numChannels,selectBuffers,selectBuffers[0].length,sampleRate);
 	selectBuffers=fxBuffers.map(c => new Float32Array(c));
 	gainBuffers= await pasteFx();
-	console.log("gainBuffers",gainBuffers)
      updateSpectro();
     var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
 	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });
@@ -1138,23 +1132,19 @@ function validFxParam(greffon) {
 	var index=objSelect.tableFx.indexOf(greffon)
 	objSelect.tableFxParam[index]=txt
 	closePopup(greffon)
-	console.log(objSelect)
 }
 
 async function applyFxBuffers(obj,numChannels,buffers,numSamples,sampleRate) {
 	
-	console.log("listeFx",obj,obj.tableFx)
     // ----- WAM / GREFFONS -----
     const fxSlots = obj.tableFx || [];
     const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
-console.log("Slots", obj,validSlots)
     const blockSize = 1024;
     let current = buffers.map(c => new Float32Array(c));
 	 const processedChannels = new Array(numChannels);
     // Import faustwasm once
     const appPaths = await window.api.getPaths();
     const faust=window.api.joinPath(window.api.resources,"@grame","faustwasm","dist","esm","index.js");
-    console.log("faust",appPaths.basedir,faust)
     const faustPkg = await import(`file://${faust}`);
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
     const faustModule = await instantiateFaustModuleFromFile(`${appPaths.basedir}/resources/@grame/faustwasm/libfaust-wasm/libfaust-wasm.js`);
@@ -1180,7 +1170,6 @@ console.log("Slots", obj,validSlots)
             
             // récupère les paramètres WAM
             const paramDest = processor.getParams();
-            console.log("getParams",`./greffons/${dspName}-wasm/${dspName}.dsp`,paramDest)
             if (paramDest && paramDest.length > 0) {
                 paramsPaths = paramDest.map(p => p.path || p);
                 const bypassPath = paramsPaths.find(p => p.toLowerCase().includes("bypass"));
@@ -1833,7 +1822,6 @@ function cutSelection(t0, t1) {
 	const startSample = Math.max(0, Math.floor(t0 * sampleRate));
 	const endSample = Math.floor(t1 * sampleRate);
 	const insertLength = endSample-startSample;
-	console.log(startSample,endSample,gainBuffers)
 
 	if (endSample <= startSample) return gainBuffers;
 
@@ -1949,7 +1937,6 @@ async function pasteSelection() {
 async function insertSelection2() {
   const pasteSample = Math.max(0, Math.floor(mouseX*sampleRate));
   const filePath = await window.api.audioSelect();
-  console.log("insertAudioSel",mouseX,filePath)
 	 const audioSel = await window.api.loadBuffers(filePath);
     if (!audioSel || !Array.isArray(audioSel.channels) || audioSel.channels.length === 0) {
         throw new Error("loadBuffers: aucun canal renvoyé par preload");
@@ -1995,7 +1982,6 @@ async function insertSelection() {
   undoBuffers[idxUndo]=gainBuffers.map(c => new Float32Array(c));
   const pasteSample = Math.max(0, Math.floor(mouseX*sampleRate));
   const filePath = await window.api.audioSelect();
-  console.log("insertAudioSel",mouseX,filePath)
 	 const audioSel = await window.api.loadBuffers(filePath);
     if (!audioSel || !Array.isArray(audioSel.channels) || audioSel.channels.length === 0) {
         throw new Error("loadBuffers: aucun canal renvoyé par preload");
@@ -2258,7 +2244,6 @@ async function saveRenduAudio() {
             }
         });
 
-        console.log("Audio sauvegardé :", filePath);
 
     } catch (err) {
         console.error("Erreur sauvegarde :", err);
@@ -2285,7 +2270,6 @@ async function saveRenduSelection() {
             }
         });
 
-        console.log("Audio sauvegardé :", filePath);
 
     } catch (err) {
         console.error("Erreur sauvegarde :", err);
