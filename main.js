@@ -450,8 +450,8 @@ const createWindow = () => {
   mainWindow.loadFile('index.html');
   ipcMain.handle('ping', () =>  mainWindow.getSize());
   
-  // Ouvrir les outils de développement.
-  mainWindow.webContents.openDevTools();
+  // Ouvrir les outils de développement (mode dev uniquement).
+  if (!app.isPackaged) mainWindow.webContents.openDevTools();
   
 	mainWindow.on('close', e => { // Line 49
   e.preventDefault();
@@ -1030,7 +1030,7 @@ function winDefSvg(obj,mode) {
 	winSvg.loadFile('winSvg.html');
 	winSvg.removeMenu();
 	//winSvg.setMenu(menu2)
-	//winSvg.webContents.openDevTools()
+	if (!app.isPackaged) winSvg.webContents.openDevTools()
 	winSvgEtat=1;
 	winSvg.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
  		winSvg.webContents.send("fromMain", "defSvg;"+obj+";"+mode);
@@ -1060,7 +1060,7 @@ function createStudio() {
 		});
 		newStudio.loadFile('studioCreate.html');
 		newStudio.setMenu(menu2);
-		//newStudio.webContents.openDevTools()
+		if (!app.isPackaged) newStudio.webContents.openDevTools()
 		newStudioEtat=1;
 		
 
@@ -1785,7 +1785,7 @@ function configuration(lang,cmd2,cmd3,cmd4,cmd5,cmd6) {
 		});
 		winProjet.loadFile('configuration.html');
 		winProjet.removeMenu();
-		//winProjet.webContents.openDevTools()
+		if (!app.isPackaged) winProjet.webContents.openDevTools()
 		winProjetEtat=1;
 		winProjet.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winProjet.webContents.send("fromMain", "defProjet;"+lang+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6);
@@ -1845,7 +1845,7 @@ function spectrEdit(id,fpath,obj) {
 		});
 		winSpectrEdit.loadFile('spectrEdit.html');
 		winSpectrEdit.removeMenu();
-		winSpectrEdit.webContents.openDevTools();
+		if (!app.isPackaged) winSpectrEdit.webContents.openDevTools();
 		winSpectrEditEtat=1;
 		winSpectrEdit.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpectrEdit.webContents.send("fromMain", "defObjet;"+id+";"+obj+";"+audioPath+";"+app.getPath('userData'));
@@ -1886,7 +1886,7 @@ function winObjetParam(objId,lang,obj,c,t) {
 		});
 		winConfig.loadFile('objetParam.html');
 		winConfig.removeMenu();
-		//winConfig.webContents.openDevTools()
+		if (!app.isPackaged) winConfig.webContents.openDevTools()
 		winConfigEtat=1;
 		winConfig.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winConfig.webContents.send("fromMain", "defObjet;"+objId+";"+lang+";"+obj+";"+c+";"+t);
@@ -1927,7 +1927,7 @@ function spatMass(id,obj) {
 		});
 		winSpatMass.loadFile('spatMass.html');
 		winSpatMass.removeMenu();
-		//winSpatMass.webContents.openDevTools()
+		if (!app.isPackaged) winSpatMass.webContents.openDevTools()
 		winSpatMassEtat=1;
 		winSpatMass.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpatMass.webContents.send("fromMain", "openSpatMass;"+id+";"+audioPath+";"+obj+";0");
@@ -1972,7 +1972,7 @@ function openMassWasm(id,file,rate) {
 		});
 		winMassWasm.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html');
 		winMassWasm.removeMenu();
-		//winMassWasm.webContents.openDevTools()
+		if (!app.isPackaged) winMassWasm.webContents.openDevTools()
 		winMassWasmEtat=1;
 		winMassWasm.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winMassWasm.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";0");
@@ -2013,7 +2013,7 @@ function openSpectWasm(id,file,rate,mode) {
 		});
 		winSpectWam.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html');
 		winSpectWam.removeMenu();
-		//winSpectWam.webContents.openDevTools()
+		if (!app.isPackaged) winSpectWam.webContents.openDevTools()
 		winSpectWamEtat=1;
 		winSpectWam.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpectWam.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";"+mode);
@@ -2057,7 +2057,7 @@ function createWinGraph(id,lang,param,type) {
 		});
 		winGraphObj.loadFile('defgraphObj.html');
 		winGraphObj.removeMenu();
-		//winGraphObj.webContents.openDevTools()
+		if (!app.isPackaged) winGraphObj.webContents.openDevTools()
 		winGraphObjEtat=1;
 		winGraphObj.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphObj.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
@@ -2090,7 +2090,7 @@ function createWinSymb(id,lang,param,type) {
 		});
 		winGraphSymb.loadFile('defSymbObj.html');
 		winGraphSymb.removeMenu();
-		//winGraphSymb.webContents.openDevTools()
+		if (!app.isPackaged) winGraphSymb.webContents.openDevTools()
 		winGraphSymbEtat=1;
 		winGraphSymb.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphSymb.webContents.send("fromMain", "defGraphObjet;"+id+";"+lang+";"+param+";"+type);
@@ -2135,7 +2135,7 @@ function createWinGrp(id,lang,param) {
 		});
 		winGraphGrp.loadFile('defGrp.html');
 		winGraphGrp.removeMenu();
-		//winGraphGrp.webContents.openDevTools()
+		if (!app.isPackaged) winGraphGrp.webContents.openDevTools()
 		winGraphGrpEtat=1;
 		winGraphGrp.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winGraphGrp.webContents.send("fromMain", "defGrp;"+id+";"+lang+";"+param);
@@ -2180,7 +2180,7 @@ function createTrajectoire(id,cmd2) {
 		});
 		winTrajectoire.loadFile('trajectoire.html');
 		winTrajectoire.removeMenu();
-		//winTrajectoire.webContents.openDevTools()
+		if (!app.isPackaged) winTrajectoire.webContents.openDevTools()
 		winTrajectoireEtat=1;
 		winTrajectoire.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winTrajectoire.webContents.send("fromMain", "deftrajectoire;"+id+";"+cmd2);
@@ -2213,7 +2213,7 @@ function createTrajectory(id) {
 		});
 		winTrajectory.loadFile('trajectory.html');
 		winTrajectory.removeMenu();
-		//winTrajectory.webContents.openDevTools()
+		if (!app.isPackaged) winTrajectory.webContents.openDevTools()
 		winTrajectoryEtat=1;
 		winTrajectory.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winTrajectory.webContents.send("fromMain", "trajectory;"+id);
@@ -2246,7 +2246,7 @@ function openStudio(X,Y,Z,gain) {
 		});
 		winStudio.loadFile('studio.html');
 		winStudio.removeMenu();
-		//winStudio.webContents.openDevTools()
+		if (!app.isPackaged) winStudio.webContents.openDevTools()
 		winStudioEtat=1;
 		winStudio.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winStudio.webContents.send("fromMain", "drawObjActif;"+X+";"+Y+"+;"+Z+";"+gain);
@@ -2280,7 +2280,7 @@ function open3dStudio(X,Y,Z,gain) {
 		});
 		winStudio3D.loadFile('studio3D.html');
 		winStudio3D.removeMenu();
-		//winStudio3D.webContents.openDevTools()
+		if (!app.isPackaged) winStudio3D.webContents.openDevTools()
 		winStudio3DEtat=1;
 		winStudio3D.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winStudio3D.webContents.send("fromMain", "draw3dObj;"+X+";"+Y+"+;"+Z+";"+gain);
@@ -2313,7 +2313,7 @@ function vueStudio3D(lst) {
 		});
 		winVueStudio3D.loadFile('vueStudio3D.html');
 		winVueStudio3D.removeMenu();
-		//winVueStudio3D.webContents.openDevTools()
+		if (!app.isPackaged) winVueStudio3D.webContents.openDevTools()
 		winVueStudio3DEtat=1;
 		winVueStudio3D.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winVueStudio3D.webContents.send("fromMain", "draw3dObj;"+lst);
@@ -2347,7 +2347,7 @@ function spatialOpen(objId,cmd2,cmd3,cmd4,cmd5,cmd6,cmd7) {
 		});
 		winSpatial.loadFile('spatialisation.html');
 		winSpatial.removeMenu();
-		//winSpatial.webContents.openDevTools()
+		if (!app.isPackaged) winSpatial.webContents.openDevTools()
 		winSpatialEtat=1;
 		winSpatial.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winSpatial.webContents.send("fromMain", "defObjetSpatial;"+objId+";"+cmd2+";"+cmd3+";"+cmd4+";"+cmd5+";"+cmd6+";"+cmd7);
@@ -2399,7 +2399,7 @@ function openDoc() {
 		});
 		winDoc.loadURL('http://blanchemain.info/Documents/Programmation/index.php?page=kandiskyScore');
 		winDoc.removeMenu();
-		//winDoc.webContents.openDevTools()
+		if (!app.isPackaged) winDoc.webContents.openDevTools()
 		winDocEtat=1;
   		winDoc.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
 		   e.preventDefault();
@@ -2420,7 +2420,7 @@ function mediaExplorer() {
 		});
 		winMediaExplorer.loadFile('./mediaExplorer.html');
 		winMediaExplorer.removeMenu();
-		//winMediaExplorer.webContents.openDevTools()
+		if (!app.isPackaged) winMediaExplorer.webContents.openDevTools()
 		winMediaExplorerEtat=1;
 		winMediaExplorer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		const toSlash = p => p.split(path.sep).join('/');
@@ -2462,7 +2462,7 @@ function imgViewer() {
 		});
 		winImgViewer.loadFile('./imgViewer.html');
 		winImgViewer.removeMenu();
-		//winImgViewer.webContents.openDevTools()
+		if (!app.isPackaged) winImgViewer.webContents.openDevTools()
 		winImgViewerEtat=1;
 		winImgViewer.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		const kandiskyPath = path.join(app.getPath('home'), 'kandiskyscore');
@@ -2506,7 +2506,7 @@ function winPro54Open() {
 		console.log('winPro54Open');
 		winPro54.loadFile('./Wam2/wam-examples-master/packages/Synthe/Pro54/index.html');
 		winPro54.removeMenu();
-		//winPro54.webContents.openDevTools()
+		if (!app.isPackaged) winPro54.webContents.openDevTools()
 		winPro54Etat=1;
 		winPro54.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winPro54.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
@@ -2548,7 +2548,7 @@ function winObxdOpen() {
 		console.log('winObxdOpen');
 		winObxd.loadFile('./Wam2/wam-examples-master/packages/Synthe/Obxd/index.html');
 		winObxd.removeMenu();
-		//winObxd.webContents.openDevTools()
+		if (!app.isPackaged) winObxd.webContents.openDevTools()
 		winObxdEtat=1;
 		winObxd.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		//winObxd.webContents.send("fromMain", "equalizer;"+id+";"+objWav);
@@ -2590,7 +2590,7 @@ function winHostOpen(id,objWav) {
 		});
 		winHost.loadFile('./Wam2/wam-examples-master/packages/hostModules/index.html');
 		winHost.removeMenu();
-		//winHost.webContents.openDevTools()
+		if (!app.isPackaged) winHost.webContents.openDevTools()
 		winHostEtat=1;
 		winHost.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
     		winHost.webContents.send("fromMain", "equalizer;"+id+";"+audioPath+";"+objWav);
@@ -2774,7 +2774,7 @@ function soxSpectrogram(npath) {
 				});
 				winSpectro.loadFile('spectrogram.html');
 				winSpectro.removeMenu();
-				//winSpectro.webContents.openDevTools()
+				if (!app.isPackaged) winSpectro.webContents.openDevTools()
 				winSpectroEtat=1;
 				winSpectro.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
 		    		const kandiskyProjetsPath = path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
