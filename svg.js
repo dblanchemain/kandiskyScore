@@ -310,7 +310,7 @@ async function transformSymbSvg(txt,lsgrp) {
     		var nb2=nb/4.9222416;
     		txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'  >";
 			for(i=0;i<nb2;i++){
-				txt=txt+'<path d="m 5,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>';
+				txt=txt+'<path d="m 5,0 l 0,'+(nb2*5)+'"  stroke="'+lsgrp.objColor+'" stroke-width="1"/>';
 				txt=txt+'<path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971" />';
 				}
 			txt=txt+"</g>";
@@ -387,7 +387,7 @@ async function transformSymbSvg(txt,lsgrp) {
 		{	var dist=Math.hypot(lsgrp.width, lsgrp.height);
 			var nL21=(Math.floor(dist/5)-1)*4.9222416;
 			txt=txt+"<g transform='rotate("+lsgrp.rotate+",0,0) scale(1,"+lsgrp.scaleY2+")' fill='"+lsgrp.objColor+"' >";
-			txt=txt+'<path d="m 2,0 l 0,'+nL21+'"  stroke="#000000" stroke-width="2"/>';
+			txt=txt+'<path d="m 2,0 l 0,'+nL21+'"  stroke="'+lsgrp.objColor+'" stroke-width="2"/>';
 			txt=txt+"</g>";
 			break;
 		}
@@ -395,7 +395,7 @@ async function transformSymbSvg(txt,lsgrp) {
 		{	var dist=Math.hypot(lsgrp.width, lsgrp.height);
 			var nL22=(Math.floor(dist/5)-1)*4.9222416;
 			txt=txt+"<g transform='rotate("+lsgrp.rotate+",0,0) scale(1,"+lsgrp.scaleY2+")' fill='"+lsgrp.objColor+"' >";
-			txt=txt+'<path d="m 3,0 l 0,'+nL22+' M 6,0 l 0,'+nL22+'"  stroke="#000000" stroke-width="1"/>';
+			txt=txt+'<path d="m 3,0 l 0,'+nL22+' M 6,0 l 0,'+nL22+'"  stroke="'+lsgrp.objColor+'" stroke-width="1"/>';
 			txt=txt+"</g>";
 			break;
 		}
@@ -403,7 +403,7 @@ async function transformSymbSvg(txt,lsgrp) {
 		{	var dist=Math.hypot(lsgrp.width, lsgrp.height);
 			var nL23=(Math.floor(dist/5)-1)*4.9222416;
 			txt=txt+"<g transform='rotate("+lsgrp.rotate+",0,0) scale(1,"+lsgrp.scaleY2+")' fill='"+lsgrp.objColor+"' >";
-			txt=txt+'<path d="m 10,0 l 0,'+nL23+'"  stroke="#000000" stroke-width="4"/><path d="m 16,0 l 0,'+nL23+'"  stroke="#000000" stroke-width="1"/>';
+			txt=txt+'<path d="m 10,0 l 0,'+nL23+'"  stroke="'+lsgrp.objColor+'" stroke-width="4"/><path d="m 16,0 l 0,'+nL23+'"  stroke="'+lsgrp.objColor+'" stroke-width="1"/>';
 			txt=txt+"</g>";
 			break;
 		}
@@ -411,7 +411,7 @@ async function transformSymbSvg(txt,lsgrp) {
 		{	var dist=Math.hypot(lsgrp.width, lsgrp.height);
 			var nL24=(Math.floor(dist/5)-1)*4.9222416;
 			txt=txt+"<g transform='rotate("+lsgrp.rotate+",0,0) scale(1,"+lsgrp.scaleY2+")' fill='"+lsgrp.objColor+"' >";
-			txt=txt+'<path d="m 16,0 l 0,'+nL24+'"  stroke="#000000" stroke-width="1"/><path d="M 22,0 l 0,'+nL24+'"  stroke="#000000" stroke-width="4"/><path d="m 28,0 l 0,'+nL24+'"  stroke="#000000" stroke-width="1"/>';
+			txt=txt+'<path d="m 16,0 l 0,'+nL24+'"  stroke="'+lsgrp.objColor+'" stroke-width="1"/><path d="M 22,0 l 0,'+nL24+'"  stroke="'+lsgrp.objColor+'" stroke-width="4"/><path d="m 28,0 l 0,'+nL24+'"  stroke="'+lsgrp.objColor+'" stroke-width="1"/>';
 			txt=txt+"</g>";
 			break;
 		}
@@ -567,10 +567,10 @@ async function transformSymbSvg(txt,lsgrp) {
 			var dist56=Math.hypot(x2_56,y2_56)||94;
 			var angle56=Math.atan2(y2_56,x2_56)*180/Math.PI;
 			txt+="<g transform='rotate("+angle56+",0,0)'>";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist56+"' cy='0' r='7' />";
-			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist56-7)+"' y2='0' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+(dist56-4)+",0 L "+(dist56-11)+",-4 "+(dist56-11)+",4 Z' />";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='"+dist56+"' cy='0' r='7' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.6' x1='7' y1='0' x2='"+(dist56-7)+"' y2='0' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M "+(dist56-4)+",0 L "+(dist56-11)+",-4 "+(dist56-11)+",4 Z' />";
 			txt+="</g>";
 			break;
 		}
@@ -579,10 +579,10 @@ async function transformSymbSvg(txt,lsgrp) {
 			var dist57=Math.hypot(x2_57,y2_57)||94;
 			var angle57=Math.atan2(y2_57,x2_57)*180/Math.PI;
 			txt+="<g transform='rotate("+angle57+",0,0)'>";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist57+"' cy='0' r='7' />";
-			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist57-7)+"' y2='0' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 4,0 L 11,-4 11,4 Z' />";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='"+dist57+"' cy='0' r='7' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.6' x1='7' y1='0' x2='"+(dist57-7)+"' y2='0' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 4,0 L 11,-4 11,4 Z' />";
 			txt+="</g>";
 			break;
 		}
@@ -591,11 +591,11 @@ async function transformSymbSvg(txt,lsgrp) {
 			var dist58=Math.hypot(x2_58,y2_58)||94;
 			var angle58=Math.atan2(y2_58,x2_58)*180/Math.PI;
 			txt+="<g transform='rotate("+angle58+",0,0)'>";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist58+"' cy='0' r='7' />";
-			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist58-7)+"' y2='0' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+(dist58-4)+",0 L "+(dist58-11)+",-4 "+(dist58-11)+",4 Z' />";
-			txt+="<g transform='translate("+(dist58/2)+",-8) scale(6,6)'><path style='fill:none;stroke:#000000;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='#000000' /><path style='fill:#000000;stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /></g>";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='"+dist58+"' cy='0' r='7' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.6' x1='7' y1='0' x2='"+(dist58-7)+"' y2='0' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M "+(dist58-4)+",0 L "+(dist58-11)+",-4 "+(dist58-11)+",4 Z' />";
+			txt+="<g transform='translate("+(dist58/2)+",-8) scale(6,6)'><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='"+lsgrp.objColor+"' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /></g>";
 			txt+="</g>";
 			break;
 		}
@@ -604,11 +604,11 @@ async function transformSymbSvg(txt,lsgrp) {
 			var dist59=Math.hypot(x2_59,y2_59)||94;
 			var angle59=Math.atan2(y2_59,x2_59)*180/Math.PI;
 			txt+="<g transform='rotate("+angle59+",0,0)'>";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
-			txt+="<circle fill='#ffffff' stroke='#000000' fill-opacity='1' stroke-width='0.6' cx='"+dist59+"' cy='0' r='7' />";
-			txt+="<line stroke='#000000' stroke-width='0.6' x1='7' y1='0' x2='"+(dist59-7)+"' y2='0' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 4,0 L 11,-4 11,4 Z' />";
-			txt+="<g transform='translate("+(dist59/2)+",-8) scale(6,6)'><path style='fill:none;stroke:#000000;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='#000000' /><path style='fill:#000000;stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /></g>";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='0' cy='0' r='7' />";
+			txt+="<circle fill='#ffffff' stroke='"+lsgrp.objColor+"' fill-opacity='1' stroke-width='0.6' cx='"+dist59+"' cy='0' r='7' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.6' x1='7' y1='0' x2='"+(dist59-7)+"' y2='0' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 4,0 L 11,-4 11,4 Z' />";
+			txt+="<g transform='translate("+(dist59/2)+",-8) scale(6,6)'><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-dasharray:none;stroke-opacity:1' d='m 0.87037671,1.9635921 c -0.06468,-0.07449 -0.352828,-0.03968 -0.394197,-0.574872 0.01372,-0.70638403 0.55035799,-0.74558403 0.62098599,-0.73461103 0.590522,0.07128 0.670251,0.60724103 0.524974,1.05662603 -0.136678,0.396526 -0.545612,0.461145 -0.545612,0.461145' stroke='"+lsgrp.objColor+"' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.0500108px;stroke-opacity:1' transform='translate(0.14 0.56) rotate(-30)' d='M 0,1.8 L 0,1.8 0.4,1.5 0.4,2.2 0,1.8' /></g>";
 			txt+="</g>";
 			break;
 		}
@@ -629,11 +629,11 @@ async function transformSymbSvg(txt,lsgrp) {
 			var dist63=Math.hypot(x2_63,y2_63)||94;
 			var angle63=Math.atan2(y2_63,x2_63)*180/Math.PI;
 			txt+="<g transform='rotate("+angle63+",0,0)'>";
-			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='-8' x2='0' y2='8' />";
-			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist63+"' y2='0' />";
-			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='"+dist63+"' y1='-8' x2='"+dist63+"' y2='8' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 1,0 L 8,-4 8,4 Z' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+(dist63-1)+",0 L "+(dist63-8)+",-4 "+(dist63-8)+",4 Z' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.80' fill='none' x1='0' y1='-8' x2='0' y2='8' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist63+"' y2='0' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.80' fill='none' x1='"+dist63+"' y1='-8' x2='"+dist63+"' y2='8' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 1,0 L 8,-4 8,4 Z' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M "+(dist63-1)+",0 L "+(dist63-8)+",-4 "+(dist63-8)+",4 Z' />";
 			txt+="</g>";
 			break;
 		}
@@ -642,11 +642,11 @@ async function transformSymbSvg(txt,lsgrp) {
 			var dist64=Math.hypot(x2_64,y2_64)||94;
 			var angle64=Math.atan2(y2_64,x2_64)*180/Math.PI;
 			txt+="<g transform='rotate("+angle64+",0,0)'>";
-			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='8' y1='-8' x2='8' y2='8' />";
-			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist64+"' y2='0' />";
-			txt+="<line stroke='#000000' stroke-width='0.80' fill='none' x1='"+dist64+"' y1='-8' x2='"+dist64+"' y2='8' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 7,0 L 0,-4 0,4 Z' />";
-			txt+="<path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M "+dist64+",0 L "+(dist64+7)+",-4 "+(dist64+7)+",4 Z' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.80' fill='none' x1='8' y1='-8' x2='8' y2='8' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.80' fill='none' x1='0' y1='0' x2='"+dist64+"' y2='0' />";
+			txt+="<line stroke='"+lsgrp.objColor+"' stroke-width='0.80' fill='none' x1='"+dist64+"' y1='-8' x2='"+dist64+"' y2='8' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 7,0 L 0,-4 0,4 Z' />";
+			txt+="<path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M "+dist64+",0 L "+(dist64+7)+",-4 "+(dist64+7)+",4 Z' />";
 			txt+="</g>";
 			break;
 		}
@@ -656,12 +656,12 @@ async function transformSymbSvg(txt,lsgrp) {
 			var angle65=Math.atan2(y2_65,x2_65)*180/Math.PI;
 			txt+="<g transform='rotate("+angle65+",0,0)'>";
 			txt+="<g transform='scale("+(dist65/36)+",1) translate(0,-14)'>";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='16' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='16' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' />";
 			txt+="</g></g>";
 			break;
 		}
@@ -671,13 +671,13 @@ async function transformSymbSvg(txt,lsgrp) {
 			var angle66=Math.atan2(y2_66,x2_66)*180/Math.PI;
 			txt+="<g transform='rotate("+angle66+",0,0)'>";
 			txt+="<g transform='scale("+(dist66/36)+",1) translate(0,-14)'>";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='14' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='17' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='4' y1='10' x2='4' y2='28' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='14' y1='8' x2='14' y2='26' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='24' y1='4' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='34' y1='0' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='14' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='17' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='28' x2='34' y2='20' />";
 			txt+="</g></g>";
 			break;
 		}
@@ -687,12 +687,12 @@ async function transformSymbSvg(txt,lsgrp) {
 			var angle67=Math.atan2(y2_67,x2_67)*180/Math.PI;
 			txt+="<g transform='rotate("+angle67+",0,0)'>";
 			txt+="<g transform='scale("+(dist67/36)+",1) translate(0,-10)'>";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='14' x2='34' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='14' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' />";
 			txt+="</g></g>";
 			break;
 		}
@@ -702,44 +702,44 @@ async function transformSymbSvg(txt,lsgrp) {
 			var angle68=Math.atan2(y2_68,x2_68)*180/Math.PI;
 			txt+="<g transform='rotate("+angle68+",0,0)'>";
 			txt+="<g transform='scale("+(dist68/36)+",1) translate(0,-10)'>";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='12' x2='34' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='15' x2='34' y2='20' />";
-			txt+="<line style='fill:none;stroke:#000000;stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='4' y1='0' x2='4' y2='18' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1;stroke-opacity:1' x1='14' y1='4' x2='14' y2='16' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='24' y1='8' x2='24' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:0.80;stroke-opacity:1' x1='34' y1='10' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='12' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='15' x2='34' y2='20' />";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.40;stroke-opacity:1' x1='4' y1='18' x2='34' y2='20' />";
 			txt+="</g></g>";
 			break;
 		}
 		case 69:
 			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >";
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,8 L 0,8 20,8  20,24 ' /><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 20,24 L "+lx+",24' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,24 L 54,24 48,20 48,28 54,24'  transform='translate("+(lx-53)+" 0)'/></g>";
+			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 0,8 L 0,8 20,8  20,24 ' /><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 20,24 L "+lx+",24' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 54,24 L 54,24 48,20 48,28 54,24'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>";
 			break;
 		case 70:
 			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >";
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,24 L 0,24 20,24 20,8' /><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 20,8 L "+lx+",8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
+			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 0,24 L 0,24 20,24 20,8' /><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 20,8 L "+lx+",8' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>";
 			break;
 		case 71:
 			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >";
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,8 L 0,8 0,24' /><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,24 L "+lx+",24' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,24 L 54,24 48,20 48,28 54,24'  transform='translate("+(lx-53)+" 0)'/></g>";
+			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 0,8 L 0,8 0,24' /><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 0,24 L "+lx+",24' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 54,24 L 54,24 48,20 48,28 54,24'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>";
 			break;
 		case 72:
 			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >";
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,24 L 0,24 0,8' /><path style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' d='M 0,8 L "+lx+",8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
+			txt=txt+"<g transform='translate(0 0)'><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 0,24 L 0,24 0,8' /><path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' d='M 0,8 L "+lx+",8' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>";
 			break;
 		case 73:
 			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >";
 			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-	txt=txt+"<g transform='translate(0 0)'><line style='fill:none;stroke:#000000;stroke-width:1.5;stroke:#000000;stroke-opacity:1' x1='0' y1='8' x2='"+lx+"' y2='8' /><path style='fill:#000000;stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
+	txt=txt+"<g transform='translate(0 0)'><line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' x1='0' y1='8' x2='"+lx+"' y2='8' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
 			txt=txt+"</g>";
 			break;
 		case 74:
@@ -823,7 +823,7 @@ async function transformSymbSvg(txt,lsgrp) {
     		var nb2=nb/4.9222416;
     		txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'  >";
 			for(i=0;i<nb2;i++){
-				txt=txt+'<path d="m 5,0 l 0,'+(nb2*5)+'"  stroke="#000000" stroke-width="1"/>';
+				txt=txt+'<path d="m 5,0 l 0,'+(nb2*5)+'"  stroke="'+lsgrp.objColor+'" stroke-width="1"/>';
 				txt=txt+'<path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971" /><path d="m -0.0010629,8.447791 c -0.113482,0.09554 -0.205008,0.128211 -0.274563,0.09804 -0.139145,0 -0.208699,-0.110603 -0.208699,-0.331842 0,-0.2212239 0.366119,-0.8032039 1.098324,-1.7459321 0.732238,-0.942734 1.567877,-2.192175 2.506918,-3.7482813 0.939074,-1.5561528 1.735386,-3.0054418 2.009949,-4.16691018 0,-0.060335 -0.126309,0 0,0 0,0 -0.02197,-0.060334 0,0 0.296547,1.28715688 1.130351,2.76786758 2.056605,4.26117708 0.926253,1.4932624 1.7564011,2.7112804 2.4904471,3.6540144 0.734046,0.9427282 1.101069,1.5159092 1.101069,1.7195411 0,0.203627 -0.03477,0.314242 -0.104344,0.331841 -0.06957,0.01752 -0.195871,-0.0062 -0.378924,-0.07163 0,0 -4.3303111,-2.9588331 -5.1290491,-3.3170971"  transform="translate(10,'+((nb2*5)-1)+') rotate(180 0 0)"/>';
 				}
 			txt=txt+"</g>";
