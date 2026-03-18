@@ -141,7 +141,8 @@ function configPalette() {
 	document.getElementById("pcarrelong").firstChild.firstChild.setAttribute("fill",paletteCarrelong);
 	document.getElementById("pcarrelong").firstChild.firstChild.nextSibling.setAttribute("fill",paletteCarrelong);
 	document.getElementById("pcrescendo").setAttribute("fill",paletteCrescendo);
-	document.getElementById("pligne").setAttribute("stroke",paletteLigne);
+	document.getElementById("ligne").setAttribute("stroke",paletteLigne);
+	document.getElementById("pligne").setAttribute("onclick","selectobjet(10,'"+paletteLigne+"')");
 	document.getElementById("pglissando").setAttribute("stroke",paletteGlissando);
 	document.getElementById("pblock").setAttribute("stroke",paletteBlock);
 	document.getElementById("decresc").firstChild.firstChild.setAttribute("fill",paletteDecresc);
