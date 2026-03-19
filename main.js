@@ -1617,16 +1617,18 @@ function saveDefProjetAs() {
 }
 
 function buildZip(sourceDir, rootName, destZip) {
+	const nativeFs = require("fs");
+
 	function collectFiles(dir, base) {
 		let entries = [];
-		for (const name of fs.readdirSync(dir)) {
+		for (const name of nativeFs.readdirSync(dir)) {
 			const full = path.join(dir, name);
 			const rel  = base ? base + '/' + name : name;
-			const stat = fs.statSync(full);
+			const stat = nativeFs.statSync(full);
 			if (stat.isDirectory()) {
 				entries = entries.concat(collectFiles(full, rel));
 			} else {
-				entries.push({ full, rel });
+				entries.push({ full, rel, size: stat.size });
 			}
 		}
 		return entries;
@@ -1643,29 +1645,48 @@ function buildZip(sourceDir, rootName, destZip) {
 	const central = [];
 	let offset    = 0;
 
-	// Écriture incrémentale : un fichier à la fois (évite de tout charger en mémoire)
-	const fd = require("fs").openSync(destZip, 'w');
-	const write = buf => { require("fs").writeSync(fd, buf); };
+	const outFd  = nativeFs.openSync(destZip, 'w');
+	const write  = buf => nativeFs.writeSync(outFd, buf);
+	const CHUNK  = 256 * 1024; // 256 KB par lecture
+	const chunk  = Buffer.allocUnsafe(CHUNK);
 
 	for (const f of files) {
-		const data       = fs.readFileSync(f.full);
-		const compressed = zlib.deflateRawSync(data, { level: 1 });
-		const nameBuf    = Buffer.from(f.rel, 'utf8');
-		const crc        = crc32(data);
+		const nameBuf = Buffer.from(f.rel, 'utf8');
 
+		// En-tête local : STORE (méthode 0), data descriptor (GPB bit 3)
+		// CRC inconnu avant streaming → on le mettra dans le data descriptor
 		const header = Buffer.concat([
 			Buffer.from([0x50,0x4B,0x03,0x04]),
-			u16(20), u16(0), u16(8),
+			u16(20), u16(0x0008), u16(0),          // version, GPB=bit3, méthode=STORE
 			u16(dosTime), u16(dosDate),
-			u32(crc), u32(compressed.length), u32(data.length),
+			u32(0), u32(f.size), u32(f.size),       // crc=0, tailles connues via stat
 			u16(nameBuf.length), u16(0),
 			nameBuf
 		]);
 		write(header);
-		write(compressed);
 
-		central.push({ nameBuf, crc, cSize: compressed.length, uSize: data.length, offset });
-		offset += header.length + compressed.length;
+		// Lecture par chunks + CRC32 incrémental + écriture directe
+		let crc = 0xFFFFFFFF;
+		const inFd = nativeFs.openSync(f.full, 'r');
+		let bytesRead;
+		while ((bytesRead = nativeFs.readSync(inFd, chunk, 0, CHUNK)) > 0) {
+			for (let i = 0; i < bytesRead; i++) {
+				crc ^= chunk[i];
+				for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
+			}
+			nativeFs.writeSync(outFd, chunk, 0, bytesRead);
+		}
+		nativeFs.closeSync(inFd);
+		crc = (crc ^ 0xFFFFFFFF) >>> 0;
+
+		// Data descriptor avec CRC réel
+		write(Buffer.concat([
+			Buffer.from([0x50,0x4B,0x07,0x08]),
+			u32(crc), u32(f.size), u32(f.size)
+		]));
+
+		central.push({ nameBuf, crc, size: f.size, offset });
+		offset += header.length + f.size + 16; // 16 = data descriptor
 	}
 
 	// Répertoire central
@@ -1673,9 +1694,9 @@ function buildZip(sourceDir, rootName, destZip) {
 	for (const e of central) {
 		const rec = Buffer.concat([
 			Buffer.from([0x50,0x4B,0x01,0x02]),
-			u16(20), u16(20), u16(0), u16(8),
+			u16(20), u16(20), u16(0x0008), u16(0), // GPB=bit3
 			u16(dosTime), u16(dosDate),
-			u32(e.crc), u32(e.cSize), u32(e.uSize),
+			u32(e.crc), u32(e.size), u32(e.size),
 			u16(e.nameBuf.length), u16(0), u16(0), u16(0), u16(0), u32(0),
 			u32(e.offset), e.nameBuf
 		]);
@@ -1692,16 +1713,7 @@ function buildZip(sourceDir, rootName, destZip) {
 		u16(0)
 	]));
 
-	require("fs").closeSync(fd);
-}
-
-function crc32(buf) {
-	let crc = 0xFFFFFFFF;
-	for (let i = 0; i < buf.length; i++) {
-		crc ^= buf[i];
-		for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
-	}
-	return (crc ^ 0xFFFFFFFF) >>> 0;
+	nativeFs.closeSync(outFd);
 }
 
 async function archiveProjet() {
