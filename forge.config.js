@@ -6,7 +6,13 @@ const extraResource = allResources.filter(p => fs.existsSync(p));
 module.exports = {
   packagerConfig: {
     asar: true,
-    extraResource
+    extraResource,
+    ignore: [
+      /^\/public\/emsdk/,
+      /^\/public\/.*\.(cpp|cpp~|h)$/,
+      /^\/out\//,
+      /^\/\.git\//,
+    ]
   },
   rebuildConfig: {},
   makers: [
