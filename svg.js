@@ -383,16 +383,14 @@ async function transformSymbSvg(txt,lsgrp) {
 			var dx19=x2_19, dy19=y2_19;
 			var L19=Math.hypot(dx19,dy19)||60;
 			var ux19=dx19/L19, uy19=dy19/L19;
-			var arc19=L19*0.35;
-			var sw19=Math.max(2, L19/18);
-			var cp1x=arc19*ux19, cp1y=arc19*uy19;
-			var cp2x=x3_19-arc19*ux19, cp2y=y3_19-arc19*uy19;
-			var cp3x=x3_19+arc19*ux19, cp3y=y3_19+arc19*uy19;
-			var cp4x=x2_19-arc19*ux19, cp4y=y2_19-arc19*uy19;
-			var d19="M 0,0 C "+cp1x+","+cp1y+" "+cp2x+","+cp2y+" "+x3_19+","+y3_19+" C "+cp3x+","+cp3y+" "+cp4x+","+cp4y+" "+x2_19+","+y2_19;
-			txt+="<g>";
-			txt+="<path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:"+sw19+";stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1' d='"+d19+"' />";
-			txt+="</g>";
+			var sy19=L19/26.10;
+			var perp19=(x3_19-x2_19/2)*(-uy19)+(y3_19-y2_19/2)*ux19;
+			var sx19=perp19/8.46;
+			if(Math.abs(sx19)<0.2) sx19=(sx19<0?-0.2:0.2);
+			var ma19=uy19*sx19, mb19=-ux19*sx19, mc19=ux19*sy19, md19=uy19*sy19;
+			var me19=-9.5*uy19*sx19-0.58*ux19*sy19;
+			var mf19=9.5*ux19*sx19-0.58*uy19*sy19;
+			txt+="<g transform='matrix("+ma19+","+mb19+","+mc19+","+md19+","+me19+","+mf19+")' fill='"+lsgrp.objColor+"' stroke='none'>"+glyphBlocAccolade+"</g>";
 			break;
 		}
 				case 20:
