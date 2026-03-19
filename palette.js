@@ -1941,6 +1941,53 @@ function linkSup(obj){
 	document.getElementById(tableObjet[obj].id).innerHTML=txt;
 	document.getElementById("objet"+obj).style.width=(lx*(tableObjet[obj].scaleX+0.1))+"px";
 }
+function gBlocDroit20(obj){
+	var t=tableObjet[obj];
+	if(t.x2===undefined||isNaN(t.x2)) t.x2=0;
+	if(t.y2===undefined||isNaN(t.y2)) t.y2=30;
+	var ax=parseFloat(t.posX), ay=parseFloat(t.posY);
+	var bx=ax+parseFloat(t.x2), by=ay+parseFloat(t.y2);
+	var dx=bx-ax, dy=by-ay;
+	var L=Math.hypot(dx,dy)||30;
+	var ux=dx/L, uy=dy/L;
+	var tx=uy, ty=-ux;
+	var tickLen=5;
+	var t1x=ax+tickLen*tx, t1y=ay+tickLen*ty;
+	var t2x=bx+tickLen*tx, t2y=by+tickLen*ty;
+	var minX=Math.min(ax,bx,t1x,t2x)-2, minY=Math.min(ay,by,t1y,t2y)-2;
+	var maxX=Math.max(ax,bx,t1x,t2x)+2, maxY=Math.max(ay,by,t1y,t2y)+2;
+	var bw=Math.max(maxX-minX,10), bh=Math.max(maxY-minY,10);
+	var lax=ax-minX, lay=ay-minY;
+	var lbx=bx-minX, lby=by-minY;
+	var col=t.objColor;
+	t.bkgWidth=bw; t.bkgHeight=bh;
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var svg="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+	svg+="<g style='fill:none;stroke:"+col+";stroke-width:1.5;stroke-linecap:square'>";
+	svg+="<line x1='"+lax+"' y1='"+lay+"' x2='"+lbx+"' y2='"+lby+"' />";
+	svg+="<line x1='"+lax+"' y1='"+lay+"' x2='"+(lax+tickLen*tx)+"' y2='"+(lay+tickLen*ty)+"' />";
+	svg+="<line x1='"+lbx+"' y1='"+lby+"' x2='"+(lbx+tickLen*tx)+"' y2='"+(lby+tickLen*ty)+"' />";
+	svg+="</g></svg>";
+	document.getElementById("space").appendChild(dupnode);
+	document.getElementById(t.id).innerHTML=svg;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(ay-4)+"px;left:"+(ax-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(by-4)+"px;left:"+(bx-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+}
 function gLink71(obj){
 	var t=tableObjet[obj];
 	if(t.x2===undefined||isNaN(t.x2)) t.x2=0;
@@ -2325,11 +2372,11 @@ function defSymbole(objType) {
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 20:
-			tableObjet[objActif].width=8;
-			tableObjet[objActif].height=30;
-			tableObjet[objActif].bkgWidth=8;
-			tableObjet[objActif].bkgHeight=30;
-			graphSymbole(objActif,glyphBlocDroit);
+			tableObjet[objActif].x2=0;
+			tableObjet[objActif].y2=30;
+			gBlocDroit20(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 21:
 			tableObjet[objActif].width=10;
@@ -3022,7 +3069,10 @@ function createSymbole2(objType) {
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 20:
-			graphSymbole(objActif,glyphBlocDroit);
+			gBlocDroit20(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 21:
 			gArpege21(objActif);
@@ -3651,7 +3701,12 @@ function pasteSymbole(obj,copyX,copyY){
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 20:
-			graphSymbole(objActif,glyphBlocDroit);
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			gBlocDroit20(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 21:
 			graphSymbole(objActif,glyphBlocLigne);

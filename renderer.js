@@ -1720,6 +1720,9 @@ function objScaleX(id,scaleX) {
 						case 73:
 				redrawArpege(id);
 				break;
+						case 20:
+				redrawArpege(id);
+				break;
 						case 74:
 				tableObjet[id].scaleX=parseFloat(scaleX);
 				tableObjet[id].scaleY=parseFloat(scaleX);

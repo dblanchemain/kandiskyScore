@@ -394,9 +394,20 @@ async function transformSymbSvg(txt,lsgrp) {
 			break;
 		}
 				case 20:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'  stroke='"+lsgrp.objColor+"' stroke-width='"+lsgrp.objWidth+"'  >"+glyphBlocDroit+"</g>";
-			txt=txt+"</g>";
-			break;
+			{	var x2_20=parseFloat(lsgrp.x2)||0;
+				var y2_20=parseFloat(lsgrp.y2)||30;
+				var dx20=x2_20, dy20=y2_20;
+				var L20=Math.hypot(dx20,dy20)||30;
+				var ux20=dx20/L20, uy20=dy20/L20;
+				var tx20=uy20, ty20=-ux20;
+				var tickLen20=5;
+				txt+="<g style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke-linecap:square'>";
+				txt+="<line x1='0' y1='0' x2='"+x2_20+"' y2='"+y2_20+"' />";
+				txt+="<line x1='0' y1='0' x2='"+(tickLen20*tx20)+"' y2='"+(tickLen20*ty20)+"' />";
+				txt+="<line x1='"+x2_20+"' y1='"+y2_20+"' x2='"+(x2_20+tickLen20*tx20)+"' y2='"+(y2_20+tickLen20*ty20)+"' />";
+				txt+="</g>";
+				break;
+			}
 		case 21:
 		{	var dist=Math.hypot(lsgrp.width, lsgrp.height);
 			var nL21=(Math.floor(dist/5)-1)*4.9222416;
