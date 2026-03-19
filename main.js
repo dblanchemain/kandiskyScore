@@ -1705,22 +1705,25 @@ function crc32(buf) {
 }
 
 async function archiveProjet() {
-	if (!currentProjet || currentProjet === path.join(app.getPath('home'), 'kandiskyscore', 'Projets')) {
+	if (!projetName) {
 		dialog.showMessageBox(mainWindow, { type: 'warning', message: 'Aucun projet ouvert.' });
 		return;
 	}
-	const projetDir = path.dirname(currentProjet);
-	const projetNom = path.basename(projetDir);
+	const projetDir = path.join(projetPath, projetName);
+	if (!fs.existsSync(projetDir)) {
+		dialog.showMessageBox(mainWindow, { type: 'error', message: 'Dossier projet introuvable : ' + projetDir });
+		return;
+	}
 	const result = await dialog.showSaveDialog(mainWindow, {
 		title: 'Archiver le projet en zip',
-		defaultPath: path.join(app.getPath('home'), projetNom + '.zip'),
+		defaultPath: path.join(app.getPath('home'), projetName + '.zip'),
 		filters: [{ name: 'Archive ZIP', extensions: ['zip'] }]
 	});
 	if (result.canceled || !result.filePath) return;
 	const zipDest = result.filePath;
 	if (fs.existsSync(zipDest)) fs.unlinkSync(zipDest);
 	try {
-		buildZip(projetDir, path.basename(projetDir), zipDest);
+		buildZip(projetDir, projetName, zipDest);
 		dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
 	} catch(err) {
 		dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur : ' + err.message });
