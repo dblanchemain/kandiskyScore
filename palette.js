@@ -1990,6 +1990,63 @@ function gLink71(obj){
 	h3.onmouseenter=function(){showArpegeHandles(_actif);};
 	h3.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
+function gAccolade19(obj){
+	var t=tableObjet[obj];
+	if(t.x2===undefined||isNaN(t.x2)) t.x2=0;
+	if(t.y2===undefined||isNaN(t.y2)) t.y2=60;
+	if(t.x3===undefined||isNaN(t.x3)) t.x3=-15;
+	if(t.y3===undefined||isNaN(t.y3)) t.y3=30;
+	var ax=parseFloat(t.posX), ay=parseFloat(t.posY);
+	var bx=ax+parseFloat(t.x2), by=ay+parseFloat(t.y2);
+	var cx=ax+parseFloat(t.x3), cy=ay+parseFloat(t.y3);
+	var minX=Math.min(ax,bx,cx), minY=Math.min(ay,by,cy);
+	var maxX=Math.max(ax,bx,cx), maxY=Math.max(ay,by,cy);
+	var bw=Math.max(maxX-minX,10), bh=Math.max(maxY-minY,10);
+	var lax=ax-minX, lay=ay-minY;
+	var lbx=bx-minX, lby=by-minY;
+	var lcx=cx-minX, lcy=cy-minY;
+	var col=t.objColor;
+	t.bkgWidth=bw; t.bkgHeight=bh;
+	var dx=bx-ax, dy=by-ay;
+	var L=Math.hypot(dx,dy)||60;
+	var ux=dx/L, uy=dy/L;
+	var arc=L*0.35;
+	var sw=Math.max(2, L/18);
+	var cp1x=lax+arc*ux, cp1y=lay+arc*uy;
+	var cp2x=lcx-arc*ux, cp2y=lcy-arc*uy;
+	var cp3x=lcx+arc*ux, cp3y=lcy+arc*uy;
+	var cp4x=lbx-arc*ux, cp4y=lby-arc*uy;
+	var d="M "+lax+","+lay+" C "+cp1x+","+cp1y+" "+cp2x+","+cp2y+" "+lcx+","+lcy+" C "+cp3x+","+cp3y+" "+cp4x+","+cp4y+" "+lbx+","+lby;
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var svg="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+	svg+="<path style='fill:none;stroke:"+col+";stroke-width:"+sw+";stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1' d='"+d+"' />";
+	svg+="</svg>";
+	document.getElementById("space").appendChild(dupnode);
+	document.getElementById(t.id).innerHTML=svg;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(ay-4)+"px;left:"+(ax-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","p2"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(cy-4)+"px;left:"+(cx-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var h3=document.createElement('div');
+	h3.setAttribute("id","sglis"+nbObjets);
+	h3.setAttribute("style","position:absolute;top:"+(by-4)+"px;left:"+(bx-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h3);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h3.onmouseenter=function(){showArpegeHandles(_actif);};
+	h3.onmouseleave=function(){startHideArpegeHandles(_actif);};
+}
 function gLink73(obj){
 	var t=tableObjet[obj];
 	if(t.x2===undefined||isNaN(t.x2)) t.x2=54;
@@ -2258,13 +2315,14 @@ function defSymbole(objType) {
 			graphSymbole(objActif,glyphArtTirer);
 			break;
 		case 19:
-			tableObjet[objActif].width=40;
-			tableObjet[objActif].height=60;
-			tableObjet[objActif].bkgWidth=40;
-			tableObjet[objActif].bkgHeight=60;
-			tableObjet[objActif].margeG=9;
-			tableObjet[objActif].margeH=9;
-			graphSymbole(objActif,glyphBlocAccolade);
+			tableObjet[objActif].x2=0;
+			tableObjet[objActif].y2=60;
+			tableObjet[objActif].x3=-15;
+			tableObjet[objActif].y3=30;
+			gAccolade19(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 20:
 			tableObjet[objActif].width=8;
@@ -2957,7 +3015,11 @@ function createSymbole2(objType) {
 			graphSymbole(objActif,glyphArtTirer);
 			break;
 		case 19:
-			graphSymbole(objActif,glyphBlocAccolade);
+			gAccolade19(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 20:
 			graphSymbole(objActif,glyphBlocDroit);
@@ -3578,7 +3640,15 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphArtTirer);
 			break;
 		case 19:
-			graphSymbole(objActif,glyphBlocAccolade);
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			tableObjet[objActif].x3=tableObjet[obj].x3;
+			tableObjet[objActif].y3=tableObjet[obj].y3;
+			gAccolade19(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 20:
 			graphSymbole(objActif,glyphBlocDroit);

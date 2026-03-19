@@ -376,10 +376,26 @@ async function transformSymbSvg(txt,lsgrp) {
 			txt=txt+"</g>";
 			break;
 		case 19:
-			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'  >"+glyphBlocAccolade+"</g>";
-			txt=txt+"</g>";
+		{	var x2_19=parseFloat(lsgrp.x2); if(isNaN(x2_19)) x2_19=0;
+			var y2_19=parseFloat(lsgrp.y2); if(isNaN(y2_19)) y2_19=60;
+			var x3_19=parseFloat(lsgrp.x3); if(isNaN(x3_19)) x3_19=-15;
+			var y3_19=parseFloat(lsgrp.y3); if(isNaN(y3_19)) y3_19=30;
+			var dx19=x2_19, dy19=y2_19;
+			var L19=Math.hypot(dx19,dy19)||60;
+			var ux19=dx19/L19, uy19=dy19/L19;
+			var arc19=L19*0.35;
+			var sw19=Math.max(2, L19/18);
+			var cp1x=arc19*ux19, cp1y=arc19*uy19;
+			var cp2x=x3_19-arc19*ux19, cp2y=y3_19-arc19*uy19;
+			var cp3x=x3_19+arc19*ux19, cp3y=y3_19+arc19*uy19;
+			var cp4x=x2_19-arc19*ux19, cp4y=y2_19-arc19*uy19;
+			var d19="M 0,0 C "+cp1x+","+cp1y+" "+cp2x+","+cp2y+" "+x3_19+","+y3_19+" C "+cp3x+","+cp3y+" "+cp4x+","+cp4y+" "+x2_19+","+y2_19;
+			txt+="<g>";
+			txt+="<path style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:"+sw19+";stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1' d='"+d19+"' />";
+			txt+="</g>";
 			break;
-		case 20:
+		}
+				case 20:
 			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleY2+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'  stroke='"+lsgrp.objColor+"' stroke-width='"+lsgrp.objWidth+"'  >"+glyphBlocDroit+"</g>";
 			txt=txt+"</g>";
 			break;

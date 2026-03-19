@@ -790,7 +790,7 @@ function dragElement(elmnt) {
 	    			}
 	    		}
 	    		var _type56=tableObjet[objActif].type;
-	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68 || _type56==69 || _type56==70 || _type56==71 || _type56==72 || _type56==73 || _type56==75 || _type56==76 || _type56==77)){
+	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68 || _type56==19 || _type56==69 || _type56==70 || _type56==71 || _type56==72 || _type56==73 || _type56==75 || _type56==76 || _type56==77)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
@@ -1231,6 +1231,13 @@ function smarpegeP2(elmnt,px,py){
 	var actif=elmnt.id.substring(2);
 	var t=tableObjet[actif];
 	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
+	if(t.type==19){
+		t.x3=px+4-posX;
+		t.y3=py+4-posY;
+		objActif=actif;
+		redrawArpege(actif);
+		return;
+	}
 	if(t.type==69||t.type==70||t.type==71||t.type==72){
 		t.x2=px+4-posX;
 		t.y2=py+4-posY;
@@ -1299,7 +1306,7 @@ function smarpegeP1(elmnt,px,py) {
  			tableObjet[actif].y3=(posY+y3)-newPosY;
  			tableObjet[actif].x4=(posX+x4)-newPosX;
  			tableObjet[actif].y4=(posY+y4)-newPosY;
- 		}else if(tableObjet[actif].type==71||tableObjet[actif].type==72){
+ 		}else if(tableObjet[actif].type==71||tableObjet[actif].type==72||tableObjet[actif].type==19){
  			var x3=parseFloat(tableObjet[actif].x3)||0;
  			var y3=parseFloat(tableObjet[actif].y3)||0;
  			tableObjet[actif].x3=(posX+x3)-newPosX;
@@ -1341,7 +1348,46 @@ function redrawArpege(actif) {
  		var posY=parseFloat(t.posY);
  		var x2=parseFloat(t.x2);
  		var y2=parseFloat(t.y2);
- 		if(t.type==73){
+ 		if(t.type==19){
+			var x3=parseFloat(t.x3)||0, y3=parseFloat(t.y3)||0;
+			var ax=posX, ay=posY;
+			var bx=posX+x2, by=posY+y2;
+			var cx=posX+x3, cy=posY+y3;
+			var minX=Math.min(ax,bx,cx), minY=Math.min(ay,by,cy);
+			var maxX=Math.max(ax,bx,cx), maxY=Math.max(ay,by,cy);
+			var bw=Math.max(maxX-minX,10), bh=Math.max(maxY-minY,10);
+			var lax=ax-minX, lay=ay-minY;
+			var lbx=bx-minX, lby=by-minY;
+			var lcx=cx-minX, lcy=cy-minY;
+			var col=t.objColor;
+			var dx19=bx-ax, dy19=by-ay;
+			var L19=Math.hypot(dx19,dy19)||60;
+			var ux19=dx19/L19, uy19=dy19/L19;
+			var arc19=L19*0.35;
+			var sw19=Math.max(2, L19/18);
+			var cp1x=lax+arc19*ux19, cp1y=lay+arc19*uy19;
+			var cp2x=lcx-arc19*ux19, cp2y=lcy-arc19*uy19;
+			var cp3x=lcx+arc19*ux19, cp3y=lcy+arc19*uy19;
+			var cp4x=lbx-arc19*ux19, cp4y=lby-arc19*uy19;
+			var d19="M "+lax+","+lay+" C "+cp1x+","+cp1y+" "+cp2x+","+cp2y+" "+lcx+","+lcy+" C "+cp3x+","+cp3y+" "+cp4x+","+cp4y+" "+lbx+","+lby;
+			var orig=document.getElementById(t.id);
+			orig.style.top=minY+"px"; orig.style.left=minX+"px";
+			orig.style.width=bw+"px"; orig.style.height=bh+"px";
+			var svg="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+			svg+="<path style='fill:none;stroke:"+col+";stroke-width:"+sw19+";stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1' d='"+d19+"' />";
+			svg+="</svg>";
+			orig.innerHTML=svg;
+			t.bkgWidth=bw; t.bkgHeight=bh;
+			document.getElementById("p1"+actif).style.top=(ay-4)+"px";
+			document.getElementById("p1"+actif).style.left=(ax-4)+"px";
+			document.getElementById("p2"+actif).style.top=(cy-4)+"px";
+			document.getElementById("p2"+actif).style.left=(cx-4)+"px";
+			document.getElementById("sglis"+actif).style.top=(by-4)+"px";
+			document.getElementById("sglis"+actif).style.left=(bx-4)+"px";
+			showArpegeHandles(actif);
+			return;
+		}
+				if(t.type==73){
 			var ax=posX, ay=posY;
 			var bx=posX+x2, by=posY+y2;
 			var minX=Math.min(ax,bx), minY=Math.min(ay,by);
