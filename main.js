@@ -21,7 +21,7 @@ const fs = require("fs-extra");
 const os = require("os");
 const { existsSync } = require("fs");
 const tkill = require("tree-kill");
-const { execFile } = require("child_process");
+const archiver = require("archiver");
 const { WaveFile } = require("wavefile");
 
 const createModule = require('./public/split_wasm.js');
@@ -1631,15 +1631,17 @@ async function archiveProjet() {
 	if (result.canceled || !result.filePath) return;
 	const zipDest = result.filePath;
 	if (fs.existsSync(zipDest)) fs.removeSync(zipDest);
-	const sourceName = path.basename(projetDir);
-	const cwd = path.dirname(projetDir);
-	execFile('zip', ['-r', '-y', zipDest, sourceName], { cwd }, (err) => {
-		if (err) {
-			dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur lors de la création de l\'archive : ' + err.message });
-		} else {
-			dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
-		}
+	const output = fs.createWriteStream(zipDest);
+	const archive = archiver('zip', { zlib: { level: 6 } });
+	output.on('close', () => {
+		dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
 	});
+	archive.on('error', (err) => {
+		dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur : ' + err.message });
+	});
+	archive.pipe(output);
+	archive.directory(projetDir, path.basename(projetDir));
+	archive.finalize();
 }
 
 function grpColor(){
