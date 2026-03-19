@@ -188,7 +188,13 @@ function defSymbGrp(id,nbobjets) {
 			<y1 value='"+id.y1+"'></y1>\n\
 			<x2 value='"+id.x2+"'></x2>\n\
 			<y2 value='"+id.y2+"'></y2>\n\
-		<width value='"+id.width+"'></width>\n";	
+		<width value='"+id.width+"'></width>\n";
+		if(parseInt(id.type)==69||parseInt(id.type)==70){
+			txt=txt+"<x3 value='"+(id.x3||0)+"'></x3>\n\
+			<y3 value='"+(id.y3||0)+"'></y3>\n\
+			<x4 value='"+(id.x4||0)+"'></x4>\n\
+			<y4 value='"+(id.y4||0)+"'></y4>\n";
+		}
 	}
 	return txt;
 }
@@ -647,7 +653,13 @@ function symbXmlToScore(id,i) {
 		y2:parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value")),
 		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
 		};
-		
+		if(tableObjet[id].type==69||tableObjet[id].type==70){
+			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(org.getElementsByTagName("x3")[0].getAttribute("value")):undefined;
+			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(org.getElementsByTagName("y3")[0].getAttribute("value")):undefined;
+			tableObjet[id].x4=org.getElementsByTagName("x4")[0]?parseFloat(org.getElementsByTagName("x4")[0].getAttribute("value")):undefined;
+			tableObjet[id].y4=org.getElementsByTagName("y4")[0]?parseFloat(org.getElementsByTagName("y4")[0].getAttribute("value")):undefined;
+		}
+
 		var trp=org.getElementsByTagName("bkgTrp")[0].getAttribute("value");
 		if(trp=="true"){
 			tableObjet[id].bkgTrp=true;

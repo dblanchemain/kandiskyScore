@@ -628,10 +628,13 @@ function dragElement(elmnt) {
     if(elmnt.id.substring(0,2)=="p2"){
    	document.getElementById("p2"+elmnt.id.substring(2)).style.border='1px solid green';
     }
+    if(elmnt.id.substring(0,2)=="p3"){
+   	document.getElementById("p3"+elmnt.id.substring(2)).style.border='1px solid orange';
+    }
 
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
     	var _t56=tableObjet[elmnt.id.substring(5)].type;
-    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84 || _t56==63 || _t56==64 || _t56==65 || _t56==66 || _t56==67 || _t56==68 || _t56==75 || _t56==76 || _t56==77){
+    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84 || _t56==63 || _t56==64 || _t56==65 || _t56==66 || _t56==67 || _t56==68 || _t56==69 || _t56==70 || _t56==75 || _t56==76 || _t56==77){
    		document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
    	}
     }
@@ -787,7 +790,7 @@ function dragElement(elmnt) {
 	    			}
 	    		}
 	    		var _type56=tableObjet[objActif].type;
-	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68 || _type56==75 || _type56==76 || _type56==77)){
+	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68 || _type56==69 || _type56==70 || _type56==75 || _type56==76 || _type56==77)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
@@ -990,6 +993,15 @@ function dragElement(elmnt) {
 				elmnt.style.top = py + "px";
 				elmnt.style.left = px + "px";
 				smarpegeP2(elmnt,px,py);
+			}else if(elmnt.id.substring(0,2)=="p3"){
+				var px=(elmnt.offsetLeft - pos1);
+				var py=(elmnt.offsetTop - pos2);
+				if(py<1){ py=0; }
+				if(py>714){ py=714; }
+				if(px<1){ px=0; }
+				elmnt.style.top = py + "px";
+				elmnt.style.left = px + "px";
+				smarpegeP3(elmnt,px,py);
 			}else if(elmnt.id.substring(0,2)=="p1"){
 				var px=(elmnt.offsetLeft - pos1);
 				var py=(elmnt.offsetTop - pos2);
@@ -1154,6 +1166,9 @@ console.log('resultat',gainPoints,resultat);
    if(elmnt.id.substring(0,2)=="p2"){
    	showArpegeHandles(elmnt.id.substring(2));
    }
+   if(elmnt.id.substring(0,2)=="p3"){
+   	showArpegeHandles(elmnt.id.substring(2));
+   }
 
    if(elmnt.id.substring(0,5)=="morph"){
    	document.getElementById("morph"+elmnt.id.substring(5)).style.border='0px solid red';
@@ -1216,6 +1231,13 @@ function smarpegeP2(elmnt,px,py){
 	var actif=elmnt.id.substring(2);
 	var t=tableObjet[actif];
 	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
+	if(t.type==69||t.type==70){
+		t.x2=px+4-posX;
+		t.y2=py+4-posY;
+		objActif=actif;
+		redrawArpege(actif);
+		return;
+	}
 	var x2=parseFloat(t.x2), y2=parseFloat(t.y2);
 	var dist=Math.hypot(x2,y2)||1;
 	var p2X=px+4, p2Y=py+4;
@@ -1229,12 +1251,25 @@ function smarpegeP2(elmnt,px,py){
 	objActif=actif;
 	redrawArpege(actif);
 }
+function smarpegeP3(elmnt,px,py){
+	var actif=elmnt.id.substring(2);
+	var t=tableObjet[actif];
+	t.x3=px+4-parseFloat(t.posX);
+	t.y3=py+4-parseFloat(t.posY);
+	objActif=actif;
+	redrawArpege(actif);
+}
 function smarpege(elmnt,px,py) {
  		var actif=elmnt.id.substring(5);
  		var posX=parseFloat(tableObjet[actif].posX);
  		var posY=parseFloat(tableObjet[actif].posY);
- 		tableObjet[actif].x2=px+4-posX;
- 		tableObjet[actif].y2=py+4-posY;
+ 		if(tableObjet[actif].type==69||tableObjet[actif].type==70){
+ 			tableObjet[actif].x4=px+4-posX;
+ 			tableObjet[actif].y4=py+4-posY;
+ 		}else{
+ 			tableObjet[actif].x2=px+4-posX;
+ 			tableObjet[actif].y2=py+4-posY;
+ 		}
  		objActif=actif;
  		redrawArpege(actif);
 }
@@ -1252,6 +1287,16 @@ function smarpegeP1(elmnt,px,py) {
  		tableObjet[actif].posY=newPosY;
  		tableObjet[actif].x2=(posX+x2)-newPosX;
  		tableObjet[actif].y2=(posY+y2)-newPosY;
+ 		if(tableObjet[actif].type==69||tableObjet[actif].type==70){
+ 			var x3=parseFloat(tableObjet[actif].x3)||0;
+ 			var y3=parseFloat(tableObjet[actif].y3)||0;
+ 			var x4=parseFloat(tableObjet[actif].x4)||0;
+ 			var y4=parseFloat(tableObjet[actif].y4)||0;
+ 			tableObjet[actif].x3=(posX+x3)-newPosX;
+ 			tableObjet[actif].y3=(posY+y3)-newPosY;
+ 			tableObjet[actif].x4=(posX+x4)-newPosX;
+ 			tableObjet[actif].y4=(posY+y4)-newPosY;
+ 		}
  		objActif=actif;
  		redrawArpege(actif);
 }
@@ -1262,9 +1307,11 @@ function showArpegeHandles(actif){
 	var p1=document.getElementById("p1"+actif);
 	var sg=document.getElementById("sglis"+actif);
 	var p2=document.getElementById("p2"+actif);
+	var p3=document.getElementById("p3"+actif);
 	if(p1)p1.style.border='1px solid blue';
 	if(sg)sg.style.border='1px solid red';
 	if(p2)p2.style.border='1px solid green';
+	if(p3)p3.style.border='1px solid orange';
 }
 function startHideArpegeHandles(actif){
 	if(arpegeHideTimers[actif])clearTimeout(arpegeHideTimers[actif]);
@@ -1272,9 +1319,11 @@ function startHideArpegeHandles(actif){
 		var p1=document.getElementById("p1"+actif);
 		var sg=document.getElementById("sglis"+actif);
 		var p2=document.getElementById("p2"+actif);
+		var p3=document.getElementById("p3"+actif);
 		if(p1)p1.style.border='none';
 		if(sg)sg.style.border='none';
 		if(p2)p2.style.border='none';
+		if(p3)p3.style.border='none';
 		delete arpegeHideTimers[actif];
 	},200);
 }
@@ -1284,6 +1333,42 @@ function redrawArpege(actif) {
  		var posY=parseFloat(t.posY);
  		var x2=parseFloat(t.x2);
  		var y2=parseFloat(t.y2);
+ 		if(t.type==69||t.type==70){
+ 			var x3=parseFloat(t.x3)||0, y3=parseFloat(t.y3)||0;
+ 			var x4=parseFloat(t.x4)||0, y4=parseFloat(t.y4)||0;
+ 			var ax=posX, ay=posY;
+ 			var bx=posX+x2, by=posY+y2;
+ 			var cx=posX+x3, cy=posY+y3;
+ 			var dx=posX+x4, dy=posY+y4;
+ 			var minX=Math.min(ax,bx,cx,dx), minY=Math.min(ay,by,cy,dy);
+ 			var maxX=Math.max(ax,bx,cx,dx), maxY=Math.max(ay,by,cy,dy);
+ 			var bw=Math.max(maxX-minX,10), bh=Math.max(maxY-minY,10);
+ 			var arrowAngle=Math.atan2(dy-cy,dx-cx)*180/Math.PI;
+ 			var lax=ax-minX, lay=ay-minY;
+ 			var lbx=bx-minX, lby=by-minY;
+ 			var lcx=cx-minX, lcy=cy-minY;
+ 			var ldx=dx-minX, ldy=dy-minY;
+ 			var col=t.objColor;
+ 			var orig=document.getElementById(t.id);
+ 			orig.style.top=minY+"px"; orig.style.left=minX+"px";
+ 			orig.style.width=bw+"px"; orig.style.height=bh+"px";
+ 			var svg="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+ 			svg+="<path style='fill:none;stroke:"+col+";stroke-width:1.5;stroke-opacity:1' d='M "+lax+","+lay+" L "+lbx+","+lby+" L "+lcx+","+lcy+" L "+ldx+","+ldy+"' />";
+ 			svg+="<g transform='translate("+ldx+","+ldy+") rotate("+arrowAngle+")'>";
+ 			svg+="<path style='fill:"+col+";stroke:none' d='M 0,0 L -6,-3 -6,3 Z' /></g></svg>";
+ 			orig.innerHTML=svg;
+ 			t.bkgWidth=bw; t.bkgHeight=bh;
+ 			document.getElementById("p1"+actif).style.top=(ay-4)+"px";
+ 			document.getElementById("p1"+actif).style.left=(ax-4)+"px";
+ 			document.getElementById("p2"+actif).style.top=(by-4)+"px";
+ 			document.getElementById("p2"+actif).style.left=(bx-4)+"px";
+ 			document.getElementById("p3"+actif).style.top=(cy-4)+"px";
+ 			document.getElementById("p3"+actif).style.left=(cx-4)+"px";
+ 			document.getElementById("sglis"+actif).style.top=(dy-4)+"px";
+ 			document.getElementById("sglis"+actif).style.left=(dx-4)+"px";
+ 			showArpegeHandles(actif);
+ 			return;
+ 		}
  		// Redessinage spécifique pour types 56-59 (symboles copie avec rotation)
  		if(t.type>=63&&t.type<=68){
  			var dist63=Math.hypot(x2,y2)||36;
