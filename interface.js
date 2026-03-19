@@ -1231,7 +1231,7 @@ function smarpegeP2(elmnt,px,py){
 	var actif=elmnt.id.substring(2);
 	var t=tableObjet[actif];
 	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
-	if(t.type==19){
+	if(t.type==19||t.type==20){
 		t.x3=px+4-posX;
 		t.y3=py+4-posY;
 		objActif=actif;
@@ -1306,7 +1306,7 @@ function smarpegeP1(elmnt,px,py) {
  			tableObjet[actif].y3=(posY+y3)-newPosY;
  			tableObjet[actif].x4=(posX+x4)-newPosX;
  			tableObjet[actif].y4=(posY+y4)-newPosY;
- 		}else if(tableObjet[actif].type==71||tableObjet[actif].type==72||tableObjet[actif].type==19){
+ 		}else if(tableObjet[actif].type==71||tableObjet[actif].type==72||tableObjet[actif].type==19||tableObjet[actif].type==20){
  			var x3=parseFloat(tableObjet[actif].x3)||0;
  			var y3=parseFloat(tableObjet[actif].y3)||0;
  			tableObjet[actif].x3=(posX+x3)-newPosX;
@@ -1414,13 +1414,16 @@ function redrawArpege(actif) {
 			return;
 		}
 		if(t.type==20){
+			var x3_20=parseFloat(t.x3)||5, y3_20=parseFloat(t.y3)||0;
 			var ax=posX, ay=posY;
 			var bx=posX+x2, by=posY+y2;
+			var cx=posX+x3_20, cy=posY+y3_20;
 			var dx=bx-ax, dy=by-ay;
 			var L=Math.hypot(dx,dy)||30;
 			var ux=dx/L, uy=dy/L;
 			var tx=uy, ty=-ux;
-			var tickLen=5;
+			var tickLen=x3_20*uy - y3_20*ux;
+			if(Math.abs(tickLen)<1) tickLen=(tickLen<0?-1:1);
 			var t1x=ax+tickLen*tx, t1y=ay+tickLen*ty;
 			var t2x=bx+tickLen*tx, t2y=by+tickLen*ty;
 			var minX=Math.min(ax,bx,t1x,t2x)-2, minY=Math.min(ay,by,t1y,t2y)-2;
@@ -1442,6 +1445,8 @@ function redrawArpege(actif) {
 			t.bkgWidth=bw; t.bkgHeight=bh;
 			document.getElementById("p1"+actif).style.top=(ay-4)+"px";
 			document.getElementById("p1"+actif).style.left=(ax-4)+"px";
+			document.getElementById("p2"+actif).style.top=(cy-4)+"px";
+			document.getElementById("p2"+actif).style.left=(cx-4)+"px";
 			document.getElementById("sglis"+actif).style.top=(by-4)+"px";
 			document.getElementById("sglis"+actif).style.left=(bx-4)+"px";
 			showArpegeHandles(actif);

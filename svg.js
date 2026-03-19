@@ -396,11 +396,14 @@ async function transformSymbSvg(txt,lsgrp) {
 				case 20:
 			{	var x2_20=parseFloat(lsgrp.x2)||0;
 				var y2_20=parseFloat(lsgrp.y2)||30;
+				var x3_20=parseFloat(lsgrp.x3)||5;
+				var y3_20=parseFloat(lsgrp.y3)||0;
 				var dx20=x2_20, dy20=y2_20;
 				var L20=Math.hypot(dx20,dy20)||30;
 				var ux20=dx20/L20, uy20=dy20/L20;
 				var tx20=uy20, ty20=-ux20;
-				var tickLen20=5;
+				var tickLen20=x3_20*uy20 - y3_20*ux20;
+				if(Math.abs(tickLen20)<1) tickLen20=(tickLen20<0?-1:1);
 				txt+="<g style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke-linecap:square'>";
 				txt+="<line x1='0' y1='0' x2='"+x2_20+"' y2='"+y2_20+"' />";
 				txt+="<line x1='0' y1='0' x2='"+(tickLen20*tx20)+"' y2='"+(tickLen20*ty20)+"' />";

@@ -1945,13 +1945,17 @@ function gBlocDroit20(obj){
 	var t=tableObjet[obj];
 	if(t.x2===undefined||isNaN(t.x2)) t.x2=0;
 	if(t.y2===undefined||isNaN(t.y2)) t.y2=30;
+	if(t.x3===undefined||isNaN(t.x3)) t.x3=5;
+	if(t.y3===undefined||isNaN(t.y3)) t.y3=0;
 	var ax=parseFloat(t.posX), ay=parseFloat(t.posY);
 	var bx=ax+parseFloat(t.x2), by=ay+parseFloat(t.y2);
+	var cx=ax+parseFloat(t.x3), cy=ay+parseFloat(t.y3);
 	var dx=bx-ax, dy=by-ay;
 	var L=Math.hypot(dx,dy)||30;
 	var ux=dx/L, uy=dy/L;
 	var tx=uy, ty=-ux;
-	var tickLen=5;
+	var tickLen=parseFloat(t.x3)*uy - parseFloat(t.y3)*ux;
+	if(Math.abs(tickLen)<1) tickLen=(tickLen<0?-1:1);
 	var t1x=ax+tickLen*tx, t1y=ay+tickLen*ty;
 	var t2x=bx+tickLen*tx, t2y=by+tickLen*ty;
 	var minX=Math.min(ax,bx,t1x,t2x)-2, minY=Math.min(ay,by,t1y,t2y)-2;
@@ -1977,9 +1981,13 @@ function gBlocDroit20(obj){
 	h1.setAttribute("style","position:absolute;top:"+(ay-4)+"px;left:"+(ax-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h1);
 	var h2=document.createElement('div');
-	h2.setAttribute("id","sglis"+nbObjets);
-	h2.setAttribute("style","position:absolute;top:"+(by-4)+"px;left:"+(bx-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	h2.setAttribute("id","p2"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(cy-4)+"px;left:"+(cx-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h2);
+	var h3=document.createElement('div');
+	h3.setAttribute("id","sglis"+nbObjets);
+	h3.setAttribute("style","position:absolute;top:"+(by-4)+"px;left:"+(bx-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h3);
 	var _actif=nbObjets;
 	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
 	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
@@ -1987,6 +1995,8 @@ function gBlocDroit20(obj){
 	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
 	h2.onmouseenter=function(){showArpegeHandles(_actif);};
 	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h3.onmouseenter=function(){showArpegeHandles(_actif);};
+	h3.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function gLink71(obj){
 	var t=tableObjet[obj];
@@ -2374,8 +2384,11 @@ function defSymbole(objType) {
 		case 20:
 			tableObjet[objActif].x2=0;
 			tableObjet[objActif].y2=30;
+			tableObjet[objActif].x3=5;
+			tableObjet[objActif].y3=0;
 			gBlocDroit20(objActif);
 			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 21:
@@ -3072,6 +3085,7 @@ function createSymbole2(objType) {
 			gBlocDroit20(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 21:
@@ -3703,9 +3717,12 @@ function pasteSymbole(obj,copyX,copyY){
 		case 20:
 			tableObjet[objActif].x2=tableObjet[obj].x2;
 			tableObjet[objActif].y2=tableObjet[obj].y2;
+			tableObjet[objActif].x3=tableObjet[obj].x3;
+			tableObjet[objActif].y3=tableObjet[obj].y3;
 			gBlocDroit20(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('p2'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 21:
