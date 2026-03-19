@@ -66,6 +66,7 @@ color:#ffffff;
 	z-index:0;
 	text-align:center;
 	background-color:#e2e2e2;
+	overflow:hidden;
 }
 #secondaire {
 	position:absolute;
