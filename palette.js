@@ -1990,6 +1990,45 @@ function gLink71(obj){
 	h3.onmouseenter=function(){showArpegeHandles(_actif);};
 	h3.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
+function gLink73(obj){
+	var t=tableObjet[obj];
+	if(t.x2===undefined||isNaN(t.x2)) t.x2=54;
+	if(t.y2===undefined||isNaN(t.y2)) t.y2=0;
+	var ax=parseFloat(t.posX), ay=parseFloat(t.posY);
+	var bx=ax+parseFloat(t.x2), by=ay+parseFloat(t.y2);
+	var minX=Math.min(ax,bx), minY=Math.min(ay,by);
+	var maxX=Math.max(ax,bx), maxY=Math.max(ay,by);
+	var bw=Math.max(maxX-minX,10), bh=Math.max(maxY-minY,10);
+	var arrowAngle=Math.atan2(by-ay,bx-ax)*180/Math.PI;
+	var lax=ax-minX, lay=ay-minY;
+	var lbx=bx-minX, lby=by-minY;
+	var col=t.objColor;
+	t.bkgWidth=bw; t.bkgHeight=bh;
+	var dupnode=document.createElement('div');
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("style","position:absolute;top:"+minY+"px;left:"+minX+"px;width:"+bw+"px;height:"+bh+"px;overflow:visible;cursor:move;");
+	var svg="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+	svg+="<line style='fill:none;stroke:"+col+";stroke-width:1.5;stroke-opacity:1' x1='"+lax+"' y1='"+lay+"' x2='"+lbx+"' y2='"+lby+"' />";
+	svg+="<g transform='translate("+lbx+","+lby+") rotate("+arrowAngle+")'>";
+	svg+="<path style='fill:"+col+";stroke:none' d='M 0,0 L -6,-3 -6,3 Z' /></g></svg>";
+	document.getElementById("space").appendChild(dupnode);
+	document.getElementById(t.id).innerHTML=svg;
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(ay-4)+"px;left:"+(ax-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(by-4)+"px;left:"+(bx-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
+}
 function link(obj){
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",tableObjet[obj].id);
@@ -2747,11 +2786,11 @@ function defSymbole(objType) {
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 73:
-			tableObjet[objActif].width=62;
-			tableObjet[objActif].height=34;
-			tableObjet[objActif].bkgWidth=62;
-			tableObjet[objActif].bkgHeight=34;
-			graphSymbole(objActif,glyphLink);
+			tableObjet[objActif].x2=54;
+			tableObjet[objActif].y2=0;
+			gLink73(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 74:
 			tableObjet[objActif].width=40;
@@ -3154,7 +3193,10 @@ function createSymbole2(objType) {
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 73:
-			link(objActif);
+			gLink73(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 74:
 			graphSymbole(objActif,glyphLigneTxt);
@@ -3761,7 +3803,12 @@ function pasteSymbole(obj,copyX,copyY){
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 73:
-			graphSymbole(objActif,glyphLink);
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			gLink73(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 74:
 			graphSymbole(objActif,glyphLigneTxt);

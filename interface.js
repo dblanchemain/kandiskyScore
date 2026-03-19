@@ -790,7 +790,7 @@ function dragElement(elmnt) {
 	    			}
 	    		}
 	    		var _type56=tableObjet[objActif].type;
-	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68 || _type56==69 || _type56==70 || _type56==75 || _type56==76 || _type56==77)){
+	    		if(tableObjet[objActif].class==3 && (_type56==1 || _type56==2 || _type56==3 || _type56==21 || _type56==22 || _type56==23 || _type56==24 || _type56==25 || _type56==26 || _type56==27 || _type56==28 || _type56==56 || _type56==57 || _type56==58 || _type56==59 || _type56==84 || _type56==63 || _type56==64 || _type56==65 || _type56==66 || _type56==67 || _type56==68 || _type56==69 || _type56==70 || _type56==71 || _type56==72 || _type56==73 || _type56==75 || _type56==76 || _type56==77)){
 	    			tableObjet[objActif].posX=parseFloat(tableObjet[objActif].posX)-pos1;
 	    			tableObjet[objActif].posY=parseFloat(tableObjet[objActif].posY)-pos2;
 	    			redrawArpege(objActif);
@@ -1341,7 +1341,33 @@ function redrawArpege(actif) {
  		var posY=parseFloat(t.posY);
  		var x2=parseFloat(t.x2);
  		var y2=parseFloat(t.y2);
- 		if(t.type==71||t.type==72){
+ 		if(t.type==73){
+			var ax=posX, ay=posY;
+			var bx=posX+x2, by=posY+y2;
+			var minX=Math.min(ax,bx), minY=Math.min(ay,by);
+			var maxX=Math.max(ax,bx), maxY=Math.max(ay,by);
+			var bw=Math.max(maxX-minX,10), bh=Math.max(maxY-minY,10);
+			var arrowAngle=Math.atan2(by-ay,bx-ax)*180/Math.PI;
+			var lax=ax-minX, lay=ay-minY;
+			var lbx=bx-minX, lby=by-minY;
+			var col=t.objColor;
+			var orig=document.getElementById(t.id);
+			orig.style.top=minY+"px"; orig.style.left=minX+"px";
+			orig.style.width=bw+"px"; orig.style.height=bh+"px";
+			var svg="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+			svg+="<line style='fill:none;stroke:"+col+";stroke-width:1.5;stroke-opacity:1' x1='"+lax+"' y1='"+lay+"' x2='"+lbx+"' y2='"+lby+"' />";
+			svg+="<g transform='translate("+lbx+","+lby+") rotate("+arrowAngle+")'>";
+			svg+="<path style='fill:"+col+";stroke:none' d='M 0,0 L -6,-3 -6,3 Z' /></g></svg>";
+			orig.innerHTML=svg;
+			t.bkgWidth=bw; t.bkgHeight=bh;
+			document.getElementById("p1"+actif).style.top=(ay-4)+"px";
+			document.getElementById("p1"+actif).style.left=(ax-4)+"px";
+			document.getElementById("sglis"+actif).style.top=(by-4)+"px";
+			document.getElementById("sglis"+actif).style.left=(bx-4)+"px";
+			showArpegeHandles(actif);
+			return;
+		}
+				if(t.type==71||t.type==72){
  			var x3=parseFloat(t.x3)||0, y3=parseFloat(t.y3)||0;
  			var ax=posX, ay=posY;
  			var bx=posX+x2, by=posY+y2;

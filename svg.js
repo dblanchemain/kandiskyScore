@@ -740,13 +740,17 @@ async function transformSymbSvg(txt,lsgrp) {
 			txt+="</g>";
 			break;
 		}
-				case 73:
-			txt=txt+"<g transform='rotate(0 0 0) scale("+parseFloat(lsgrp.scaleX)+" "+(parseFloat(lsgrp.scaleX))+") translate(0 0)  rotate("+lsgrp.rotate+" 0 0) ' >";
-			var lx=53*(parseFloat(lsgrp.scaleY2)+parseFloat(lsgrp.scaleX));
-	txt=txt+"<g transform='translate(0 0)'><line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke:"+lsgrp.objColor+";stroke-opacity:1' x1='0' y1='8' x2='"+lx+"' y2='8' /><path style='fill:"+lsgrp.objColor+";stroke-width:0.50;stroke-opacity:1' d='M 54,8 L 54,8 48,4 48,12 54,8'  transform='translate("+(lx-53)+" 0)'/></g>";
-			txt=txt+"</g>";
+		case 73:
+		{	var x2_73=parseFloat(lsgrp.x2); if(isNaN(x2_73)) x2_73=54;
+			var y2_73=parseFloat(lsgrp.y2); if(isNaN(y2_73)) y2_73=0;
+			var ang73=Math.atan2(y2_73,x2_73)*180/Math.PI;
+			txt+="<g>";
+			txt+="<line style='fill:none;stroke:"+lsgrp.objColor+";stroke-width:1.5;stroke-opacity:1' x1='0' y1='0' x2='"+x2_73+"' y2='"+y2_73+"' />";
+			txt+="<g transform='translate("+x2_73+","+y2_73+") rotate("+ang73+")'><path style='fill:"+lsgrp.objColor+";stroke-width:0.5;stroke-opacity:1' d='M 0,0 L -6,-4 -6,4 Z' /></g>";
+			txt+="</g>";
 			break;
-		case 74:
+		}
+				case 74:
 			txt=txt+"<g transform='scale("+lsgrp.scaleX+" "+lsgrp.scaleX+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" 0 0) '  fill='"+lsgrp.objColor+"'     stroke='"+lsgrp.objColor+"' ><text x='5' y='16' font-size='12'   style='stroke-width:0.1;stroke-opacity:1' >"+lsgrp.nom+"</text></g>";
 			txt=txt+"</g>";
 			break;
