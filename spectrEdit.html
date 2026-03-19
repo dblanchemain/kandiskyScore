@@ -188,6 +188,55 @@ let ctx;
 
 let mode=1;
 
+// --- Dimensions dynamiques (mises à jour par resizeLayout) ---
+let spectroW = 786;       // largeur totale canvas spectrogramme
+let spectroH = 600;       // hauteur canvas spectrogramme
+let waveH = 209;          // hauteur canvas waveform
+let spectroOffsetLeft = 230; // offset gauche viewport du div #spectro
+let spectroOffsetTop = 0;    // offset haut viewport du div #spectro
+const MARGIN_LEFT = 60;   // marge gauche pour labels fréquence (fixe)
+
+function resizeLayout() {
+    const panelW = 230; // panneau outils fixe
+    const availW = Math.max(300, window.innerWidth - panelW - 18);
+    const availH = Math.max(250, window.innerHeight - 8);
+
+    spectroW = availW;
+    waveH    = Math.max(80, Math.floor(availH * 0.22));
+    spectroH = Math.max(150, availH - waveH - 12);
+
+    const totalH = spectroH + waveH + 4;
+
+    const spectroDiv  = document.getElementById("spectro");
+    const spectrozoom = document.getElementById("spectrozoom");
+    const waveCanvas  = document.getElementById("waveForm");
+
+    spectroDiv.style.width  = spectroW + "px";
+    spectroDiv.style.height = totalH + "px";
+    spectrozoom.style.width  = spectroW + "px";
+    spectrozoom.style.height = totalH + "px";
+
+    canvas.style.width  = (spectroW - 2) + "px";
+    canvas.style.height = spectroH + "px";
+
+    waveCanvas.style.top    = (spectroH + 1) + "px";
+    waveCanvas.style.width  = (spectroW - 2) + "px";
+    waveCanvas.style.height = waveH + "px";
+    waveCanvas.width  = spectroW - 2;
+    waveCanvas.height = waveH;
+
+    // Mise à jour des offsets viewport
+    const rect = spectroDiv.getBoundingClientRect();
+    spectroOffsetLeft = rect.left;
+    spectroOffsetTop  = rect.top;
+
+    if (gainBuffers && gainBuffers.length > 0) {
+        updateSpectro();
+    }
+}
+
+window.addEventListener('resize', resizeLayout);
+
 defSelectListeFx();
 
 
@@ -427,7 +476,7 @@ function updatePlayhead() {
 }
 let screenLog = document.getElementById('screen-log');
 function yToFrequency1(y) {
-    const normY = y / 600;
+    const normY = y / spectroH;
     const logMax = Math.log10(sampleRate / 2);
     const logMin = Math.log10(20);
     const logFreq = logMax - normY * (logMax - logMin);
@@ -445,55 +494,47 @@ function yToFrequency(y) {
     const logMin = Math.log10(20);
     const logMax = Math.log10(sampleRate / 2);
 
-    const ratio = yTotal / canvas.height;
+    const ratio = yTotal / spectroH;
 
     const logF = logMax - ratio * (logMax - logMin);
 
     return Math.pow(10, logF);
 }
 function xToTime(x) {
-	 const ratioT=Duree/726;
-    const marginDisplay = 60 * zoomScale;
-    var posX =(x - 290 + scrollDemo.scrollLeft - (marginDisplay - 60))/ zoomScale;
-    if(posX<0){
-		posX=0;
-	 }
-	 if(posX>726 * zoomScale){
-		posX=726 * zoomScale;
-	 }
-    var time=posX* ratioT;
-
-    return time;
+    const drawW = spectroW - MARGIN_LEFT;
+    const ratioT = Duree / drawW;
+    const marginDisplay = MARGIN_LEFT * zoomScale;
+    var posX = (x - (spectroOffsetLeft + MARGIN_LEFT) + scrollDemo.scrollLeft - (marginDisplay - MARGIN_LEFT)) / zoomScale;
+    if(posX < 0) posX = 0;
+    if(posX > drawW * zoomScale) posX = drawW * zoomScale;
+    return posX * ratioT;
 }
 
 function timeToX(time) {
-
-    const ratioT = Duree / 726;
-    const marginDisplay = 60 * zoomScale;
+    const drawW = spectroW - MARGIN_LEFT;
+    const ratioT = Duree / drawW;
+    const marginDisplay = MARGIN_LEFT * zoomScale;
 
     var posX = time / ratioT;
 
     if (posX < 0) posX = 0;
-    if (posX > 726) posX = 726;
+    if (posX > drawW) posX = drawW;
 
-    var x = posX * zoomScale
-          + 290
-          - scrollDemo.scrollLeft
-          + (marginDisplay - 60);
-
-    return x;
+    return posX * zoomScale
+         + (spectroOffsetLeft + MARGIN_LEFT)
+         - scrollDemo.scrollLeft
+         + (marginDisplay - MARGIN_LEFT);
 }
 const logMin = Math.log10(20);
 const logMax = Math.log10(sampleRate/2);
 
 function freqToY(freq) {
-    const logF = Math.log10(freq);
     const ratio = (Math.log10(sampleRate/2) - Math.log10(freq)) / (Math.log10(sampleRate/2) - Math.log10(20));
-    return ratio * canvas.height*zoomScale;
+    return ratio * spectroH * zoomScale;
 }
 function updateSelection(e) {
     const sel = document.getElementById("selector");
-    const left   = (sel.offsetLeft*zoomScale)+230+ scrollDemo.scrollLeft;
+    const left   = (sel.offsetLeft*zoomScale) + spectroOffsetLeft + scrollDemo.scrollLeft;
     const top    = (sel.offsetTop*zoomScale)+ scrollDemo.scrollTop;
     const width  = sel.offsetWidth*zoomScale;
     const height = sel.offsetHeight*zoomScale;
@@ -504,18 +545,17 @@ function updateSelection(e) {
 }
 
 function logKey(e) {
-var max=725;
-var maxf=600;
 	const rect = canvas.getBoundingClientRect();
-	var max=rect.left+rect.width;
-	const marginDisplay = 60 * zoomScale;
-	var posX =(e.clientX - 290 + scrollDemo.scrollLeft - (marginDisplay - 60))/ zoomScale;
-	var posY=e.clientY;
-	if(posY<0){
-		posY=0;
+	var max = rect.left + rect.width;
+	var maxf = spectroH;
+	const marginDisplay = MARGIN_LEFT * zoomScale;
+	var posX = (e.clientX - (spectroOffsetLeft + MARGIN_LEFT) + scrollDemo.scrollLeft - (marginDisplay - MARGIN_LEFT)) / zoomScale;
+	var posY = e.clientY;
+	if(posY < 0){
+		posY = 0;
 	}
-	if(posY>maxf*zoomScale){
-		posY=maxf*zoomScale;
+	if(posY > maxf * zoomScale){
+		posY = maxf * zoomScale;
 	}
 	
   screenLog.innerText = `
@@ -540,8 +580,8 @@ function dureeReelle() {
 }
 function newSelector(e){
 		const sel = document.getElementById("selector");
-		document.getElementById("selector").style.top=(((e.clientY)-18+scrollDemo.scrollTop)/zoomScale)+"px";
-		document.getElementById("selector").style.left=((e.clientX-238+scrollDemo.scrollLeft)/zoomScale)+"px";
+		document.getElementById("selector").style.top=(((e.clientY) - spectroOffsetTop + scrollDemo.scrollTop)/zoomScale)+"px";
+		document.getElementById("selector").style.left=((e.clientX - spectroOffsetLeft + scrollDemo.scrollLeft)/zoomScale)+"px";
 		document.getElementById("selector").style.width=(20*zoomScale)+"px";
 		document.getElementById("selector").style.height=(20*zoomScale)+"px";
 		document.getElementById("selector").style.borderWidth=(2/zoomScale)+"px";
@@ -608,7 +648,7 @@ function dragElement(elmnt) {
     e.preventDefault();
     e.stopPropagation();
     const sel = document.getElementById("selector");
-    const ratioT = Duree / 726;
+    const ratioT = Duree / (spectroW - MARGIN_LEFT);
     // calculate the new cursor position:
     pos1 = pos3 - e.clientX;
     pos2 = pos4 - e.clientY;
@@ -801,13 +841,6 @@ async  function closeDragElement(e) {
   }
 }
 
-function initWaveformCanvas() {
-
-    const canvas = document.getElementById("waveForm");
-
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-}
 
 function drawWaveform() {
 
@@ -908,7 +941,7 @@ async function defSpectro() {
     gainBuffers = currentChannels.map(c => new Float32Array(c));
     var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
 	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  gainBuffers  } });
-	 initWaveformCanvas();
+	 resizeLayout();
 	 updateSpectro();
 	 drawWaveform();
 }
@@ -1481,9 +1514,9 @@ function soxColormap(v) {
 }
 
 function drawSoxClone(ctx, frames, sampleRate, fftSize) {
-    const width = 786;
-    const height = 600;
-    const marginLeft = 60; // espace pour les labels
+    const width = spectroW;
+    const height = spectroH;
+    const marginLeft = MARGIN_LEFT; // espace pour les labels
 
     canvas.width = width;
     canvas.height = height;
