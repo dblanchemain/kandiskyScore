@@ -15,7 +15,8 @@
  Mouvrirc='Aprire un istantanea'
  Mnewspace='Nuovo spazio'
  Msave='Salva'
- MsaveAs='Salva come'
+ MsaveAs='Salva come',
+ MarchiveZip='Archivia in zip',
  Mrename='Rinominare',
  Mdel='Eliminare',
  Msavegrp='Salva gruppo'

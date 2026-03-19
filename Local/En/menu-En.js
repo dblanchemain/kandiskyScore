@@ -16,6 +16,7 @@
  Mnewspace='New space',
  Msave='Save',
  MsaveAs='Save as',
+ MarchiveZip='Archive as zip',
  Mrename='Rename',
  Mdel='Delete',
  Msavegrp='Save Group',

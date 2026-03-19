@@ -21,6 +21,7 @@ const fs = require("fs-extra");
 const os = require("os");
 const { existsSync } = require("fs");
 const tkill = require("tree-kill");
+const crossZip = require("cross-zip");
 const { WaveFile } = require("wavefile");
 
 const createModule = require('./public/split_wasm.js');
@@ -552,6 +553,8 @@ const template = [
 				click: () => saveDefProjet(), accelerator:'CommandOrControl+S' },
 		{ label: MsaveAs,
 				click: () => saveDefProjetAs(), accelerator:'CommandOrControl+P' },
+		{ label: MarchiveZip,
+				click: () => archiveProjet() },
 		{ label: Mrename,
 				click: () => renameProjetAs(), accelerator:'CommandOrControl+R' },
 		{ label: Mdel,
@@ -1611,6 +1614,30 @@ function saveDefProjet() {
 }
 function saveDefProjetAs() {
 	mainWindow.webContents.send("fromMain", 'saveProjet;1');
+}
+
+async function archiveProjet() {
+	if (!currentProjet || currentProjet === path.join(app.getPath('home'), 'kandiskyscore', 'Projets')) {
+		dialog.showMessageBox(mainWindow, { type: 'warning', message: 'Aucun projet ouvert.' });
+		return;
+	}
+	const projetDir = path.dirname(currentProjet);
+	const projetNom = path.basename(projetDir);
+	const result = await dialog.showSaveDialog(mainWindow, {
+		title: 'Archiver le projet en zip',
+		defaultPath: path.join(app.getPath('home'), projetNom + '.zip'),
+		filters: [{ name: 'Archive ZIP', extensions: ['zip'] }]
+	});
+	if (result.canceled || !result.filePath) return;
+	const zipDest = result.filePath;
+	if (fs.existsSync(zipDest)) fs.removeSync(zipDest);
+	crossZip.zip(projetDir, zipDest, (err) => {
+		if (err) {
+			dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur lors de la création de l\'archive : ' + err.message });
+		} else {
+			dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
+		}
+	});
 }
 
 function grpColor(){
