@@ -1705,25 +1705,28 @@ function crc32(buf) {
 }
 
 async function archiveProjet() {
-	if (!projetName) {
+	if (!audioPath || audioPath === projetPath) {
 		dialog.showMessageBox(mainWindow, { type: 'warning', message: 'Aucun projet ouvert.' });
 		return;
 	}
-	const projetDir = path.join(projetPath, projetName);
+	// audioPath = .../Projets/Projet3/Audios/ → projetDir = .../Projets/Projet3/
+	const audioDir  = audioPath.replace(/[/\\]+$/, '');
+	const projetDir = path.dirname(audioDir);
 	if (!fs.existsSync(projetDir)) {
 		dialog.showMessageBox(mainWindow, { type: 'error', message: 'Dossier projet introuvable : ' + projetDir });
 		return;
 	}
+	const nom = path.basename(projetDir);
 	const result = await dialog.showSaveDialog(mainWindow, {
 		title: 'Archiver le projet en zip',
-		defaultPath: path.join(app.getPath('home'), projetName + '.zip'),
+		defaultPath: path.join(app.getPath('home'), nom + '.zip'),
 		filters: [{ name: 'Archive ZIP', extensions: ['zip'] }]
 	});
 	if (result.canceled || !result.filePath) return;
 	const zipDest = result.filePath;
 	if (fs.existsSync(zipDest)) fs.unlinkSync(zipDest);
 	try {
-		buildZip(projetDir, projetName, zipDest);
+		buildZip(projetDir, nom, zipDest);
 		dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
 	} catch(err) {
 		dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur : ' + err.message });
