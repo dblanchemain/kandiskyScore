@@ -1712,46 +1712,12 @@ function objScaleX(id,scaleX) {
 				tableObjet[id].scaleY2=parseFloat(scaleX);
 				break;
 			case 69:
-				var lx=54*(parseFloat(scaleX)+parseFloat(tableObjet[id].scaleX));
-				var ldm='M 20,24 L '+lx+',24 ';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.setAttribute("d",ldm);
-				var ldm='translate('+(lx-47)+',0)';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute("transform",ldm);
-				document.getElementById("objet"+id).style.width=((54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)))+"px";
-				document.getElementById("objet"+id).firstChild.setAttribute("width",(54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)));
-				tableObjet[id].scaleY2=parseFloat(scaleX);
-				break;
 			case 70:
-				var lx=54*(parseFloat(scaleX)+parseFloat(tableObjet[id].scaleX));
-				var ldm='M 20,8 L '+lx+',8 ';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.setAttribute("d",ldm);
-				var ldm='translate('+(lx-47)+',0)';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute("transform",ldm);
-				document.getElementById("objet"+id).style.width=((54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)))+"px";
-				document.getElementById("objet"+id).firstChild.setAttribute("width",(54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)));
-				tableObjet[id].scaleY2=parseFloat(scaleX);
-				break;
 			case 71:
-				var lx=54*(parseFloat(scaleX)+parseFloat(tableObjet[id].scaleX));
-				var ldm='M 0,24 L '+lx+',24 ';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.setAttribute("d",ldm);
-				var ldm='translate('+(lx-47)+',0)';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute("transform",ldm);
-				document.getElementById("objet"+id).style.width=((54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)))+"px";
-				document.getElementById("objet"+id).firstChild.setAttribute("width",(54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)));
-				tableObjet[id].scaleY2=parseFloat(scaleX);
-				break;
 			case 72:
-				var lx=54*(parseFloat(scaleX)+parseFloat(tableObjet[id].scaleX));
-				var ldm='M 0,8 L '+lx+',8 ';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.setAttribute("d",ldm);
-				var ldm='translate('+(lx-47)+',0)';
-				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.nextSibling.nextSibling.setAttribute("transform",ldm);
-				document.getElementById("objet"+id).style.width=((54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)))+"px";
-				document.getElementById("objet"+id).firstChild.setAttribute("width",(54*parseFloat(scaleX)*tableObjet[id].scaleY)+(8*parseFloat(scaleX)));
-				tableObjet[id].scaleY2=parseFloat(scaleX);
+				redrawArpege(id);
 				break;
-			case 73:
+						case 73:
 				var lx=54*(parseFloat(scaleX)+parseFloat(tableObjet[id].scaleX));
 				document.getElementById("objet"+id).firstChild.firstChild.firstChild.firstChild.setAttribute("x2",lx);
 				var ldm='translate('+(lx-47)+',0)';
