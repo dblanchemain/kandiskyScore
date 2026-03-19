@@ -1737,12 +1737,91 @@ async function archiveProjet() {
 	if (result.canceled || !result.filePath) return;
 	const zipDest = result.filePath;
 	if (fs.existsSync(zipDest)) fs.unlinkSync(zipDest);
-	try {
-		buildZip(projetDir, nom, zipDest);
-		dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
-	} catch(err) {
-		dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur : ' + err.message });
+
+	const { Worker } = require('worker_threads');
+	const workerCode = `
+const { parentPort, workerData } = require('worker_threads');
+const fs   = require('fs');
+const path = require('path');
+const { sourceDir, rootName, destZip } = workerData;
+
+function buildZip(sourceDir, rootName, destZip) {
+	function collectFiles(dir, base) {
+		let entries = [];
+		for (const name of fs.readdirSync(dir)) {
+			const full = path.join(dir, name);
+			const rel  = base ? base + '/' + name : name;
+			const stat = fs.statSync(full);
+			if (stat.isDirectory()) entries = entries.concat(collectFiles(full, rel));
+			else entries.push({ full, rel, size: stat.size });
+		}
+		return entries;
 	}
+	function u16(n) { const b = Buffer.alloc(2); b.writeUInt16LE(n & 0xFFFF, 0); return b; }
+	function u32(n) { const b = Buffer.alloc(4); b.writeUInt32LE(n >>> 0,    0); return b; }
+	const now = new Date();
+	const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+	const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+	const files = collectFiles(sourceDir, rootName);
+	const central = [];
+	let offset = 0;
+	const outFd = fs.openSync(destZip, 'w');
+	const write = buf => fs.writeSync(outFd, buf);
+	const CHUNK = 256 * 1024;
+	const chunk = Buffer.allocUnsafe(CHUNK);
+	for (const f of files) {
+		const nameBuf = Buffer.from(f.rel, 'utf8');
+		const header = Buffer.concat([
+			Buffer.from([0x50,0x4B,0x03,0x04]),
+			u16(20), u16(0x0008), u16(0),
+			u16(dosTime), u16(dosDate),
+			u32(0), u32(f.size), u32(f.size),
+			u16(nameBuf.length), u16(0), nameBuf
+		]);
+		write(header);
+		let crc = 0xFFFFFFFF;
+		const inFd = fs.openSync(f.full, 'r');
+		let n;
+		while ((n = fs.readSync(inFd, chunk, 0, CHUNK)) > 0) {
+			for (let i = 0; i < n; i++) { crc ^= chunk[i]; for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0); }
+			fs.writeSync(outFd, chunk, 0, n);
+		}
+		fs.closeSync(inFd);
+		crc = (crc ^ 0xFFFFFFFF) >>> 0;
+		write(Buffer.concat([Buffer.from([0x50,0x4B,0x07,0x08]), u32(crc), u32(f.size), u32(f.size)]));
+		central.push({ nameBuf, crc, size: f.size, offset });
+		offset += header.length + f.size + 16;
+	}
+	const centralStart = offset;
+	for (const e of central) {
+		const rec = Buffer.concat([
+			Buffer.from([0x50,0x4B,0x01,0x02]),
+			u16(20), u16(20), u16(0x0008), u16(0),
+			u16(dosTime), u16(dosDate),
+			u32(e.crc), u32(e.size), u32(e.size),
+			u16(e.nameBuf.length), u16(0), u16(0), u16(0), u16(0), u32(0),
+			u32(e.offset), e.nameBuf
+		]);
+		write(rec);
+		offset += rec.length;
+	}
+	write(Buffer.concat([
+		Buffer.from([0x50,0x4B,0x05,0x06]),
+		u16(0), u16(0), u16(central.length), u16(central.length),
+		u32(offset - centralStart), u32(centralStart), u16(0)
+	]));
+	fs.closeSync(outFd);
+}
+
+try { buildZip(sourceDir, rootName, destZip); parentPort.postMessage({ ok: true }); }
+catch(e) { parentPort.postMessage({ ok: false, error: e.message }); }
+`;
+	new Worker(workerCode, { eval: true, workerData: { sourceDir: projetDir, rootName: nom, destZip: zipDest } })
+		.on('message', msg => {
+			if (msg.ok) dialog.showMessageBox(mainWindow, { type: 'info',  message: 'Archive créée : ' + zipDest });
+			else        dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur : ' + msg.error });
+		})
+		.on('error', err => dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur worker : ' + err.message }));
 }
 
 function grpColor(){
