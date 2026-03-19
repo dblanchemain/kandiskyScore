@@ -17,7 +17,6 @@
  Mnewspace='Neuer Raum',
  Msave='Speichern',
  MsaveAs='Speichern unter',
- MarchiveZip='Als zip archivieren',
  Mrename='Umbenennen',
  Mdel='Löschen',
  Msavegrp='Gruppe speichern',
