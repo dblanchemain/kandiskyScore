@@ -1617,7 +1617,6 @@ function saveDefProjetAs() {
 }
 
 function buildZip(sourceDir, rootName, destZip) {
-	// Collecte récursive de tous les fichiers
 	function collectFiles(dir, base) {
 		let entries = [];
 		for (const name of fs.readdirSync(dir)) {
@@ -1627,70 +1626,73 @@ function buildZip(sourceDir, rootName, destZip) {
 			if (stat.isDirectory()) {
 				entries = entries.concat(collectFiles(full, rel));
 			} else {
-				entries.push({ full, rel, size: stat.size });
+				entries.push({ full, rel });
 			}
 		}
 		return entries;
 	}
 
-	const files   = collectFiles(sourceDir, rootName);
-	const buffers = [];
-	const central = [];
-	let offset = 0;
-
-	function u16(n) { const b = Buffer.alloc(2); b.writeUInt16LE(n, 0); return b; }
-	function u32(n) { const b = Buffer.alloc(4); b.writeUInt32LE(n, 0); return b; }
+	function u16(n) { const b = Buffer.alloc(2); b.writeUInt16LE(n & 0xFFFF, 0); return b; }
+	function u32(n) { const b = Buffer.alloc(4); b.writeUInt32LE(n >>> 0, 0); return b; }
 
 	const now = new Date();
-	const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1));
-	const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate());
+	const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+	const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+
+	const files   = collectFiles(sourceDir, rootName);
+	const central = [];
+	let offset    = 0;
+
+	// Écriture incrémentale : un fichier à la fois (évite de tout charger en mémoire)
+	const fd = require("fs").openSync(destZip, 'w');
+	const write = buf => { require("fs").writeSync(fd, buf); };
 
 	for (const f of files) {
 		const data       = fs.readFileSync(f.full);
-		const compressed = zlib.deflateRawSync(data, { level: 6 });
+		const compressed = zlib.deflateRawSync(data, { level: 1 });
 		const nameBuf    = Buffer.from(f.rel, 'utf8');
 		const crc        = crc32(data);
 
-		// Local file header
-		const local = Buffer.concat([
+		const header = Buffer.concat([
 			Buffer.from([0x50,0x4B,0x03,0x04]),
 			u16(20), u16(0), u16(8),
 			u16(dosTime), u16(dosDate),
 			u32(crc), u32(compressed.length), u32(data.length),
 			u16(nameBuf.length), u16(0),
-			nameBuf, compressed
+			nameBuf
 		]);
-		buffers.push(local);
+		write(header);
+		write(compressed);
 
-		// Entrée répertoire central
 		central.push({ nameBuf, crc, cSize: compressed.length, uSize: data.length, offset });
-		offset += local.length;
+		offset += header.length + compressed.length;
 	}
 
 	// Répertoire central
-	const centralBufs = central.map(e => Buffer.concat([
-		Buffer.from([0x50,0x4B,0x01,0x02]),
-		u16(20), u16(20), u16(0), u16(8),
-		u16(dosTime), u16(dosDate),
-		u32(e.crc), u32(e.cSize), u32(e.uSize),
-		u16(e.nameBuf.length), u16(0), u16(0), u16(0), u16(0), u32(0),
-		u32(e.offset), e.nameBuf
-	]));
-
-	const centralBuf  = Buffer.concat(centralBufs);
-	const centralSize = centralBuf.length;
-	const centralOff  = offset;
+	const centralStart = offset;
+	for (const e of central) {
+		const rec = Buffer.concat([
+			Buffer.from([0x50,0x4B,0x01,0x02]),
+			u16(20), u16(20), u16(0), u16(8),
+			u16(dosTime), u16(dosDate),
+			u32(e.crc), u32(e.cSize), u32(e.uSize),
+			u16(e.nameBuf.length), u16(0), u16(0), u16(0), u16(0), u32(0),
+			u32(e.offset), e.nameBuf
+		]);
+		write(rec);
+		offset += rec.length;
+	}
 
 	// End of central directory
-	const eocd = Buffer.concat([
+	write(Buffer.concat([
 		Buffer.from([0x50,0x4B,0x05,0x06]),
 		u16(0), u16(0),
 		u16(central.length), u16(central.length),
-		u32(centralSize), u32(centralOff),
+		u32(offset - centralStart), u32(centralStart),
 		u16(0)
-	]);
+	]));
 
-	fs.writeFileSync(destZip, Buffer.concat([...buffers, centralBuf, eocd]));
+	require("fs").closeSync(fd);
 }
 
 function crc32(buf) {
