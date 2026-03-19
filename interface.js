@@ -634,7 +634,7 @@ function dragElement(elmnt) {
 
     if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].class==3){
     	var _t56=tableObjet[elmnt.id.substring(5)].type;
-    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84 || _t56==63 || _t56==64 || _t56==65 || _t56==66 || _t56==67 || _t56==68 || _t56==69 || _t56==70 || _t56==75 || _t56==76 || _t56==77){
+    	if (_t56==1 || _t56==2 || _t56==3 || _t56==21 || _t56==22 || _t56==23 || _t56==24 || _t56==26 || _t56==27 || _t56==28 || _t56==56 || _t56==57 || _t56==58 || _t56==59 || _t56==84 || _t56==63 || _t56==64 || _t56==65 || _t56==66 || _t56==67 || _t56==68 || _t56==69 || _t56==70 || _t56==71 || _t56==72 || _t56==75 || _t56==76 || _t56==77){
    		document.getElementById("sglis"+elmnt.id.substring(5)).style.border='1px solid red';
    	}
     }
@@ -1231,7 +1231,7 @@ function smarpegeP2(elmnt,px,py){
 	var actif=elmnt.id.substring(2);
 	var t=tableObjet[actif];
 	var posX=parseFloat(t.posX), posY=parseFloat(t.posY);
-	if(t.type==69||t.type==70){
+	if(t.type==69||t.type==70||t.type==71||t.type==72){
 		t.x2=px+4-posX;
 		t.y2=py+4-posY;
 		objActif=actif;
@@ -1266,6 +1266,9 @@ function smarpege(elmnt,px,py) {
  		if(tableObjet[actif].type==69||tableObjet[actif].type==70){
  			tableObjet[actif].x4=px+4-posX;
  			tableObjet[actif].y4=py+4-posY;
+ 		}else if(tableObjet[actif].type==71||tableObjet[actif].type==72){
+ 			tableObjet[actif].x3=px+4-posX;
+ 			tableObjet[actif].y3=py+4-posY;
  		}else{
  			tableObjet[actif].x2=px+4-posX;
  			tableObjet[actif].y2=py+4-posY;
@@ -1296,6 +1299,11 @@ function smarpegeP1(elmnt,px,py) {
  			tableObjet[actif].y3=(posY+y3)-newPosY;
  			tableObjet[actif].x4=(posX+x4)-newPosX;
  			tableObjet[actif].y4=(posY+y4)-newPosY;
+ 		}else if(tableObjet[actif].type==71||tableObjet[actif].type==72){
+ 			var x3=parseFloat(tableObjet[actif].x3)||0;
+ 			var y3=parseFloat(tableObjet[actif].y3)||0;
+ 			tableObjet[actif].x3=(posX+x3)-newPosX;
+ 			tableObjet[actif].y3=(posY+y3)-newPosY;
  		}
  		objActif=actif;
  		redrawArpege(actif);
@@ -1333,6 +1341,37 @@ function redrawArpege(actif) {
  		var posY=parseFloat(t.posY);
  		var x2=parseFloat(t.x2);
  		var y2=parseFloat(t.y2);
+ 		if(t.type==71||t.type==72){
+ 			var x3=parseFloat(t.x3)||0, y3=parseFloat(t.y3)||0;
+ 			var ax=posX, ay=posY;
+ 			var bx=posX+x2, by=posY+y2;
+ 			var cx=posX+x3, cy=posY+y3;
+ 			var minX=Math.min(ax,bx,cx), minY=Math.min(ay,by,cy);
+ 			var maxX=Math.max(ax,bx,cx), maxY=Math.max(ay,by,cy);
+ 			var bw=Math.max(maxX-minX,10), bh=Math.max(maxY-minY,10);
+ 			var arrowAngle=Math.atan2(cy-by,cx-bx)*180/Math.PI;
+ 			var lax=ax-minX, lay=ay-minY;
+ 			var lbx=bx-minX, lby=by-minY;
+ 			var lcx=cx-minX, lcy=cy-minY;
+ 			var col=t.objColor;
+ 			var orig=document.getElementById(t.id);
+ 			orig.style.top=minY+"px"; orig.style.left=minX+"px";
+ 			orig.style.width=bw+"px"; orig.style.height=bh+"px";
+ 			var svg="<svg width='"+bw+"' height='"+bh+"' overflow='visible' xmlns='http://www.w3.org/2000/svg'>";
+ 			svg+="<path style='fill:none;stroke:"+col+";stroke-width:1.5;stroke-opacity:1' d='M "+lax+","+lay+" L "+lbx+","+lby+" L "+lcx+","+lcy+"' />";
+ 			svg+="<g transform='translate("+lcx+","+lcy+") rotate("+arrowAngle+")'>";
+ 			svg+="<path style='fill:"+col+";stroke:none' d='M 0,0 L -6,-3 -6,3 Z' /></g></svg>";
+ 			orig.innerHTML=svg;
+ 			t.bkgWidth=bw; t.bkgHeight=bh;
+ 			document.getElementById("p1"+actif).style.top=(ay-4)+"px";
+ 			document.getElementById("p1"+actif).style.left=(ax-4)+"px";
+ 			document.getElementById("p2"+actif).style.top=(by-4)+"px";
+ 			document.getElementById("p2"+actif).style.left=(bx-4)+"px";
+ 			document.getElementById("sglis"+actif).style.top=(cy-4)+"px";
+ 			document.getElementById("sglis"+actif).style.left=(cx-4)+"px";
+ 			showArpegeHandles(actif);
+ 			return;
+ 		}
  		if(t.type==69||t.type==70){
  			var x3=parseFloat(t.x3)||0, y3=parseFloat(t.y3)||0;
  			var x4=parseFloat(t.x4)||0, y4=parseFloat(t.y4)||0;

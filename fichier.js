@@ -195,6 +195,10 @@ function defSymbGrp(id,nbobjets) {
 			<x4 value='"+(id.x4||0)+"'></x4>\n\
 			<y4 value='"+(id.y4||0)+"'></y4>\n";
 		}
+		if(parseInt(id.type)==71||parseInt(id.type)==72){
+			txt=txt+"<x3 value='"+(id.x3||0)+"'></x3>\n\
+			<y3 value='"+(id.y3||0)+"'></y3>\n";
+		}
 	}
 	return txt;
 }
@@ -658,6 +662,10 @@ function symbXmlToScore(id,i) {
 			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(org.getElementsByTagName("y3")[0].getAttribute("value")):undefined;
 			tableObjet[id].x4=org.getElementsByTagName("x4")[0]?parseFloat(org.getElementsByTagName("x4")[0].getAttribute("value")):undefined;
 			tableObjet[id].y4=org.getElementsByTagName("y4")[0]?parseFloat(org.getElementsByTagName("y4")[0].getAttribute("value")):undefined;
+		}
+		if(tableObjet[id].type==71||tableObjet[id].type==72){
+			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(org.getElementsByTagName("x3")[0].getAttribute("value")):undefined;
+			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(org.getElementsByTagName("y3")[0].getAttribute("value")):undefined;
 		}
 
 		var trp=org.getElementsByTagName("bkgTrp")[0].getAttribute("value");
