@@ -1716,7 +1716,7 @@ async function archiveProjet() {
 	});
 	if (result.canceled || !result.filePath) return;
 	const zipDest = result.filePath;
-	if (fs.existsSync(zipDest)) fs.removeSync(zipDest);
+	if (fs.existsSync(zipDest)) fs.unlinkSync(zipDest);
 	try {
 		buildZip(projetDir, path.basename(projetDir), zipDest);
 		dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
