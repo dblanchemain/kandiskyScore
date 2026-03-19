@@ -21,7 +21,7 @@ const fs = require("fs-extra");
 const os = require("os");
 const { existsSync } = require("fs");
 const tkill = require("tree-kill");
-const archiver = require("archiver");
+const zlib = require("zlib");
 const { WaveFile } = require("wavefile");
 
 const createModule = require('./public/split_wasm.js');
@@ -1616,6 +1616,92 @@ function saveDefProjetAs() {
 	mainWindow.webContents.send("fromMain", 'saveProjet;1');
 }
 
+function buildZip(sourceDir, rootName, destZip) {
+	// Collecte récursive de tous les fichiers
+	function collectFiles(dir, base) {
+		let entries = [];
+		for (const name of fs.readdirSync(dir)) {
+			const full = path.join(dir, name);
+			const rel  = base ? base + '/' + name : name;
+			const stat = fs.statSync(full);
+			if (stat.isDirectory()) {
+				entries = entries.concat(collectFiles(full, rel));
+			} else {
+				entries.push({ full, rel, size: stat.size });
+			}
+		}
+		return entries;
+	}
+
+	const files   = collectFiles(sourceDir, rootName);
+	const buffers = [];
+	const central = [];
+	let offset = 0;
+
+	function u16(n) { const b = Buffer.alloc(2); b.writeUInt16LE(n, 0); return b; }
+	function u32(n) { const b = Buffer.alloc(4); b.writeUInt32LE(n, 0); return b; }
+
+	const now = new Date();
+	const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1));
+	const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate());
+
+	for (const f of files) {
+		const data       = fs.readFileSync(f.full);
+		const compressed = zlib.deflateRawSync(data, { level: 6 });
+		const nameBuf    = Buffer.from(f.rel, 'utf8');
+		const crc        = crc32(data);
+
+		// Local file header
+		const local = Buffer.concat([
+			Buffer.from([0x50,0x4B,0x03,0x04]),
+			u16(20), u16(0), u16(8),
+			u16(dosTime), u16(dosDate),
+			u32(crc), u32(compressed.length), u32(data.length),
+			u16(nameBuf.length), u16(0),
+			nameBuf, compressed
+		]);
+		buffers.push(local);
+
+		// Entrée répertoire central
+		central.push({ nameBuf, crc, cSize: compressed.length, uSize: data.length, offset });
+		offset += local.length;
+	}
+
+	// Répertoire central
+	const centralBufs = central.map(e => Buffer.concat([
+		Buffer.from([0x50,0x4B,0x01,0x02]),
+		u16(20), u16(20), u16(0), u16(8),
+		u16(dosTime), u16(dosDate),
+		u32(e.crc), u32(e.cSize), u32(e.uSize),
+		u16(e.nameBuf.length), u16(0), u16(0), u16(0), u16(0), u32(0),
+		u32(e.offset), e.nameBuf
+	]));
+
+	const centralBuf  = Buffer.concat(centralBufs);
+	const centralSize = centralBuf.length;
+	const centralOff  = offset;
+
+	// End of central directory
+	const eocd = Buffer.concat([
+		Buffer.from([0x50,0x4B,0x05,0x06]),
+		u16(0), u16(0),
+		u16(central.length), u16(central.length),
+		u32(centralSize), u32(centralOff),
+		u16(0)
+	]);
+
+	fs.writeFileSync(destZip, Buffer.concat([...buffers, centralBuf, eocd]));
+}
+
+function crc32(buf) {
+	let crc = 0xFFFFFFFF;
+	for (let i = 0; i < buf.length; i++) {
+		crc ^= buf[i];
+		for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
+	}
+	return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
 async function archiveProjet() {
 	if (!currentProjet || currentProjet === path.join(app.getPath('home'), 'kandiskyscore', 'Projets')) {
 		dialog.showMessageBox(mainWindow, { type: 'warning', message: 'Aucun projet ouvert.' });
@@ -1631,17 +1717,12 @@ async function archiveProjet() {
 	if (result.canceled || !result.filePath) return;
 	const zipDest = result.filePath;
 	if (fs.existsSync(zipDest)) fs.removeSync(zipDest);
-	const output = fs.createWriteStream(zipDest);
-	const archive = archiver('zip', { zlib: { level: 6 } });
-	output.on('close', () => {
+	try {
+		buildZip(projetDir, path.basename(projetDir), zipDest);
 		dialog.showMessageBox(mainWindow, { type: 'info', message: 'Archive créée : ' + zipDest });
-	});
-	archive.on('error', (err) => {
+	} catch(err) {
 		dialog.showMessageBox(mainWindow, { type: 'error', message: 'Erreur : ' + err.message });
-	});
-	archive.pipe(output);
-	archive.directory(projetDir, path.basename(projetDir));
-	archive.finalize();
+	}
 }
 
 function grpColor(){
