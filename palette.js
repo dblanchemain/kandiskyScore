@@ -508,29 +508,29 @@ async function defSelectImg(rt){
 	var mimeExt=mime[mime.length-1].toLowerCase();
 	console.log('mime',mimeExt);
 	if(mimeExt=="svg"){
-		await importSvgImage(rt);
-		var _svgEl=document.getElementById("fichierSave").getElementsByTagName("svg")[0];
-		if(_svgEl){
+		// Lire le texte brut du SVG pour extraire les dimensions via DOMParser (XML strict)
+		var _svgTxt=await(await fetch(rt)).text();
+		function _parseSvgDim(attr){
+			var v=parseFloat(attr);
+			if(isNaN(v)) return NaN;
+			if(attr.indexOf('mm')>-1) return Math.round(v*3.7795);
+			if(attr.indexOf('cm')>-1) return Math.round(v*37.795);
+			if(attr.indexOf('in')>-1) return Math.round(v*96);
+			return Math.round(v);
+		}
+		try{
+			var _svgDoc=new DOMParser().parseFromString(_svgTxt,'image/svg+xml');
+			var _svgEl=_svgDoc.documentElement;
 			var box=_svgEl.getAttribute('viewBox');
 			console.log('viewBox',box);
 			var tbox=box ? box.split(' ') : [];
-			function _parseSvgDim(attr){
-				var v=parseFloat(attr);
-				if(isNaN(v)) return NaN;
-				if(attr.indexOf('mm')>-1) return Math.round(v*3.7795);
-				if(attr.indexOf('cm')>-1) return Math.round(v*37.795);
-				if(attr.indexOf('in')>-1) return Math.round(v*96);
-				return Math.round(v);
-			}
 			var _sw=_parseSvgDim(_svgEl.getAttribute('width')||'');
 			var _sh=_parseSvgDim(_svgEl.getAttribute('height')||'');
 			if(isNaN(_sw) && tbox.length>=4){ _sw=Math.round(parseFloat(tbox[2])/10); }
 			if(isNaN(_sh) && tbox.length>=4){ _sh=Math.round(parseFloat(tbox[3])/10); }
 			if(!isNaN(_sw)){ tableObjet[objActif].bkgWidth=_sw; }
 			if(!isNaN(_sh)){ tableObjet[objActif].bkgHeight=_sh; }
-		}else{
-			console.warn('SVG element not found in fichierSave for',rt);
-		}
+		}catch(e){ console.warn('DOMParser SVG error',e); }
 		graphImage(rt);//graphSvg()
 	}else{
 		graphImage(rt);
