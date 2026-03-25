@@ -382,9 +382,9 @@ function graphImage(src) {
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
 	// Poignée de redimensionnement coin bas-droite
 	var _n=tableObjet[objActif].id.substring(5);
-	var _z=8*zoomScale;
-	var _ht=(tableObjet[objActif].posY*zoomScale)+_z+tableObjet[objActif].bkgHeight-5;
-	var _hl=(tableObjet[objActif].posX*zoomScale)+_z+tableObjet[objActif].bkgWidth-5;
+	var _divEl=document.getElementById(selectObj);
+	var _ht=parseFloat(_divEl.style.top)+parseFloat(_divEl.style.height)-5;
+	var _hl=parseFloat(_divEl.style.left)+parseFloat(_divEl.style.width)-5;
 	var rszNode=document.createElement('div');
 	rszNode.setAttribute("id","rsz"+_n);
 	rszNode.setAttribute("style","position:absolute;top:"+_ht+"px;left:"+_hl+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
@@ -418,12 +418,12 @@ function graphSvg() {
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
 	// Poignée de redimensionnement coin bas-droite
 	var _n=tableObjet[objActif].id.substring(5);
-	var _z=8*zoomScale;
-	var _ht=(tableObjet[objActif].posY*zoomScale)+_z+tableObjet[objActif].bkgHeight-5;
-	var _hl=(tableObjet[objActif].posX*zoomScale)+_z+tableObjet[objActif].bkgWidth-5;
+	var _divEl2=document.getElementById(selectObj);
+	var _ht2=parseFloat(_divEl2.style.top)+parseFloat(_divEl2.style.height)-5;
+	var _hl2=parseFloat(_divEl2.style.left)+parseFloat(_divEl2.style.width)-5;
 	var rszNode=document.createElement('div');
 	rszNode.setAttribute("id","rsz"+_n);
-	rszNode.setAttribute("style","position:absolute;top:"+_ht+"px;left:"+_hl+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
+	rszNode.setAttribute("style","position:absolute;top:"+_ht2+"px;left:"+_hl2+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
 	document.getElementById("space").appendChild(rszNode);
 	dragElement(rszNode);
 }
