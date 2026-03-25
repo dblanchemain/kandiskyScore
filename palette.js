@@ -380,16 +380,21 @@ function graphImage(src) {
 	document.getElementById(selectObj).firstChild.style.height=tableObjet[objActif].bkgHeight+"px";
 	dragElement(document.getElementById(selectObj));
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
-	// Poignée de redimensionnement coin bas-droite
+	// Poignée de redimensionnement coin bas-droite (invisible par défaut)
 	var _n=tableObjet[objActif].id.substring(5);
 	var _divEl=document.getElementById(selectObj);
 	var _ht=_divEl.offsetTop+_divEl.offsetHeight-5;
 	var _hl=_divEl.offsetLeft+_divEl.offsetWidth-5;
 	var rszNode=document.createElement('div');
 	rszNode.setAttribute("id","rsz"+_n);
-	rszNode.setAttribute("style","position:absolute;top:"+_ht+"px;left:"+_hl+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
+	rszNode.setAttribute("style","position:absolute;top:"+_ht+"px;left:"+_hl+"px;width:10px;height:10px;z-index:6;background:transparent;border:none;cursor:se-resize;border-radius:2px;");
 	document.getElementById("space").appendChild(rszNode);
 	dragElement(rszNode);
+	var _actifN=_n;
+	_divEl.onmouseenter=function(){showRszHandle(_actifN);};
+	_divEl.onmouseleave=function(){startHideRszHandle(_actifN);};
+	rszNode.onmouseenter=function(){showRszHandle(_actifN);};
+	rszNode.onmouseleave=function(){startHideRszHandle(_actifN);};
 	console.log(document.getElementById(selectObj));
 }
 function graphSvg() {
@@ -416,16 +421,21 @@ function graphSvg() {
 	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
 	dragElement(document.getElementById(selectObj));
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
-	// Poignée de redimensionnement coin bas-droite
+	// Poignée de redimensionnement coin bas-droite (invisible par défaut)
 	var _n=tableObjet[objActif].id.substring(5);
 	var _divEl2=document.getElementById(selectObj);
 	var _ht2=_divEl2.offsetTop+_divEl2.offsetHeight-5;
 	var _hl2=_divEl2.offsetLeft+_divEl2.offsetWidth-5;
 	var rszNode=document.createElement('div');
 	rszNode.setAttribute("id","rsz"+_n);
-	rszNode.setAttribute("style","position:absolute;top:"+_ht2+"px;left:"+_hl2+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
+	rszNode.setAttribute("style","position:absolute;top:"+_ht2+"px;left:"+_hl2+"px;width:10px;height:10px;z-index:6;background:transparent;border:none;cursor:se-resize;border-radius:2px;");
 	document.getElementById("space").appendChild(rszNode);
 	dragElement(rszNode);
+	var _actifN2=_n;
+	_divEl2.onmouseenter=function(){showRszHandle(_actifN2);};
+	_divEl2.onmouseleave=function(){startHideRszHandle(_actifN2);};
+	rszNode.onmouseenter=function(){showRszHandle(_actifN2);};
+	rszNode.onmouseleave=function(){startHideRszHandle(_actifN2);};
 }
 
 async function defSelectImg(rt){

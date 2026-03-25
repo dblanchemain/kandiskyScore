@@ -1189,6 +1189,9 @@ console.log('resultat',gainPoints,resultat);
    if(elmnt.id.substring(0,5)=="sglis"){
    	showArpegeHandles(elmnt.id.substring(5));
    }
+   if(elmnt.id.substring(0,3)=="rsz"){
+   	showRszHandle(elmnt.id.substring(3));
+   }
    if(elmnt.id.substring(0,2)=="p1"){
    	showArpegeHandles(elmnt.id.substring(2));
    }
@@ -1345,6 +1348,20 @@ function smarpegeP1(elmnt,px,py) {
  		redrawArpege(actif);
 }
 
+var rszHideTimers={};
+function showRszHandle(actif){
+	if(rszHideTimers[actif]){clearTimeout(rszHideTimers[actif]);delete rszHideTimers[actif];}
+	var h=document.getElementById("rsz"+actif);
+	if(h){h.style.background='#ff6600';h.style.border='1px solid #cc4400';}
+}
+function startHideRszHandle(actif){
+	if(rszHideTimers[actif])clearTimeout(rszHideTimers[actif]);
+	rszHideTimers[actif]=setTimeout(function(){
+		var h=document.getElementById("rsz"+actif);
+		if(h){h.style.background='transparent';h.style.border='none';}
+		delete rszHideTimers[actif];
+	},200);
+}
 var arpegeHideTimers={};
 function showArpegeHandles(actif){
 	if(arpegeHideTimers[actif]){clearTimeout(arpegeHideTimers[actif]);delete arpegeHideTimers[actif];}
