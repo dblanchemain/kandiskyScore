@@ -1061,8 +1061,8 @@ function defInterfaceConfig() {
 	popupFontColor = obj.getElementsByTagName("popupfontcolor")[0].getAttribute("value");
 	popupBkgColor = obj.getElementsByTagName("popupbkgcolor")[0].getAttribute("value");
 	popupFontSize = obj.getElementsByTagName("popupfontsize")[0].getAttribute("value");
-	popupongletfontcolor = obj.getElementsByTagName("separateurpalette")[0].getAttribute("value");
-	popupFontOngletSize = obj.getElementsByTagName("popupongletfontcolor")[0].getAttribute("value");
+	popupOngletFontColor = obj.getElementsByTagName("popupongletfontcolor")[0].getAttribute("value");
+	popupFontOngletSize = obj.getElementsByTagName("popupfontongletsize")[0].getAttribute("value");
 	popupOngletBkg = obj.getElementsByTagName("popupongletbkg")[0].getAttribute("value");
 	popupOngletActifBkg = obj.getElementsByTagName("popupongletactifbkg")[0].getAttribute("value");
 	lang = obj.getElementsByTagName("lang")[0].getAttribute("value");
