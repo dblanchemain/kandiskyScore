@@ -80,7 +80,7 @@ async function transformObjSvg(pdf,txt,lsgrp) {
 					document.getElementById("fichierSave").getElementsByTagName('svg')[0].setAttribute('height',lsgrp.bkgHeight);
 					txt=txt+document.getElementById("fichierSave").innerHTML;
 				}else{
-					txt=txt+"<image x='0' y='0' width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' href='file:///"+lsgrp.bkgImg+"' />\n";
+					txt=txt+"<image x='0' y='0' width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' preserveAspectRatio='none' href='file:///"+lsgrp.bkgImg+"' />\n";
 				}
 			}
 			
@@ -193,11 +193,11 @@ async function transformObjSvg(pdf,txt,lsgrp) {
 			var img = new Image();
 			img.src = imgDirectory+lsgrp.img;
 			var imageData = getImageDataFromImage(img); 
-			 var td = "<image x='"+lsgrp.margeG+"' y='"+lsgrp.margeH+"' width='" + lsgrp.bkgWidth + "' height='" + lsgrp.bkgHeight + "'  xlink:href='" +imageData+ "' transform='scale(1,1) translate(0 0) rotate(0 125 75)'></image>\n";
+			 var td = "<image x='"+lsgrp.margeG+"' y='"+lsgrp.margeH+"' width='" + lsgrp.bkgWidth + "' height='" + lsgrp.bkgHeight + "' preserveAspectRatio='none' xlink:href='" +imageData+ "' transform='scale(1,1) translate(0 0) rotate(0 125 75)'></image>\n";
 				txt=txt+td;
 				} 
 			}else{
-				txt=txt+"<image x='"+lsgrp.margeG+"' y='"+(-lsgrp.margeH)+"'  width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' xlink:href='file://"+imgDirectory+lsgrp.img+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" "+(lsgrp.bkgWidth/2)+" "+(lsgrp.bkgHeight/2)+")' />\n";
+				txt=txt+"<image x='"+lsgrp.margeG+"' y='"+(-lsgrp.margeH)+"'  width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' preserveAspectRatio='none' xlink:href='file://"+imgDirectory+lsgrp.img+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" "+(lsgrp.bkgWidth/2)+" "+(lsgrp.bkgHeight/2)+")' />\n";
 			}				
 				break;
 		}
@@ -269,7 +269,7 @@ async function transformSymbSvg(txt,lsgrp) {
 					document.getElementById("fichierSave").getElementsByTagName('svg')[0].setAttribute('height',lsgrp.bkgHeight);
 					txt=txt+document.getElementById("fichierSave").innerHTML;
 				}else{
-					txt=txt+"<image x='0' y='0' width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' href='file:///"+lsgrp.bkgImg+"' />\n";
+					txt=txt+"<image x='0' y='0' width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' preserveAspectRatio='none' href='file:///"+lsgrp.bkgImg+"' />\n";
 				}
 			//}
 			
@@ -1104,7 +1104,7 @@ function simpleCadre(lsgrp) {
 
 		
 		if(lsgrp.bkgImg!=""){
-			ntxt=ntxt+"<image x='0' y='0' width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' href='file:///"+lsgrp.bkgImg+"' />\n";
+			ntxt=ntxt+"<image x='0' y='0' width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' preserveAspectRatio='none' href='file:///"+lsgrp.bkgImg+"' />\n";
 		}
 		ntxt=ntxt+"<line x1='0' y1='0' x2='"+lsgrp.bkgWidth+"' y2='0' stroke='"+lsgrp.borderHc+"' stroke-width='"+lsgrp.borderHw+"' stroke-linecap='round'  />\n";
 		ntxt=ntxt+"<line x1='0' y1='"+lsgrp.bkgHeight+"' x2='"+lsgrp.bkgWidth+"' y2='"+lsgrp.bkgHeight+"' stroke='"+lsgrp.borderBc+"' stroke-width='"+lsgrp.borderBw+"' stroke-linecap='round' />\n";
