@@ -1092,8 +1092,8 @@ console.log('resultat',gainPoints,resultat);
 			    			if(py<1){ py=1; }
 			    			var _actifRsz=elmnt.id.substring(3);
 			    			var _origRsz=document.getElementById("objet"+_actifRsz);
-			    			var _newW=Math.max(10, px-parseFloat(_origRsz.style.left)+5);
-			    			var _newH=Math.max(10, py-parseFloat(_origRsz.style.top)+5);
+			    			var _newW=Math.max(10, px-_origRsz.offsetLeft+5);
+			    			var _newH=Math.max(10, py-_origRsz.offsetTop+5);
 			    			_origRsz.style.width=_newW+"px";
 			    			_origRsz.style.height=_newH+"px";
 			    			if(_origRsz.firstChild && _origRsz.firstChild.tagName=="IMG"){
