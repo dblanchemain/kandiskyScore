@@ -505,27 +505,32 @@ async function defSelectImg(rt){
 	var nfile=tableObjet[objActif].img.split("/");
 	var mime=nfile[nfile.length-1].split(".");
 	tableObjet[objActif].img=nfile[nfile.length-1];
-	console.log('mime',mime[1]);
-	if(mime[1]=="svg"){
+	var mimeExt=mime[mime.length-1].toLowerCase();
+	console.log('mime',mimeExt);
+	if(mimeExt=="svg"){
 		await importSvgImage(rt);
 		var _svgEl=document.getElementById("fichierSave").getElementsByTagName("svg")[0];
-		var box=_svgEl.getAttribute('viewBox');
-		console.log('viewBox',box);
-		var tbox=box ? box.split(' ') : [];
-		function _parseSvgDim(attr){
-			var v=parseFloat(attr);
-			if(isNaN(v)) return NaN;
-			if(attr.indexOf('mm')>-1) return Math.round(v*3.7795);
-			if(attr.indexOf('cm')>-1) return Math.round(v*37.795);
-			if(attr.indexOf('in')>-1) return Math.round(v*96);
-			return Math.round(v);
+		if(_svgEl){
+			var box=_svgEl.getAttribute('viewBox');
+			console.log('viewBox',box);
+			var tbox=box ? box.split(' ') : [];
+			function _parseSvgDim(attr){
+				var v=parseFloat(attr);
+				if(isNaN(v)) return NaN;
+				if(attr.indexOf('mm')>-1) return Math.round(v*3.7795);
+				if(attr.indexOf('cm')>-1) return Math.round(v*37.795);
+				if(attr.indexOf('in')>-1) return Math.round(v*96);
+				return Math.round(v);
+			}
+			var _sw=_parseSvgDim(_svgEl.getAttribute('width')||'');
+			var _sh=_parseSvgDim(_svgEl.getAttribute('height')||'');
+			if(isNaN(_sw) && tbox.length>=4){ _sw=Math.round(parseFloat(tbox[2])/10); }
+			if(isNaN(_sh) && tbox.length>=4){ _sh=Math.round(parseFloat(tbox[3])/10); }
+			if(!isNaN(_sw)){ tableObjet[objActif].bkgWidth=_sw; }
+			if(!isNaN(_sh)){ tableObjet[objActif].bkgHeight=_sh; }
+		}else{
+			console.warn('SVG element not found in fichierSave for',rt);
 		}
-		var _sw=_parseSvgDim(_svgEl.getAttribute('width')||'');
-		var _sh=_parseSvgDim(_svgEl.getAttribute('height')||'');
-		if(isNaN(_sw) && tbox.length>=4){ _sw=Math.round(parseFloat(tbox[2])/10); }
-		if(isNaN(_sh) && tbox.length>=4){ _sh=Math.round(parseFloat(tbox[3])/10); }
-		if(!isNaN(_sw)){ tableObjet[objActif].bkgWidth=_sw; }
-		if(!isNaN(_sh)){ tableObjet[objActif].bkgHeight=_sh; }
 		graphImage(rt);//graphSvg()
 	}else{
 		graphImage(rt);
