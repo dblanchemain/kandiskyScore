@@ -325,51 +325,56 @@ function defInterface() {
 	document.getElementById("clBkgPopup").style.backgroundColor=popupBkgColor
 	document.getElementById("tailleFontpopup").value=parseFloat(popupFontSize);
 	document.getElementById("clongletBkg").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletGen").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
+	document.getElementById("clongletFont").style.backgroundColor=popupOngletFontColor;
 	document.getElementById("clongletActifBkg").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("panGen").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("panInterface").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("ongletGen").style.fontSize=popupFontOngletSize;
- 	document.getElementById("ongletInterface").style.fontSize=popupFontOngletSize;
- 	document.getElementById("tailleFontOnglet").value=parseFloat(popupFontOngletSize);
-}
-function defongletGen(e) {
 	document.getElementById("ongletGen").style.backgroundColor=popupOngletActifBkg;
 	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
 	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
+	document.getElementById("ongletGen").style.color=popupOngletFontColor;
+	document.getElementById("ongletInterface").style.color=popupOngletFontColor;
+	document.getElementById("ongletPalette").style.color=popupOngletFontColor;
+	document.getElementById("ongletExt").style.color=popupOngletFontColor;
+	document.getElementById("panGen").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("panInterface").style.backgroundColor=popupOngletActifBkg;
+	document.getElementById("ongletGen").style.fontSize=popupFontOngletSize;
+ 	document.getElementById("ongletInterface").style.fontSize=popupFontOngletSize;
+ 	document.getElementById("ongletPalette").style.fontSize=popupFontOngletSize;
+ 	document.getElementById("ongletExt").style.fontSize=popupFontOngletSize;
+ 	document.getElementById("tailleFontOnglet").value=parseFloat(popupFontOngletSize);
+}
+function _applyOngletColors(actif) {
+	var ids=["ongletGen","ongletInterface","ongletPalette","ongletExt"];
+	for(var i=0;i<ids.length;i++){
+		var el=document.getElementById(ids[i]);
+		el.style.backgroundColor=(ids[i]==actif)?popupOngletActifBkg:popupOngletBkg;
+		el.style.color=popupOngletFontColor;
+		el.style.fontSize=popupFontOngletSize;
+	}
+}
+function defongletGen(e) {
+	_applyOngletColors("ongletGen");
 	document.getElementById("panGen").style.display="block";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="none";
 	document.getElementById("panExt").style.display="none";
 }
 function defongletInterface(e) {
-	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletInterface").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
+	_applyOngletColors("ongletInterface");
 	document.getElementById("panGen").style.display="none";
 	document.getElementById("panInterface").style.display="block";
 	document.getElementById("panPalette").style.display="none";
 	document.getElementById("panExt").style.display="none";
 }
 function defongletPalette(e) {
-	document.getElementById("ongletPalette").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletExt").style.backgroundColor=popupOngletBkg;
+	_applyOngletColors("ongletPalette");
 	document.getElementById("panGen").style.display="none";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="block";
 	document.getElementById("panExt").style.display="none";
 }
 function defongletExt(e) {
-	document.getElementById("ongletExt").style.backgroundColor=popupOngletActifBkg;
-	document.getElementById("ongletGen").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletInterface").style.backgroundColor=popupOngletBkg;
-	document.getElementById("ongletPalette").style.backgroundColor=popupOngletBkg;
+	_applyOngletColors("ongletExt");
 	document.getElementById("panGen").style.display="none";
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="none";
@@ -938,6 +943,10 @@ ongletFontColor.addEventListener("change", defongletFont, false);
 function defongletFont(e) {
 	document.getElementById("clongletFont").style.backgroundColor=this.value;
 	popupOngletFontColor=this.value;
+	var ids=["ongletGen","ongletInterface","ongletPalette","ongletExt"];
+	for(var i=0;i<ids.length;i++){
+		document.getElementById(ids[i]).style.color=popupOngletFontColor;
+	}
 }
 const svgBkgColor = document.getElementById("svgBkg");
 const svgBkg = document.getElementById("clsvgBkg");
