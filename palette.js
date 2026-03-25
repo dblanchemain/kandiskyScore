@@ -380,6 +380,16 @@ function graphImage(src) {
 	document.getElementById(selectObj).firstChild.style.height=tableObjet[objActif].bkgHeight+"px";
 	dragElement(document.getElementById(selectObj));
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
+	// Poignée de redimensionnement coin bas-droite
+	var _n=tableObjet[objActif].id.substring(5);
+	var _z=8*zoomScale;
+	var _ht=(tableObjet[objActif].posY*zoomScale)+_z+tableObjet[objActif].bkgHeight-5;
+	var _hl=(tableObjet[objActif].posX*zoomScale)+_z+tableObjet[objActif].bkgWidth-5;
+	var rszNode=document.createElement('div');
+	rszNode.setAttribute("id","rsz"+_n);
+	rszNode.setAttribute("style","position:absolute;top:"+_ht+"px;left:"+_hl+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
+	document.getElementById("space").appendChild(rszNode);
+	dragElement(rszNode);
 	console.log(document.getElementById(selectObj));
 }
 function graphSvg() {
