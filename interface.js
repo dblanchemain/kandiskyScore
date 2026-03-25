@@ -1099,6 +1099,9 @@ console.log('resultat',gainPoints,resultat);
 			    			if(_origRsz.firstChild && _origRsz.firstChild.tagName=="IMG"){
 			    				_origRsz.firstChild.style.width=_newW+"px";
 			    				_origRsz.firstChild.style.height=_newH+"px";
+			    			}else if(_origRsz.firstChild && _origRsz.firstChild.tagName=="svg"){
+			    				_origRsz.firstChild.setAttribute("width",_newW);
+			    				_origRsz.firstChild.setAttribute("height",_newH);
 			    			}
 			    			if(tableObjet[_actifRsz].bkgImg!=""){
 			    				_origRsz.style.backgroundSize=_newW+"px "+_newH+"px";
