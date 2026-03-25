@@ -383,8 +383,8 @@ function graphImage(src) {
 	// Poignée de redimensionnement coin bas-droite
 	var _n=tableObjet[objActif].id.substring(5);
 	var _divEl=document.getElementById(selectObj);
-	var _ht=parseFloat(_divEl.style.top)+parseFloat(_divEl.style.height)-5;
-	var _hl=parseFloat(_divEl.style.left)+parseFloat(_divEl.style.width)-5;
+	var _ht=_divEl.offsetTop+_divEl.offsetHeight-5;
+	var _hl=_divEl.offsetLeft+_divEl.offsetWidth-5;
 	var rszNode=document.createElement('div');
 	rszNode.setAttribute("id","rsz"+_n);
 	rszNode.setAttribute("style","position:absolute;top:"+_ht+"px;left:"+_hl+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
@@ -419,8 +419,8 @@ function graphSvg() {
 	// Poignée de redimensionnement coin bas-droite
 	var _n=tableObjet[objActif].id.substring(5);
 	var _divEl2=document.getElementById(selectObj);
-	var _ht2=parseFloat(_divEl2.style.top)+parseFloat(_divEl2.style.height)-5;
-	var _hl2=parseFloat(_divEl2.style.left)+parseFloat(_divEl2.style.width)-5;
+	var _ht2=_divEl2.offsetTop+_divEl2.offsetHeight-5;
+	var _hl2=_divEl2.offsetLeft+_divEl2.offsetWidth-5;
 	var rszNode=document.createElement('div');
 	rszNode.setAttribute("id","rsz"+_n);
 	rszNode.setAttribute("style","position:absolute;top:"+_ht2+"px;left:"+_hl2+"px;width:10px;height:10px;z-index:6;background:#ff6600;cursor:se-resize;border-radius:2px;");
