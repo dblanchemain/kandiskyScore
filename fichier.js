@@ -960,7 +960,8 @@ function drawObj(id) {
 			break;
 		case 11:
 			graphGlissando(id);
-			dragElement(document.getElementById('gliss'+id));
+			dragElement(document.getElementById('p1'+id));
+			dragElement(document.getElementById('sglis'+id));
 			break;
 		case 12:
 			graphBlock(id);

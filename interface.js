@@ -616,6 +616,13 @@ function dragElement(elmnt) {
     	Y1=parseFloat(document.getElementById("objet"+elmnt.id.substring(5)).style.height);
     	reservTop1=parseFloat(document.getElementById("objet"+elmnt.id.substring(5)).style.top);
     }
+    if(elmnt.id.substring(0,2)=="p1"){
+    	var _p1act=elmnt.id.substring(2);
+    	if(tableObjet[_p1act] && tableObjet[_p1act].type==11){
+    		reservX1=parseFloat(tableObjet[_p1act].posX)+parseFloat(tableObjet[_p1act].x2);
+    		reservY1=parseFloat(tableObjet[_p1act].posY)+parseFloat(tableObjet[_p1act].y2);
+    	}
+    }
     if(elmnt.id.substring(0,5)=="gliss"){
    	document.getElementById("gliss"+elmnt.id.substring(5)).style.border='1px solid red';
     }
@@ -780,15 +787,14 @@ function dragElement(elmnt) {
 	    		if(tableObjet[objActif].type<24 && tableObjet[objActif].class==1){
 	    			if(tableObjet[objActif].type==11){
 	    				transposition(objActif,py);
-	    				var lobj=document.getElementById("gliss"+elmnt.id.substring(5));
-	    				var ly1=parseFloat(elmnt.firstChild.firstChild.getAttribute('y1'));
-	    				var ly2=parseFloat(elmnt.firstChild.firstChild.getAttribute('y2'));
-			    		if(ly2>ly1){
-			    			lobj.style.top=(tableObjet[objActif].posY+(ly1+(ly2-ly1)))+"px";
-			    		}else{
-			    			lobj.style.top=tableObjet[objActif].posY+ly2+"px";
-			    		}
-			    		lobj.style.left=(parseFloat(elmnt.style.left)+parseFloat(elmnt.firstChild.firstChild.getAttribute('x2')))+"px";
+	    				var _lx1=parseFloat(elmnt.firstChild.firstChild.getAttribute('x1'));
+	    				var _ly1=parseFloat(elmnt.firstChild.firstChild.getAttribute('y1'));
+	    				var _lx2=parseFloat(elmnt.firstChild.firstChild.getAttribute('x2'));
+	    				var _ly2=parseFloat(elmnt.firstChild.firstChild.getAttribute('y2'));
+	    				document.getElementById("p1"+elmnt.id.substring(5)).style.top=(py+_ly1-4)+"px";
+	    				document.getElementById("p1"+elmnt.id.substring(5)).style.left=(px+_lx1-4)+"px";
+	    				document.getElementById("sglis"+elmnt.id.substring(5)).style.top=(py+_ly2-4)+"px";
+	    				document.getElementById("sglis"+elmnt.id.substring(5)).style.left=(px+_lx2-4)+"px";
 					}else {
 	    				transposition(objActif,py);
 	    			}
@@ -1007,32 +1013,93 @@ function dragElement(elmnt) {
 				elmnt.style.left = px + "px";
 				smarpegeP3(elmnt,px,py);
 			}else if(elmnt.id.substring(0,2)=="p1"){
-				var px=(elmnt.offsetLeft - pos1);
-				var py=(elmnt.offsetTop - pos2);
-				if(py<1){ py=0; }
-				if(py>714){ py=714; }
-				if(px<1){ px=0; }
-				elmnt.style.top = py + "px";
-				elmnt.style.left = px + "px";
+			var px=(elmnt.offsetLeft - pos1);
+			var py=(elmnt.offsetTop - pos2);
+			if(py<1){ py=0; }
+			if(py>714){ py=714; }
+			if(px<1){ px=0; }
+			elmnt.style.top = py + "px";
+			elmnt.style.left = px + "px";
+			var _p1actif=elmnt.id.substring(2);
+			if(tableObjet[_p1actif] && tableObjet[_p1actif].type==11){
+				var _startX=px+4, _startY=py+4;
+				var _endX=reservX1, _endY=reservY1;
+				var _orig11=document.getElementById("objet"+_p1actif);
+				var _minX=Math.min(_startX,_endX), _minY=Math.min(_startY,_endY);
+				var _newW=Math.max(Math.abs(_endX-_startX),4), _newH=Math.max(Math.abs(_endY-_startY),4);
+				_orig11.style.left=_minX+"px"; _orig11.style.top=_minY+"px";
+				_orig11.style.width=_newW+"px"; _orig11.style.height=_newH+"px";
+				_orig11.firstChild.setAttribute('width',_newW);
+				_orig11.firstChild.setAttribute('height',_newH);
+				_orig11.firstChild.firstChild.setAttribute('x1',_startX-_minX);
+				_orig11.firstChild.firstChild.setAttribute('y1',_startY-_minY);
+				_orig11.firstChild.firstChild.setAttribute('x2',_endX-_minX);
+				_orig11.firstChild.firstChild.setAttribute('y2',_endY-_minY);
+				tableObjet[_p1actif].posX=_minX; tableObjet[_p1actif].posY=_minY;
+				tableObjet[_p1actif].x1=_startX-_minX; tableObjet[_p1actif].y1=_startY-_minY;
+				tableObjet[_p1actif].x2=_endX-_minX; tableObjet[_p1actif].y2=_endY-_minY;
+				tableObjet[_p1actif].width=_newW; tableObjet[_p1actif].height=_newH;
+				tableObjet[_p1actif].bkgWidth=_newW; tableObjet[_p1actif].bkgHeight=_newH;
+				document.getElementById("sglis"+_p1actif).style.top=(_endY-4)+"px";
+				document.getElementById("sglis"+_p1actif).style.left=(_endX-4)+"px";
+			}else{
 				smarpegeP1(elmnt,px,py);
-			}else if(elmnt.id.substring(0,5)=="sglis"){
-			    			var px=(elmnt.offsetLeft - pos1);
-				    		var py=(elmnt.offsetTop - pos2);
-				    		if(py<1){
-					 		py = 0;
-					 		}
-					 		if(py>714){
-					 			py = 714;
-					 		}
-					 		if(px<1){
-					 			px = 0;
-					 		}
-					 		
-					 		elmnt.style.top = py + "px";
-					 		elmnt.style.left = px + "px";
-
-				    		smarpege(elmnt,px,py);
-							}else if(elmnt.id.substring(0,3)=="tmp"){
+			}
+		}else if(elmnt.id.substring(0,5)=="sglis"){
+		    			var px=(elmnt.offsetLeft - pos1);
+			    		var py=(elmnt.offsetTop - pos2);
+			    		if(py<1){
+				 		py = 0;
+				 		}
+				 		if(py>714){
+				 			py = 714;
+				 		}
+				 		if(px<1){
+				 			px = 0;
+				 		}
+				 		
+				 		elmnt.style.top = py + "px";
+				 		elmnt.style.left = px + "px";
+				 		var _sglisActif=elmnt.id.substring(5);
+				 		if(tableObjet[_sglisActif] && tableObjet[_sglisActif].type==11){
+				 			var _orig11s=document.getElementById("objet"+_sglisActif);
+				 			if(px<parseFloat(_orig11s.style.left)+1){ px=parseFloat(_orig11s.style.left)+1; }
+				 			elmnt.style.left=px+"px";
+				 			var _basey1=reservTop1;
+				 			_orig11s.style.width=(px-parseFloat(_orig11s.style.left))+"px";
+				 			_orig11s.firstChild.setAttribute('width',parseFloat(_orig11s.style.width));
+				 			if(py>_basey1){
+				 				_orig11s.style.height=Math.abs(py-reservTop1)+"px";
+				 				_orig11s.firstChild.setAttribute('height',parseFloat(_orig11s.style.height));
+				 				_orig11s.firstChild.firstChild.setAttribute('x1',0);
+				 				_orig11s.firstChild.firstChild.setAttribute('y1',0);
+				 				_orig11s.firstChild.firstChild.setAttribute('x2',parseFloat(_orig11s.style.width));
+				 				_orig11s.firstChild.firstChild.setAttribute('y2',parseFloat(_orig11s.style.height));
+				 				tableObjet[_sglisActif].x1=0; tableObjet[_sglisActif].y1=0;
+				 				tableObjet[_sglisActif].x2=parseFloat(_orig11s.style.width);
+				 				tableObjet[_sglisActif].y2=parseFloat(_orig11s.style.height);
+				 			}else{
+				 				_orig11s.style.top=py+"px";
+				 				_orig11s.style.height=Y1+Math.abs(py-reservTop1)+"px";
+				 				_orig11s.firstChild.setAttribute('height',parseFloat(_orig11s.style.height));
+				 				_orig11s.firstChild.firstChild.setAttribute('x1',0);
+				 				_orig11s.firstChild.firstChild.setAttribute('y1',parseFloat(_orig11s.style.height));
+				 				_orig11s.firstChild.firstChild.setAttribute('x2',parseFloat(_orig11s.style.width));
+				 				_orig11s.firstChild.firstChild.setAttribute('y2',0);
+				 				tableObjet[_sglisActif].posY=py;
+				 				tableObjet[_sglisActif].x1=0; tableObjet[_sglisActif].y1=parseFloat(_orig11s.style.height);
+				 				tableObjet[_sglisActif].x2=parseFloat(_orig11s.style.width); tableObjet[_sglisActif].y2=0;
+				 			}
+				 			tableObjet[_sglisActif].width=parseFloat(_orig11s.style.width);
+				 			tableObjet[_sglisActif].height=parseFloat(_orig11s.style.height);
+				 			tableObjet[_sglisActif].bkgWidth=parseFloat(_orig11s.style.width);
+				 			tableObjet[_sglisActif].bkgHeight=parseFloat(_orig11s.style.height);
+				 			document.getElementById("p1"+_sglisActif).style.top=(tableObjet[_sglisActif].posY+tableObjet[_sglisActif].y1-4)+"px";
+				 			document.getElementById("p1"+_sglisActif).style.left=(tableObjet[_sglisActif].posX+tableObjet[_sglisActif].x1-4)+"px";
+				 		}else{
+				 			smarpege(elmnt,px,py);
+				 		}
+												}else if(elmnt.id.substring(0,3)=="tmp"){
 				    			var px=(elmnt.offsetLeft - pos1);
 					    		var py=(elmnt.offsetTop - pos2);
 					    		console.log("move elmnt",elmnt.id,px,py);
@@ -1206,7 +1273,7 @@ console.log('resultat',gainPoints,resultat);
    	document.getElementById("morph"+elmnt.id.substring(5)).style.border='0px solid red';
    }
    if(elmnt.id.substring(0,5)=="objet" && tableObjet[elmnt.id.substring(5)].type==11){
-   	document.getElementById("gliss"+elmnt.id.substring(5)).style.border='0px solid red';
+   	showArpegeHandles(elmnt.id.substring(5));
     }
 	if(elmnt.id.substring(0,2)=="fx"){
    	elmnt.style.backgroundColor='#f100fa';

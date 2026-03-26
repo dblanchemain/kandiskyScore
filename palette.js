@@ -252,20 +252,34 @@ function graphLigne(objActif) {
 	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
 }
 function graphGlissando(objActif){
+	var t=tableObjet[objActif];
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[objActif].id);
-	dupnode.setAttribute("title",tableObjet[objActif].nom);
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("title",t.nom);
 	var st=defCadre(objActif);
 	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[objActif].width+"' height='"+tableObjet[objActif].height+"' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>"; 
-	txt=txt+"<line x1='"+tableObjet[objActif].x1+"' y1='"+tableObjet[objActif].y1+"' x2='"+tableObjet[objActif].x2+"' y2='"+tableObjet[objActif].y2+"' stroke='"+tableObjet[objActif].objBorderC+"'  stroke-width='"+tableObjet[objActif].objBorderW+"' /></svg>";
+	var txt="<svg width='"+t.width+"' height='"+t.height+"' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt=txt+"<line x1='"+t.x1+"' y1='"+t.y1+"' x2='"+t.x2+"' y2='"+t.y2+"' stroke='"+t.objBorderC+"'  stroke-width='"+t.objBorderW+"' /></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
-	var dupnode2=document.createElement('div');
-	dupnode2.setAttribute("id","gliss"+nbObjets);
-	dupnode2.setAttribute("style","position:absolute;top:"+tableObjet[objActif].posY+"px;left:"+(tableObjet[objActif].posX+tableObjet[objActif].width)+"px;width:8px;height:8px;z-index:6;border:1px solid red;");
-	document.getElementById("space").appendChild(dupnode2);
-	//ajustGlissando("gliss"+nbObjets);
+	document.getElementById(t.id).innerHTML=txt;
+	// Poignée p1 : début de la ligne (bleu)
+	var h1=document.createElement('div');
+	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("style","position:absolute;top:"+(t.posY+parseFloat(t.y1)-4)+"px;left:"+(t.posX+parseFloat(t.x1)-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	// Poignée sglis : fin de la ligne (rouge)
+	var h2=document.createElement('div');
+	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("style","position:absolute;top:"+(t.posY+parseFloat(t.y2)-4)+"px;left:"+(t.posX+parseFloat(t.x2)-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	// Hover : affiche/cache les poignées
+	var _actif=nbObjets;
+	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
+	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h1.onmouseenter=function(){showArpegeHandles(_actif);};
+	h1.onmouseleave=function(){startHideArpegeHandles(_actif);};
+	h2.onmouseenter=function(){showArpegeHandles(_actif);};
+	h2.onmouseleave=function(){startHideArpegeHandles(_actif);};
 }
 function graphBlock(objActif) {
 	var dupnode=document.createElement('div');
@@ -710,7 +724,8 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].tableFx[0]='Pitchshifter';
 				tableObjet[objActif].tableFxParam[0]='0.00?-12.00&0.50?12.0/0.00?1000/0.00?10';
 				graphGlissando(objActif);
-				dragElement(document.getElementById('gliss'+nbObjets));
+				dragElement(document.getElementById('p1'+nbObjets));
+				dragElement(document.getElementById('sglis'+nbObjets));
 				break;
 			case 12:
 				tableObjet[objActif].width=10;
@@ -3610,6 +3625,8 @@ function pasteObjet(obj,copyX,copyY){
 			tableObjet[objActif].x2=tableObjet[obj].x2;
 			tableObjet[objActif].y2=tableObjet[obj].y2;
 			graphGlissando(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 12:
 			graphBlock(objActif);
