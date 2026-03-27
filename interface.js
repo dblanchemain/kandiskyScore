@@ -804,6 +804,16 @@ function dragElement(elmnt) {
 	    				document.getElementById("p1"+elmnt.id.substring(5)).style.left=(px+_lx1-4)+"px";
 	    				document.getElementById("sglis"+elmnt.id.substring(5)).style.top=(py+_ly2-4)+"px";
 	    				document.getElementById("sglis"+elmnt.id.substring(5)).style.left=(px+_lx2-4)+"px";
+					}else if(tableObjet[objActif].type==13||tableObjet[objActif].type==14||tableObjet[objActif].type==15||tableObjet[objActif].type==16){
+	    				transposition(objActif,py);
+	    				var _ct=tableObjet[objActif];
+	    				var _cid=elmnt.id.substring(5);
+	    				var _c1=document.getElementById("pcrv1"+_cid);
+	    				var _c2=document.getElementById("pcrv2"+_cid);
+	    				var _cl=document.getElementById("plen"+_cid);
+	    				if(_c1){_c1.style.top=(py+_ct.cp1y*_ct.scaleY-4)+"px"; _c1.style.left=(px+_ct.cp1x*_ct.scaleX-4)+"px";}
+	    				if(_c2){_c2.style.top=(py+_ct.cp2y*_ct.scaleY-4)+"px"; _c2.style.left=(px+_ct.cp2x*_ct.scaleX-4)+"px";}
+	    				if(_cl){_cl.style.top=(py+_ct.bkgHeight/2-4)+"px"; _cl.style.left=(px+_ct.bkgWidth-4)+"px";}
 					}else {
 	    				transposition(objActif,py);
 	    			}
