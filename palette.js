@@ -309,48 +309,95 @@ function graphFusion(objActif) {
 	document.getElementById("space").appendChild(dupnode2);
 	//ajustMorphing("morph"+nbObjets);
 }
+function _graphCrescHandles(objActif){
+	var t=tableObjet[objActif];
+	['pcrv1','pcrv2','plen'].forEach(function(pfx){var old=document.getElementById(pfx+objActif);if(old&&old.parentNode)old.parentNode.removeChild(old);});
+	var h1=document.createElement('div');
+	h1.setAttribute("id","pcrv1"+objActif);
+	h1.setAttribute("style","position:absolute;top:"+(t.posY+(t.cp1y||0)*t.scaleY-4)+"px;left:"+(t.posX+(t.cp1x||0)*t.scaleX-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h1);
+	var h2=document.createElement('div');
+	h2.setAttribute("id","pcrv2"+objActif);
+	h2.setAttribute("style","position:absolute;top:"+(t.posY+(t.cp2y||0)*t.scaleY-4)+"px;left:"+(t.posX+(t.cp2x||0)*t.scaleX-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
+	document.getElementById("space").appendChild(h2);
+	var h3=document.createElement('div');
+	h3.setAttribute("id","plen"+objActif);
+	h3.setAttribute("style","position:absolute;top:"+(t.posY+t.bkgHeight/2-4)+"px;left:"+(t.posX+t.bkgWidth-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:ew-resize;");
+	document.getElementById("space").appendChild(h3);
+	var _a=objActif;
+	var _show=function(){showCrescHandles(_a);}; var _hide=function(){startHideCrescHandles(_a);};
+	document.getElementById(t.id).onmouseenter=_show; document.getElementById(t.id).onmouseleave=_hide;
+	h1.onmouseenter=_show; h1.onmouseleave=_hide;
+	h2.onmouseenter=_show; h2.onmouseleave=_hide;
+	h3.onmouseenter=_show; h3.onmouseleave=_hide;
+}
 function graphDecresc(objActif) {
+	var t=tableObjet[objActif];
+	var cp1x=t.cp1x!=null?t.cp1x:25, cp1y=t.cp1y!=null?t.cp1y:30;
+	var cp2x=t.cp2x!=null?t.cp2x:45, cp2y=t.cp2y!=null?t.cp2y:30;
+	t.cp1x=cp1x; t.cp1y=cp1y; t.cp2x=cp2x; t.cp2y=cp2y;
+	if(!t.crvBaseW) t.crvBaseW=50;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[objActif].id);
-	dupnode.setAttribute("title",tableObjet[objActif].nom);
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("title",t.nom);
 	var st=defCadre(objActif);
 	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[objActif].bkgWidth+"' height='"+tableObjet[objActif].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' >"; 
-	txt=txt+"<path d='M 0 25 Q 25 30 50 0  Q 45 30 0 40  L 0 25 Z ' transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+") translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+")'  fill='"+tableObjet[objActif].objColor+"' /></svg>";
+	var txt="<svg width='"+t.bkgWidth+"' height='"+t.bkgHeight+"' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<path d='M 0 25 Q "+cp1x+" "+cp1y+" 50 0 Q "+cp2x+" "+cp2y+" 0 40 L 0 25 Z' transform='scale("+t.scaleX+","+t.scaleY+") translate("+t.margeG+","+t.margeH+")' fill='"+t.objColor+"' /></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
-}function graphDecrescb(objActif) {
+	document.getElementById(t.id).innerHTML=txt;
+	_graphCrescHandles(objActif);
+}
+function graphDecrescb(objActif) {
+	var t=tableObjet[objActif];
+	var cp1x=t.cp1x!=null?t.cp1x:45, cp1y=t.cp1y!=null?t.cp1y:3;
+	var cp2x=t.cp2x!=null?t.cp2x:30, cp2y=t.cp2y!=null?t.cp2y:10;
+	t.cp1x=cp1x; t.cp1y=cp1y; t.cp2x=cp2x; t.cp2y=cp2y;
+	if(!t.crvBaseW) t.crvBaseW=40;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[objActif].id);
-	dupnode.setAttribute("title",tableObjet[objActif].nom);
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("title",t.nom);
 	var st=defCadre(objActif);
 	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[objActif].bkgWidth+"' height='"+tableObjet[objActif].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' >"; 
-	txt=txt+"<path d='M 0 0 Q 45 3 40 38 Q 30 10 0 7 Z '  transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+") translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+")'  fill='"+tableObjet[objActif].objColor+"' /></svg>";
+	var txt="<svg width='"+t.bkgWidth+"' height='"+t.bkgHeight+"' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<path d='M 0 0 Q "+cp1x+" "+cp1y+" 40 38 Q "+cp2x+" "+cp2y+" 0 7 Z' transform='scale("+t.scaleX+","+t.scaleY+") translate("+t.margeG+","+t.margeH+")' fill='"+t.objColor+"' /></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
+	document.getElementById(t.id).innerHTML=txt;
+	_graphCrescHandles(objActif);
 }
 function graphCresc(objActif) {
+	var t=tableObjet[objActif];
+	var cp1x=t.cp1x!=null?t.cp1x:30, cp1y=t.cp1y!=null?t.cp1y:30;
+	var cp2x=t.cp2x!=null?t.cp2x:40, cp2y=t.cp2y!=null?t.cp2y:30;
+	t.cp1x=cp1x; t.cp1y=cp1y; t.cp2x=cp2x; t.cp2y=cp2y;
+	if(!t.crvBaseW) t.crvBaseW=50;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[objActif].id);
-	dupnode.setAttribute("title",tableObjet[objActif].nom);
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("title",t.nom);
 	var st=defCadre(objActif);
 	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[objActif].bkgWidth+"' height='"+tableObjet[objActif].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' >"; 
-	txt=txt+"<path d='M 0 35 L 0 30 Q 30 30 50 0 L 50 20  Q 40 30 0 35 Z' transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+")  translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+")' fill='"+tableObjet[objActif].objColor+"' /></svg>";
+	var txt="<svg width='"+t.bkgWidth+"' height='"+t.bkgHeight+"' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<path d='M 0 35 L 0 30 Q "+cp1x+" "+cp1y+" 50 0 L 50 20 Q "+cp2x+" "+cp2y+" 0 35 Z' transform='scale("+t.scaleX+","+t.scaleY+") translate("+t.margeG+","+t.margeH+")' fill='"+t.objColor+"' /></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
+	document.getElementById(t.id).innerHTML=txt;
+	_graphCrescHandles(objActif);
 }
 function graphCrescb(objActif) {
+	var t=tableObjet[objActif];
+	var cp1x=t.cp1x!=null?t.cp1x:30, cp1y=t.cp1y!=null?t.cp1y:5;
+	var cp2x=t.cp2x!=null?t.cp2x:40, cp2y=t.cp2y!=null?t.cp2y:10;
+	t.cp1x=cp1x; t.cp1y=cp1y; t.cp2x=cp2x; t.cp2y=cp2y;
+	if(!t.crvBaseW) t.crvBaseW=50;
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",tableObjet[objActif].id);
-	dupnode.setAttribute("title",tableObjet[objActif].nom);
+	dupnode.setAttribute("id",t.id);
+	dupnode.setAttribute("title",t.nom);
 	var st=defCadre(objActif);
 	dupnode.setAttribute("style",st);
-	var txt="<svg width='"+tableObjet[objActif].bkgWidth+"' height='"+tableObjet[objActif].bkgHeight+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' >"; 
-	txt=txt+"<path d='M 0 0  Q 30 5 50 20 L 50 50  Q 40 10 0 5 Z' transform='scale("+tableObjet[objActif].scaleX+","+tableObjet[objActif].scaleY+")  translate("+tableObjet[objActif].margeG+","+tableObjet[objActif].margeH+")' fill='"+tableObjet[objActif].objColor+"' /></svg>";
+	var txt="<svg width='"+t.bkgWidth+"' height='"+t.bkgHeight+"' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>";
+	txt+="<path d='M 0 0 Q "+cp1x+" "+cp1y+" 50 20 L 50 50 Q "+cp2x+" "+cp2y+" 0 5 Z' transform='scale("+t.scaleX+","+t.scaleY+") translate("+t.margeG+","+t.margeH+")' fill='"+t.objColor+"' /></svg>";
 	document.getElementById("space").appendChild(dupnode);
-	document.getElementById(tableObjet[objActif].id).innerHTML=txt;
+	document.getElementById(t.id).innerHTML=txt;
+	_graphCrescHandles(objActif);
 }
 function graphGroupe(objActif) {
 	var dupnode=document.createElement('div');
@@ -744,7 +791,13 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].envX=[0.01, 0.07];
 				tableObjet[objActif].tableFx[0]='Pitchshifter';
 				tableObjet[objActif].tableFxParam[0]='0.00?0.0&0.50?12.0/0.00?1000/0.00?10';
+				tableObjet[objActif].cp1x=25; tableObjet[objActif].cp1y=30;
+				tableObjet[objActif].cp2x=45; tableObjet[objActif].cp2y=30;
+				tableObjet[objActif].crvBaseW=50;
 				graphDecresc(objActif);
+				dragElement(document.getElementById('pcrv1'+nbObjets));
+				dragElement(document.getElementById('pcrv2'+nbObjets));
+				dragElement(document.getElementById('plen'+nbObjets));
 				break;
 			case 14:
 				tableObjet[objActif].width=40;
@@ -754,7 +807,13 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].envX=[0.01, 0.07];
 				tableObjet[objActif].tableFx[0]='Pitchshifter';
 				tableObjet[objActif].tableFxParam[0]='0.00?12.0&0.5?0.0/0.00?1000/0.00?10';
+				tableObjet[objActif].cp1x=45; tableObjet[objActif].cp1y=3;
+				tableObjet[objActif].cp2x=30; tableObjet[objActif].cp2y=10;
+				tableObjet[objActif].crvBaseW=40;
 				graphDecrescb(objActif);
+				dragElement(document.getElementById('pcrv1'+nbObjets));
+				dragElement(document.getElementById('pcrv2'+nbObjets));
+				dragElement(document.getElementById('plen'+nbObjets));
 				break;
 			case 15:
 				tableObjet[objActif].width=50;
@@ -764,7 +823,13 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].envX=[0.96, 0.99];
 				tableObjet[objActif].tableFx[0]='Pitchshifter';
 				tableObjet[objActif].tableFxParam[0]='0.00?0.0&0.50?12.0/0.00?1000/0.00?10';
+				tableObjet[objActif].cp1x=30; tableObjet[objActif].cp1y=30;
+				tableObjet[objActif].cp2x=40; tableObjet[objActif].cp2y=30;
+				tableObjet[objActif].crvBaseW=50;
 				graphCresc(objActif);
+				dragElement(document.getElementById('pcrv1'+nbObjets));
+				dragElement(document.getElementById('pcrv2'+nbObjets));
+				dragElement(document.getElementById('plen'+nbObjets));
 				break;
 			case 16:
 				tableObjet[objActif].width=50;
@@ -774,7 +839,13 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].envX=[0.96, 0.99];
 				tableObjet[objActif].tableFx[0]='Pitchshifter';
 				tableObjet[objActif].tableFxParam[0]='0.00?12.0&0.5?0.0/0.00?1000/0.00?10';
+				tableObjet[objActif].cp1x=30; tableObjet[objActif].cp1y=5;
+				tableObjet[objActif].cp2x=40; tableObjet[objActif].cp2y=10;
+				tableObjet[objActif].crvBaseW=50;
 				graphCrescb(objActif);
+				dragElement(document.getElementById('pcrv1'+nbObjets));
+				dragElement(document.getElementById('pcrv2'+nbObjets));
+				dragElement(document.getElementById('plen'+nbObjets));
 				break;
 			
 			case 21:
@@ -3632,16 +3703,48 @@ function pasteObjet(obj,copyX,copyY){
 			graphBlock(objActif);
 			break;
 		case 13:
+			tableObjet[objActif].cp1x=tableObjet[obj].cp1x!=null?tableObjet[obj].cp1x:25;
+			tableObjet[objActif].cp1y=tableObjet[obj].cp1y!=null?tableObjet[obj].cp1y:30;
+			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:45;
+			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:30;
+			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||50;
 			graphDecresc(objActif);
+			dragElement(document.getElementById('pcrv1'+nbObjets));
+			dragElement(document.getElementById('pcrv2'+nbObjets));
+			dragElement(document.getElementById('plen'+nbObjets));
 			break;
 		case 14:
+			tableObjet[objActif].cp1x=tableObjet[obj].cp1x!=null?tableObjet[obj].cp1x:45;
+			tableObjet[objActif].cp1y=tableObjet[obj].cp1y!=null?tableObjet[obj].cp1y:3;
+			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:30;
+			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:10;
+			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||40;
 			graphDecrescb(objActif);
+			dragElement(document.getElementById('pcrv1'+nbObjets));
+			dragElement(document.getElementById('pcrv2'+nbObjets));
+			dragElement(document.getElementById('plen'+nbObjets));
 			break;
 		case 15:
+			tableObjet[objActif].cp1x=tableObjet[obj].cp1x!=null?tableObjet[obj].cp1x:30;
+			tableObjet[objActif].cp1y=tableObjet[obj].cp1y!=null?tableObjet[obj].cp1y:30;
+			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:40;
+			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:30;
+			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||50;
 			graphCresc(objActif);
+			dragElement(document.getElementById('pcrv1'+nbObjets));
+			dragElement(document.getElementById('pcrv2'+nbObjets));
+			dragElement(document.getElementById('plen'+nbObjets));
 			break;
 		case 16:
+			tableObjet[objActif].cp1x=tableObjet[obj].cp1x!=null?tableObjet[obj].cp1x:30;
+			tableObjet[objActif].cp1y=tableObjet[obj].cp1y!=null?tableObjet[obj].cp1y:5;
+			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:40;
+			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:10;
+			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||50;
 			graphCrescb(objActif);
+			dragElement(document.getElementById('pcrv1'+nbObjets));
+			dragElement(document.getElementById('pcrv2'+nbObjets));
+			dragElement(document.getElementById('plen'+nbObjets));
 			break;
 		case 21:
 			graphNuage(objActif);

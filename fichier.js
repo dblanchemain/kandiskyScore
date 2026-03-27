@@ -132,7 +132,14 @@ function defObjGrp(id,nbobjets,cla) {
 			<x2 value='"+id.x2+"'></x2>\n\
 			<y2 value='"+id.y2+"'></y2>\n";
 		}
-		
+		if(parseInt(id.type)==13||parseInt(id.type)==14||parseInt(id.type)==15||parseInt(id.type)==16){
+			txt=txt+"<cp1x value='"+(id.cp1x||0)+"'></cp1x>\n\
+			<cp1y value='"+(id.cp1y||0)+"'></cp1y>\n\
+			<cp2x value='"+(id.cp2x||0)+"'></cp2x>\n\
+			<cp2y value='"+(id.cp2y||0)+"'></cp2y>\n\
+			<crvbasew value='"+(id.crvBaseW||50)+"'></crvbasew>\n";
+		}
+
 		txt=txt+"		<width value='"+id.width+"'></width>\n";	
 	}
 	return txt;
@@ -607,6 +614,14 @@ async function objXmlToScore(id,i) {
 			tableObjet[id].x2=parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value"));
 			tableObjet[id].y2=parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value"));
 		}
+	var _tp=org.getElementsByTagName("type")[0].getAttribute("value");
+	if(_tp==13||_tp==14||_tp==15||_tp==16){
+		var _cp1x=org.getElementsByTagName("cp1x")[0]; if(_cp1x)tableObjet[id].cp1x=parseFloat(_cp1x.getAttribute("value"));
+		var _cp1y=org.getElementsByTagName("cp1y")[0]; if(_cp1y)tableObjet[id].cp1y=parseFloat(_cp1y.getAttribute("value"));
+		var _cp2x=org.getElementsByTagName("cp2x")[0]; if(_cp2x)tableObjet[id].cp2x=parseFloat(_cp2x.getAttribute("value"));
+		var _cp2y=org.getElementsByTagName("cp2y")[0]; if(_cp2y)tableObjet[id].cp2y=parseFloat(_cp2y.getAttribute("value"));
+		var _crvbw=org.getElementsByTagName("crvbasew")[0]; if(_crvbw)tableObjet[id].crvBaseW=parseFloat(_crvbw.getAttribute("value"));
+	}
 }
 function symbXmlToScore(id,i) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
@@ -967,19 +982,28 @@ function drawObj(id) {
 			graphBlock(id);
 			break;
 		case 13:
-			graphFusion(id);
+			graphDecresc(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 14:
-			graphDecresc(id);
+			graphDecrescb(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 15:
-			graphDecrescb(id);
+			graphCresc(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 16:
-			graphCresc(id);
-			break;
-		case 17:
 			graphCrescb(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 18:
 			graphGroupe(id);
