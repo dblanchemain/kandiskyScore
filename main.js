@@ -398,6 +398,7 @@ let winStudioEtat=0;
 let winStudio3DEtat=0;
 let winSpectrEditEtat=0;
 let winAideEtat=0;
+let winAproposEtat=0;
 let newStudioEtat=0;
 let winVueStudio3DEtat=0;
 let winDocEtat=0;
@@ -773,7 +774,11 @@ const template = [
     submenu: [
       {
         label: Mdoc,
-        click: async () => openDoc() }
+        click: async () => openDoc() },
+      { type: 'separator' },
+      {
+        label: MApropos,
+        click: () => openApropos() }
     ]
   }
 ];
@@ -2408,6 +2413,26 @@ function openDoc() {
 		   e.preventDefault();
 		   winDoc.destroy();
 		   winDocEtat=0;
+	   });
+	}
+}
+function openApropos() {
+	if(winAproposEtat==0){
+		winApropos = new BrowserWindow({width:420,height:800,resizable:false,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false,
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		});
+		winApropos.loadFile('apropos.html');
+		winApropos.removeMenu();
+		winAproposEtat=1;
+  		winApropos.on('close', e => {
+		   e.preventDefault();
+		   winApropos.destroy();
+		   winAproposEtat=0;
 	   });
 	}
 }

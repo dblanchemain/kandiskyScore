@@ -78,6 +78,7 @@
  Mconfig='Configuration';
  Mdoc='Documentation';
  Mhelp='Aide';
+ MApropos='A-propos';
  Mwindow='Fenêtre';
  MscaleGrp="Échelle";
  MsaveTheme="Sauv. Theme";
