@@ -662,6 +662,8 @@ function symbXmlToScore(id,i) {
 		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
 		margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
 		nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
+		objBorderC:org.getElementsByTagName("objborderc")[0].getAttribute("value"),
+		objBorderW:parseFloat(org.getElementsByTagName("objborderw")[0].getAttribute("value")),
 		objColor:org.getElementsByTagName("objcolor")[0].getAttribute("value"),
 		objOpacity:parseFloat(org.getElementsByTagName("objopacity")[0].getAttribute("value")),
 		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
@@ -669,7 +671,6 @@ function symbXmlToScore(id,i) {
 		rotate:parseFloat(org.getElementsByTagName("rotate")[0].getAttribute("value")),
 		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value")),
 		scaleY:parseFloat(org.getElementsByTagName("scaley")[0].getAttribute("value")),
-		scaleY2:parseFloat(org.getElementsByTagName("scaley2")[0].getAttribute("value")),
 		type:parseInt(org.getElementsByTagName("type")[0].getAttribute("value")),
 		x1:parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value")),
 		y1:parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value")),
@@ -677,6 +678,8 @@ function symbXmlToScore(id,i) {
 		y2:parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value")),
 		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
 		};
+		var _scaley2=org.getElementsByTagName("scaley2")[0];
+		tableObjet[id].scaleY2=_scaley2?parseFloat(_scaley2.getAttribute("value")):tableObjet[id].scaleY;
 		if(tableObjet[id].type==69||tableObjet[id].type==70){
 			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(org.getElementsByTagName("x3")[0].getAttribute("value")):undefined;
 			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(org.getElementsByTagName("y3")[0].getAttribute("value")):undefined;
@@ -727,6 +730,8 @@ function grpXmlToScore(id,i,offset) {
 	groupe:org.getElementsByTagName("groupe")[0].getAttribute("value"),
 	height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
 	id:"grp"+nbObjets,
+	margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
+	margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
 	nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
 	piste:parseInt(org.getElementsByTagName("piste")[0].getAttribute("value")),
 	posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
