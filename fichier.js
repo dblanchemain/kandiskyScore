@@ -12,6 +12,9 @@
 
 
 
+const KANDISKYSCORE_VERSION = "2.1.0";
+var versionProjet = "";
+
 /* ******************************************* Fichiers ****************************************************************** */
 function defObjGrp(id,nbobjets,cla) {
 	var txt="";
@@ -356,7 +359,7 @@ function saveProjet(t){
 }
 function saveProjetA(t,offset,tabgrp){
 	var obj=document.getElementById("fichierSave");
-	var txt="<?xml version='1.0' encoding='UTF-8' ?>\n<kandiskyscore>\n";
+	var txt="<?xml version='1.0' encoding='UTF-8' ?>\n<kandiskyscore version='"+KANDISKYSCORE_VERSION+"'>\n";
 	if(t!=2){
 		txt=defProjetConf(txt);
 	}
@@ -1035,7 +1038,9 @@ function drawObj(id) {
 }
 function defProjetConfig() {
 	paramProjet={};
-	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("general")[0];
+	var _ks=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+	versionProjet=_ks.getAttribute("version")||"";
+	var obj=_ks.getElementsByTagName("general")[0];
 	paramProjet={
 		name:obj.getElementsByTagName("name")[0].getAttribute("value"),
 		start:obj.getElementsByTagName("start")[0].getAttribute("value"),
