@@ -393,6 +393,9 @@ window.api.receive("fromMain", (data) => {
 			case 'grpNom':
 				grpNom(cmd[1],cmd[2]);
 				break;
+			case 'symbNom':
+				symbNom(cmd[1],cmd[2]);
+				break;
 			case 'grpMGauche':
 				grpPlGauche(cmd[1],cmd[2]);
 				break;
@@ -2168,6 +2171,12 @@ function grpNom(id,ml) {
 	var elem=document.getElementById(tableObjet[id].id);
 	tableObjet[id].nom=ml;
 	elem.setAttribute("title",ml);
+}
+function symbNom(id,ml) {
+	tableObjet[id].nom=ml;
+	if(tableObjet[id].type==74) {
+		document.getElementById(tableObjet[id].id).firstChild.firstChild.firstChild.firstChild.innerHTML=ml;
+	}
 }
 function grpPlGauche(id,ml) {
 	var elem=document.getElementById(tableObjet[id].id);

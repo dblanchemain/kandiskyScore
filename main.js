@@ -3237,6 +3237,9 @@ ipcMain.on ("toMain", (event, args) => {
 			console.log(`defGraphObj ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "grpBkgColor;"+cmd[1]+";"+cmd[2]);
 			break;
+		case 'preDefNom':
+			mainWindow.webContents.send("fromMain", "symbNom;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbColor':
 			console.log(`defGraphObj ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "symbColor;"+cmd[1]+";"+cmd[2]);
