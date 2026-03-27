@@ -3913,12 +3913,18 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphBlocBordureCentree);
 			break;
 		case 25:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			tableObjet[objActif].curveH=tableObjet[obj].curveH;
 			gArpege25(objActif);
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			dragElement(document.getElementById('p2'+nbObjets));
 			break;
 		case 26:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			tableObjet[objActif].openH=tableObjet[obj].openH;
 			gArpege26(objActif);
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
@@ -4013,16 +4019,32 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphReverse);
 			break;
 		case 56:
-			graphSymbole(objActif,glyphRepete);
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			copyRepete(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 57:
-			graphSymbole(objActif,glyphRetrograde);
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			copyRetrograde(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 58:
-			graphSymbole(objActif,glyphRenverse);
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			copyRenvers(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 59:
-			graphSymbole(objActif,glyphRetrogradeRv);
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			copyRenversRetro(objActif);
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 60:
 			graphSymbole(objActif,glyphSuperposition);
@@ -4034,36 +4056,48 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphTuilageSup);
 			break;
 		case 63:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyExpansion(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 64:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyContraction(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 65:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyAccelerando(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 66:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyFastAccelerando(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 67:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyRitardando(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 68:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyFastRitardando(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
