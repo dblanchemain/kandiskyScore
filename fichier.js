@@ -140,7 +140,8 @@ function defObjGrp(id,nbobjets,cla) {
 			<cp1y value='"+(id.cp1y||0)+"'></cp1y>\n\
 			<cp2x value='"+(id.cp2x||0)+"'></cp2x>\n\
 			<cp2y value='"+(id.cp2y||0)+"'></cp2y>\n\
-			<crvbasew value='"+(id.crvBaseW||50)+"'></crvbasew>\n";
+			<crvbasew value='"+(id.crvBaseW||50)+"'></crvbasew>\n\
+			<crvbaseh value='"+(id.crvBaseH||40)+"'></crvbaseh>\n";
 		}
 
 		txt=txt+"		<width value='"+id.width+"'></width>\n";	
@@ -624,6 +625,7 @@ async function objXmlToScore(id,i) {
 		var _cp2x=org.getElementsByTagName("cp2x")[0]; if(_cp2x)tableObjet[id].cp2x=parseFloat(_cp2x.getAttribute("value"));
 		var _cp2y=org.getElementsByTagName("cp2y")[0]; if(_cp2y)tableObjet[id].cp2y=parseFloat(_cp2y.getAttribute("value"));
 		var _crvbw=org.getElementsByTagName("crvbasew")[0]; if(_crvbw)tableObjet[id].crvBaseW=parseFloat(_crvbw.getAttribute("value"));
+		var _crvbh=org.getElementsByTagName("crvbaseh")[0]; if(_crvbh)tableObjet[id].crvBaseH=parseFloat(_crvbh.getAttribute("value"));
 	}
 }
 function symbXmlToScore(id,i) {

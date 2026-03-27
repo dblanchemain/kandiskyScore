@@ -813,7 +813,7 @@ function dragElement(elmnt) {
 	    				var _cl=document.getElementById("plen"+_cid);
 	    				if(_c1){_c1.style.top=(py+_ct.cp1y*_ct.scaleY-4)+"px"; _c1.style.left=(px+_ct.cp1x*_ct.scaleX-4)+"px";}
 	    				if(_c2){_c2.style.top=(py+_ct.cp2y*_ct.scaleY-4)+"px"; _c2.style.left=(px+_ct.cp2x*_ct.scaleX-4)+"px";}
-	    				if(_cl){_cl.style.top=(py+_ct.bkgHeight/2-4)+"px"; _cl.style.left=(px+_ct.bkgWidth-4)+"px";}
+	    				if(_cl){_cl.style.top=(py+_ct.bkgHeight-4)+"px"; _cl.style.left=(px+_ct.bkgWidth-4)+"px";}
 					}else {
 	    				transposition(objActif,py);
 	    			}
@@ -1146,22 +1146,28 @@ function dragElement(elmnt) {
 				var px=(elmnt.offsetLeft-pos1);
 				var py=(elmnt.offsetTop-pos2);
 				if(px<0)px=0;
+				if(py<0)py=0;
 				elmnt.style.left=px+"px";
+				elmnt.style.top=py+"px";
 				var _cActif=elmnt.id.substring(4);
 				var _ct=tableObjet[_cActif];
 				if(_ct&&(_ct.type==13||_ct.type==14||_ct.type==15||_ct.type==16)){
 					var _newW=Math.max(px+4-_ct.posX,10);
+					var _newH=Math.max(py+4-_ct.posY,10);
 					_ct.bkgWidth=_newW; _ct.width=_newW;
+					_ct.bkgHeight=_newH; _ct.height=_newH;
 					_ct.scaleX=_newW/(_ct.crvBaseW||50);
+					_ct.scaleY=_newH/(_ct.crvBaseH||40);
 					var _origC=document.getElementById("objet"+_cActif);
 					_origC.style.width=_newW+"px";
+					_origC.style.height=_newH+"px";
 					_origC.firstChild.setAttribute('width',_newW);
+					_origC.firstChild.setAttribute('height',_newH);
 					_origC.firstChild.firstChild.setAttribute('transform','scale('+_ct.scaleX+','+_ct.scaleY+') translate('+_ct.margeG+','+_ct.margeH+')');
 					var _cc1=document.getElementById("pcrv1"+_cActif);
 					var _cc2=document.getElementById("pcrv2"+_cActif);
 					if(_cc1){_cc1.style.left=(_ct.posX+_ct.cp1x*_ct.scaleX-4)+"px"; _cc1.style.top=(_ct.posY+_ct.cp1y*_ct.scaleY-4)+"px";}
 					if(_cc2){_cc2.style.left=(_ct.posX+_ct.cp2x*_ct.scaleX-4)+"px"; _cc2.style.top=(_ct.posY+_ct.cp2y*_ct.scaleY-4)+"px";}
-					elmnt.style.top=(_ct.posY+_ct.bkgHeight/2-4)+"px";
 				}
 												}else if(elmnt.id.substring(0,3)=="tmp"){
 				    			var px=(elmnt.offsetLeft - pos1);

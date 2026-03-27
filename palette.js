@@ -322,7 +322,7 @@ function _graphCrescHandles(objActif){
 	document.getElementById("space").appendChild(h2);
 	var h3=document.createElement('div');
 	h3.setAttribute("id","plen"+objActif);
-	h3.setAttribute("style","position:absolute;top:"+(t.posY+t.bkgHeight/2-4)+"px;left:"+(t.posX+t.bkgWidth-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:ew-resize;");
+	h3.setAttribute("style","position:absolute;top:"+(t.posY+t.bkgHeight-4)+"px;left:"+(t.posX+t.bkgWidth-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h3);
 	var _a=objActif;
 	var _show=function(){showCrescHandles(_a);}; var _hide=function(){startHideCrescHandles(_a);};
@@ -794,6 +794,7 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].cp1x=25; tableObjet[objActif].cp1y=30;
 				tableObjet[objActif].cp2x=45; tableObjet[objActif].cp2y=30;
 				tableObjet[objActif].crvBaseW=50;
+				tableObjet[objActif].crvBaseH=40;
 				graphDecresc(objActif);
 				dragElement(document.getElementById('pcrv1'+nbObjets));
 				dragElement(document.getElementById('pcrv2'+nbObjets));
@@ -810,6 +811,7 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].cp1x=45; tableObjet[objActif].cp1y=3;
 				tableObjet[objActif].cp2x=30; tableObjet[objActif].cp2y=10;
 				tableObjet[objActif].crvBaseW=40;
+				tableObjet[objActif].crvBaseH=38;
 				graphDecrescb(objActif);
 				dragElement(document.getElementById('pcrv1'+nbObjets));
 				dragElement(document.getElementById('pcrv2'+nbObjets));
@@ -826,6 +828,7 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].cp1x=30; tableObjet[objActif].cp1y=30;
 				tableObjet[objActif].cp2x=40; tableObjet[objActif].cp2y=30;
 				tableObjet[objActif].crvBaseW=50;
+				tableObjet[objActif].crvBaseH=35;
 				graphCresc(objActif);
 				dragElement(document.getElementById('pcrv1'+nbObjets));
 				dragElement(document.getElementById('pcrv2'+nbObjets));
@@ -842,6 +845,7 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].cp1x=30; tableObjet[objActif].cp1y=5;
 				tableObjet[objActif].cp2x=40; tableObjet[objActif].cp2y=10;
 				tableObjet[objActif].crvBaseW=50;
+				tableObjet[objActif].crvBaseH=50;
 				graphCrescb(objActif);
 				dragElement(document.getElementById('pcrv1'+nbObjets));
 				dragElement(document.getElementById('pcrv2'+nbObjets));
@@ -3708,6 +3712,7 @@ function pasteObjet(obj,copyX,copyY){
 			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:45;
 			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:30;
 			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||50;
+			tableObjet[objActif].crvBaseH=tableObjet[obj].crvBaseH||40;
 			graphDecresc(objActif);
 			dragElement(document.getElementById('pcrv1'+nbObjets));
 			dragElement(document.getElementById('pcrv2'+nbObjets));
@@ -3719,6 +3724,7 @@ function pasteObjet(obj,copyX,copyY){
 			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:30;
 			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:10;
 			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||40;
+			tableObjet[objActif].crvBaseH=tableObjet[obj].crvBaseH||38;
 			graphDecrescb(objActif);
 			dragElement(document.getElementById('pcrv1'+nbObjets));
 			dragElement(document.getElementById('pcrv2'+nbObjets));
@@ -3730,6 +3736,7 @@ function pasteObjet(obj,copyX,copyY){
 			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:40;
 			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:30;
 			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||50;
+			tableObjet[objActif].crvBaseH=tableObjet[obj].crvBaseH||35;
 			graphCresc(objActif);
 			dragElement(document.getElementById('pcrv1'+nbObjets));
 			dragElement(document.getElementById('pcrv2'+nbObjets));
@@ -3741,6 +3748,7 @@ function pasteObjet(obj,copyX,copyY){
 			tableObjet[objActif].cp2x=tableObjet[obj].cp2x!=null?tableObjet[obj].cp2x:40;
 			tableObjet[objActif].cp2y=tableObjet[obj].cp2y!=null?tableObjet[obj].cp2y:10;
 			tableObjet[objActif].crvBaseW=tableObjet[obj].crvBaseW||50;
+			tableObjet[objActif].crvBaseH=tableObjet[obj].crvBaseH||50;
 			graphCrescb(objActif);
 			dragElement(document.getElementById('pcrv1'+nbObjets));
 			dragElement(document.getElementById('pcrv2'+nbObjets));
