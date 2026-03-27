@@ -4165,18 +4165,24 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphLigneTxt);
 			break;
 		case 75:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyInsertion(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 76:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyPermutation(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 77:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyPalindrome(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
