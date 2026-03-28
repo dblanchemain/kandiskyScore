@@ -1781,7 +1781,7 @@ async function actualiseObjets(){
 	var lsgrp=[];
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].mute==0){
-			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				if( tableObjet[i].type<23 ){
 					lsgrp.push(i);
 				}
