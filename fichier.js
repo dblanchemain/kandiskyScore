@@ -1271,7 +1271,7 @@ function listeAudios() {
 		txt=txt+"<td "+cellStyle+">"+tableBuffer[i].name+"</td><td "+cellStyle2+">";
 		for(let j=0;j<tableObjet.length;j++){
 			if(tableObjet[j].bufferId==i){
-				txt=txt+"<span class='liste' onclick='selectListeAudios("+j+")'>"+tableObjet[j].nom+"</span>,";
+				txt=txt+"<span class='liste' style='color:"+popupFontColor+";' onclick='selectListeAudios("+j+")'>"+tableObjet[j].nom+"</span>,";
 			}
 		}
 		txt=txt.substring(0,txt.length-1);
