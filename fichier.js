@@ -821,6 +821,13 @@ function defObjets(i,liste,dx,dy){
 						tableObjet[nbObjets].posX=tableObjet[nbObjets].posX+dx;
 						tableObjet[nbObjets].posY=tableObjet[nbObjets].posY+dy;
 						drawObj(nbObjets);
+						for(let j=0;j<tableBuffer.length;j++){
+							if(tableObjet[nbObjets].file==tableBuffer[j].name){
+								tableObjet[nbObjets].bufferId=j;
+								tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration;
+								break;
+							}
+						}
 						document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets;
 						tableObjet[nbObjets].id="grp"+nbObjets;
 						nbObjets++;
@@ -859,10 +866,10 @@ function initTableBuffer(i,liste,dx,dy) {
     	var url=paramProjet.audioPath+liste[i];
     	var pathnom=url.split('/');
      	var file=pathnom[pathnom.length-1];
-    	tableBuffer.push({name:file,buffer:buffer});
-    	
+    	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
+    		tableBuffer.push({name:file,buffer:buffer});
+    	}
     	i++;
-    
     	if(i<liste.length){
     		initTableBuffer(i,liste,dx,dy);
     	}else{
@@ -871,7 +878,6 @@ function initTableBuffer(i,liste,dx,dy) {
     });
  	};
     request.send();
-
 }
 function importGrpObjets(obj,nb,offset,dx,dy) {
 	var offsetX=0;
@@ -978,7 +984,9 @@ function initTableGrp(i,liste,dx,dy) {
     	var url=paramProjet.audioPath+liste[i];
     	var pathnom=url.split('/');
      	var file=pathnom[pathnom.length-1];
-    	tableBuffer.push({name:file,buffer:buffer});
+    	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
+    		tableBuffer.push({name:file,buffer:buffer});
+    	}
     	i++;
     	if(i<liste.length){
     		initTableGrp(i,liste,dx,dy);
