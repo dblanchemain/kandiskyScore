@@ -12,6 +12,9 @@
 
 
 
+const KANDISKYSCORE_VERSION = "2.1.0";
+var versionProjet = "";
+
 /* ******************************************* Fichiers ****************************************************************** */
 function defObjGrp(id,nbobjets,cla) {
 	var txt="";
@@ -132,7 +135,15 @@ function defObjGrp(id,nbobjets,cla) {
 			<x2 value='"+id.x2+"'></x2>\n\
 			<y2 value='"+id.y2+"'></y2>\n";
 		}
-		
+		if(parseInt(id.type)==13||parseInt(id.type)==14||parseInt(id.type)==15||parseInt(id.type)==16){
+			txt=txt+"<cp1x value='"+(id.cp1x||0)+"'></cp1x>\n\
+			<cp1y value='"+(id.cp1y||0)+"'></cp1y>\n\
+			<cp2x value='"+(id.cp2x||0)+"'></cp2x>\n\
+			<cp2y value='"+(id.cp2y||0)+"'></cp2y>\n\
+			<crvbasew value='"+(id.crvBaseW||50)+"'></crvbasew>\n\
+			<crvbaseh value='"+(id.crvBaseH||40)+"'></crvbaseh>\n";
+		}
+
 		txt=txt+"		<width value='"+id.width+"'></width>\n";	
 	}
 	return txt;
@@ -349,7 +360,7 @@ function saveProjet(t){
 }
 function saveProjetA(t,offset,tabgrp){
 	var obj=document.getElementById("fichierSave");
-	var txt="<?xml version='1.0' encoding='UTF-8' ?>\n<kandiskyscore>\n";
+	var txt="<?xml version='1.0' encoding='UTF-8' ?>\n<kandiskyscore version='"+KANDISKYSCORE_VERSION+"'>\n";
 	if(t!=2){
 		txt=defProjetConf(txt);
 	}
@@ -362,18 +373,31 @@ function saveProjetA(t,offset,tabgrp){
 			j++;
 		}
 	}
+	// Mapping indice global tableObjet → position locale dans tabgrp
+	var globalToLocal={};
+	for(let i=0;i<tabgrp.length;i++){
+		if(tabgrp[i] && tabgrp[i].id){
+			var gidx=parseInt(tabgrp[i].id.replace(/^objet|^grp/,''));
+			if(!isNaN(gidx)){
+				globalToLocal[gidx]=i;
+			}
+		}
+	}
 	var ntable=[];
 	ntable=structuredClone(tabgrp);
-	
+
 	for(let i=0;i<ntable.length;i++){
-		
+
 		if(ntable[i].etat==1 && (ntable[i].class==2 || ntable[i].class==4)){
-			
+
 			var lst=[].concat(ntable[i].liste);
 			var k=[];
 			for(let j=0;j<lst.length;j++){
 				if(ntable[i].etat==1){
-					k.push(parseInt(lsgrp[lst[j]])-offset);
+					var localPos=(t==2)?globalToLocal[lst[j]]:lst[j];
+					if(localPos!==undefined){
+						k.push(lsgrp[localPos]);
+					}
 				}
 			}
 			ntable[i].liste=[].concat(k);
@@ -417,12 +441,25 @@ function saveProjetA(t,offset,tabgrp){
 }
 function saveGrp() {
 	var defgrp=[];
-	for(let i=0;i<tableObjet[objActif].liste.length;i++){
-		defgrp[i]=tableObjet[tableObjet[objActif].liste[i]];
+	// Collecter récursivement tous les membres du groupe (y compris sous-groupes)
+	function collectMembers(idxGrp) {
+		var membres = tableObjet[idxGrp].liste;
+		for(let i=0;i<membres.length;i++){
+			var m = tableObjet[membres[i]];
+			if(m && m.etat==1){
+				if(m.class==4){
+					collectMembers(membres[i]);
+				}
+				// Eviter les doublons
+				if(defgrp.indexOf(m)==-1){
+					defgrp.push(m);
+				}
+			}
+		}
 	}
+	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
-	saveProjetA("2",tableObjet[objActif].liste[0],defgrp);
-	
+	saveProjetA("2",0,defgrp);
 }
 function loadGrp(path){
 	var xhttp = new XMLHttpRequest();
@@ -430,9 +467,19 @@ function loadGrp(path){
 		if (this.readyState == 4 && this.status == 200) {
 			var txt=xhttp.responseText;
 			document.getElementById("fichierSave").innerHTML = txt;
-			var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("audioliste")[0];
-			var tmpv=obj.getAttribute("value");
-			tmpbuffer=tmpv.split(',');
+			var objXml=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+			// Construire la liste des fichiers audio depuis les balises <file> des objets
+			var tmpbuffer=[];
+			var objets=objXml.getElementsByTagName("objet");
+			for(let i=0;i<objets.length;i++){
+				var fileTag=objets[i].getElementsByTagName("file")[0];
+				if(fileTag){
+					var fname=fileTag.getAttribute("value");
+					if(fname && fname!="" && tmpbuffer.indexOf(fname)==-1){
+						tmpbuffer.push(fname);
+					}
+				}
+			}
 			initTableGrp(0,tmpbuffer,coordClientX,coordClientY);
 		}
 	};
@@ -494,7 +541,7 @@ async function objXmlToScore(id,i) {
 		fin:parseFloat(org.getElementsByTagName("fin")[0].getAttribute("value")),
 		flagTranspo:parseInt(org.getElementsByTagName("flagtranspo")[0].getAttribute("value")),
 		gain:parseFloat(org.getElementsByTagName("gain")[0].getAttribute("value")),
-		groupe:org.getElementsByTagName("groupe")[0].getAttribute("value"),
+		groupe:parseInt(org.getElementsByTagName("groupe")[0].getAttribute("value")),
 		height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
 		id:"objet"+nbObjets,
 		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
@@ -607,6 +654,15 @@ async function objXmlToScore(id,i) {
 			tableObjet[id].x2=parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value"));
 			tableObjet[id].y2=parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value"));
 		}
+	var _tp=org.getElementsByTagName("type")[0].getAttribute("value");
+	if(_tp==13||_tp==14||_tp==15||_tp==16){
+		var _cp1x=org.getElementsByTagName("cp1x")[0]; if(_cp1x)tableObjet[id].cp1x=parseFloat(_cp1x.getAttribute("value"));
+		var _cp1y=org.getElementsByTagName("cp1y")[0]; if(_cp1y)tableObjet[id].cp1y=parseFloat(_cp1y.getAttribute("value"));
+		var _cp2x=org.getElementsByTagName("cp2x")[0]; if(_cp2x)tableObjet[id].cp2x=parseFloat(_cp2x.getAttribute("value"));
+		var _cp2y=org.getElementsByTagName("cp2y")[0]; if(_cp2y)tableObjet[id].cp2y=parseFloat(_cp2y.getAttribute("value"));
+		var _crvbw=org.getElementsByTagName("crvbasew")[0]; if(_crvbw)tableObjet[id].crvBaseW=parseFloat(_crvbw.getAttribute("value"));
+		var _crvbh=org.getElementsByTagName("crvbaseh")[0]; if(_crvbh)tableObjet[id].crvBaseH=parseFloat(_crvbh.getAttribute("value"));
+	}
 }
 function symbXmlToScore(id,i) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
@@ -636,12 +692,14 @@ function symbXmlToScore(id,i) {
 		borderHw:parseFloat(org.getElementsByTagName("borderhw")[0].getAttribute("value")),
 		class:parseInt(org.getElementsByTagName("class")[0].getAttribute("value")),
 		etat:org.getElementsByTagName("etat")[0].getAttribute("value"),
-		groupe:org.getElementsByTagName("groupe")[0].getAttribute("value"),
+		groupe:parseInt(org.getElementsByTagName("groupe")[0].getAttribute("value")),
 		height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
 		id:"objet"+nbObjets,
 		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
 		margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
 		nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
+		objBorderC:org.getElementsByTagName("objborderc")[0].getAttribute("value"),
+		objBorderW:parseFloat(org.getElementsByTagName("objborderw")[0].getAttribute("value")),
 		objColor:org.getElementsByTagName("objcolor")[0].getAttribute("value"),
 		objOpacity:parseFloat(org.getElementsByTagName("objopacity")[0].getAttribute("value")),
 		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
@@ -649,7 +707,6 @@ function symbXmlToScore(id,i) {
 		rotate:parseFloat(org.getElementsByTagName("rotate")[0].getAttribute("value")),
 		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value")),
 		scaleY:parseFloat(org.getElementsByTagName("scaley")[0].getAttribute("value")),
-		scaleY2:parseFloat(org.getElementsByTagName("scaley2")[0].getAttribute("value")),
 		type:parseInt(org.getElementsByTagName("type")[0].getAttribute("value")),
 		x1:parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value")),
 		y1:parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value")),
@@ -657,6 +714,8 @@ function symbXmlToScore(id,i) {
 		y2:parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value")),
 		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
 		};
+		var _scaley2=org.getElementsByTagName("scaley2")[0];
+		tableObjet[id].scaleY2=_scaley2?parseFloat(_scaley2.getAttribute("value")):tableObjet[id].scaleY;
 		if(tableObjet[id].type==69||tableObjet[id].type==70){
 			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(org.getElementsByTagName("x3")[0].getAttribute("value")):undefined;
 			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(org.getElementsByTagName("y3")[0].getAttribute("value")):undefined;
@@ -707,6 +766,8 @@ function grpXmlToScore(id,i,offset) {
 	groupe:org.getElementsByTagName("groupe")[0].getAttribute("value"),
 	height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
 	id:"grp"+nbObjets,
+	margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
+	margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
 	nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
 	piste:parseInt(org.getElementsByTagName("piste")[0].getAttribute("value")),
 	posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
@@ -760,6 +821,13 @@ function defObjets(i,liste,dx,dy){
 						tableObjet[nbObjets].posX=tableObjet[nbObjets].posX+dx;
 						tableObjet[nbObjets].posY=tableObjet[nbObjets].posY+dy;
 						drawObj(nbObjets);
+						for(let j=0;j<tableBuffer.length;j++){
+							if(tableObjet[nbObjets].file==tableBuffer[j].name){
+								tableObjet[nbObjets].bufferId=j;
+								tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration;
+								break;
+							}
+						}
 						document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets;
 						tableObjet[nbObjets].id="grp"+nbObjets;
 						nbObjets++;
@@ -787,6 +855,7 @@ function defObjets(i,liste,dx,dy){
 			}
 			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:paramProjet.audioPath,imgPath:paramProjet.imgPath,editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
 			window.api.send("toMain", 'defExterne;'+txt);
+			actualiseObjets();
 }
 function initTableBuffer(i,liste,dx,dy) {
 	var request = new XMLHttpRequest();
@@ -798,10 +867,10 @@ function initTableBuffer(i,liste,dx,dy) {
     	var url=paramProjet.audioPath+liste[i];
     	var pathnom=url.split('/');
      	var file=pathnom[pathnom.length-1];
-    	tableBuffer.push({name:file,buffer:buffer});
-    	
+    	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
+    		tableBuffer.push({name:file,buffer:buffer});
+    	}
     	i++;
-    
     	if(i<liste.length){
     		initTableBuffer(i,liste,dx,dy);
     	}else{
@@ -810,12 +879,104 @@ function initTableBuffer(i,liste,dx,dy) {
     });
  	};
     request.send();
-
+}
+function importGrpObjets(obj,nb,offset,dx,dy) {
+	var offsetX=0;
+	var offsetY=0;
+	for(let i=0;i<nb;i++){
+		var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"));
+		switch(cl){
+			case 1:
+				objXmlToScore(nbObjets,i);
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				drawObj(nbObjets);
+				for(let j=0;j<tableBuffer.length;j++){
+					if(tableObjet[nbObjets].file==tableBuffer[j].name){
+						tableObjet[nbObjets].bufferId=j;
+						tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration;
+						break;
+					}
+				}
+				nbObjets++;
+				break;
+			case 2:
+				objXmlToScore(nbObjets,i);
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				drawObj(nbObjets);
+				document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets;
+				tableObjet[nbObjets].id="grp"+nbObjets;
+				nbObjets++;
+				break;
+			case 3:
+				symbXmlToScore(nbObjets,i);
+				objActif=nbObjets;
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				createSymbole2(tableObjet[nbObjets].type);
+				dragElement(document.getElementById(tableObjet[nbObjets].id));
+				document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
+				nbObjets++;
+				break;
+			case 4:
+				grpXmlToScore(nbObjets,i,offset);
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				// Mettre à jour le champ groupe des membres pour pointer vers ce groupe
+				for(let k=0;k<tableObjet[nbObjets].liste.length;k++){
+					var midx=tableObjet[nbObjets].liste[k];
+					if(tableObjet[midx]){
+						tableObjet[midx].groupe=nbObjets;
+					}
+				}
+				graphGrp(nbObjets);
+				dragElement(document.getElementById(tableObjet[nbObjets].id));
+				document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
+				nbObjets++;
+				break;
+		}
+	}
+	actualiseObjets();
 }
 function initTableGrp(i,liste,dx,dy) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 	var offset=nbObjets;
 	var nb=obj.getElementsByTagName("objet").length;
+
+	// Si pas de fichiers audio, importer directement les objets
+	if(liste.length==0){
+		importGrpObjets(obj,nb,offset,dx,dy);
+		return;
+	}
 
 	var request = new XMLHttpRequest();
     request.open('GET', paramProjet.audioPath+liste[i], true);
@@ -825,86 +986,14 @@ function initTableGrp(i,liste,dx,dy) {
     	var url=paramProjet.audioPath+liste[i];
     	var pathnom=url.split('/');
      	var file=pathnom[pathnom.length-1];
-    	tableBuffer.push({name:file,buffer:buffer});
+    	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
+    		tableBuffer.push({name:file,buffer:buffer});
+    	}
     	i++;
     	if(i<liste.length){
     		initTableGrp(i,liste,dx,dy);
-    	}else{	
-			for(let i=0;i<nb;i++){
-				var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"));
-				switch(cl){
-					case 1:
-						objXmlToScore(nbObjets,i);
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						drawObj(nbObjets);
-						for(let j=0;j<tableBuffer.length;j++){
-							if(tableObjet[nbObjets].file==tableBuffer[j].name){
-								tableObjet[nbObjets].bufferId=j;
-								tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration;
-								break;
-							}
-						}
-						nbObjets++;
-						break;
-					case 2:
-						objXmlToScore(nbObjets,i);
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						drawObj(nbObjets);
-						document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets;
-						tableObjet[nbObjets].id="grp"+nbObjets;
-						nbObjets++;
-						break;
-					case 3:
-						symbXmlToScore(nbObjets,i);
-						objActif=nbObjets;
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						createSymbole2(tableObjet[nbObjets].type);
-						dragElement(document.getElementById(tableObjet[nbObjets].id));
-						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
-						nbObjets++;
-						break;
-					case 4:
-						grpXmlToScore(nbObjets,i,offset);
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						graphGrp(nbObjets);
-						dragElement(document.getElementById(tableObjet[nbObjets].id));
-						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
-						nbObjets++;
-						break;
-				}
-			}
+    	}else{
+			importGrpObjets(obj,nb,offset,dx,dy);
 		}
 	});
     };
@@ -920,9 +1009,25 @@ function fileXmlToScore(offset,dx,dy) {
 		defExterneConfig();
 		upDateWorkSpace(1);
 	}
-	var tmpbuffer=[];
 	if(offset==0){
-		defObjets(0,tmpbuffer,dx,dy);
+		// Collecter les fichiers audio depuis le XML avant de créer les objets
+		var objXml=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+		var tmpbuffer=[];
+		var objets=objXml.getElementsByTagName("objet");
+		for(let i=0;i<objets.length;i++){
+			var fileTag=objets[i].getElementsByTagName("file")[0];
+			if(fileTag){
+				var fname=fileTag.getAttribute("value");
+				if(fname && fname!="" && tmpbuffer.indexOf(fname)==-1){
+					tmpbuffer.push(fname);
+				}
+			}
+		}
+		if(tmpbuffer.length>0){
+			initTableBuffer(0,tmpbuffer,dx,dy);
+		}else{
+			defObjets(0,[],dx,dy);
+		}
 	}
 }
 function drawObj(id) {
@@ -960,25 +1065,35 @@ function drawObj(id) {
 			break;
 		case 11:
 			graphGlissando(id);
-			dragElement(document.getElementById('gliss'+id));
+			dragElement(document.getElementById('p1'+id));
+			dragElement(document.getElementById('sglis'+id));
 			break;
 		case 12:
 			graphBlock(id);
 			break;
 		case 13:
-			graphFusion(id);
+			graphDecresc(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 14:
-			graphDecresc(id);
+			graphDecrescb(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 15:
-			graphDecrescb(id);
+			graphCresc(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 16:
-			graphCresc(id);
-			break;
-		case 17:
 			graphCrescb(id);
+			dragElement(document.getElementById('pcrv1'+id));
+			dragElement(document.getElementById('pcrv2'+id));
+			dragElement(document.getElementById('plen'+id));
 			break;
 		case 18:
 			graphGroupe(id);
@@ -1010,7 +1125,9 @@ function drawObj(id) {
 }
 function defProjetConfig() {
 	paramProjet={};
-	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("general")[0];
+	var _ks=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+	versionProjet=_ks.getAttribute("version")||"";
+	var obj=_ks.getElementsByTagName("general")[0];
 	paramProjet={
 		name:obj.getElementsByTagName("name")[0].getAttribute("value"),
 		start:obj.getElementsByTagName("start")[0].getAttribute("value"),
@@ -1149,13 +1266,14 @@ for(let i=0;i<tableIR.length;i++){
 let listObjSelect=16777216;
 
 function listeAudios() {
-	var txt="<table border='1' style='width:100%;' cellpadding='4' cellspacing='0' ><tbody><tr>";
+	var cellStyle="style='width:40%;color:"+popupFontColor+";background-color:"+popupBkgColor+";'";
+	var cellStyle2="style='width:60%;color:"+popupFontColor+";background-color:"+popupBkgColor+";'";
+	var txt="<table border='1' style='width:100%;color:"+popupFontColor+";' cellpadding='4' cellspacing='0' ><tbody><tr>";
 	for(let i=0;i<tableBuffer.length;i++){
-		txt=txt+"<td style='width:40%;'>"+tableBuffer[i].name+"</td><td style='width:60%;'>";
+		txt=txt+"<td "+cellStyle+">"+tableBuffer[i].name+"</td><td "+cellStyle2+">";
 		for(let j=0;j<tableObjet.length;j++){
 			if(tableObjet[j].bufferId==i){
-				txt=txt+"<span class='liste' onclick='selectListeAudios("+j+")'>"+tableObjet[j].nom+"</span>,";
-				
+				txt=txt+"<span class='liste' style='color:"+popupFontColor+";' onclick='selectListeAudios("+j+")'>"+tableObjet[j].nom+"</span>,";
 			}
 		}
 		txt=txt.substring(0,txt.length-1);
@@ -1165,6 +1283,18 @@ function listeAudios() {
 	txt=txt+"</tr></tbody></table>";
 	document.getElementById("listeAudiosDiv").innerHTML=txt;
 	document.getElementById("listeAudios").style.display="block";
+}
+function nettoyerAudios() {
+	// Collecter tous les fichiers audio utilisés par les objets actifs
+	var utilises=[];
+	for(let i=0;i<tableObjet.length;i++){
+		if(tableObjet[i] && tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].file!=""){
+			if(utilises.indexOf(tableObjet[i].file)===-1){
+				utilises.push(tableObjet[i].file);
+			}
+		}
+	}
+	window.api.send("toMain","nettoyerAudios;"+utilises.join(','));
 }
 function listeAnnul() {
 	document.getElementById("listeAudios").style.display="none";

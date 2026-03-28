@@ -902,6 +902,9 @@ function scaleGrpValid(){
 							document.getElementById("space").removeChild(obj);
 							graphDecresc(id);
 							dragElement(document.getElementById(tableObjet[id].id));
+							dragElement(document.getElementById('pcrv1'+id));
+							dragElement(document.getElementById('pcrv2'+id));
+							dragElement(document.getElementById('plen'+id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
 							break;
 						case 14:
@@ -917,6 +920,9 @@ function scaleGrpValid(){
 							document.getElementById("space").removeChild(obj);
 							graphDecrescb(id);
 							dragElement(document.getElementById(tableObjet[id].id));
+							dragElement(document.getElementById('pcrv1'+id));
+							dragElement(document.getElementById('pcrv2'+id));
+							dragElement(document.getElementById('plen'+id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
 							break;
 						case 15:
@@ -932,6 +938,9 @@ function scaleGrpValid(){
 							document.getElementById("space").removeChild(obj);
 							graphCresc(id);
 							dragElement(document.getElementById(tableObjet[id].id));
+							dragElement(document.getElementById('pcrv1'+id));
+							dragElement(document.getElementById('pcrv2'+id));
+							dragElement(document.getElementById('plen'+id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
 							break;
 						case 16:
@@ -947,6 +956,9 @@ function scaleGrpValid(){
 							document.getElementById("space").removeChild(obj);
 							graphCrescb(id);
 							dragElement(document.getElementById(tableObjet[id].id));
+							dragElement(document.getElementById('pcrv1'+id));
+							dragElement(document.getElementById('pcrv2'+id));
+							dragElement(document.getElementById('plen'+id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
 							break;
 						case 21:

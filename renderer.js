@@ -393,6 +393,9 @@ window.api.receive("fromMain", (data) => {
 			case 'grpNom':
 				grpNom(cmd[1],cmd[2]);
 				break;
+			case 'symbNom':
+				symbNom(cmd[1],cmd[2]);
+				break;
 			case 'grpMGauche':
 				grpPlGauche(cmd[1],cmd[2]);
 				break;
@@ -739,6 +742,9 @@ window.api.receive("fromMain", (data) => {
 				break;
 			case 'listeAudios':
 				listeAudios();
+				break;
+			case 'nettoyageOk':
+				alert(cmd[1]+' fichier(s) supprimé(s).');
 				break;
 			case 'interpreteur':
 				testInterpreteur(cmd[1]);
@@ -1375,15 +1381,28 @@ async function importMulti(url,c,d){
    request.send(); 
 }
 async function loadSoundTableBufferB(id,dir,base,c,d) {
-	
 	tableObjet[id].duree = d;
-   tableObjet[id].fin=1;
-   tableObjet[id].debut=0;
-   //tableObjet[id].file=dir+"/"+base;
-   tableObjet[id].file=base;
-   tableObjet[id].canaux=parseInt(c);
-	console.log("c",tableObjet[id],c);
-   window.api.send("toMain", "fileAudioParam;"+id+";"+base+";"+d+";"+c);
+	tableObjet[id].fin=1;
+	tableObjet[id].debut=0;
+	tableObjet[id].file=base;
+	tableObjet[id].canaux=parseInt(c);
+	// Charger le buffer et l'ajouter à tableBuffer si pas déjà présent
+	var hasKey=tableBuffer.findIndex(elem => elem.name===base);
+	if(hasKey>-1){
+		tableObjet[id].bufferId=hasKey;
+	}else{
+		var req=new XMLHttpRequest();
+		req.open('GET',paramProjet.audioPath+base,true);
+		req.responseType='arraybuffer';
+		req.onload=function(){
+			contextAudio.decodeAudioData(req.response,function(buffer){
+				tableBuffer.push({name:base,buffer:buffer});
+				tableObjet[id].bufferId=tableBuffer.length-1;
+			});
+		};
+		req.send();
+	}
+	window.api.send("toMain","fileAudioParam;"+id+";"+base+";"+d+";"+c);
 }
 function loadPreDefSound(id,url) {
     var request = new XMLHttpRequest();
@@ -1605,7 +1624,7 @@ function objScaleXY(id,scX) {
 		document.getElementById("objet"+id).style.height=tableObjet[id].bkgHeight+"px";
 		document.getElementById("objet"+id).firstChild.setAttribute("width",tableObjet[id].width*scaleX);
 		document.getElementById("objet"+id).firstChild.setAttribute("height",tableObjet[id].height*scaleX);
-		document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform","scale("+scaleX+" "+scaleX+") translate("+tableObjet[id].margeG+" "+tableObjet[id].margeH+")");
+		document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform","scale("+scaleX+" "+scaleX+") translate("+tableObjet[id].margeG+" "+tableObjet[id].margeH+") rotate("+tableObjet[id].rotate+" 0 0)");
 	}
 }
 function objScaleX(id,scaleX) { 	
@@ -1739,7 +1758,7 @@ function objScaleX(id,scaleX) {
 				//document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform",transf)
 				//console.log("scaleX",transf," ",document.getElementById("objet"+id).firstChild.firstChild)
 		}
-		var transf=' rotate('+tableObjet[id].rotate+' 0 0) scale('+tableObjet[id].scaleX+' '+tableObjet[id].scaleY+') translate('+tableObjet[id].margeG+' '+tableObjet[id].margeH+') ';
+		var transf='scale('+tableObjet[id].scaleX+' '+tableObjet[id].scaleY+') translate('+tableObjet[id].margeG+' '+tableObjet[id].margeH+') rotate('+tableObjet[id].rotate+' 0 0) ';
 		document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform",transf);
 		
 	}
@@ -2168,6 +2187,12 @@ function grpNom(id,ml) {
 	var elem=document.getElementById(tableObjet[id].id);
 	tableObjet[id].nom=ml;
 	elem.setAttribute("title",ml);
+}
+function symbNom(id,ml) {
+	tableObjet[id].nom=ml;
+	if(tableObjet[id].type==74) {
+		document.getElementById(tableObjet[id].id).firstChild.firstChild.firstChild.firstChild.innerHTML=ml;
+	}
 }
 function grpPlGauche(id,ml) {
 	var elem=document.getElementById(tableObjet[id].id);

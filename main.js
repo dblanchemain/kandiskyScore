@@ -398,6 +398,7 @@ let winStudioEtat=0;
 let winStudio3DEtat=0;
 let winSpectrEditEtat=0;
 let winAideEtat=0;
+let winAproposEtat=0;
 let newStudioEtat=0;
 let winVueStudio3DEtat=0;
 let winDocEtat=0;
@@ -595,10 +596,10 @@ const template = [
       { label: Mcoller,
 				click: () => menuPopupColler()  },
       { type: 'separator' },
-      { label: Mgrouper },
-      { label: Mdegrouper },
-      { label: Mregrouper },
-      { label: MtoutDegrouper },
+      { label: Mgrouper, click: () => menuPopupGrouper() },
+      { label: Mdegrouper, click: () => menuPopupDegrouper() },
+      { label: Mregrouper, click: () => menuPopupRegrouper() },
+      { label: MtoutDegrouper, click: () => menuPopupToutDegrouper() },
       { type: 'separator' },
       { label: 'Media Explorer',
 				click: () => mediaExplorer()  },
@@ -773,7 +774,11 @@ const template = [
     submenu: [
       {
         label: Mdoc,
-        click: async () => openDoc() }
+        click: async () => openDoc() },
+      { type: 'separator' },
+      {
+        label: MApropos,
+        click: () => openApropos() }
     ]
   }
 ];
@@ -830,7 +835,7 @@ menuPopup.append(new MenuItem({ type: 'separator' }));
 menuPopup.append(new MenuItem({ label: Mgrouper,
 click: () => menuPopupGrouper()},));
 menuPopup.append(new MenuItem({ label: Mdegrouper,
-click: () => menuPopupRegrouper()},));
+click: () => menuPopupDegrouper()},));
 menuPopup.append(new MenuItem({ label: MtoutDegrouper,
 click: () => menuPopupToutDegrouper()}));
 
@@ -1583,6 +1588,34 @@ function saveModifGrp(txt) {
     }).catch(err => {
         console.log(err);
     });
+}
+async function nettoyerAudios(utilisesStr) {
+	const audioExts=['.wav','.flac','.ogg','.aiff','.aac','.au','.w64','.mp3'];
+	const utilises=utilisesStr ? utilisesStr.split(',').filter(f=>f!='') : [];
+	let entries=[];
+	try { entries=fs.readdirSync(audioPath); } catch(e){ return; }
+	const inutilises=entries.filter(f=>{
+		const ext=path.extname(f).toLowerCase();
+		return audioExts.includes(ext) && utilises.indexOf(f)===-1;
+	});
+	if(inutilises.length===0){
+		dialog.showMessageBox(mainWindow,{type:'info',title:'Nettoyage',message:'Aucun fichier inutilisé dans le dossier audio.',buttons:['Ok']});
+		return;
+	}
+	const res=await dialog.showMessageBox(mainWindow,{
+		type:'warning',
+		title:'Nettoyage dossier audio',
+		message:'Fichiers inutilisés à supprimer :\n\n'+inutilises.join('\n'),
+		buttons:['Supprimer','Annuler'],
+		defaultId:1,
+		cancelId:1
+	});
+	if(res.response===0){
+		inutilises.forEach(f=>{
+			try { fs.unlinkSync(path.join(audioPath,f)); } catch(e){ console.error('Erreur suppression',f,e); }
+		});
+		mainWindow.webContents.send("fromMain","nettoyageOk;"+inutilises.length);
+	}
 }
 function nouvelEspace() {
 	const _plt = os.platform();
@@ -2411,6 +2444,26 @@ function openDoc() {
 	   });
 	}
 }
+function openApropos() {
+	if(winAproposEtat==0){
+		winApropos = new BrowserWindow({width:420,height:800,resizable:false,
+		webPreferences: {
+	            nodeIntegration: true,
+	            contextIsolation: true,
+	            enableRemoteModule: false,
+	            preload: path.join(__dirname, 'preload.js')
+	        }
+		});
+		winApropos.loadFile('apropos.html');
+		winApropos.removeMenu();
+		winAproposEtat=1;
+  		winApropos.on('close', e => {
+		   e.preventDefault();
+		   winApropos.destroy();
+		   winAproposEtat=0;
+	   });
+	}
+}
 function mediaExplorer() {
 	if(winMediaExplorerEtat==0){
 		winMediaExplorer = new BrowserWindow({width:900,height:680,alwaysOnTop:true,
@@ -3212,6 +3265,9 @@ ipcMain.on ("toMain", (event, args) => {
 			console.log(`defGraphObj ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "grpBkgColor;"+cmd[1]+";"+cmd[2]);
 			break;
+		case 'preDefNom':
+			mainWindow.webContents.send("fromMain", "symbNom;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'symbColor':
 			console.log(`defGraphObj ${args} from renderer process`);
 			mainWindow.webContents.send("fromMain", "symbColor;"+cmd[1]+";"+cmd[2]);
@@ -3412,7 +3468,10 @@ ipcMain.on ("toMain", (event, args) => {
 			break;
 		case 'saveModifGrp':
 			saveModifGrp(cmd[1]);
-			break;	
+			break;
+		case 'nettoyerAudios':
+			nettoyerAudios(cmd[1]);
+			break;
 		case 'configProjet':
 			configuration(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6]);
 			break;
@@ -4825,20 +4884,33 @@ function objetAudio(id) {
 			    dialog.showErrorBox("Erreur audio", "Impossible de lire le fichier audio.");
 			    return;
 			  }
-		    const dir = path.dirname(rt);
-    		const base = path.basename(rt);
-    		const outputBaseDir =dir+"/"+path.basename(rt).replace(/\.wav$/, "");
-   		mainWindow.webContents.send("fromMain", "loadSound;"+id+";"+dir+";"+base+";"+chans+";"+(nbsamples/rate));
-   		
-   		(async () => {
-   			
-   		console.time();
-   		console.log("inputFile",rt,base);
-   		await splitChannels(rt,outputBaseDir).catch(err => console.error(err));
-   			console.timeEnd(); 
+			const dir = path.dirname(rt);
+		const base = path.basename(rt);
+		let destFile = rt;
+		let destDir = dir;
+		// Copier le fichier dans audioPath s'il vient d'un autre dossier
+		if(path.resolve(dir) !== path.resolve(audioPath)){
+			const dest = path.join(audioPath, base);
+			try {
+				fs.copyFileSync(rt, dest);
+				destFile = dest;
+				destDir = audioPath;
+			} catch(e) {
+				console.error("Erreur copie fichier audio:", e);
+				dialog.showErrorBox("Erreur", "Impossible de copier le fichier dans le dossier audio du projet.");
+				return;
+			}
+		}
+		const outputBaseDir = path.join(destDir, path.basename(base, path.extname(base)));
+		mainWindow.webContents.send("fromMain", "loadSound;"+id+";"+destDir+";"+base+";"+chans+";"+(nbsamples/rate));
 
-    console.log("🎚️ Fichiers exportés dans :", dir);
-   		})();
+		(async () => {
+		console.time();
+		console.log("inputFile",destFile,base);
+		await splitChannels(destFile,outputBaseDir).catch(err => console.error(err));
+			console.timeEnd();
+		console.log("🎚️ Fichiers exportés dans :", destDir);
+		})();
   		
 	});
 }
