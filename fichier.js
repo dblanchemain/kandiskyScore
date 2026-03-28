@@ -999,9 +999,25 @@ function fileXmlToScore(offset,dx,dy) {
 		defExterneConfig();
 		upDateWorkSpace(1);
 	}
-	var tmpbuffer=[];
 	if(offset==0){
-		defObjets(0,tmpbuffer,dx,dy);
+		// Collecter les fichiers audio depuis le XML avant de créer les objets
+		var objXml=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+		var tmpbuffer=[];
+		var objets=objXml.getElementsByTagName("objet");
+		for(let i=0;i<objets.length;i++){
+			var fileTag=objets[i].getElementsByTagName("file")[0];
+			if(fileTag){
+				var fname=fileTag.getAttribute("value");
+				if(fname && fname!="" && tmpbuffer.indexOf(fname)==-1){
+					tmpbuffer.push(fname);
+				}
+			}
+		}
+		if(tmpbuffer.length>0){
+			initTableBuffer(0,tmpbuffer,dx,dy);
+		}else{
+			defObjets(0,[],dx,dy);
+		}
 	}
 }
 function drawObj(id) {

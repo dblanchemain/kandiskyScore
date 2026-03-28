@@ -1378,15 +1378,28 @@ async function importMulti(url,c,d){
    request.send(); 
 }
 async function loadSoundTableBufferB(id,dir,base,c,d) {
-	
 	tableObjet[id].duree = d;
-   tableObjet[id].fin=1;
-   tableObjet[id].debut=0;
-   //tableObjet[id].file=dir+"/"+base;
-   tableObjet[id].file=base;
-   tableObjet[id].canaux=parseInt(c);
-	console.log("c",tableObjet[id],c);
-   window.api.send("toMain", "fileAudioParam;"+id+";"+base+";"+d+";"+c);
+	tableObjet[id].fin=1;
+	tableObjet[id].debut=0;
+	tableObjet[id].file=base;
+	tableObjet[id].canaux=parseInt(c);
+	// Charger le buffer et l'ajouter à tableBuffer si pas déjà présent
+	var hasKey=tableBuffer.findIndex(elem => elem.name===base);
+	if(hasKey>-1){
+		tableObjet[id].bufferId=hasKey;
+	}else{
+		var req=new XMLHttpRequest();
+		req.open('GET',paramProjet.audioPath+base,true);
+		req.responseType='arraybuffer';
+		req.onload=function(){
+			contextAudio.decodeAudioData(req.response,function(buffer){
+				tableBuffer.push({name:base,buffer:buffer});
+				tableObjet[id].bufferId=tableBuffer.length-1;
+			});
+		};
+		req.send();
+	}
+	window.api.send("toMain","fileAudioParam;"+id+";"+base+";"+d+";"+c);
 }
 function loadPreDefSound(id,url) {
     var request = new XMLHttpRequest();
