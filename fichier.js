@@ -541,7 +541,7 @@ async function objXmlToScore(id,i) {
 		fin:parseFloat(org.getElementsByTagName("fin")[0].getAttribute("value")),
 		flagTranspo:parseInt(org.getElementsByTagName("flagtranspo")[0].getAttribute("value")),
 		gain:parseFloat(org.getElementsByTagName("gain")[0].getAttribute("value")),
-		groupe:org.getElementsByTagName("groupe")[0].getAttribute("value"),
+		groupe:parseInt(org.getElementsByTagName("groupe")[0].getAttribute("value")),
 		height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
 		id:"objet"+nbObjets,
 		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
@@ -692,7 +692,7 @@ function symbXmlToScore(id,i) {
 		borderHw:parseFloat(org.getElementsByTagName("borderhw")[0].getAttribute("value")),
 		class:parseInt(org.getElementsByTagName("class")[0].getAttribute("value")),
 		etat:org.getElementsByTagName("etat")[0].getAttribute("value"),
-		groupe:org.getElementsByTagName("groupe")[0].getAttribute("value"),
+		groupe:parseInt(org.getElementsByTagName("groupe")[0].getAttribute("value")),
 		height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
 		id:"objet"+nbObjets,
 		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
@@ -943,6 +943,13 @@ function importGrpObjets(obj,nb,offset,dx,dy) {
 				}else{
 					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
 					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				// Mettre à jour le champ groupe des membres pour pointer vers ce groupe
+				for(let k=0;k<tableObjet[nbObjets].liste.length;k++){
+					var midx=tableObjet[nbObjets].liste[k];
+					if(tableObjet[midx]){
+						tableObjet[midx].groupe=nbObjets;
+					}
 				}
 				graphGrp(nbObjets);
 				dragElement(document.getElementById(tableObjet[nbObjets].id));
