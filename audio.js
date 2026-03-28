@@ -1766,7 +1766,7 @@ function exportToSeq(refGrp){
 	var offsetPiste=1;
 	var track=1;
 	nfilesave=[].concat(refGrp);
-	nfilesave.sort((a, b) => tableObjet[a].piste - tableObjet[b].piste);
+	nfilesave.sort((a, b) => tableObjet[a].posX - tableObjet[b].posX);
 	console.log("exportToSeq",refGrp,nfilesave);
 	for(let i in nfilesave){
 		if(tableObjet[nfilesave[i]].etat==1 && tableObjet[nfilesave[i]].file && tableObjet[nfilesave[i]].class==1 && tableObjet[nfilesave[i]].type<24){
