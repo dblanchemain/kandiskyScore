@@ -373,18 +373,31 @@ function saveProjetA(t,offset,tabgrp){
 			j++;
 		}
 	}
+	// Mapping indice global tableObjet → position locale dans tabgrp
+	var globalToLocal={};
+	for(let i=0;i<tabgrp.length;i++){
+		if(tabgrp[i] && tabgrp[i].id){
+			var gidx=parseInt(tabgrp[i].id.replace(/^objet|^grp/,''));
+			if(!isNaN(gidx)){
+				globalToLocal[gidx]=i;
+			}
+		}
+	}
 	var ntable=[];
 	ntable=structuredClone(tabgrp);
-	
+
 	for(let i=0;i<ntable.length;i++){
-		
+
 		if(ntable[i].etat==1 && (ntable[i].class==2 || ntable[i].class==4)){
-			
+
 			var lst=[].concat(ntable[i].liste);
 			var k=[];
 			for(let j=0;j<lst.length;j++){
 				if(ntable[i].etat==1){
-					k.push(parseInt(lsgrp[lst[j]])-offset);
+					var localPos=(t==2)?globalToLocal[lst[j]]:lst[j];
+					if(localPos!==undefined){
+						k.push(lsgrp[localPos]);
+					}
 				}
 			}
 			ntable[i].liste=[].concat(k);
@@ -428,12 +441,25 @@ function saveProjetA(t,offset,tabgrp){
 }
 function saveGrp() {
 	var defgrp=[];
-	for(let i=0;i<tableObjet[objActif].liste.length;i++){
-		defgrp[i]=tableObjet[tableObjet[objActif].liste[i]];
+	// Collecter récursivement tous les membres du groupe (y compris sous-groupes)
+	function collectMembers(idxGrp) {
+		var membres = tableObjet[idxGrp].liste;
+		for(let i=0;i<membres.length;i++){
+			var m = tableObjet[membres[i]];
+			if(m && m.etat==1){
+				if(m.class==4){
+					collectMembers(membres[i]);
+				}
+				// Eviter les doublons
+				if(defgrp.indexOf(m)==-1){
+					defgrp.push(m);
+				}
+			}
+		}
 	}
+	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
-	saveProjetA("2",tableObjet[objActif].liste[0],defgrp);
-	
+	saveProjetA("2",0,defgrp);
 }
 function loadGrp(path){
 	var xhttp = new XMLHttpRequest();
@@ -441,9 +467,19 @@ function loadGrp(path){
 		if (this.readyState == 4 && this.status == 200) {
 			var txt=xhttp.responseText;
 			document.getElementById("fichierSave").innerHTML = txt;
-			var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("audioliste")[0];
-			var tmpv=obj.getAttribute("value");
-			tmpbuffer=tmpv.split(',');
+			var objXml=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+			// Construire la liste des fichiers audio depuis les balises <file> des objets
+			var tmpbuffer=[];
+			var objets=objXml.getElementsByTagName("objet");
+			for(let i=0;i<objets.length;i++){
+				var fileTag=objets[i].getElementsByTagName("file")[0];
+				if(fileTag){
+					var fname=fileTag.getAttribute("value");
+					if(fname && fname!="" && tmpbuffer.indexOf(fname)==-1){
+						tmpbuffer.push(fname);
+					}
+				}
+			}
 			initTableGrp(0,tmpbuffer,coordClientX,coordClientY);
 		}
 	};
@@ -837,10 +873,95 @@ function initTableBuffer(i,liste,dx,dy) {
     request.send();
 
 }
+function importGrpObjets(obj,nb,offset,dx,dy) {
+	var offsetX=0;
+	var offsetY=0;
+	for(let i=0;i<nb;i++){
+		var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"));
+		switch(cl){
+			case 1:
+				objXmlToScore(nbObjets,i);
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				drawObj(nbObjets);
+				for(let j=0;j<tableBuffer.length;j++){
+					if(tableObjet[nbObjets].file==tableBuffer[j].name){
+						tableObjet[nbObjets].bufferId=j;
+						tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration;
+						break;
+					}
+				}
+				nbObjets++;
+				break;
+			case 2:
+				objXmlToScore(nbObjets,i);
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				drawObj(nbObjets);
+				document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets;
+				tableObjet[nbObjets].id="grp"+nbObjets;
+				nbObjets++;
+				break;
+			case 3:
+				symbXmlToScore(nbObjets,i);
+				objActif=nbObjets;
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				createSymbole2(tableObjet[nbObjets].type);
+				dragElement(document.getElementById(tableObjet[nbObjets].id));
+				document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
+				nbObjets++;
+				break;
+			case 4:
+				grpXmlToScore(nbObjets,i,offset);
+				if(nbObjets==offset){
+					offsetX=tableObjet[nbObjets].posX;
+					offsetY=tableObjet[nbObjets].posY;
+					tableObjet[nbObjets].posX=dx;
+					tableObjet[nbObjets].posY=dy;
+				}else{
+					tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
+					tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
+				}
+				graphGrp(nbObjets);
+				dragElement(document.getElementById(tableObjet[nbObjets].id));
+				document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
+				nbObjets++;
+				break;
+		}
+	}
+}
 function initTableGrp(i,liste,dx,dy) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 	var offset=nbObjets;
 	var nb=obj.getElementsByTagName("objet").length;
+
+	// Si pas de fichiers audio, importer directement les objets
+	if(liste.length==0){
+		importGrpObjets(obj,nb,offset,dx,dy);
+		return;
+	}
 
 	var request = new XMLHttpRequest();
     request.open('GET', paramProjet.audioPath+liste[i], true);
@@ -854,82 +975,8 @@ function initTableGrp(i,liste,dx,dy) {
     	i++;
     	if(i<liste.length){
     		initTableGrp(i,liste,dx,dy);
-    	}else{	
-			for(let i=0;i<nb;i++){
-				var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"));
-				switch(cl){
-					case 1:
-						objXmlToScore(nbObjets,i);
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						drawObj(nbObjets);
-						for(let j=0;j<tableBuffer.length;j++){
-							if(tableObjet[nbObjets].file==tableBuffer[j].name){
-								tableObjet[nbObjets].bufferId=j;
-								tableObjet[nbObjets].duree=tableBuffer[j].buffer.duration;
-								break;
-							}
-						}
-						nbObjets++;
-						break;
-					case 2:
-						objXmlToScore(nbObjets,i);
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						drawObj(nbObjets);
-						document.getElementById(tableObjet[nbObjets].id).id="grp"+nbObjets;
-						tableObjet[nbObjets].id="grp"+nbObjets;
-						nbObjets++;
-						break;
-					case 3:
-						symbXmlToScore(nbObjets,i);
-						objActif=nbObjets;
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						createSymbole2(tableObjet[nbObjets].type);
-						dragElement(document.getElementById(tableObjet[nbObjets].id));
-						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
-						nbObjets++;
-						break;
-					case 4:
-						grpXmlToScore(nbObjets,i,offset);
-						if(nbObjets==offset){
-							var offsetX=tableObjet[nbObjets].posX;
-							var offsetY=tableObjet[nbObjets].posY;
-							tableObjet[nbObjets].posX=dx;
-							tableObjet[nbObjets].posY=dy;
-						}else{
-							tableObjet[nbObjets].posX=(tableObjet[nbObjets].posX-offsetX)+dx;
-							tableObjet[nbObjets].posY=(tableObjet[nbObjets].posY-offsetY)+dy;
-						}
-						graphGrp(nbObjets);
-						dragElement(document.getElementById(tableObjet[nbObjets].id));
-						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
-						nbObjets++;
-						break;
-				}
-			}
+    	}else{
+			importGrpObjets(obj,nb,offset,dx,dy);
 		}
 	});
     };
