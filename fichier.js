@@ -855,6 +855,7 @@ function defObjets(i,liste,dx,dy){
 			}
 			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:paramProjet.audioPath,imgPath:paramProjet.imgPath,editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
 			window.api.send("toMain", 'defExterne;'+txt);
+			actualiseObjets();
 }
 function initTableBuffer(i,liste,dx,dy) {
 	var request = new XMLHttpRequest();
@@ -964,6 +965,7 @@ function importGrpObjets(obj,nb,offset,dx,dy) {
 				break;
 		}
 	}
+	actualiseObjets();
 }
 function initTableGrp(i,liste,dx,dy) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
