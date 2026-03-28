@@ -1264,13 +1264,14 @@ for(let i=0;i<tableIR.length;i++){
 let listObjSelect=16777216;
 
 function listeAudios() {
-	var txt="<table border='1' style='width:100%;' cellpadding='4' cellspacing='0' ><tbody><tr>";
+	var cellStyle="style='width:40%;color:"+popupFontColor+";background-color:"+popupBkgColor+";'";
+	var cellStyle2="style='width:60%;color:"+popupFontColor+";background-color:"+popupBkgColor+";'";
+	var txt="<table border='1' style='width:100%;color:"+popupFontColor+";' cellpadding='4' cellspacing='0' ><tbody><tr>";
 	for(let i=0;i<tableBuffer.length;i++){
-		txt=txt+"<td style='width:40%;'>"+tableBuffer[i].name+"</td><td style='width:60%;'>";
+		txt=txt+"<td "+cellStyle+">"+tableBuffer[i].name+"</td><td "+cellStyle2+">";
 		for(let j=0;j<tableObjet.length;j++){
 			if(tableObjet[j].bufferId==i){
 				txt=txt+"<span class='liste' onclick='selectListeAudios("+j+")'>"+tableObjet[j].nom+"</span>,";
-				
 			}
 		}
 		txt=txt.substring(0,txt.length-1);
