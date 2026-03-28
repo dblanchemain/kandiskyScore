@@ -38,7 +38,7 @@ function readPart(){
 	var lsgrp=[];
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
-			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				if (tableObjet[i].class==1 && tableObjet[i].type<23) {
 					lsgrp.push(i);
 				}
@@ -788,7 +788,7 @@ function renderIntervalleAudio(){
 	var fin=parseFloat(document.getElementById("barFin").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1  && tableObjet[i].type<23 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
-			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				lsgrp.push(i);
 			}
 		}
@@ -810,7 +810,7 @@ async function renderPartAudio(mode){
 	var startx=parseFloat(document.getElementById("barVerticale").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
-			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				if (tableObjet[i].class==1 && tableObjet[i].type<23 && tableObjet[i].posX>startx) {
 					lsgrp.push(i);
 					lstate.push(0);
@@ -1675,6 +1675,8 @@ async function postRubberband(id,mode,file) {
 }
 
 async function exportObjAudio(mode){
+	const obj = tableObjet[objActif];
+	if (!obj || !obj.file) return;
 	var lsgrp=[];
 	lsgrp.push(objActif);
 	await readSimpleAudioA(objActif,1);
@@ -1692,7 +1694,7 @@ async function exportIntv(){
 	var fin=parseFloat(document.getElementById("barFin").style.left);
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
-			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				if( tableObjet[i].type<23 ){
 					lsgrp.push(i);
 				}
@@ -1703,10 +1705,11 @@ async function exportIntv(){
   		return tableObjet[a].posX - tableObjet[b].posX;
 	});
 	console.log("debut",deb,"fin",fin,lsgrp);
+	if(lsgrp.length===0) return;
 	exportTable=lsgrp;
 	exportCompteur=0;
 	await readSimpleAudioA(lsgrp[0],1);
-	
+
 	exportToSeq(lsgrp);
 }
 async function exportGrp(){
@@ -1717,10 +1720,12 @@ async function exportGrp(){
 	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
 		grp=[].concat(tableObjet[objActif].liste);
 		document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
-		}
+	}
+	var lsgrp=grp.filter(i => tableObjet[i] && tableObjet[i].file!=="" && tableObjet[i].file!==undefined && tableObjet[i].type<23);
 	lsgrp.sort(function (a, b) {
    return tableObjet[a].posX - tableObjet[b].posX;
    });
+	if(lsgrp.length===0) return;
 	exportTable=lsgrp;
 	exportCompteur=0;
 	await readSimpleAudioA(lsgrp[0],1);
@@ -1731,7 +1736,7 @@ async function exportPart(){
 	var lsgrp=[];
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].mute==0){
-			if (tableObjet[i].file!="" || tableObjet[i].file!==undefined) {
+			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				if( tableObjet[i].type<23 ){
 					lsgrp.push(i);
 				}
@@ -1741,6 +1746,7 @@ async function exportPart(){
 	lsgrp.sort(function (a, b) {
    return tableObjet[a].posX - tableObjet[b].posX;
    });
+	if(lsgrp.length===0) return;
 	exportTable=lsgrp;
 	exportCompteur=0;
 	document.getElementById("sliderLParam").style.width="0%";
@@ -1760,11 +1766,10 @@ function exportToSeq(refGrp){
 	var offsetPiste=1;
 	var track=1;
 	nfilesave=[].concat(refGrp);
-	nfilesave.sort((a, b) => a.piste - b.piste);
+	nfilesave.sort((a, b) => tableObjet[a].piste - tableObjet[b].piste);
 	console.log("exportToSeq",refGrp,nfilesave);
-	console.log(tableObjet[0]);
 	for(let i in nfilesave){
-		if(tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].class==1 && tableObjet[i].type<24){
+		if(tableObjet[nfilesave[i]].etat==1 && tableObjet[nfilesave[i]].file && tableObjet[nfilesave[i]].class==1 && tableObjet[nfilesave[i]].type<24){
 			if(refGrp.length>0){
 				track=tableObjet[nfilesave[i]].piste+offsetPiste;
 			}
