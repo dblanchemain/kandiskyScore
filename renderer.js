@@ -743,6 +743,9 @@ window.api.receive("fromMain", (data) => {
 			case 'listeAudios':
 				listeAudios();
 				break;
+			case 'nettoyageOk':
+				alert(cmd[1]+' fichier(s) supprimé(s).');
+				break;
 			case 'interpreteur':
 				testInterpreteur(cmd[1]);
 				break;

@@ -1282,6 +1282,18 @@ function listeAudios() {
 	document.getElementById("listeAudiosDiv").innerHTML=txt;
 	document.getElementById("listeAudios").style.display="block";
 }
+function nettoyerAudios() {
+	// Collecter tous les fichiers audio utilisés par les objets actifs
+	var utilises=[];
+	for(let i=0;i<tableObjet.length;i++){
+		if(tableObjet[i] && tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].file!=""){
+			if(utilises.indexOf(tableObjet[i].file)===-1){
+				utilises.push(tableObjet[i].file);
+			}
+		}
+	}
+	window.api.send("toMain","nettoyerAudios;"+utilises.join(','));
+}
 function listeAnnul() {
 	document.getElementById("listeAudios").style.display="none";
 	if(listObjSelect<16777216){

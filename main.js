@@ -1589,6 +1589,34 @@ function saveModifGrp(txt) {
         console.log(err);
     });
 }
+async function nettoyerAudios(utilisesStr) {
+	const audioExts=['.wav','.flac','.ogg','.aiff','.aac','.au','.w64','.mp3'];
+	const utilises=utilisesStr ? utilisesStr.split(',').filter(f=>f!='') : [];
+	let entries=[];
+	try { entries=fs.readdirSync(audioPath); } catch(e){ return; }
+	const inutilises=entries.filter(f=>{
+		const ext=path.extname(f).toLowerCase();
+		return audioExts.includes(ext) && utilises.indexOf(f)===-1;
+	});
+	if(inutilises.length===0){
+		dialog.showMessageBox(mainWindow,{type:'info',title:'Nettoyage',message:'Aucun fichier inutilisé dans le dossier audio.',buttons:['Ok']});
+		return;
+	}
+	const res=await dialog.showMessageBox(mainWindow,{
+		type:'warning',
+		title:'Nettoyage dossier audio',
+		message:'Fichiers inutilisés à supprimer :\n\n'+inutilises.join('\n'),
+		buttons:['Supprimer','Annuler'],
+		defaultId:1,
+		cancelId:1
+	});
+	if(res.response===0){
+		inutilises.forEach(f=>{
+			try { fs.unlinkSync(path.join(audioPath,f)); } catch(e){ console.error('Erreur suppression',f,e); }
+		});
+		mainWindow.webContents.send("fromMain","nettoyageOk;"+inutilises.length);
+	}
+}
 function nouvelEspace() {
 	const _plt = os.platform();
 	const _execName = _plt === 'win32'
@@ -3440,7 +3468,10 @@ ipcMain.on ("toMain", (event, args) => {
 			break;
 		case 'saveModifGrp':
 			saveModifGrp(cmd[1]);
-			break;	
+			break;
+		case 'nettoyerAudios':
+			nettoyerAudios(cmd[1]);
+			break;
 		case 'configProjet':
 			configuration(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6]);
 			break;
