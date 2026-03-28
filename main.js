@@ -4884,20 +4884,33 @@ function objetAudio(id) {
 			    dialog.showErrorBox("Erreur audio", "Impossible de lire le fichier audio.");
 			    return;
 			  }
-		    const dir = path.dirname(rt);
-    		const base = path.basename(rt);
-    		const outputBaseDir =dir+"/"+path.basename(rt).replace(/\.wav$/, "");
-   		mainWindow.webContents.send("fromMain", "loadSound;"+id+";"+dir+";"+base+";"+chans+";"+(nbsamples/rate));
-   		
-   		(async () => {
-   			
-   		console.time();
-   		console.log("inputFile",rt,base);
-   		await splitChannels(rt,outputBaseDir).catch(err => console.error(err));
-   			console.timeEnd(); 
+			const dir = path.dirname(rt);
+		const base = path.basename(rt);
+		let destFile = rt;
+		let destDir = dir;
+		// Copier le fichier dans audioPath s'il vient d'un autre dossier
+		if(path.resolve(dir) !== path.resolve(audioPath)){
+			const dest = path.join(audioPath, base);
+			try {
+				fs.copyFileSync(rt, dest);
+				destFile = dest;
+				destDir = audioPath;
+			} catch(e) {
+				console.error("Erreur copie fichier audio:", e);
+				dialog.showErrorBox("Erreur", "Impossible de copier le fichier dans le dossier audio du projet.");
+				return;
+			}
+		}
+		const outputBaseDir = path.join(destDir, path.basename(base, path.extname(base)));
+		mainWindow.webContents.send("fromMain", "loadSound;"+id+";"+destDir+";"+base+";"+chans+";"+(nbsamples/rate));
 
-    console.log("🎚️ Fichiers exportés dans :", dir);
-   		})();
+		(async () => {
+		console.time();
+		console.log("inputFile",destFile,base);
+		await splitChannels(destFile,outputBaseDir).catch(err => console.error(err));
+			console.timeEnd();
+		console.log("🎚️ Fichiers exportés dans :", destDir);
+		})();
   		
 	});
 }
