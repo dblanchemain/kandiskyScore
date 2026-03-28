@@ -1403,6 +1403,7 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 		req.send();
 	}
 	window.api.send("toMain","fileAudioParam;"+id+";"+base+";"+d+";"+c);
+	readSimpleAudioA(id, 0);
 }
 function loadPreDefSound(id,url) {
     var request = new XMLHttpRequest();
