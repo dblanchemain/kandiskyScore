@@ -596,10 +596,10 @@ const template = [
       { label: Mcoller,
 				click: () => menuPopupColler()  },
       { type: 'separator' },
-      { label: Mgrouper },
-      { label: Mdegrouper },
-      { label: Mregrouper },
-      { label: MtoutDegrouper },
+      { label: Mgrouper, click: () => menuPopupGrouper() },
+      { label: Mdegrouper, click: () => menuPopupDegrouper() },
+      { label: Mregrouper, click: () => menuPopupRegrouper() },
+      { label: MtoutDegrouper, click: () => menuPopupToutDegrouper() },
       { type: 'separator' },
       { label: 'Media Explorer',
 				click: () => mediaExplorer()  },
@@ -835,7 +835,7 @@ menuPopup.append(new MenuItem({ type: 'separator' }));
 menuPopup.append(new MenuItem({ label: Mgrouper,
 click: () => menuPopupGrouper()},));
 menuPopup.append(new MenuItem({ label: Mdegrouper,
-click: () => menuPopupRegrouper()},));
+click: () => menuPopupDegrouper()},));
 menuPopup.append(new MenuItem({ label: MtoutDegrouper,
 click: () => menuPopupToutDegrouper()}));
 
