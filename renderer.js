@@ -721,6 +721,9 @@ window.api.receive("fromMain", (data) => {
 			case 'exportAdm':
 				exportAdm(1);
 				break;
+			case 'importAdm':
+				importAdmFromData(JSON.parse(decodeURIComponent(escape(atob(cmd[1])))));
+				break;
 			case 'createPdf':
 				createPdf();
 				break;

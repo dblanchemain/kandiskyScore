@@ -578,7 +578,9 @@ const template = [
       		{ label: MexportPart,
 					click: () => exportPart()  },
 				{ label: "ADM",
-					click: () => exportAdm()  }	
+					click: () => exportAdm()  },
+				{ label: "Import ADM",
+					click: () => importAdmMenu()  }
   				]
   		 },
     	{ type: 'separator' },
@@ -976,6 +978,199 @@ ipcMain.handle('adm-stream-end', async (event, { axmlString }) => {
 		return { ok: false, error: e.message };
 	}
 });
+
+// ── Import ADM ────────────────────────────────────────────────────────────────
+
+function admTimeToSecondsNode(str) {
+	const parts = str.split(':');
+	return (parseInt(parts[0]) || 0) * 3600
+	     + (parseInt(parts[1]) || 0) * 60
+	     + (parseFloat(parts[2]) || 0);
+}
+
+async function importAdmMenu() {
+	const result = await dialog.showOpenDialog(mainWindow, {
+		title: 'Import ADM / BW64',
+		filters: [{ name: 'BW64/WAV', extensions: ['wav', 'w64'] }],
+		properties: ['openFile']
+	});
+	if (result.canceled || !result.filePaths.length) return;
+	try {
+		const data = await parseAndExtractAdm(result.filePaths[0]);
+		const encoded = Buffer.from(JSON.stringify(data)).toString('base64');
+		mainWindow.webContents.send('fromMain', 'importAdm;' + encoded);
+	} catch (e) {
+		dialog.showErrorBox('Import ADM', e.message);
+	}
+}
+
+async function parseAndExtractAdm(filePath) {
+	const fd = fs.openSync(filePath, 'r');
+	try {
+		const fileSize = fs.fstatSync(fd).size;
+
+		// Lire l'en-tête RIFF/RF64+WAVE
+		const header = Buffer.alloc(12);
+		fs.readSync(fd, header, 0, 12, 0);
+		const tag = header.slice(0, 4).toString('ascii');
+		if (tag !== 'RIFF' && tag !== 'RF64') throw new Error('Pas un fichier WAV/BW64');
+		if (header.slice(8, 12).toString('ascii') !== 'WAVE') throw new Error('Pas un fichier WAVE');
+
+		// Scanner tous les chunks
+		const chunks = {};
+		let offset = 12;
+		let ds64DataSize = null;
+
+		while (offset < fileSize - 8) {
+			const hdr = Buffer.alloc(8);
+			if (fs.readSync(fd, hdr, 0, 8, offset) < 8) break;
+			const id = hdr.slice(0, 4).toString('ascii');
+			const size32 = hdr.readUInt32LE(4);
+
+			if (id === 'ds64') {
+				const d = Buffer.alloc(24);
+				fs.readSync(fd, d, 0, 24, offset + 8);
+				ds64DataSize = Number(d.readBigUInt64LE(8));
+			}
+
+			const actualSize = (id === 'data' && size32 === 0xFFFFFFFF && ds64DataSize !== null)
+				? ds64DataSize : size32;
+			chunks[id] = { offset: offset + 8, size: actualSize };
+			offset += 8 + actualSize;
+			if (actualSize % 2 !== 0) offset++;
+		}
+
+		// Lire fmt
+		const fmtKey = 'fmt ';
+		if (!chunks[fmtKey]) throw new Error('Chunk fmt manquant');
+		const fmtSize = Math.min(chunks[fmtKey].size, 40);
+		const fmtBuf = Buffer.alloc(fmtSize);
+		fs.readSync(fd, fmtBuf, 0, fmtSize, chunks[fmtKey].offset);
+		if (fmtBuf.readUInt16LE(0) !== 1) throw new Error('Seul PCM est supporté pour l\'import ADM');
+		const channelCount = fmtBuf.readUInt16LE(2);
+		const sampleRate   = fmtBuf.readUInt32LE(4);
+		const bitsPerSample = fmtBuf.readUInt16LE(14);
+		if (channelCount % 2 !== 0) throw new Error('Le fichier doit avoir un nombre pair de canaux (paires stéréo)');
+		const bytesPerSample = bitsPerSample / 8;
+		const N = channelCount / 2;
+
+		// Lire axml
+		if (!chunks['axml']) throw new Error('Chunk axml manquant — ce fichier n\'est pas un ADM BW64');
+		const axmlBuf = Buffer.alloc(chunks['axml'].size);
+		fs.readSync(fd, axmlBuf, 0, chunks['axml'].size, chunks['axml'].offset);
+		const axmlString = axmlBuf.toString('utf8');
+
+		// Extraire start/duration de chaque audioObject via regex
+		const aoRe = /<audioObject\b([^>]*)>/g;
+		const aoTimings = [];
+		let m;
+		while ((m = aoRe.exec(axmlString)) !== null) {
+			const attrs = m[1];
+			const sm = /\bstart="([^"]+)"/.exec(attrs);
+			const dm = /\bduration="([^"]+)"/.exec(attrs);
+			if (sm && dm) {
+				aoTimings.push({
+					startSec: admTimeToSecondsNode(sm[1]),
+					durSec:   admTimeToSecondsNode(dm[1])
+				});
+			}
+		}
+
+		const nObjects = Math.min(N, aoTimings.length);
+		if (nObjects === 0) throw new Error('Aucun audioObject trouvé dans le fichier ADM');
+
+		// Extraire les fichiers WAV stéréo
+		const files = extractStereoChannels(
+			fd, chunks['data'].offset, chunks['data'].size,
+			channelCount, bytesPerSample, sampleRate, aoTimings.slice(0, nObjects)
+		);
+
+		const objects = aoTimings.slice(0, nObjects).map((t, i) => ({
+			file:     files[i],
+			startSec: t.startSec,
+			durSec:   t.durSec
+		}));
+
+		return { sampleRate, objects, axml: axmlString };
+	} finally {
+		fs.closeSync(fd);
+	}
+}
+
+function extractStereoChannels(fd, dataOffset, dataSize, channelCount, bytesPerSample, sampleRate, aoTimings) {
+	const N = aoTimings.length;
+	const bytesPerFrame = channelCount * bytesPerSample;
+	const CHUNK_FRAMES = 65536;
+	const totalFrames = Math.floor(dataSize / bytesPerFrame);
+
+	const filenames = [], outFds = [], outDataSizes = [];
+
+	for (let n = 0; n < N; n++) {
+		const fname = 'adm_import_' + String(n + 1).padStart(2, '0') + '.wav';
+		filenames.push(fname);
+		const outFd = fs.openSync(path.join(audioPath, fname), 'w');
+		outFds.push(outFd);
+		outDataSizes.push(0);
+
+		const wavHdr = Buffer.alloc(44);
+		wavHdr.write('RIFF', 0);
+		wavHdr.writeUInt32LE(0, 4);
+		wavHdr.write('WAVE', 8);
+		wavHdr.write('fmt ', 12);
+		wavHdr.writeUInt32LE(16, 16);
+		wavHdr.writeUInt16LE(1, 20);
+		wavHdr.writeUInt16LE(2, 22);
+		wavHdr.writeUInt32LE(sampleRate, 24);
+		wavHdr.writeUInt32LE(sampleRate * 2 * bytesPerSample, 28);
+		wavHdr.writeUInt16LE(2 * bytesPerSample, 32);
+		wavHdr.writeUInt16LE(bytesPerSample * 8, 34);
+		wavHdr.write('data', 36);
+		wavHdr.writeUInt32LE(0, 40);
+		fs.writeSync(outFd, wavHdr);
+	}
+
+	// Extraire chaque paire de canaux stéréo (trim silence : extraction depuis startFrame)
+	const readBuf = Buffer.alloc(CHUNK_FRAMES * bytesPerFrame);
+	for (let n = 0; n < N; n++) {
+		const startFrame = Math.min(Math.round(aoTimings[n].startSec * sampleRate), totalFrames);
+		const durFrame   = Math.round(aoTimings[n].durSec * sampleRate);
+		const endFrame   = Math.min(startFrame + durFrame, totalFrames);
+		const ch0 = n * 2;
+		let f = startFrame;
+
+		while (f < endFrame) {
+			const framesToRead = Math.min(endFrame - f, CHUNK_FRAMES);
+			const bytesRead = fs.readSync(fd, readBuf, 0, framesToRead * bytesPerFrame,
+			                              dataOffset + f * bytesPerFrame);
+			if (bytesRead === 0) break;
+			const framesRead = Math.floor(bytesRead / bytesPerFrame);
+			const outBuf = Buffer.alloc(framesRead * 2 * bytesPerSample);
+			let p = 0;
+			for (let i = 0; i < framesRead; i++) {
+				const base = i * bytesPerFrame;
+				for (let b = 0; b < bytesPerSample; b++)
+					outBuf[p++] = readBuf[base + ch0 * bytesPerSample + b];
+				for (let b = 0; b < bytesPerSample; b++)
+					outBuf[p++] = readBuf[base + (ch0 + 1) * bytesPerSample + b];
+			}
+			fs.writeSync(outFds[n], outBuf);
+			outDataSizes[n] += outBuf.length;
+			f += framesRead;
+		}
+	}
+
+	// Corriger les tailles dans les en-têtes WAV
+	const sizeBuf = Buffer.alloc(4);
+	for (let n = 0; n < N; n++) {
+		sizeBuf.writeUInt32LE(outDataSizes[n] + 36, 0);
+		fs.writeSync(outFds[n], sizeBuf, 0, 4, 4);
+		sizeBuf.writeUInt32LE(outDataSizes[n], 0);
+		fs.writeSync(outFds[n], sizeBuf, 0, 4, 40);
+		fs.closeSync(outFds[n]);
+	}
+
+	return filenames;
+}
 
 ipcMain.handle('playDirectFile', async (event, mode, filePath, soxParams) => {
     if (winStudioEtat == 1) {

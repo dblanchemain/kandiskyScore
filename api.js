@@ -1424,255 +1424,152 @@ function convertoFloat32ToInt16(buffer) {
   return buf.buffer;
 }
 
-function defAxml(nbtracks) {
 
-	var txt='<?xml version="1.0" encoding="UTF-8"?>\
-<ebuCoreMain xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="urn:ebu:metadata-schema:ebuCore" xml:lang="en">\n\
-  <coreMetadata>\n\
-    <title typeLabel="FileTitle">\n\
-      <dc:title xml:lang="en">'+paramProjet.name+'</dc:title>\n\
-    </title>\n\
-    <creator>\n\
-      <organisationDetails>\n\
-        <organisationName>KandiskyScore</organisationName>\n\
-      </organisationDetails>\n\
-    </creator>\n\
-    <description typeLabel="Description" typeLink="http://www.ebu.ch/metadata/cs/ebu_DescriptionTypeCodeCS.xml#1">\n\
-      <dc:description>'+paramProjet.comment+': '+paramProjet.name+' ('+nbtracks+' stereo tracks    '+tableObjet.length+' objets)\n\
-    </dc:description>\n\
-    </description>\n\
-    <date>\n\
-      <created startDate="'+paramProjet.start+'"/>\n\
-    </date>\n\
-    <format>\n\
-    	<audioFormatExtended>\n';
-    	var cmax=nbtracks+1;
-    	var base=4096;
-    	var nbobjets=tableObjet.length;
-    	var coffset=1;
-    	for(let i=1;i<cmax;i++){
-    		var atu=base+i;
-    		var k=(i*2)-1;
-    		for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-		    		var debut=tableObjet[j].posX*(720/12960);
-					var tm=secondeToAdmTime(debut);
-					
- 					var dt=tm.h+":"+tm.m+":"+tm.s;
- 					var atu=numToHex16String(coffset);
- 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree);
-			    		txt=txt+' <audioObject audioObjectID="AO_'+at.toString(16)+'" audioObjectName="Object '+coffset+'" start="'+dt+'" duration="'+d.h+":"+d.m+":"+d.s+'">\n\
-			          <audioPackFormatIDRef>AP_0003'+at.toString(16)+'</audioPackFormatIDRef>\n\
-			          <audioTrackUIDRef>ATU_0000'+atu+'</audioTrackUIDRef>\n\
-			        </audioObject>\n';
-			        coffset++;
-		       }
-        }
-        for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-		    		var debut=tableObjet[j].posX*(720/12960);
-					var tm=secondeToAdmTime(debut);
-					
- 					var dt=tm.h+":"+tm.m+":"+tm.s;
- 					var atu=numToHex16String(coffset);
- 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree);
-			    		txt=txt+' <audioObject audioObjectID="AO_'+at.toString(16)+'" audioObjectName="Object '+coffset+'" start="'+dt+'" duration="'+d.h+":"+d.m+":"+d.s+'">\n\
-			          <audioPackFormatIDRef>AP_0003'+at.toString(16)+'</audioPackFormatIDRef>\n\
-			          <audioTrackUIDRef>ATU_0000'+atu+'</audioTrackUIDRef>\n\
-			        </audioObject>\n';
-			        coffset++;
-		       }
-        }
-        
-    	}
-    	var nbaudioTrackUID=coffset;
-    	var coffset=1;
-		for(let i=1;i<cmax;i++){
-    		var atu=base+i;
-    		var k=(i*2)-1;
-    		for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-			    		txt=txt+'<audioPackFormat audioPackFormatID="AP_0003'+at.toString(16)+'" audioPackFormatName="objet '+coffset+'" typeLabel="0003" typeDefinition="Objects">\n\
-          <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
-        </audioPackFormat>\n';
-			        coffset++;
-		       }
-        }
-        for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-			    		txt=txt+'<audioPackFormat audioPackFormatID="AP_0003'+at.toString(16)+'" audioPackFormatName="objet '+coffset+'" typeLabel="0003" typeDefinition="Objects">\n\
-          <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
-        </audioPackFormat>\n';
-			        coffset++;
-		       }
-        }
-        
-    	}
-    	var coffset=1;
-		for(let i=1;i<cmax;i++){
-    		var atu=base+i;
-    		var k=(i*2)-1;
-    		for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-		    		txt=txt+'<audioChannelFormat audioChannelFormatID="AC_0003'+at.toString(16)+'" audioChannelFormatName="objet '+coffset+'" typeDefinition="Objects">\n';
-		    		if(tableObjet[j].spT.length>1){
-		    			var debut=tableObjet[j].posX*(720/12960);
-						var tm=secondeToAdmTime(debut);
-	 					var dt=tm.h+":"+tm.m+":"+tm.s;
-	 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
-	 					var d=secondeToAdmTime(duree);
-	 					var rt2=0;
-	 					for(m=0;m<tableObjet[j].spT.length;m++){
-	 						var rtime=secondeToAdmTime(rt2);
-	 						var rt;
-	 						if(m==tableObjet[j].spT.length-1){
-	 							rt=duree;
-	 						}else{
-	 							rt=tableObjet[j].spT[m+1]*duree;
-	 						}
-	 						var duration=rt-rt2;
-	 						var dr=secondeToAdmTime(duration);
-					    	txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_0000000'+(m+1).toString(16)+'" rtime="'+rtime.h+":"+rtime.m+":"+rtime.s+'" duration="'+dr.h+":"+dr.m+":"+dr.s+'">\n\
-					      <position coordinate="X">'+tableObjet[j].spX[m]+'</position>\n\
-					      <position coordinate="Y">'+tableObjet[j].spZ[m]+'</position>\n\
-					      <position coordinate="Z">'+tableObjet[j].spY[m]+'</position>\n\
-					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n';
-					    	rt2=rt;
-					    }
-				  }else{
-					  		txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_00000001">\n\
-					      <position coordinate="X">'+tableObjet[j].spX[0]+'</position>\n\
-					      <position coordinate="Y">'+tableObjet[j].spZ[0]+'</position>\n\
-					      <position coordinate="Z">'+tableObjet[j].spY[0]+'</position>\n\
-					      <cartesian>1</cartesian>\n\
-					    </audioBlockFormat>\n';
-					 
-				  }
-				  	  txt=txt+'</audioChannelFormat>\n';
-			        coffset++;
-		       }
-        }
-        for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-		    		txt=txt+'<audioChannelFormat audioChannelFormatID="AC_0003'+at.toString(16)+'" audioChannelFormatName="objet '+coffset+'" typeDefinition="Objects">\n';
-		    		if(tableObjet[j].spT.length>1){
-		    			var debut=tableObjet[j].posX*(720/12960);
-						var tm=secondeToAdmTime(debut);
-	 					var dt=tm.h+":"+tm.m+":"+tm.s;
-	 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
-	 					var d=secondeToAdmTime(duree);
-	 					var rt2=0;
-	 					for(m=0;m<tableObjet[j].spT.length;m++){
-	 						var rtime=secondeToAdmTime(rt2);
-	 						var rt;
-	 						if(m==tableObjet[j].spT.length-1){
-	 							rt=duree;
-	 						}else{
-	 							rt=tableObjet[j].spT[m+1]*duree;
-	 						}
-	 						var duration=rt-rt2;
-	 						var dr=secondeToAdmTime(duration);
-					    	txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_0000000'+(m+1).toString(16)+'" rtime="'+rtime.h+":"+rtime.m+":"+rtime.s+'" duration="'+dr.h+":"+dr.m+":"+dr.s+'">\n\
-					      <position coordinate="X">'+tableObjet[j].spX[m]+'</position>\n\
-					      <position coordinate="Y">'+tableObjet[j].spZ[m]+'</position>\n\
-					      <position coordinate="Z">'+tableObjet[j].spY[m]+'</position>\n\
-					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n';
-					    	rt2=rt;
-					    }
-				  }else{
-					  		txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_00000001">\n\
-					      <position coordinate="X">'+tableObjet[j].spX[0]+'</position>\n\
-					      <position coordinate="Y">'+tableObjet[j].spZ[0]+'</position>\n\
-					      <position coordinate="Z">'+tableObjet[j].spY[0]+'</position>\n\
-					      <cartesian>1</cartesian>\n\
-					    </audioBlockFormat>\n';
-				  }
-				  	  txt=txt+'</audioChannelFormat>\n';
-			        coffset++;
-		       }
-        }
-        
-    	}
-    	var coffset=1;
-		for(let i=1;i<cmax;i++){
-    		var atu=base+i;
-    		var k=(i*2)-1;
-    		for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-			    		txt=txt+'<audioStreamFormat audioStreamFormatID="AS_0003'+at.toString(16)+'" audioStreamFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
-          <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
-          <audioTrackFormatIDRef>AT_0003'+at.toString(16)+'_01</audioTrackFormatIDRef>\n\
-          </audioStreamFormat>\n';
-			        coffset++;
-		       }
-        }
-        for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-			    		txt=txt+'<audioStreamFormat audioStreamFormatID="AS_0003'+at.toString(16)+'" audioStreamFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
-          <audioChannelFormatIDRef>AC_0003'+at.toString(16)+'</audioChannelFormatIDRef>\n\
-          <audioTrackFormatIDRef>AT_0003'+at.toString(16)+'_01</audioTrackFormatIDRef>\n\
-          </audioStreamFormat>\n';
-			        coffset++;
-		       }
-        }
-        
-    	}
-    	var coffset=1;
-		for(let i=1;i<cmax;i++){
-    		var atu=base+i;
-    		var k=(i*2)-1;
-    		for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-			    		txt=txt+'<audioTrackFormat audioTrackFormatID="AT_0003'+at.toString(16)+'_01" audioTrackFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
- 			<audioStreamFormatIDRef>AS_0003'+at.toString(16)+'</audioStreamFormatIDRef>\n\
- 			</audioTrackFormat>\n';
-			        coffset++;
-		       }
-        }
-        for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
-			    		txt=txt+'<audioTrackFormat audioTrackFormatID="AT_0003'+at.toString(16)+'_01" audioTrackFormatName="objet '+coffset+'" formatLabel="0001" formatDefinition="PCM">\n\
- 			<audioStreamFormatIDRef>AS_0003'+at.toString(16)+'</audioStreamFormatIDRef>\n\
- 			</audioTrackFormat>\n';
-			        coffset++;
-		       }
-        }
-        
-    	}
-    	
-    	cmax=(nbtracks*2)+1;
-    	for(i=1;i<nbaudioTrackUID;i++){
-    		var atu=numToHex16String(i);
-    		var at=4096+i;
-    		txt=txt+'<audioTrackUID UID="ATU_0000'+atu+'" sampleRate="48000" bitDepth="16" >\n\
-    		<audioTrackFormatIDRef>AT_0003'+at.toString(16)+'_01</audioTrackFormatIDRef>\n\
-          <audioPackFormatIDRef>AP_0003'+at.toString(16)+'</audioPackFormatIDRef>\n\
-          </audioTrackUID>\n';
-    	}
-	 txt=txt+'</audioFormatExtended>\n\
-    </format>\n\
-  </coreMetadata>\n\
-</ebuCoreMain>';
-console.log('length',txt.length);
-if(txt.length%2>0){
-	txt=txt+" ";
+function admTimeToSeconds(str) {
+	const parts = str.split(':');
+	return (parseInt(parts[0]) || 0) * 3600
+	     + (parseInt(parts[1]) || 0) * 60
+	     + (parseFloat(parts[2]) || 0);
 }
-console.log('length',txt.length);
-    return txt;
+
+async function importAdmFromData(data) {
+	// data = { sampleRate, objects: [{file, startSec, durSec}], axml }
+	const cleanXml = data.axml.replace(/\s+xmlns(?::\w+)?="[^"]*"/g, '');
+	const parser = new DOMParser();
+	const xmlDoc = parser.parseFromString(cleanXml, 'text/xml');
+	const aoEls = xmlDoc.getElementsByTagName('audioObject');
+	const N = data.objects.length;
+	const spaceH = spaceHeight || 600;
+
+	for (let n = 0; n < N; n++) {
+		const obj = data.objects[n];
+		const ao  = aoEls[n];
+
+		// Construire les tableaux de spatialisation depuis le canal L (premier audioChannelFormat)
+		let spX = [0], spY = [0], spZ = [0], spT = [0], spD = [1];
+
+		if (ao) {
+			const apRefEls = ao.getElementsByTagName('audioPackFormatIDRef');
+			if (apRefEls.length) {
+				const apRef = apRefEls[0].textContent.trim();
+				let acRef = '';
+				const allPacks = xmlDoc.getElementsByTagName('audioPackFormat');
+				for (let i = 0; i < allPacks.length; i++) {
+					if (allPacks[i].getAttribute('audioPackFormatID') === apRef) {
+						const acRefs = allPacks[i].getElementsByTagName('audioChannelFormatIDRef');
+						if (acRefs.length) acRef = acRefs[0].textContent.trim();
+						break;
+					}
+				}
+				if (acRef) {
+					const allChans = xmlDoc.getElementsByTagName('audioChannelFormat');
+					for (let i = 0; i < allChans.length; i++) {
+						if (allChans[i].getAttribute('audioChannelFormatID') === acRef) {
+							const blocks = allChans[i].getElementsByTagName('audioBlockFormat');
+							if (blocks.length) {
+								spX = []; spY = []; spZ = []; spT = []; spD = [];
+								for (let b = 0; b < blocks.length; b++) {
+									const blk = blocks[b];
+									const rt = admTimeToSeconds(blk.getAttribute('rtime') || '00:00:00.00000');
+									spT.push(obj.durSec > 0 ? rt / obj.durSec : 0);
+									spD.push(1);
+									let bX = 0, bY = 0, bZ = 0;
+									const positions = blk.getElementsByTagName('position');
+									for (let p = 0; p < positions.length; p++) {
+										const coord = positions[p].getAttribute('coordinate');
+										const val   = parseFloat(positions[p].textContent) || 0;
+										if      (coord === 'X') bX = val;
+										else if (coord === 'Y') bZ = val; // ADM Y → spZ (inversion export)
+										else if (coord === 'Z') bY = val; // ADM Z → spY
+									}
+									spX.push(bX); spY.push(bY); spZ.push(bZ);
+								}
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		// Position verticale : distribuer N objets équitablement
+		const posY = ((n + 1) / (N + 1)) * (spaceH - 40) + 20;
+		const id = nbObjets;
+		objActif = id;
+
+		tableObjet[id] = {
+			basePosY:      posY * (1 / ratioSpaceHeight),
+			bkgColor:      '#ffffff',
+			bkgHeight:     20,
+			bkgImg:        '',
+			bkgOpacity:    1,
+			bkgTrp:        true,
+			bkgWidth:      20,
+			borderBc: '#000000', borderBr: '0%', borderBs: 'none', borderBw: 0,
+			borderDc: '#000000', borderDr: '0%', borderDs: 'none', borderDw: 0,
+			borderGc: '#000000', borderGr: '0%', borderGs: 'none', borderGw: 0,
+			borderHc: '#000000', borderHr: '0%', borderHs: 'none', borderHw: 0,
+			buffer:        '',
+			canaux:        2,
+			class:         1,
+			convolver:     '',
+			cx:            20,
+			cy:            10,
+			debut:         0,
+			detune:        0,
+			duree:         obj.durSec,
+			envX:          [0.2, 0.8],
+			etat:          1,
+			fadeIn:        'l',
+			file:          obj.file,
+			fin:           1,
+			flagTranspo:   0,
+			gain:          1,
+			groupe:        16777216,
+			height:        20,
+			id:            'objet' + id,
+			margeG:        0,
+			margeH:        0,
+			mute:          0,
+			nom:           'objet' + id,
+			objBorderC:    '#008000',
+			objBorderW:    0,
+			objColor:      '#4CAF50',
+			objOpacity:    1,
+			piste:         n + 1,
+			posX:          obj.startSec * 18 * zoomScale,
+			posY:          posY,
+			r:             10,
+			reverse:       false,
+			rmsdb:         -10,
+			rotate:        0,
+			rx:            20,
+			ry:            10,
+			scaleX:        1.0,
+			scaleY:        1.0,
+			spD:           spD,
+			spT:           spT,
+			spX:           spX,
+			spY:           spY,
+			spZ:           spZ,
+			tableFx:       [0, 0, 0, 0, 0, 0, 0],
+			tableFxParam:  ['0?0', '0?0', '0?0', '0?0', '0?0', '0?0', '0?0'],
+			transposition: 1.0,
+			type:          1,
+			vueDuree:      0,
+			width:         20,
+		};
+
+		nbObjets++;
+		drawObj(id);
+		timePosObjet(id, obj.startSec);
+
+		if (obj.file) {
+			loadSoundTableBufferB(id, '', obj.file, 2, obj.durSec);
+		}
+
+		await new Promise(resolve => setTimeout(resolve, 20));
+	}
 }
 function numToHex16String(v) {
 	var lv=(v.toString(16)).length;
