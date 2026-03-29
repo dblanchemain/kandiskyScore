@@ -4792,6 +4792,12 @@ function mainExternes2(txt) {
 	projetPath=defc.path;
 	audioPath=defc.audioPath;
 	imgPath=defc.imgPath;
+	if (audioPath && !fs.existsSync(audioPath)) {
+		try { fs.mkdirSync(audioPath, { recursive: true }); } catch(e) { console.error('Erreur création dossier Audios:', e); }
+	}
+	if (imgPath && !fs.existsSync(imgPath)) {
+		try { fs.mkdirSync(imgPath, { recursive: true }); } catch(e) { console.error('Erreur création dossier Images:', e); }
+	}
 	editor=defc.editor;
 	daw=defc.daw;
 	cmdDaw=defc.cmdDaw;
