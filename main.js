@@ -577,13 +577,13 @@ const template = [
 					click: () => exportIntv()  },
       		{ label: MexportPart,
 					click: () => exportPart()  },
-				{ label: "ADM",
-					submenu: [
-						{ label: "Export ADM", click: () => exportAdm() },
-						{ label: "Import ADM", click: () => importAdmMenu() }
-					]}
   				]
   		 },
+		{ label: "ADM",
+			submenu: [
+				{ label: "Export ADM", click: () => exportAdm() },
+				{ label: "Import ADM", click: () => importAdmMenu() }
+			]},
     	{ type: 'separator' },
       isMac ? { role: 'close' } : { role: 'quit' }
     ]
