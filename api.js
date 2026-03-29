@@ -1635,7 +1635,6 @@ async function exportAdm() {
 	for (let i = 0; i < ntableObjet.length; i++) {
 		if (ntableObjet[i].piste > nbtracks) nbtracks = ntableObjet[i].piste;
 	}
-	exportPart(1);
 	console.log('nbtracks', nbtracks);
 
 	// Composition du buffer audio multicanal
