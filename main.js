@@ -578,9 +578,10 @@ const template = [
       		{ label: MexportPart,
 					click: () => exportPart()  },
 				{ label: "ADM",
-					click: () => exportAdm()  },
-				{ label: "Import ADM",
-					click: () => importAdmMenu()  }
+					submenu: [
+						{ label: "Export ADM", click: () => exportAdm() },
+						{ label: "Import ADM", click: () => importAdmMenu() }
+					]}
   				]
   		 },
     	{ type: 'separator' },
