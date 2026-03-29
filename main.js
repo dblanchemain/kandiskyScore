@@ -3435,7 +3435,7 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'fileAudioParam':
 			console.log("id1",cmd[1]);
 			//console.log(`openObjetParam ${args} from param`);
-			winConfig.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			if (winConfig && !winConfig.isDestroyed()) winConfig.webContents.send("fromMain", "fileAudioParam;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			break;
 		case 'mute':
 			if(winConfigEtat==1){
