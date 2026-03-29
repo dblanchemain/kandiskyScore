@@ -1139,6 +1139,292 @@ function convertoFloat32ToInt16(buffer) {
 }
 
 function defAxml(nbtracks) {
+	var txt='<?xml version="1.0" encoding="UTF-8"?>\n\
+<ebuCoreMain xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="urn:ebu:metadata-schema:ebuCore" xml:lang="en">\n\
+  <coreMetadata>\n\
+    <title typeLabel="FileTitle">\n\
+      <dc:title xml:lang="en">'+paramProjet.name+'</dc:title>\n\
+    </title>\n\
+    <creator>\n\
+      <organisationDetails>\n\
+        <organisationName>KandiskyScore</organisationName>\n\
+      </organisationDetails>\n\
+    </creator>\n\
+    <description typeLabel="Description" typeLink="http://www.ebu.ch/metadata/cs/ebu_DescriptionTypeCodeCS.xml#1">\n\
+      <dc:description>'+paramProjet.comment+': '+paramProjet.name+' ('+nbtracks+' tracks, '+tableObjet.length+' objects)\n\
+    </dc:description>\n\
+    </description>\n\
+    <date>\n\
+      <created startDate="'+paramProjet.start+'"/>\n\
+    </date>\n\
+    <format>\n\
+    	<audioFormatExtended>\n';
+
+	// Collecter les objets actifs dans l'ordre des pistes
+	var cmax = nbtracks + 1;
+	var nbobjets = tableObjet.length;
+	var activeObjs = [];
+	for (let i = 1; i < cmax; i++) {
+		for (let j = 0; j < nbobjets; j++) {
+			if (tableObjet[j].etat == 1 && tableObjet[j].piste == i) {
+				activeObjs.push(tableObjet[j]);
+			}
+		}
+	}
+	var N = activeObjs.length;
+
+	// ── audioObject (un par objet, deux audioTrackUIDRef) ──────────────────────
+	for (let n = 0; n < N; n++) {
+		var o = activeObjs[n];
+		var idx = n + 1;
+		var ao_s  = numToHex16String(idx);
+		var atu_L = numToHex16String(2*idx - 1);
+		var atu_R = numToHex16String(2*idx);
+		var debut = o.posX * (720/12960);
+		var tm = secondeToAdmTime(debut);
+		var dt = tm.h+':'+tm.m+':'+tm.s;
+		var duree = o.duree / o.transposition;
+		var d = secondeToAdmTime(duree);
+		txt += '<audioObject audioObjectID="AO_0003'+ao_s+'" audioObjectName="Object '+idx+'" start="'+dt+'" duration="'+d.h+':'+d.m+':'+d.s+'">\n\
+          <audioPackFormatIDRef>AP_0003'+ao_s+'</audioPackFormatIDRef>\n\
+          <audioTrackUIDRef>ATU_0000'+atu_L+'</audioTrackUIDRef>\n\
+          <audioTrackUIDRef>ATU_0000'+atu_R+'</audioTrackUIDRef>\n\
+        </audioObject>\n';
+	}
+
+	// ── audioPackFormat (un par objet, deux audioChannelFormatIDRef) ───────────
+	for (let n = 0; n < N; n++) {
+		var idx = n + 1;
+		var ap_s  = numToHex16String(idx);
+		var ac_sL = numToHex16String(2*idx - 1);
+		var ac_sR = numToHex16String(2*idx);
+		txt += '<audioPackFormat audioPackFormatID="AP_0003'+ap_s+'" audioPackFormatName="object '+idx+'" typeLabel="0003" typeDefinition="Objects">\n\
+          <audioChannelFormatIDRef>AC_0003'+ac_sL+'</audioChannelFormatIDRef>\n\
+          <audioChannelFormatIDRef>AC_0003'+ac_sR+'</audioChannelFormatIDRef>\n\
+        </audioPackFormat>\n';
+	}
+
+	// ── audioChannelFormat (L et R par objet, même données spatiales) ──────────
+	for (let n = 0; n < N; n++) {
+		var o = activeObjs[n];
+		var idx = n + 1;
+		var duree = o.duree / o.transposition;
+		for (let ch = 0; ch < 2; ch++) {
+			var ac_s   = numToHex16String(2*idx - 1 + ch);
+			var chName = ch === 0 ? 'L' : 'R';
+			txt += '<audioChannelFormat audioChannelFormatID="AC_0003'+ac_s+'" audioChannelFormatName="object '+idx+' '+chName+'" typeDefinition="Objects">\n';
+			if (o.spT.length > 1) {
+				var rt2 = 0;
+				for (let m = 0; m < o.spT.length; m++) {
+					var rtime = secondeToAdmTime(rt2);
+					var rt = (m === o.spT.length - 1) ? duree : o.spT[m+1] * duree;
+					var duration = rt - rt2;
+					var dr = secondeToAdmTime(duration);
+					var blk_s = ('0000000' + (m+1).toString(16)).slice(-8);
+					txt += '<audioBlockFormat audioBlockFormatID="AB_0003'+ac_s+'_'+blk_s+'" rtime="'+rtime.h+':'+rtime.m+':'+rtime.s+'" duration="'+dr.h+':'+dr.m+':'+dr.s+'">\n\
+					      <position coordinate="X">'+o.spX[m]+'</position>\n\
+					      <position coordinate="Y">'+o.spZ[m]+'</position>\n\
+					      <position coordinate="Z">'+o.spY[m]+'</position>\n\
+					      <cartesian>1</cartesian>\n\
+					    </audioBlockFormat>\n';
+					rt2 = rt;
+				}
+			} else {
+				txt += '<audioBlockFormat audioBlockFormatID="AB_0003'+ac_s+'_00000001">\n\
+					      <position coordinate="X">'+o.spX[0]+'</position>\n\
+					      <position coordinate="Y">'+o.spZ[0]+'</position>\n\
+					      <position coordinate="Z">'+o.spY[0]+'</position>\n\
+					      <cartesian>1</cartesian>\n\
+					    </audioBlockFormat>\n';
+			}
+			txt += '</audioChannelFormat>\n';
+		}
+	}
+
+	// ── audioStreamFormat (L et R par objet) ───────────────────────────────────
+	for (let n = 0; n < N; n++) {
+		var idx = n + 1;
+		for (let ch = 0; ch < 2; ch++) {
+			var s = numToHex16String(2*idx - 1 + ch);
+			var chName = ch === 0 ? 'L' : 'R';
+			txt += '<audioStreamFormat audioStreamFormatID="AS_0003'+s+'" audioStreamFormatName="object '+idx+' '+chName+'" formatLabel="0001" formatDefinition="PCM">\n\
+          <audioChannelFormatIDRef>AC_0003'+s+'</audioChannelFormatIDRef>\n\
+          <audioTrackFormatIDRef>AT_0003'+s+'_01</audioTrackFormatIDRef>\n\
+          </audioStreamFormat>\n';
+		}
+	}
+
+	// ── audioTrackFormat (L et R par objet) ────────────────────────────────────
+	for (let n = 0; n < N; n++) {
+		var idx = n + 1;
+		for (let ch = 0; ch < 2; ch++) {
+			var s = numToHex16String(2*idx - 1 + ch);
+			var chName = ch === 0 ? 'L' : 'R';
+			txt += '<audioTrackFormat audioTrackFormatID="AT_0003'+s+'_01" audioTrackFormatName="object '+idx+' '+chName+'" formatLabel="0001" formatDefinition="PCM">\n\
+ 			<audioStreamFormatIDRef>AS_0003'+s+'</audioStreamFormatIDRef>\n\
+ 			</audioTrackFormat>\n';
+		}
+	}
+
+	// ── audioTrackUID (L et R par objet) ───────────────────────────────────────
+	for (let n = 0; n < N; n++) {
+		var idx = n + 1;
+		var ap_s = numToHex16String(idx);
+		for (let ch = 0; ch < 2; ch++) {
+			var s   = numToHex16String(2*idx - 1 + ch);
+			txt += '<audioTrackUID UID="ATU_0000'+s+'" sampleRate="48000" bitDepth="16">\n\
+    		<audioTrackFormatIDRef>AT_0003'+s+'_01</audioTrackFormatIDRef>\n\
+          <audioPackFormatIDRef>AP_0003'+ap_s+'</audioPackFormatIDRef>\n\
+          </audioTrackUID>\n';
+		}
+	}
+
+	txt += '</audioFormatExtended>\n\
+    </format>\n\
+  </coreMetadata>\n\
+</ebuCoreMain>';
+
+	console.log('length', txt.length);
+	if (txt.length % 2 > 0) { txt = txt + ' '; }
+	console.log('length', txt.length);
+	return txt;
+}function audioBufferToWav(sampleRate, channelBuffers, axml, chna, tracks) {
+  const totalSamples = channelBuffers[0].length * channelBuffers.length;
+  const activeObjs = [];
+  const cmax2 = nbtracks + 1;
+  for (let i = 1; i < cmax2; i++) {
+    for (let j = 0; j < tableObjet.length; j++) {
+      if (tableObjet[j].etat === 1 && tableObjet[j].piste === i) activeObjs.push(tableObjet[j]);
+    }
+  }
+  const N = activeObjs.length;
+  const nbobjs = N * 2;
+  const chnaDataSize = 4 + (40 * nbobjs);
+  const dataStart = 80 + chnaDataSize;
+  const bufferSize = dataStart + 8 + (totalSamples * 2) + 8 + axml.length;
+  const buffer = new ArrayBuffer(bufferSize);
+  const view = new DataView(buffer);
+
+  const writeString = (view, offset, string) => {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  };
+
+  console.log('channelBuffers.length', channelBuffers.length);
+
+  // RIFF header
+  writeString(view, 0, "RIFF");
+  view.setUint32(4, bufferSize - 8, true);
+  writeString(view, 8, "WAVE");
+
+  // JUNK chunk (placeholder, 36 bytes total)
+  writeString(view, 12, 'JUNK');
+  view.setUint32(16, 28, true);
+  view.setUint32(20, 0, true);
+  view.setUint32(24, 0, true);
+  view.setUint32(28, totalSamples * 2, true);
+  view.setUint32(32, 0, true);
+  view.setUint32(36, 0, true);
+  view.setUint32(40, 0, true);
+  view.setUint32(44, 0, true);
+
+  // fmt chunk (offset 48-71)
+  writeString(view, 48, "fmt ");
+  view.setUint32(52, 16, true);
+  view.setUint16(56, 1, true);
+  view.setUint16(58, channelBuffers.length, true);
+  view.setUint32(60, sampleRate, true);
+  view.setUint32(64, sampleRate * channelBuffers.length * 2, true);
+  view.setUint16(68, channelBuffers.length * 2, true);
+  view.setUint16(70, 16, true);
+
+  // chna chunk (avant data — spec ITU-R BS.2088)
+  writeString(view, 72, "chna");
+  view.setUint32(76, chnaDataSize, true);
+  view.setUint16(80, tracks * 2, true);   // numTracks
+  view.setUint16(82, nbobjs, true);       // numUIDs
+
+  var chnaOff = 84;
+  for (let n = 0; n < N; n++) {
+    var o = activeObjs[n];
+    var idx = n + 1;
+    var ap_s = numToHex16String(idx);
+    for (let ch = 0; ch < 2; ch++) {
+      var trackIdx = (o.piste * 2) - 1 + ch;
+      var s = numToHex16String(2*idx - 1 + ch);
+      var chnaStr = 'ATU_0000' + s + 'AT_0003' + s + '_01AP_0003' + ap_s;
+      view.setUint16(chnaOff, trackIdx, true);
+      chnaOff += 2;
+      for (let m = 0; m < 38; m++) { view.setUint8(chnaOff + m, chnaStr.charCodeAt(m)); }
+      chnaOff += 38;
+    }
+  }
+
+  // data chunk
+  writeString(view, dataStart, "data");
+  view.setUint32(dataStart + 4, totalSamples * 2, true);
+
+  // PCM audio (16-bit interleaved)
+  let offset = dataStart + 8;
+  for (let i = 0; i < channelBuffers[0].length; i++) {
+    for (let channel = 0; channel < channelBuffers.length; channel++) {
+      const s = Math.max(-1, Math.min(1, channelBuffers[channel][i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      offset += 2;
+    }
+  }
+
+  // axml chunk (après data)
+  writeString(view, offset, "axml");
+  view.setUint32(offset + 4, axml.length, true);
+  offset += 8;
+  for (let i = 0; i < axml.length; i++) {
+    view.setUint8(offset + i, axml.charCodeAt(i));
+  }
+
+  return buffer;
+}
+function convertStereoToMono(audioBuffer) {
+  const numberOfChannels = audioBuffer.numberOfChannels;
+  if (numberOfChannels === 1) {
+    // Déjà en mono
+    return audioBuffer;
+  }
+
+  const sampleRate = audioBuffer.sampleRate;
+  const bufferLength = audioBuffer.length;
+
+  // Créer un nouveau buffer mono
+  //const context = audioBuffer.context || new AudioContext();
+  const monoBuffer = contextAudio.createBuffer(1, bufferLength, sampleRate);
+
+  // Obtenir les données des deux canaux
+  const leftChannel = audioBuffer.getChannelData(0);
+  const rightChannel = audioBuffer.getChannelData(1);
+  const monoChannel = monoBuffer.getChannelData(0);
+
+  // Calculer la moyenne des canaux gauche et droit
+  for (let i = 0; i < bufferLength; i++) {
+    monoChannel[i] = (leftChannel[i] + rightChannel[i]) / 2;
+  }
+
+  return monoBuffer;
+}
+
+function convertoFloat32ToInt16(buffer) {
+  var l = buffer.length;  //Buffer
+  var buf = new Int16Array(l/3);
+
+  while (l--) {
+    s = Math.max(-1, Math.min(1, samples[l]));
+    buf[l] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    //buf[l] = buffer[l]*0xFFFF; //old   //convert to 16 bit
+  }
+  return buf.buffer;
+}
+
+function defAxml(nbtracks) {
 
 	var txt='<?xml version="1.0" encoding="UTF-8"?>\
 <ebuCoreMain xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="urn:ebu:metadata-schema:ebuCore" xml:lang="en">\n\
