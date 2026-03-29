@@ -1622,6 +1622,28 @@ function buildChnaData(nbtracks) {
 	return buf;
 }
 
+async function getObjAudioBuffer(id) {
+	const obj = tableObjet[id];
+	if (!obj || !obj.file) return null;
+	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	const rt = await window.api.loadBuffers(filePath);
+	if (!rt || !rt.channels || !rt.channels.length) return null;
+	const sr = rt.sampleRate;
+	const numCh = rt.numChannels;
+	const startSample = Math.floor((obj.debut || 0) * rt.numSamples);
+	const endSample   = Math.floor((obj.fin   || 1) * rt.numSamples);
+	const length = Math.max(1, endSample - startSample);
+	const gain = obj.gain || 1;
+	const outBuf = contextAudio.createBuffer(2, length, sr);
+	for (let ch = 0; ch < 2; ch++) {
+		const srcCh = ch < numCh ? ch : 0;
+		const src = new Float32Array(rt.channels[srcCh]).subarray(startSample, endSample);
+		const dst = outBuf.getChannelData(ch);
+		for (let s = 0; s < length; s++) dst[s] = src[s] * gain;
+	}
+	return outBuf;
+}
+
 async function exportAdm() {
 	tablePiste = [];
 	var ratioT = (720/12960);
@@ -1644,10 +1666,10 @@ async function exportAdm() {
 		for (let i = 0; i < ntableObjet.length; i++) {
 			if (tableObjet[i].etat == 1 && tableObjet[i].piste == j+1) {
 				var id = parseInt(ntableObjet[i].id.substring(5));
-				var rc = await exportAudioObjet(id, 1);
-				await new Promise(resolve => setTimeout(resolve, 200));
+				const srcBuf = await getObjAudioBuffer(id);
+				if (!srcBuf) continue;
 				var tpos = Math.round((tableObjet[i].posX * ratioT) * contextAudio.sampleRate);
-				insertAdmBufferPart(nBuffer, k, rc.buffer, tpos, 0, rc.buffer.length);
+				insertAdmBufferPart(nBuffer, k, srcBuf, tpos, 0, srcBuf.length);
 			}
 		}
 	}
