@@ -970,7 +970,10 @@ sourceStart et sourceEnd : Les indices d'échantillons pour définir la portion 
     const sourceChannelData = sourceBuffer.getChannelData(channel).subarray(sourceStart, sourceEnd);
 
     // Copier les données du buffer source dans le buffer cible à l'offset spécifié
-    targetChannelData.set(sourceChannelData, targetOffset);
+    const available = targetChannelData.length - targetOffset;
+    if (available <= 0) continue;
+    const clippedSrc = sourceChannelData.length > available ? sourceChannelData.subarray(0, available) : sourceChannelData;
+    targetChannelData.set(clippedSrc, targetOffset);
   }
 }
 function insertMonoBufferPart(targetBuffer,targetChannel, sourceBuffer, targetOffset, sourceStart = 0, sourceEnd = sourceBuffer.length) {
@@ -1645,6 +1648,9 @@ async function getObjAudioBuffer(id) {
 }
 
 async function exportAdm() {
+	const filePath = await window.api.showSaveDialog();
+	if (!filePath) return;
+
 	tablePiste = [];
 	var ratioT = (720/12960);
 	var ntableObjet = [];
@@ -1678,9 +1684,6 @@ async function exportAdm() {
 	const chnaData    = buildChnaData(nbtracks);
 	const channelCount = nBuffer.numberOfChannels;
 	const totalSamples = nBuffer.length;
-	const filePath    = audioDirectory + "exports/nbuffer.wav";
-
-	window.api.send('toMain', 'defExportFile;' + audioDirectory + 'exports/;' + filePath);
 
 	// Démarrer le streaming — le main process crée le fichier et écrit l'en-tête
 	const startRes = await window.api.admStreamStart({
