@@ -1477,13 +1477,34 @@ async function importAdmFromData(data) {
 									spT.push(obj.durSec > 0 ? rt / obj.durSec : 0);
 									spD.push(1);
 									let bX = 0, bY = 0, bZ = 0;
+									let az = 0, el = 0, dist = 1;
+									const cartEl = blk.getElementsByTagName('cartesian');
+									const isCartesian = cartEl.length > 0 && cartEl[0].textContent.trim() === '1';
 									const positions = blk.getElementsByTagName('position');
 									for (let p = 0; p < positions.length; p++) {
 										const coord = positions[p].getAttribute('coordinate');
 										const val   = parseFloat(positions[p].textContent) || 0;
-										if      (coord === 'X') bX = val;
-										else if (coord === 'Y') bZ = val; // ADM Y → spZ (inversion export)
-										else if (coord === 'Z') bY = val; // ADM Z → spY
+										if (isCartesian) {
+											if      (coord === 'X') bX = val;
+											else if (coord === 'Y') bZ = val; // ADM Y → spZ
+											else if (coord === 'Z') bY = val; // ADM Z → spY
+										} else {
+											if      (coord === 'azimuth')   az   = val;
+											else if (coord === 'elevation') el   = val;
+											else if (coord === 'distance')  dist = val;
+										}
+									}
+									if (!isCartesian) {
+										// Conversion sphérique ADM → cartésien (BS.2076)
+										// azimuth : 0=avant, +90=gauche ; elevation : 0=horizontal, +90=haut
+										const azRad = az * Math.PI / 180;
+										const elRad = el * Math.PI / 180;
+										const admX  = -Math.sin(azRad) * Math.cos(elRad) * dist;
+										const admY  =  Math.cos(azRad) * Math.cos(elRad) * dist;
+										const admZ  =  Math.sin(elRad) * dist;
+										bX = admX; // ADM X → spX
+										bZ = admY; // ADM Y → spZ
+										bY = admZ; // ADM Z → spY
 									}
 									spX.push(bX); spY.push(bY); spZ.push(bZ);
 								}
