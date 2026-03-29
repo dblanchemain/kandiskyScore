@@ -4907,16 +4907,7 @@ function objetAudio(id) {
 				return;
 			}
 		}
-		const outputBaseDir = path.join(destDir, path.basename(base, path.extname(base)));
 		mainWindow.webContents.send("fromMain", "loadSound;"+id+";"+destDir+";"+base+";"+chans+";"+(nbsamples/rate));
-
-		(async () => {
-		console.time();
-		console.log("inputFile",destFile,base);
-		await splitChannels(destFile,outputBaseDir).catch(err => console.error(err));
-			console.timeEnd();
-		console.log("🎚️ Fichiers exportés dans :", destDir);
-		})();
   		
 	});
 }
