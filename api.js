@@ -1126,13 +1126,13 @@ var cmax=nbtracks+1;
   // data chunk length 
   offset=offset+4;
   
-  view.setUint32(offset, chna.length, true);
+  view.setUint32(offset, 4 + (40 * nbobjs), true);
   offset=offset+4;
   view.setUint16(offset, tracks*2, true);
   offset=offset+2;
   view.setUint16(offset, tableObjet.length*2, true);
   offset=offset+2;
-  
+
 var cmax=nbtracks+1;
 console.log("chna-max",cmax);
     	var base=4096;
@@ -1242,7 +1242,7 @@ function defAxml(nbtracks) {
     </date>\n\
     <format>\n\
     	<audioFormatExtended>\n';
-    	var cmax=nbtracks+2;
+    	var cmax=nbtracks+1;
     	var base=4096;
     	var nbobjets=tableObjet.length;
     	var coffset=1;
@@ -1324,29 +1324,24 @@ function defAxml(nbtracks) {
 	 					var dt=tm.h+":"+tm.m+":"+tm.s;
 	 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
 	 					var d=secondeToAdmTime(duree);
-	 					txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_00000001" rtime="00:00:00.00000" duration="'+"00:00:00.00000"+'">\n\
-					      <position coordinate="X">'+tableObjet[j].spX[0]+'</position>\n\
-					      <position coordinate="Y">'+tableObjet[j].spZ[0]+'</position>\n\
-					      <position coordinate="Z">'+tableObjet[j].spY[0]+'</position>\n\
-					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n';
-					    var rt2=0;
-	 					for(m=1;m<tableObjet[j].spT.length;m++){
-	 						if(m==tableObjet[j].spT.length-1){
-	 							var rt=duree;
-	 						}else{
-	 							var rt=(tableObjet[j].spT[m]*duree);
-	 						}
+	 					var rt2=0;
+	 					for(m=0;m<tableObjet[j].spT.length;m++){
 	 						var rtime=secondeToAdmTime(rt2);
+	 						var rt;
+	 						if(m==tableObjet[j].spT.length-1){
+	 							rt=duree;
+	 						}else{
+	 							rt=tableObjet[j].spT[m+1]*duree;
+	 						}
 	 						var duration=rt-rt2;
 	 						var dr=secondeToAdmTime(duration);
-					    	txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_0000000'+(m+1).toString(16)+'" rtime="'+rtime.h+":"+rtime.m+":"+rtime.s+'" duration="'+dr.h+":"+dr.m+":"+dr.s+'" >\n\
+					    	txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_0000000'+(m+1).toString(16)+'" rtime="'+rtime.h+":"+rtime.m+":"+rtime.s+'" duration="'+dr.h+":"+dr.m+":"+dr.s+'">\n\
 					      <position coordinate="X">'+tableObjet[j].spX[m]+'</position>\n\
 					      <position coordinate="Y">'+tableObjet[j].spZ[m]+'</position>\n\
 					      <position coordinate="Z">'+tableObjet[j].spY[m]+'</position>\n\
 					      <cartesian>1</cartesian>\n\
 					    	</audioBlockFormat>\n';
-					    	rt2=rt2+duration;
+					    	rt2=rt;
 					    }
 				  }else{
 					  		txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_00000001">\n\
@@ -1371,31 +1366,24 @@ function defAxml(nbtracks) {
 	 					var dt=tm.h+":"+tm.m+":"+tm.s;
 	 					var duree=tableObjet[j].duree/tableObjet[j].transposition;
 	 					var d=secondeToAdmTime(duree);
-	 					txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_00000001" rtime="00:00:00.00000" duration="'+"00:00:00.00000"+'" >\n\
-					      <position coordinate="X">'+tableObjet[j].spX[0]+'</position>\n\
-					      <position coordinate="Y">'+tableObjet[j].spZ[0]+'</position>\n\
-					      <position coordinate="Z">'+tableObjet[j].spY[0]+'</position>\n\
-					      <cartesian>1</cartesian>\n\
-					    	</audioBlockFormat>\n';
-					    	var rt2=0;
-	 					for(m=1;m<tableObjet[j].spT.length;m++){
-	 						if(m==tableObjet[j].spT.length-1){
-	 							var rt=duree;
-	 							console.log("duree spT",j,duree,rt);
-	 						}else{
-	 							var rt=(tableObjet[j].spT[m]*duree);
-	 						}
+	 					var rt2=0;
+	 					for(m=0;m<tableObjet[j].spT.length;m++){
 	 						var rtime=secondeToAdmTime(rt2);
+	 						var rt;
+	 						if(m==tableObjet[j].spT.length-1){
+	 							rt=duree;
+	 						}else{
+	 							rt=tableObjet[j].spT[m+1]*duree;
+	 						}
 	 						var duration=rt-rt2;
 	 						var dr=secondeToAdmTime(duration);
-	 						console.log("duree",duree,rt,rt2,'duration',duration);
-					    	txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_0000000'+(m+1).toString(16)+'" rtime="'+rtime.h+":"+rtime.m+":"+rtime.s+'" duration="'+dr.h+":"+dr.m+":"+dr.s+'" >\n\
+					    	txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_0000000'+(m+1).toString(16)+'" rtime="'+rtime.h+":"+rtime.m+":"+rtime.s+'" duration="'+dr.h+":"+dr.m+":"+dr.s+'">\n\
 					      <position coordinate="X">'+tableObjet[j].spX[m]+'</position>\n\
 					      <position coordinate="Y">'+tableObjet[j].spZ[m]+'</position>\n\
 					      <position coordinate="Z">'+tableObjet[j].spY[m]+'</position>\n\
 					      <cartesian>1</cartesian>\n\
 					    	</audioBlockFormat>\n';
-					    	rt2=rt2+duration;
+					    	rt2=rt;
 					    }
 				  }else{
 					  		txt=txt+'<audioBlockFormat audioBlockFormatID="AB_0003'+at.toString(16)+'_00000001">\n\
@@ -1464,7 +1452,7 @@ function defAxml(nbtracks) {
     	
     	cmax=(nbtracks*2)+1;
     	for(i=1;i<nbaudioTrackUID;i++){
-    		var atu=numToHex16String(i.toString(16));
+    		var atu=numToHex16String(i);
     		var at=4096+i;
     		txt=txt+'<audioTrackUID UID="ATU_0000'+atu+'" sampleRate="48000" bitDepth="16" >\n\
     		<audioTrackFormatIDRef>AT_0003'+at.toString(16)+'_01</audioTrackFormatIDRef>\n\
