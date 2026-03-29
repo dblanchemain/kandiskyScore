@@ -993,11 +993,14 @@ sourceStart et sourceEnd : Les indices d'échantillons pour définir la portion 
     targetChannelData.set(sourceChannelData, targetOffset);
   
 }
-function audioBufferToWav(sampleRate, channelBuffers,axml,chna,tracks) {
+function audioBufferToWav(sampleRate, channelBuffers, axml, chna, tracks) {
   const totalSamples = channelBuffers[0].length * channelBuffers.length;
-	const nbobjs=tableObjet.length*2;
-  //const buffer = new ArrayBuffer(axml.length+8+80 +(totalSamples * 2)+14+chna.length);
-  const buffer = new ArrayBuffer(axml.length+8+80 +(totalSamples * 2)+12+(40*nbobjs));
+  const activeCount = tableObjet.filter(o => o.etat === 1).length;
+  const nbobjs = activeCount * 2;
+  const chnaDataSize = 4 + (40 * nbobjs);
+  const dataStart = 80 + chnaDataSize;  // fmt ends at 72, chna = 8 + chnaDataSize
+  const bufferSize = dataStart + 8 + (totalSamples * 2) + 8 + axml.length;
+  const buffer = new ArrayBuffer(bufferSize);
   const view = new DataView(buffer);
 
   const writeString = (view, offset, string) => {
@@ -1005,47 +1008,79 @@ function audioBufferToWav(sampleRate, channelBuffers,axml,chna,tracks) {
       view.setUint8(offset + i, string.charCodeAt(i));
     }
   };
-console.log('channelBuffers.length',channelBuffers.length);
-  /* RIFF identifier */
-  writeString(view, 0, "RIFF");
-  /* RIFF chunk length */
-  //view.setUint32(4, axml.length+80 + (totalSamples * 2)+14+chna.length, true);
-  view.setUint32(4, axml.length+80 + (totalSamples * 2)+11+(40*nbobjs), true);
-  /* RIFF type */
-  writeString(view, 8, "WAVE");
-  /* format chunk identifier */
-  writeString(view, 12, 'JUNK');              // Format
-  view.setUint32(16, 28, true);
-  view.setUint32(20,0,true);
-  view.setUint32(24,0,true);
-  view.setUint32(28,totalSamples * 2, true);
-  view.setUint32(32,0,true);
-  view.setUint32(36,0,true);
-  view.setUint32(40,0,true);
-  view.setUint32(44,0,true);  
-  
-  writeString(view, 48, "fmt ");
-  /* format chunk length */
-  view.setUint32(52, 16, true);
-  /* sample format (raw) */
-  view.setUint16(56, 1, true);
-  /* channel count */
-  view.setUint16(58, channelBuffers.length, true);
-  /* sample rate */
-  view.setUint32(60, sampleRate, true);
-  /* byte rate (sample rate * block align) */
-  view.setUint32(64, sampleRate * channelBuffers.length*2, true);
-  /* block align (channel count * bytes per sample) */
-  view.setUint16(68, channelBuffers.length * 2, true);
-  /* bits per sample */
-  view.setUint16(70, 16, true);
-  /* data chunk identifier */
-  writeString(view, 72, "data");
-  /* data chunk length */
-  view.setUint32(76, totalSamples * 2, true);
 
-  // floatTo16BitPCM
-  let offset = 80;
+  console.log('channelBuffers.length', channelBuffers.length);
+
+  // RIFF header
+  writeString(view, 0, "RIFF");
+  view.setUint32(4, bufferSize - 8, true);
+  writeString(view, 8, "WAVE");
+
+  // JUNK chunk (placeholder, 36 bytes total)
+  writeString(view, 12, 'JUNK');
+  view.setUint32(16, 28, true);
+  view.setUint32(20, 0, true);
+  view.setUint32(24, 0, true);
+  view.setUint32(28, totalSamples * 2, true);
+  view.setUint32(32, 0, true);
+  view.setUint32(36, 0, true);
+  view.setUint32(40, 0, true);
+  view.setUint32(44, 0, true);
+
+  // fmt chunk (24 bytes total, offset 48-71)
+  writeString(view, 48, "fmt ");
+  view.setUint32(52, 16, true);
+  view.setUint16(56, 1, true);
+  view.setUint16(58, channelBuffers.length, true);
+  view.setUint32(60, sampleRate, true);
+  view.setUint32(64, sampleRate * channelBuffers.length * 2, true);
+  view.setUint16(68, channelBuffers.length * 2, true);
+  view.setUint16(70, 16, true);
+
+  // chna chunk (before data, per BW64 spec ITU-R BS.2088)
+  writeString(view, 72, "chna");
+  view.setUint32(76, chnaDataSize, true);
+  view.setUint16(80, tracks * 2, true);
+  view.setUint16(82, nbobjs, true);
+
+  var cmax = nbtracks + 1;
+  var nbobjets = tableObjet.length;
+  var coffset = 1;
+  var chnaStr = "";
+  var chnaOff = 84;
+  for (let i = 1; i < cmax; i++) {
+    for (j = 0; j < nbobjets; j++) {
+      if (tableObjet[j].etat == 1 && tableObjet[j].piste == i) {
+        var at = 4096 + coffset;
+        var idx = numToHex16String(coffset);
+        view.setUint16(chnaOff, (i * 2) - 1, true);
+        chnaOff += 2;
+        chnaStr = 'ATU_0000' + idx + 'AT_0003' + at.toString(16) + '_01AP_0003' + at.toString(16);
+        for (let m = 0; m < 38; m++) { view.setUint8(chnaOff + m, chnaStr.charCodeAt(m)); }
+        chnaOff += 38;
+        coffset++;
+      }
+    }
+    for (j = 0; j < nbobjets; j++) {
+      if (tableObjet[j].etat == 1 && tableObjet[j].piste == i) {
+        var at = 4096 + coffset;
+        var idx = numToHex16String(coffset);
+        view.setUint16(chnaOff, (i * 2), true);
+        chnaOff += 2;
+        chnaStr = 'ATU_0000' + idx + 'AT_0003' + at.toString(16) + '_01AP_0003' + at.toString(16);
+        for (let m = 0; m < 38; m++) { view.setUint8(chnaOff + m, chnaStr.charCodeAt(m)); }
+        chnaOff += 38;
+        coffset++;
+      }
+    }
+  }
+
+  // data chunk
+  writeString(view, dataStart, "data");
+  view.setUint32(dataStart + 4, totalSamples * 2, true);
+
+  // PCM audio (16-bit interleaved)
+  let offset = dataStart + 8;
   for (let i = 0; i < channelBuffers[0].length; i++) {
     for (let channel = 0; channel < channelBuffers.length; channel++) {
       const s = Math.max(-1, Math.min(1, channelBuffers[channel][i]));
@@ -1054,133 +1089,16 @@ console.log('channelBuffers.length',channelBuffers.length);
     }
   }
 
-  offset=80 + (totalSamples * 2);
- /*                 
-  writeString(view, offset, "chna");
-  // data chunk length 
-  offset=offset+4;
-  
-  view.setUint32(offset, chna.length, true);
-  offset=offset+4;
-  view.setUint16(offset, tracks*2, true);
-  offset=offset+2;
-  view.setUint16(offset, tableObjet.length*2, true);
-  offset=offset+2;
-  
-var cmax=nbtracks+1;
-    	var base=4096;
-    	var nbobjets=tableObjet.length;
-    	var coffset=1;
-    	var chna="";
-    	for(let i=1;i<cmax;i++){
-    		for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].piste==i){
-		    		var at=4096+coffset;
- 					var atu=numToHex16String(coffset)
- 					var duree=tableObjet[j].duree*tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree);
- 					var idx=numToHex16String(coffset)
- 					view.setUint16(offset,(i*2)-1, true);
- 					offset=offset+2;
-			    		chna='ATU_0000'+idx+'AT_0003'+at.toString(16)+'_01AP_0003'+at.toString(16);
-			    		for (let m = 0; m <38 ; m++) {
-			    			view.setUint8(offset + m, chna.charCodeAt(m));
-			    		}
-			    		offset=offset+38;
-			        coffset++;
-		       }
-        }
-        for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].piste==i){
-		    		var at=4096+coffset;
- 					var atu=numToHex16String(coffset)
- 					var duree=tableObjet[j].duree*tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree)
-			    	var idx=numToHex16String(coffset)
- 					view.setUint16(offset,(i*2), true);
-			    	offset=offset+2;
-			    		chna='ATU_0000'+idx+'AT_0003'+at.toString(16)+'_01AP_0003'+at.toString(16);
-			    		for (let m = 0; m <38 ; m++) {
-			    			view.setUint8(offset + m, chna.charCodeAt(m));
-			    		}
-			    		offset=offset+38;
-			        coffset++;
-		       }
-        }
-        
-    	}
-
- */ 
- 
+  // axml chunk (after data)
   writeString(view, offset, "axml");
- 
-  view.setUint32(offset+4, axml.length, true);
-  offset=offset+8;
+  view.setUint32(offset + 4, axml.length, true);
+  offset += 8;
   for (let i = 0; i < axml.length; i++) {
-   view.setUint8(offset + i, axml.charCodeAt(i));
- }
+    view.setUint8(offset + i, axml.charCodeAt(i));
+  }
 
-
-	offset=offset+axml.length;
-	writeString(view, offset, "chna");
-  // data chunk length 
-  offset=offset+4;
-  
-  view.setUint32(offset, 4 + (40 * nbobjs), true);
-  offset=offset+4;
-  view.setUint16(offset, tracks*2, true);
-  offset=offset+2;
-  view.setUint16(offset, tableObjet.length*2, true);
-  offset=offset+2;
-
-var cmax=nbtracks+1;
-console.log("chna-max",cmax);
-    	var base=4096;
-    	var nbobjets=tableObjet.length;
-    	var coffset=1;
-    	var chna="";
-    	var track=1;
-    	for(let i=1;i<cmax;i++){
-    		for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
- 					var atu=numToHex16String(coffset);
- 					var duree=tableObjet[j].duree*tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree);
- 					var idx=numToHex16String(coffset);
- 					view.setUint16(offset,(i*2)-1, true);
- 					offset=offset+2;
-			    		chna='ATU_0000'+idx+'AT_0003'+at.toString(16)+'_01AP_0003'+at.toString(16);
-			    		for (let m = 0; m <38 ; m++) {
-			    			view.setUint8(offset + m, chna.charCodeAt(m));
-			    		}
-			    		offset=offset+38;
-			        coffset++;
-		       }
-        }
-        for(j=0;j<nbobjets;j++){
-	    		if(tableObjet[j].etat==1 && tableObjet[j].piste==i){
-		    		var at=4096+coffset;
- 					var atu=numToHex16String(coffset);
- 					var duree=tableObjet[j].duree*tableObjet[j].transposition;
- 					var d=secondeToAdmTime(duree);
-			    	var idx=numToHex16String(coffset);
- 					view.setUint16(offset,(i*2), true);
-			    	offset=offset+2;
-			    		chna='ATU_0000'+idx+'AT_0003'+at.toString(16)+'_01AP_0003'+at.toString(16);
-			    		for (let m = 0; m <38 ; m++) {
-			    			view.setUint8(offset + m, chna.charCodeAt(m));
-			    		}
-			    		offset=offset+38;
-			        coffset++;
-		       }
-        }
-        
-    	}
- 
   return buffer;
 }
-
 function convertStereoToMono(audioBuffer) {
   const numberOfChannels = audioBuffer.numberOfChannels;
   if (numberOfChannels === 1) {
