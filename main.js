@@ -880,6 +880,103 @@ ipcMain.on ("saveAudio", (event, ...args) => {									// Affichage du menu popu
     autoFileSave(event,args[1],args[2]);
 });
 
+// ── Export ADM en streaming (RF64 pour les gros fichiers) ────────────────────
+let admStream = null;
+
+ipcMain.handle('adm-stream-start', async (event, { filePath, sampleRate, channelCount, totalSamples, axmlLength, chnaData }) => {
+	try {
+		fs.mkdirSync(path.dirname(filePath), { recursive: true });
+		const chnaDataBuf  = Buffer.from(chnaData);
+		const chnaDataSize = chnaDataBuf.length;
+		const dataStart    = 80 + chnaDataSize;
+		const pcmDataSize  = totalSamples * channelCount * 2;
+		const totalSize    = dataStart + 8 + pcmDataSize + 8 + axmlLength;
+		const isRF64       = totalSize > 0xFFFFFFFF;
+
+		const fd  = fs.openSync(filePath, 'w');
+		const hdr = Buffer.alloc(80);
+
+		if (isRF64) {
+			hdr.write('RF64', 0);
+			hdr.writeUInt32LE(0xFFFFFFFF, 4);
+			hdr.write('WAVE', 8);
+			hdr.write('ds64', 12);
+			hdr.writeUInt32LE(28, 16);
+			const riffSize = totalSize - 8;
+			hdr.writeUInt32LE(riffSize >>> 0, 20);
+			hdr.writeUInt32LE(Math.floor(riffSize / 0x100000000), 24);
+			hdr.writeUInt32LE(pcmDataSize >>> 0, 28);
+			hdr.writeUInt32LE(Math.floor(pcmDataSize / 0x100000000), 32);
+			hdr.writeUInt32LE(totalSamples >>> 0, 36);
+			hdr.writeUInt32LE(Math.floor(totalSamples / 0x100000000), 40);
+			hdr.writeUInt32LE(0, 44);
+		} else {
+			hdr.write('RIFF', 0);
+			hdr.writeUInt32LE((totalSize - 8) >>> 0, 4);
+			hdr.write('WAVE', 8);
+			hdr.write('JUNK', 12);
+			hdr.writeUInt32LE(28, 16);
+			// bytes 20-47 : zéros
+		}
+		// fmt chunk (offset 48)
+		hdr.write('fmt ', 48);
+		hdr.writeUInt32LE(16, 52);
+		hdr.writeUInt16LE(1, 56);
+		hdr.writeUInt16LE(channelCount, 58);
+		hdr.writeUInt32LE(sampleRate, 60);
+		hdr.writeUInt32LE(sampleRate * channelCount * 2, 64);
+		hdr.writeUInt16LE(channelCount * 2, 68);
+		hdr.writeUInt16LE(16, 70);
+		// chna chunk header (offset 72)
+		hdr.write('chna', 72);
+		hdr.writeUInt32LE(chnaDataSize, 76);
+
+		fs.writeSync(fd, hdr);
+		fs.writeSync(fd, chnaDataBuf);
+
+		// data chunk header
+		const dataHdr = Buffer.alloc(8);
+		dataHdr.write('data', 0);
+		dataHdr.writeUInt32LE(isRF64 ? 0xFFFFFFFF : (pcmDataSize >>> 0), 4);
+		fs.writeSync(fd, dataHdr);
+
+		admStream = { fd, filePath };
+		return { ok: true };
+	} catch (e) {
+		console.error('adm-stream-start:', e);
+		return { ok: false, error: e.message };
+	}
+});
+
+ipcMain.handle('adm-stream-chunk', async (event, pcmBuffer) => {
+	try {
+		fs.writeSync(admStream.fd, Buffer.from(pcmBuffer));
+		return { ok: true };
+	} catch (e) {
+		console.error('adm-stream-chunk:', e);
+		return { ok: false, error: e.message };
+	}
+});
+
+ipcMain.handle('adm-stream-end', async (event, { axmlString }) => {
+	try {
+		const axmlBuf = Buffer.from(axmlString, 'utf8');
+		const axmlHdr = Buffer.alloc(8);
+		axmlHdr.write('axml', 0);
+		axmlHdr.writeUInt32LE(axmlBuf.length, 4);
+		fs.writeSync(admStream.fd, axmlHdr);
+		fs.writeSync(admStream.fd, axmlBuf);
+		fs.closeSync(admStream.fd);
+		const filePath = admStream.filePath;
+		admStream = null;
+		return { ok: true, filePath };
+	} catch (e) {
+		console.error('adm-stream-end:', e);
+		if (admStream) { try { fs.closeSync(admStream.fd); } catch(_) {} admStream = null; }
+		return { ok: false, error: e.message };
+	}
+});
+
 ipcMain.handle('playDirectFile', async (event, mode, filePath, soxParams) => {
     if (winStudioEtat == 1) {
         winStudio.webContents.send("fromMain", "endEvtAudio");

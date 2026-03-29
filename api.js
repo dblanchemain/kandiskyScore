@@ -1694,68 +1694,109 @@ function numToHex16String(v) {
  		return at;
 }
 
-async function exportAdm(){
-	tablePiste=[];
-	var ratioT=(720/12960);
-	var ntableObjet=[];
-	nbtracks=1;
-	var nlast=lastAudio();
-	console.log("nlast",nlast,tableObjet[nlast.id]);
-	var mduree=Math.round(nlast.maxPosX*ratioT*contextAudio.sampleRate)+1;
-	console.log("nlast2",nlast,mduree,contextAudio.sampleRate);
-	
-	for(let i=0;i<tableObjet.length;i++){
-		ntableObjet[i]=tableObjet[i];
-	}
-	for(i=0;i<ntableObjet.length;i++){
-		if(ntableObjet[i].piste>nbtracks){
-			nbtracks=ntableObjet[i].piste;
+function buildChnaData(nbtracks) {
+	var cmax = nbtracks + 1;
+	var activeObjs = [];
+	for (let i = 1; i < cmax; i++) {
+		for (let j = 0; j < tableObjet.length; j++) {
+			if (tableObjet[j].etat === 1 && tableObjet[j].piste === i) activeObjs.push(tableObjet[j]);
 		}
 	}
-	exportPart(1);
-	console.log('nbtracks',nbtracks);
-	var nBuffer = contextAudio.createBuffer(2*nbtracks,mduree,contextAudio.sampleRate);
-	var k=0;
-	for(j=0;j<nbtracks;j++){
-		k=j*2;
-		for(let i=0;i<ntableObjet.length;i++){
-			if(tableObjet[i].etat==1 && tableObjet[i].piste==j+1){
-				var id=parseInt(ntableObjet[i].id.substring(5));
-				var rc=await exportAudioObjet(id,1);
-				
-				await new Promise(resolve => setTimeout(resolve, 200));
+	var N = activeObjs.length;
+	var nbobjs = N * 2;
+	var buf = new ArrayBuffer(4 + nbobjs * 40);
+	var view = new DataView(buf);
+	view.setUint16(0, nbtracks * 2, true);
+	view.setUint16(2, nbobjs, true);
+	var off = 4;
+	for (let n = 0; n < N; n++) {
+		var o = activeObjs[n];
+		var idx = n + 1;
+		var ap_s = numToHex16String(idx);
+		for (let ch = 0; ch < 2; ch++) {
+			var trackIdx = (o.piste * 2) - 1 + ch;
+			var s = numToHex16String(2*idx - 1 + ch);
+			var chnaStr = 'ATU_0000' + s + 'AT_0003' + s + '_01AP_0003' + ap_s;
+			view.setUint16(off, trackIdx, true); off += 2;
+			for (let m = 0; m < 38; m++) { view.setUint8(off + m, chnaStr.charCodeAt(m)); }
+			off += 38;
+		}
+	}
+	return buf;
+}
 
-				var tpos=Math.round((tableObjet[i].posX*ratioT)*contextAudio.sampleRate);
-				console.log("adm",rc,tpos,rc.buffer.sampleRate);
-				insertAdmBufferPart(nBuffer,k, rc.buffer, tpos, sourceStart = 0, sourceEnd = rc.buffer.length);
-				
+async function exportAdm() {
+	tablePiste = [];
+	var ratioT = (720/12960);
+	var ntableObjet = [];
+	nbtracks = 1;
+	var nlast = lastAudio();
+	console.log("nlast", nlast, tableObjet[nlast.id]);
+	var mduree = Math.round(nlast.maxPosX * ratioT * contextAudio.sampleRate) + 1;
+
+	for (let i = 0; i < tableObjet.length; i++) { ntableObjet[i] = tableObjet[i]; }
+	for (let i = 0; i < ntableObjet.length; i++) {
+		if (ntableObjet[i].piste > nbtracks) nbtracks = ntableObjet[i].piste;
+	}
+	exportPart(1);
+	console.log('nbtracks', nbtracks);
+
+	// Composition du buffer audio multicanal
+	var nBuffer = contextAudio.createBuffer(2*nbtracks, mduree, contextAudio.sampleRate);
+	for (let j = 0; j < nbtracks; j++) {
+		var k = j * 2;
+		for (let i = 0; i < ntableObjet.length; i++) {
+			if (tableObjet[i].etat == 1 && tableObjet[i].piste == j+1) {
+				var id = parseInt(ntableObjet[i].id.substring(5));
+				var rc = await exportAudioObjet(id, 1);
+				await new Promise(resolve => setTimeout(resolve, 200));
+				var tpos = Math.round((tableObjet[i].posX * ratioT) * contextAudio.sampleRate);
+				insertAdmBufferPart(nBuffer, k, rc.buffer, tpos, 0, rc.buffer.length);
 			}
 		}
 	}
 
-	console.log("nbobjets",ntableObjet.length,"nbtracks",nbtracks,contextAudio.sampleRate);
+	const xmlString   = defAxml(nbtracks);
+	const chnaData    = buildChnaData(nbtracks);
+	const channelCount = nBuffer.numberOfChannels;
+	const totalSamples = nBuffer.length;
+	const filePath    = audioDirectory + "exports/nbuffer.wav";
 
-	const xmlString =defAxml(nbtracks);
-	const defchna="AudioID(trackIndex=1, audioTrackUID='ATU_00000001', audioTrackFormatIDRef='AT_00031001_01', audioPackFormatIDRef='AP_00031001')";
-		
-	console.log(xmlString);
-	//var rwav=convertAdmBufferToBlob(nBuffer,nbtracks*2,contextAudio.sampleRate)
+	window.api.send('toMain', 'defExportFile;' + audioDirectory + 'exports/;' + filePath);
+
+	// Démarrer le streaming — le main process crée le fichier et écrit l'en-tête
+	const startRes = await window.api.admStreamStart({
+		filePath, sampleRate: 48000, channelCount, totalSamples,
+		axmlLength: xmlString.length, chnaData
+	});
+	if (!startRes.ok) { console.error('ADM stream start failed:', startRes.error); return; }
+
+	// Extraire les canaux depuis l'AudioBuffer
 	const channelBuffers = [];
-	for (let channel = 0; channel < nBuffer.numberOfChannels; channel++) {
-	  channelBuffers.push(nBuffer.getChannelData(channel));
+	for (let ch = 0; ch < channelCount; ch++) channelBuffers.push(nBuffer.getChannelData(ch));
+
+	// Streamer le PCM par blocs de 65 536 samples (~2 Mo max pour 16 canaux)
+	const CHUNK = 65536;
+	for (let offset = 0; offset < totalSamples; offset += CHUNK) {
+		const end   = Math.min(offset + CHUNK, totalSamples);
+		const count = end - offset;
+		const pcm   = new Int16Array(count * channelCount);
+		var p = 0;
+		for (let i = 0; i < count; i++) {
+			for (let ch = 0; ch < channelCount; ch++) {
+				const s = Math.max(-1, Math.min(1, channelBuffers[ch][offset + i]));
+				pcm[p++] = s < 0 ? (s * 0x8000) | 0 : (s * 0x7fff) | 0;
+			}
+		}
+		const chunkRes = await window.api.admStreamChunk(pcm.buffer);
+		if (!chunkRes.ok) { console.error('ADM stream chunk failed:', chunkRes.error); return; }
 	}
 
-	var rwav=audioBufferToWav(48000, channelBuffers,xmlString,defchna,nbtracks);
-
-   
-	console.log('wavBuffer',rwav.byteLength,rwav.byteLength.toString(16));
-    const newWavBuffer =rwav;//addAxmlChunk(nwavBuffer, xmlString)
-    window.api.send('toMain','defExportFile;'+audioDirectory+'exports/'+";"+audioDirectory+'exports/nbuffer.wav');
-	    	window.api.saveAudio('saveAudio',(audioDirectory+"exports/nbuffer.wav"), newWavBuffer);
-	   		 console.log("result ",audioDirectory+"exports/nbuffer.wav"," ");
-
+	// Finaliser : écriture du chunk axml et fermeture du fichier
+	const endRes = await window.api.admStreamEnd({ axmlString: xmlString });
+	if (!endRes.ok) { console.error('ADM stream end failed:', endRes.error); return; }
+	console.log("Export ADM terminé :", filePath);
 }
-
 
 function saveFxAudio(obj,mode,nom){
 	var audioRate=tableBuffer[0].buffer.sampleRate;

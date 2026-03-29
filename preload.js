@@ -94,6 +94,9 @@ contextBridge.exposeInMainWorld(
     ipcRenderer.invoke("load-buffers-multichannel", path),
     playDirectFile: (mode, filePath, soxParams) =>
         ipcRenderer.invoke('playDirectFile', mode, filePath, soxParams),
+    admStreamStart: (data) => ipcRenderer.invoke('adm-stream-start', data),
+    admStreamChunk: (buf)  => ipcRenderer.invoke('adm-stream-chunk', buf),
+    admStreamEnd:   (data) => ipcRenderer.invoke('adm-stream-end',   data),
     isDev
     }
 );
