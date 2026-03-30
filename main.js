@@ -1026,9 +1026,7 @@ async function archiveProjet() {
 		output.on('close', resolve);
 		arc.on('error', reject);
 		arc.pipe(output);
-		if (existsSync(currentProjet)) {
-			arc.file(currentProjet, { name: path.basename(currentProjet) });
-		}
+		arc.glob('*.xml', { cwd: projetDir });
 		arc.glob('**/*', {
 			cwd: projetDir,
 			ignore: ['Audios/tmp/**', 'Audios/exports/**']
