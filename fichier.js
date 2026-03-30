@@ -364,6 +364,9 @@ function saveProjetA(t,offset,tabgrp){
 	if(t!=2){
 		txt=defProjetConf(txt);
 	}
+	if(t==2){
+		txt=txt+"<dirorg dir='"+paramProjet.audioPath+"'></dirorg>\n";
+	}
 	
 	var lsgrp=[];
 	let j=0;
