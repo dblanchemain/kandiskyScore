@@ -1649,7 +1649,7 @@ function buildChnaData(nbtracks) {
 async function getObjAudioBuffer(id) {
 	const obj = tableObjet[id];
 	if (!obj || !obj.file) return null;
-	const filePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	const filePath = window.api.joinPath(toAbsPath(paramProjet.audioPath), obj.file);
 	const rt = await window.api.loadBuffers(filePath);
 	if (!rt || !rt.channels || !rt.channels.length) return null;
 	const sr = rt.sampleRate;

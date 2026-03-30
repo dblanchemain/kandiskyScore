@@ -488,7 +488,7 @@ function loadGrp(path){
 			}
 			// Copier les fichiers audio manquants depuis dirorg si nécessaire
 			if(dirorg && tmpbuffer.length>0){
-				await window.api.copyGrpAudio(tmpbuffer, dirorg, paramProjet.audioPath);
+				await window.api.copyGrpAudio(tmpbuffer, dirorg, toAbsPath(paramProjet.audioPath));
 			}
 			initTableGrp(0,tmpbuffer,coordClientX,coordClientY);
 		}
@@ -863,18 +863,18 @@ function defObjets(i,liste,dx,dy){
 						break;
 				}
 			}
-			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:paramProjet.audioPath,imgPath:paramProjet.imgPath,editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
+			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
 			window.api.send("toMain", 'defExterne;'+txt);
 			actualiseObjets();
 }
 function initTableBuffer(i,liste,dx,dy) {
 	var request = new XMLHttpRequest();
-    request.open('GET', paramProjet.audioPath+liste[i], true);
+    request.open('GET', toAbsPath(paramProjet.audioPath)+liste[i], true);
     request.responseType = 'arraybuffer';
-    
+
     request.onload = function() {
     contextAudio.decodeAudioData(request.response, function(buffer) {
-    	var url=paramProjet.audioPath+liste[i];
+    	var url=toAbsPath(paramProjet.audioPath)+liste[i];
     	var pathnom=url.split('/');
      	var file=pathnom[pathnom.length-1];
     	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
@@ -989,11 +989,11 @@ function initTableGrp(i,liste,dx,dy) {
 	}
 
 	var request = new XMLHttpRequest();
-    request.open('GET', paramProjet.audioPath+liste[i], true);
+    request.open('GET', toAbsPath(paramProjet.audioPath)+liste[i], true);
     request.responseType = 'arraybuffer';
     request.onload = function() {
     contextAudio.decodeAudioData(request.response, function(buffer) {
-    	var url=paramProjet.audioPath+liste[i];
+    	var url=toAbsPath(paramProjet.audioPath)+liste[i];
     	var pathnom=url.split('/');
      	var file=pathnom[pathnom.length-1];
     	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){

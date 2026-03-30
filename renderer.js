@@ -16,9 +16,14 @@ async function initApp() {
   console.log("paths loaded", AppContext.paths);
 }
 (async () => {
-await initApp(); 
+await initApp();
  console.log(AppContext);
 })();
+
+function toAbsPath(p) {
+    if (!p || p.startsWith('/')) return p;
+    return window.api.joinPath(AppContext.paths.home, p);
+}
 
 
 function importUconfig() {
@@ -1395,7 +1400,7 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 		tableObjet[id].bufferId=hasKey;
 	}else{
 		var req=new XMLHttpRequest();
-		req.open('GET',paramProjet.audioPath+base,true);
+		req.open('GET',toAbsPath(paramProjet.audioPath)+base,true);
 		req.responseType='arraybuffer';
 		req.onload=function(){
 			contextAudio.decodeAudioData(req.response,function(buffer){
@@ -2378,7 +2383,7 @@ var tableProjet=txt.split(',');
 	};
 	zoomInit(100);
 	upDateWorkSpace(1);
-	var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:paramProjet.audioPath,imgPath:paramProjet.imgPath,editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
+	var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
 	window.api.send("toMain", 'defExterne;'+txt);
 }
 
@@ -3013,7 +3018,7 @@ async function waveSvgForm(pos,zoom) {
 	document.getElementById("dfWave").firstChild.firstChild.innerHTML="";
 	//document.getElementById("canvas").firstChild.nextSibling.firstChild.setAttribute('width',w)
 	//var nbuf=defAudioObjet(objActif)
-	const filePath = window.api.joinPath(`${paramProjet.audioPath}`,tableObjet[objActif].file);
+	const filePath = window.api.joinPath(toAbsPath(paramProjet.audioPath),tableObjet[objActif].file);
     const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName=baseName.split(".")[0];
@@ -3059,7 +3064,7 @@ function waveFormColor(e) {
 } 
 async function spectrogram(){
 	await readSimpleAudioA(objActif,1);
-	var objpath=paramProjet.audioPath+"exports/"+tableObjet[objActif].id+".wav";
+	var objpath=toAbsPath(paramProjet.audioPath)+"exports/"+tableObjet[objActif].id+".wav";
 	if(paramProjet.audioPath && tableObjet[objActif].file){
 		window.api.send("toMain", "vueSpectrogram;"+objpath);
 	}
@@ -3068,7 +3073,7 @@ async function spectrogram(){
 function host(){
 	//exportAudioObjet(objActif,0)
 	exportObjAudio(1);
-	var objpath=paramProjet.audioPath+"exports/"+tableObjet[objActif].id+".wav";
+	var objpath=toAbsPath(paramProjet.audioPath)+"exports/"+tableObjet[objActif].id+".wav";
 	if(paramProjet.audioPath && tableObjet[objActif].file){
 		window.api.send("toMain", "openHost;"+tableObjet[objActif].id+";"+objpath);
 	}

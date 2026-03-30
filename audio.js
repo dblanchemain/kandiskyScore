@@ -155,7 +155,7 @@ function foo() {
 			if(tableListSource[i].etat==0 && tableListSource[i].start<=parseFloat(document.getElementById("barVerticale").style.left)/18){
 				try {
 				var obj=tableObjet[tableListSource[i].obj];
-				var outPath=window.api.joinPath(`${paramProjet.audioPath}`,'tmp',`${obj.id}-fx.wav`);
+				var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
 				 tableListSource[i].etat=1;
 				const options = {
 			    pitchSemitones: obj.detune,
@@ -387,7 +387,7 @@ async function readSimpleAudio() {
 		    let baseName = await rdBaseName(filePath);
 		    baseName=baseName.split(".")[0];
 		    let outPath ="";
-		    outPath=window.api.joinPath(`${paramProjet.audioPath}`,'tmp',`${obj.id}-fx.wav`);
+		    outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
 		    console.log('baseName',dir,baseName,outPath);
 		    const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
 		    const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
@@ -1120,13 +1120,13 @@ async function readSimpleAudioA(id,mode) {
     console.time();
     if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
 	 document.getElementById("loading").style.display="block";
-    const filePath =window.api.joinPath(`${paramProjet.audioPath}`,obj.file);
-    const dir = await rdDirName(filePath);    
+    const filePath =window.api.joinPath(toAbsPath(paramProjet.audioPath),obj.file);
+    const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName=baseName.split(".")[0];
     console.log('baseName',dir,baseName);
 
-    const outPath = window.api.joinPath(`${paramProjet.audioPath}`,"tmp",`${obj.id}-fx.wav`);
+    const outPath = window.api.joinPath(toAbsPath(paramProjet.audioPath),"tmp",`${obj.id}-fx.wav`);
 
     console.log("[pipeline] readSimpleAudioA start", { filePath, outPath });
 
@@ -1648,7 +1648,7 @@ async function postRubberband(id,mode,file) {
    console.log("renderedBuffer",id,renderedBuffer.length,renderedBuffer.numberOfChannels);
 	const currentChannels = [new Float32Array(renderedBuffer.getChannelData(0))];
 	const obj = tableObjet[id];
-	const filePath=window.api.joinPath(`${paramProjet.audioPath}`,obj.file);
+	const filePath=window.api.joinPath(toAbsPath(paramProjet.audioPath),obj.file);
     const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName = baseName.split(".")[0];
@@ -1838,7 +1838,7 @@ let stretchingPlayerStat = 0;
 async function tempoAudio() {
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file || obj.type >= 24) return;
-	tempoFilePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	tempoFilePath = window.api.joinPath(toAbsPath(paramProjet.audioPath), obj.file);
 	document.getElementById("sliderTempo").value = 1.00;
 	document.getElementById("inpTempo").value = 1.00;
 	tempoPlayerStat = 0;
@@ -1883,7 +1883,7 @@ function annulTempoAudio() {
 async function stretchingAudio() {
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file || obj.type >= 24) return;
-	stretchingFilePath = window.api.joinPath(paramProjet.audioPath, obj.file);
+	stretchingFilePath = window.api.joinPath(toAbsPath(paramProjet.audioPath), obj.file);
 	document.getElementById("sliderStretching").value = 1.00;
 	document.getElementById("inpStretching").value = 1.00;
 	document.getElementById("sliderPitch").value = 0;
