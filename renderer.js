@@ -25,6 +25,12 @@ function toAbsPath(p) {
     return window.api.joinPath(AppContext.paths.home, p);
 }
 
+let soxVolume = 1.0;
+function setSoxVolume(v) {
+    soxVolume = parseFloat(v);
+    document.getElementById("soxVolumeVal").textContent = Math.round(soxVolume * 100) + "%";
+}
+
 
 function importUconfig() {
    var name=window.api.joinPath(baseDatatPath,'config.js');

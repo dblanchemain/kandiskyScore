@@ -169,7 +169,7 @@ function foo() {
 				 const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
 				 const fadeIn = obj.fadeIn || 0;
 				 const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
-				 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
+				 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
 		 		window.api.playDirectFile(1, outPath, soxParams);
 		 		console.log("obj",obj.id,options);
 				} catch(e) { console.error("playback trigger error",e); }
@@ -411,7 +411,7 @@ async function readSimpleAudio() {
 				 maxDuree=durationAfterSpeed+(obj.posX/18);
 				 console.log("maxDuree",maxDuree);
 	  			 foo();
-			 window.api.playDirectFile(0, outPath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade);
+			 window.api.playDirectFile(0, outPath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade);
 	  				
 			//spatialiseObjet(objActif,"spline");
 			}else if(grpSelect==1 ||  tableObjet[objActif].class==4){
@@ -497,7 +497,7 @@ function player() {
 	 console.log("player",filePath,"duree",dureePlayer,parseFloat(document.getElementById("renderPos").value),options);
 	 document.getElementById("renderPlay").src="./images/png/pauseLect.png";
 	 foo2();
-	 window.api.playDirectFile(0, filePath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+ options.gain+" trim "+options.startSec+" "+options.lengthSec);
+	 window.api.playDirectFile(0, filePath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec);
 	 
 	 }else{
 	 	playerStat=0;
@@ -1852,7 +1852,7 @@ function playTempoFile() {
 	if (tempoPlayerStat === 0) {
 		tempoPlayerStat = 1;
 		document.getElementById("tempoPlay").src = "./images/png/pauseLect.png";
-		window.api.playDirectFile(0, tempoFilePath, "");
+		window.api.playDirectFile(0, tempoFilePath, "vol "+soxVolume);
 	} else {
 		tempoPlayerStat = 0;
 		document.getElementById("tempoPlay").src = "./images/png/lecture.png";
@@ -1898,7 +1898,7 @@ function playStretchingFile() {
 	if (stretchingPlayerStat === 0) {
 		stretchingPlayerStat = 1;
 		document.getElementById("stretchingPlay").src = "./images/png/pauseLect.png";
-		window.api.playDirectFile(0, stretchingFilePath, "");
+		window.api.playDirectFile(0, stretchingFilePath, "vol "+soxVolume);
 	} else {
 		stretchingPlayerStat = 0;
 		document.getElementById("stretchingPlay").src = "./images/png/lecture.png";
