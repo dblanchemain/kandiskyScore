@@ -21,6 +21,7 @@
  Mdel='Supprimer',
  Msavegrp='Sauvegarder Groupe',
  Mimportgrp='Importer groupe',
+ Marchive='Archiver',
  Mquit='Quiter';
  Medition='Edition';
  Mannuler='Annuler';
