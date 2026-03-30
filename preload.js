@@ -90,6 +90,10 @@ contextBridge.exposeInMainWorld(
     resources: resourcesPath,
   	 getPaths: () => ipcRenderer.invoke('get-app-paths'),
   	 joinPath: (...args) => path.join(...args),
+     isAbsolute: (p) => path.isAbsolute(p),
+     baseName: (p) => path.basename(p),
+     dirName: (p) => path.dirname(p),
+     toFileUrl: (p) => require('url').pathToFileURL(p).href,
   	 loadBuffersMultichannel: (path) =>
     ipcRenderer.invoke("load-buffers-multichannel", path),
     playDirectFile: (mode, filePath, soxParams) =>

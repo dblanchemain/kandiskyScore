@@ -869,14 +869,13 @@ function defObjets(i,liste,dx,dy){
 }
 function initTableBuffer(i,liste,dx,dy) {
 	var request = new XMLHttpRequest();
-    request.open('GET', toAbsPath(paramProjet.audioPath)+liste[i], true);
+	var _absPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),liste[i]);
+    request.open('GET', window.api.toFileUrl(_absPath), true);
     request.responseType = 'arraybuffer';
 
     request.onload = function() {
     contextAudio.decodeAudioData(request.response, function(buffer) {
-    	var url=toAbsPath(paramProjet.audioPath)+liste[i];
-    	var pathnom=url.split('/');
-     	var file=pathnom[pathnom.length-1];
+    	var file=window.api.baseName(_absPath);
     	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
     		tableBuffer.push({name:file,buffer:buffer});
     	}
@@ -989,13 +988,12 @@ function initTableGrp(i,liste,dx,dy) {
 	}
 
 	var request = new XMLHttpRequest();
-    request.open('GET', toAbsPath(paramProjet.audioPath)+liste[i], true);
+	var _absPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),liste[i]);
+    request.open('GET', window.api.toFileUrl(_absPath), true);
     request.responseType = 'arraybuffer';
     request.onload = function() {
     contextAudio.decodeAudioData(request.response, function(buffer) {
-    	var url=toAbsPath(paramProjet.audioPath)+liste[i];
-    	var pathnom=url.split('/');
-     	var file=pathnom[pathnom.length-1];
+    	var file=window.api.baseName(_absPath);
     	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
     		tableBuffer.push({name:file,buffer:buffer});
     	}

@@ -21,7 +21,7 @@ await initApp();
 })();
 
 function toAbsPath(p) {
-    if (!p || p.startsWith('/')) return p;
+    if (!p || window.api.isAbsolute(p)) return p;
     return window.api.joinPath(AppContext.paths.home, p);
 }
 
@@ -1400,7 +1400,7 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 		tableObjet[id].bufferId=hasKey;
 	}else{
 		var req=new XMLHttpRequest();
-		req.open('GET',toAbsPath(paramProjet.audioPath)+base,true);
+		req.open('GET',window.api.toFileUrl(window.api.joinPath(toAbsPath(paramProjet.audioPath),base)),true);
 		req.responseType='arraybuffer';
 		req.onload=function(){
 			contextAudio.decodeAudioData(req.response,function(buffer){
@@ -2389,17 +2389,10 @@ var tableProjet=txt.split(',');
 
 function renameProjet(nname) {
 	paramProjet.name=nname;
-	var naudio=paramProjet.audioPath.split('/');
-	paramProjet.audioPath='';
-	paramProjet.imgPath='';
-	for(i=0;i<naudio.length-3;i++){
-		paramProjet.audioPath=paramProjet.audioPath+naudio[i]+'/';
-		paramProjet.imgPath=paramProjet.imgPath+naudio[i]+'/';
-	}
-	paramProjet.audioPath=paramProjet.audioPath+paramProjet.name+"/Audios/";
-	paramProjet.imgPath=paramProjet.imgPath+paramProjet.name+"/Images/";
+	var projetsDir=window.api.dirName(window.api.dirName(toAbsPath(paramProjet.audioPath)));
+	paramProjet.audioPath=window.api.joinPath(projetsDir,nname,'Audios');
+	paramProjet.imgPath=window.api.joinPath(projetsDir,nname,'Images');
 	saveProjet("1");
-	
 }
 function importConfigProjet(){
 	path=paramProjet.path;
@@ -3064,7 +3057,7 @@ function waveFormColor(e) {
 } 
 async function spectrogram(){
 	await readSimpleAudioA(objActif,1);
-	var objpath=toAbsPath(paramProjet.audioPath)+"exports/"+tableObjet[objActif].id+".wav";
+	var objpath=window.api.joinPath(toAbsPath(paramProjet.audioPath),"exports",tableObjet[objActif].id+".wav");
 	if(paramProjet.audioPath && tableObjet[objActif].file){
 		window.api.send("toMain", "vueSpectrogram;"+objpath);
 	}
@@ -3073,7 +3066,7 @@ async function spectrogram(){
 function host(){
 	//exportAudioObjet(objActif,0)
 	exportObjAudio(1);
-	var objpath=toAbsPath(paramProjet.audioPath)+"exports/"+tableObjet[objActif].id+".wav";
+	var objpath=window.api.joinPath(toAbsPath(paramProjet.audioPath),"exports",tableObjet[objActif].id+".wav");
 	if(paramProjet.audioPath && tableObjet[objActif].file){
 		window.api.send("toMain", "openHost;"+tableObjet[objActif].id+";"+objpath);
 	}
