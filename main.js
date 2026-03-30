@@ -980,6 +980,26 @@ ipcMain.handle('adm-stream-end', async (event, { axmlString }) => {
 	}
 });
 
+ipcMain.handle('copyGrpAudio', async (event, files, srcDir, destDir) => {
+	const results = [];
+	for (const file of files) {
+		const dest = path.join(destDir, file);
+		const src  = path.join(srcDir,  file);
+		try {
+			await fs.promises.access(dest);
+			results.push({ file, copied: false });
+		} catch {
+			try {
+				await fs.promises.copyFile(src, dest);
+				results.push({ file, copied: true });
+			} catch (e) {
+				results.push({ file, copied: false, error: e.message });
+			}
+		}
+	}
+	return results;
+});
+
 // ── Import ADM ────────────────────────────────────────────────────────────────
 
 function admTimeToSecondsNode(str) {

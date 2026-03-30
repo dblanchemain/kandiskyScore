@@ -466,11 +466,14 @@ function saveGrp() {
 }
 function loadGrp(path){
 	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
+	xhttp.onreadystatechange = async function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var txt=xhttp.responseText;
 			document.getElementById("fichierSave").innerHTML = txt;
 			var objXml=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+			// Lire le chemin source depuis <dirorg>
+			var dirorgTag=objXml.getElementsByTagName("dirorg")[0];
+			var dirorg=dirorgTag ? dirorgTag.getAttribute("dir") : null;
 			// Construire la liste des fichiers audio depuis les balises <file> des objets
 			var tmpbuffer=[];
 			var objets=objXml.getElementsByTagName("objet");
@@ -482,6 +485,10 @@ function loadGrp(path){
 						tmpbuffer.push(fname);
 					}
 				}
+			}
+			// Copier les fichiers audio manquants depuis dirorg si nécessaire
+			if(dirorg && tmpbuffer.length>0){
+				await window.api.copyGrpAudio(tmpbuffer, dirorg, paramProjet.audioPath);
 			}
 			initTableGrp(0,tmpbuffer,coordClientX,coordClientY);
 		}
