@@ -473,7 +473,7 @@ function loadGrp(path){
 			var objXml=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 			// Lire le chemin source depuis <dirorg>
 			var dirorgTag=objXml.getElementsByTagName("dirorg")[0];
-			var dirorg=dirorgTag ? dirorgTag.getAttribute("dir") : null;
+			var dirorg=dirorgTag ? toAbsPath(dirorgTag.getAttribute("dir")) : null;
 			// Construire la liste des fichiers audio depuis les balises <file> des objets
 			var tmpbuffer=[];
 			var objets=objXml.getElementsByTagName("objet");
@@ -493,7 +493,7 @@ function loadGrp(path){
 			initTableGrp(0,tmpbuffer,coordClientX,coordClientY);
 		}
 	};
-	xhttp.open("GET", path, true);
+	xhttp.open("GET", window.api.toFileUrl(path), true);
 	xhttp.send();
 }
 function loadProjet(path) {
@@ -507,7 +507,7 @@ function loadProjet(path) {
 			//var new_window = window.open(URL.createObjectURL(new Blob([document.getElementById("fichierSave").innerHTML], { type: "text/xml" })),'Partition')
 		}
 	};
-	xhttp.open("GET", path, true);
+	xhttp.open("GET", window.api.toFileUrl(path), true);
 	xhttp.send();
 }
 async function objXmlToScore(id,i) {
