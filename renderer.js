@@ -26,9 +26,9 @@ function toAbsPath(p) {
 }
 
 let soxVolume = 1.0;
-function setSoxVolume(v) {
-    soxVolume = parseFloat(v);
-    document.getElementById("soxVolumeVal").textContent = Math.round(soxVolume * 100) + "%";
+function setSoxVolume(db) {
+    soxVolume = Math.pow(10, parseFloat(db) / 20);
+    document.getElementById("soxVolumeVal").textContent = (parseFloat(db) >= 0 ? "+" : "") + db + " dB";
 }
 
 
