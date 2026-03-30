@@ -1794,6 +1794,7 @@ async function actualiseObjets(){
 		}
 	}
    console.log(lsgrp);
+	if(lsgrp.length===0) return;
 	document.getElementById("sliderLParam").style.width="0%";
 	document.getElementById("popupLoader").style.display="block";
 	var nb=100/lsgrp.length;
