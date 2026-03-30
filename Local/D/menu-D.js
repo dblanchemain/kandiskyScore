@@ -21,6 +21,7 @@
  Mdel='Löschen',
  Msavegrp='Gruppe speichern',
  Mimportgrp='Gruppe importieren',
+ Marchive='Archivieren',
  Mquit='Beenden'
  Medition='Bearbeiten'
  Mannuler='Stornieren'

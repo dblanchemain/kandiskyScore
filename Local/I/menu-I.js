@@ -20,6 +20,7 @@
  Mdel='Eliminare',
  Msavegrp='Salva gruppo'
  Mimportgrp='Importa gruppo'
+ Marchive='Archivia'
  Mquit='Uscire'
  Medition='Modifica'
  Mannuler='Annulla'

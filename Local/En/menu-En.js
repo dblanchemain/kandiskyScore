@@ -20,6 +20,7 @@
  Mdel='Delete',
  Msavegrp='Save Group',
  Mimportgrp='Import group',
+ Marchive='Archive',
  Mquit='Quit'
  Medition='Edit'
  Mannuler='Cancel'

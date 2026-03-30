@@ -18,6 +18,7 @@ const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer, shell 
 const url = require('url');
 const path = require('path');
 const fs = require("fs-extra");
+const archiver = require('archiver');
 const os = require("os");
 const { existsSync } = require("fs");
 const tkill = require("tree-kill");
@@ -584,6 +585,7 @@ const template = [
 				{ label: "Export ADM", click: () => exportAdm() },
 				{ label: "Import ADM", click: () => importAdmMenu() }
 			]},
+		{ label: Marchive, click: () => archiveProjet() },
     	{ type: 'separator' },
       isMac ? { role: 'close' } : { role: 'quit' }
     ]
@@ -1007,6 +1009,29 @@ function admTimeToSecondsNode(str) {
 	return (parseInt(parts[0]) || 0) * 3600
 	     + (parseInt(parts[1]) || 0) * 60
 	     + (parseFloat(parts[2]) || 0);
+}
+
+async function archiveProjet() {
+	const projetDir = path.dirname(currentProjet);
+	const defaultName = path.basename(projetDir) + '.zip';
+	const result = await dialog.showSaveDialog(mainWindow, {
+		title: 'Archiver le projet',
+		defaultPath: path.join(projetDir, '..', defaultName),
+		filters: [{ name: 'Archive ZIP', extensions: ['zip'] }]
+	});
+	if (result.canceled) return;
+	await new Promise((resolve, reject) => {
+		const output = fs.createWriteStream(result.filePath);
+		const arc = archiver('zip', { zlib: { level: 9 } });
+		output.on('close', resolve);
+		arc.on('error', reject);
+		arc.pipe(output);
+		arc.glob('**/*', {
+			cwd: projetDir,
+			ignore: ['Audios/tmp/**', 'Audios/exports/**']
+		});
+		arc.finalize();
+	});
 }
 
 async function importAdmMenu() {
