@@ -360,6 +360,10 @@ const Mn = require(path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefau
 if (typeof Mstretching === 'undefined') Mstretching = 'Stretching (objet)';
 console.log('copy menuDefaut');
 
+const themesPath = app.isPackaged
+  ? path.join(process.resourcesPath, 'Themes')
+  : path.join(__dirname, 'Themes');
+
 // Copie des scripts Ardour vers ~/.config/ardour*/scripts/
 const ardourScriptsSrc = app.isPackaged
   ? path.join(process.resourcesPath, 'Scripts', 'Ardour')
@@ -1843,7 +1847,7 @@ function dspSave(txtHtml,txt,dsp,fjson) {
 function saveTheme(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join(__dirname, './Themes'),
+        defaultPath: themesPath,
         // defaultPath: path.join(__dirname, '../assets/'),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
@@ -5560,7 +5564,7 @@ function selectTheme() {
 	var themeFile = dialog.showOpenDialog({
 	properties: [
     'openFile'],
-   defaultPath: './Themes',
+   defaultPath: themesPath,
 	filters: [
     { name: 'All Files', extensions: ['*'] }
   ]

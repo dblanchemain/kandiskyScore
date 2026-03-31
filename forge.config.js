@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const allResources = ["resources/bin","resources/Dsp","resources/@grame","resources/images","resources/Scripts"];
+const allResources = ["resources/bin","resources/Dsp","resources/@grame","resources/images","resources/Scripts","Themes"];
 const extraResource = allResources.filter(p => fs.existsSync(p));
 
 module.exports = {
@@ -12,6 +12,7 @@ module.exports = {
       /^\/public\/.*\.(cpp|cpp~|h)$/,
       /^\/out\//,
       /^\/\.git\//,
+      /^\/Themes\//,
     ]
   },
   rebuildConfig: {},
