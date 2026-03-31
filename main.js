@@ -2138,7 +2138,7 @@ function defExportFile(dir,cmd) {
 function exportSelect(block) {
 	console.log("block",block);
   // Stating whether dialog operation was cancelled or not.
-  	file=path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'autoInsert.txt');
+  	file=path.join(app.getPath('appData'), 'kandiskyscore', 'autoInsert.txt');
    // Creating and Writing to the sample.txt file
    fs.writeFile(file, 
                 atob(block), function (err) {
@@ -5162,7 +5162,7 @@ function mainRead3D() {
 	}else{
 		const tmpDir        = path.join(app.getPath('home'), 'kandiskyscore', 'Scripts', 'Ardour', 'tmp');
 		const tmpArdour     = path.join(tmpDir, 'tmp.ardour');
-		const autoInsertTxt = path.join(app.getPath('home'), 'kandiskyscore', 'Projets', 'autoInsert.txt');
+		const autoInsertTxt = path.join(app.getPath('appData'), 'kandiskyscore', 'autoInsert.txt');
 
 		// Générer la session Ardour complète depuis autoInsert.txt
 		try {

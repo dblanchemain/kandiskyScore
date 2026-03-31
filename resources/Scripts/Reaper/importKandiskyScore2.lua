@@ -53,7 +53,20 @@ local function parse_number(v)
 end
 function main()
 --retval, filepath = reaper.GetUserFileNameForRead("", "Select a file", "")
-filepath=(os.getenv("HOME") or os.getenv("USERPROFILE")) .. "/kandiskyscore/Projets/autoInsert.txt"
+local function getAutoInsertPath()
+  local appdata = os.getenv("APPDATA")
+  if appdata then
+    return appdata:gsub("\\", "/") .. "/kandiskyscore/autoInsert.txt"
+  end
+  local home = os.getenv("HOME") or ""
+  local macLib = home .. "/Library/Application Support"
+  local f = io.open(macLib, "r")
+  if f then f:close()
+    return macLib .. "/kandiskyscore/autoInsert.txt"
+  end
+  return (os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")) .. "/kandiskyscore/autoInsert.txt"
+end
+filepath=getAutoInsertPath()
 file, err = io.open(filepath, "r")
 lines = {}
 local countLines=0

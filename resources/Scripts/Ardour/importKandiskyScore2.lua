@@ -8,7 +8,20 @@ ardour {
 function factory () return function ()
 
   -- Lecture du fichier autoInsert.txt
-  local filepath = (os.getenv("HOME") or os.getenv("USERPROFILE")) .. "/kandiskyscore/Projets/autoInsert.txt"
+  local function getAutoInsertPath()
+    local appdata = os.getenv("APPDATA")
+    if appdata then
+      return appdata:gsub("\\", "/") .. "/kandiskyscore/autoInsert.txt"
+    end
+    local home = os.getenv("HOME") or ""
+    local macLib = home .. "/Library/Application Support"
+    local f = io.open(macLib, "r")
+    if f then f:close()
+      return macLib .. "/kandiskyscore/autoInsert.txt"
+    end
+    return (os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")) .. "/kandiskyscore/autoInsert.txt"
+  end
+  local filepath = getAutoInsertPath()
   local file, err = io.open(filepath, "r")
   if not file then
     print("Erreur ouverture fichier : " .. (err or filepath))
