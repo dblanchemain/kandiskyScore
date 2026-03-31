@@ -362,7 +362,7 @@ console.log('copy menuDefaut');
 
 const themesPath = app.isPackaged
   ? path.join(process.resourcesPath, 'Themes')
-  : path.join(__dirname, 'Themes');
+  : path.join(__dirname, 'resources', 'Themes');
 
 // Copie des scripts Ardour vers ~/.config/ardour*/scripts/
 const ardourScriptsSrc = app.isPackaged
