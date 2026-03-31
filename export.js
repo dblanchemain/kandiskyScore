@@ -119,7 +119,7 @@ function exportToSeq(type,refGrp){
 		autoGain=autoGain+((gainPoints[i].X/18).toFixed(2))+","+((100-gainPoints[i].Y)*0.05).toFixed(2)+";";
 	}
 	autoGain=autoGain.substring(0,autoGain.length-1);
-	var txt=audioDirectory+"\n"+spat3D+"\n"+spat3DCanaux+"\n"+contextAudio.sampleRate+"\n"+autoTempo+"\n"+autoGain+"\n";
+	var txt=toAbsPath(audioDirectory)+"\n"+spat3D+"\n"+spat3DCanaux+"\n"+contextAudio.sampleRate+"\n"+autoTempo+"\n"+autoGain+"\n";
 	var nfilesave=[];
 	var ratioT=(720/12960);
 	var offsetPiste=1;
