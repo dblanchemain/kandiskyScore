@@ -191,8 +191,12 @@ async function transformObjSvg(pdf,txt,lsgrp) {
 				}else{
 				
 			var img = new Image();
-			img.src = imgDirectory+lsgrp.img;
-			var imageData = getImageDataFromImage(img); 
+			await new Promise((resolve, reject) => {
+				img.onload = resolve;
+				img.onerror = reject;
+				img.src = imgDirectory+lsgrp.img;
+			});
+			var imageData = getImageDataFromImage(img);
 			 var td = "<image x='"+lsgrp.margeG+"' y='"+lsgrp.margeH+"' width='" + lsgrp.bkgWidth + "' height='" + lsgrp.bkgHeight + "' preserveAspectRatio='none' xlink:href='" +imageData+ "' transform='scale(1,1) translate(0 0) rotate(0 125 75)'></image>\n";
 				txt=txt+td;
 				} 
