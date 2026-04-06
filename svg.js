@@ -41,7 +41,8 @@ async function vueImageSvg(){
 			
 }
 async function importSvgImage(filePath) {
-	const response = await fetch(filePath);
+	const fileUrl = window.api.toFileUrl(filePath);
+	const response = await fetch(fileUrl);
 	const rtxt = await response.text();
 	document.getElementById("fichierSave").innerHTML = rtxt;
 }
