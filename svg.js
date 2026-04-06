@@ -885,7 +885,7 @@ function vuePartSvg(){
 	vuePartitionA(0,0,tableObjet);
 	
 }
-function vueGrpSvg(mode){
+async function vueGrpSvg(mode){
 	lsgrp=[];
 	var rt;
 	var slblock;
@@ -919,7 +919,7 @@ function vueGrpSvg(mode){
 			lsgrp[i].posY=lsgrp[i].posY-tableObjet[objActif].posY+10;
 		}
 	}
-	vuePartitionA(0,1,lsgrp);
+	await vuePartitionA(0,1,lsgrp);
 	for(let i=0;i<lsgrp.length;i++){
 			lsgrp[i].posX=reslsgrpX[i];
 			lsgrp[i].posY=reslsgrpY[i];
