@@ -178,9 +178,10 @@ async function transformObjSvg(pdf,txt,lsgrp) {
 		
 		case 23:
 			if(pdf==1){
-				if(lsgrp.img.split('.')[1]=="svg"){
+				var imgPath=window.api.joinPath(imgDirectory,lsgrp.img);
+				if(lsgrp.img.split('.').pop().toLowerCase()=="svg"){
 					console.log('marge '+lsgrp.margeH);
-					await importSvgImage(imgDirectory+lsgrp.img);
+					await importSvgImage(imgPath);
 					txt=txt+"<g width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" "+(lsgrp.bkgWidth/2)+" "+(lsgrp.bkgHeight/2)+")' >";
 					var dest=document.getElementById("fichierSave").getElementsByTagName('svg');
 					dest[0].setAttribute('width',lsgrp.bkgWidth);
@@ -190,20 +191,19 @@ async function transformObjSvg(pdf,txt,lsgrp) {
 					txt=txt+document.getElementById("fichierSave").innerHTML+"</g>";
 					return txt;
 				}else{
-				
-			var img = new Image();
-			await new Promise((resolve, reject) => {
-				img.onload = resolve;
-				img.onerror = reject;
-				img.src = imgDirectory+lsgrp.img;
-			});
-			var imageData = getImageDataFromImage(img);
-			 var td = "<image x='"+lsgrp.margeG+"' y='"+lsgrp.margeH+"' width='" + lsgrp.bkgWidth + "' height='" + lsgrp.bkgHeight + "' preserveAspectRatio='none' xlink:href='" +imageData+ "' transform='scale(1,1) translate(0 0) rotate(0 125 75)'></image>\n";
-				txt=txt+td;
-				} 
+					var img = new Image();
+					await new Promise((resolve, reject) => {
+						img.onload = resolve;
+						img.onerror = reject;
+						img.src = window.api.toFileUrl(imgPath);
+					});
+					var imageData = getImageDataFromImage(img);
+					var td = "<image x='"+lsgrp.margeG+"' y='"+lsgrp.margeH+"' width='" + lsgrp.bkgWidth + "' height='" + lsgrp.bkgHeight + "' preserveAspectRatio='none' xlink:href='" +imageData+ "' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" "+(lsgrp.bkgWidth/2)+" "+(lsgrp.bkgHeight/2)+")'></image>\n";
+					txt=txt+td;
+				}
 			}else{
-				txt=txt+"<image x='"+lsgrp.margeG+"' y='"+(-lsgrp.margeH)+"'  width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' preserveAspectRatio='none' xlink:href='file://"+imgDirectory+lsgrp.img+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" "+(lsgrp.bkgWidth/2)+" "+(lsgrp.bkgHeight/2)+")' />\n";
-			}				
+				txt=txt+"<image x='"+lsgrp.margeG+"' y='"+(-lsgrp.margeH)+"'  width='"+lsgrp.bkgWidth+"' height='"+lsgrp.bkgHeight+"' preserveAspectRatio='none' xlink:href='"+window.api.toFileUrl(window.api.joinPath(imgDirectory,lsgrp.img))+"' transform='scale("+lsgrp.scaleX+","+lsgrp.scaleY+") translate("+lsgrp.margeG+" "+lsgrp.margeH+") rotate("+lsgrp.rotate+" "+(lsgrp.bkgWidth/2)+" "+(lsgrp.bkgHeight/2)+")' />\n";
+			}
 				break;
 		}
 	
