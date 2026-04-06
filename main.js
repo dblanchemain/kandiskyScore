@@ -340,14 +340,13 @@ if (fs.existsSync(path.join(app.getPath('appData'), 'kandiskyscore'))) {
     console.log('Directory created successfully!'); 
 	}); 
 }
-fs.access(path.join(app.getPath('home'), 'kandiskyscore', 'Projets'), (err) => {
-  if (err) {
-    fs.mkdir(path.join(app.getPath('home'), 'kandiskyscore', 'Projets'), (err) => {
-      if (err) { return console.error(err); }
-      console.log('Directory Projets created successfully!');
-    });
+for (const dir of ['Projets', 'Actions']) {
+  const dirPath = path.join(app.getPath('home'), 'kandiskyscore', dir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+    console.log(`Directory ${dir} created successfully!`);
   }
-});
+}
 
 
 if (fs.existsSync(path.join(app.getPath('appData'), 'kandiskyscore', 'config.js'))) {
