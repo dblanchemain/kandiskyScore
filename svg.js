@@ -11,7 +11,7 @@ async function vueImageSvg(){
 		case 1:
 			txt="<g transform='translate("+lsgrp.posX+","+(lsgrp.posY)+")' >\n";
 			
-			txt=transformObjSvg(0,txt,lsgrp);
+			txt=await transformObjSvg(0,txt,lsgrp);
 			
 			document.getElementById("svgGrpVue").firstChild.innerHTML=txt;
 			document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp.bkgWidth+20);
