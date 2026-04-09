@@ -50,6 +50,11 @@ function getBinBaseDir() {
     ? path.join(process.resourcesPath, "bin")
     : path.join(__dirname, "resources", "bin");
 }
+function getWam2File(...parts) {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, 'Wam2', ...parts)
+    : path.join(__dirname, 'Wam2', ...parts);
+}
 
 
 
@@ -2348,7 +2353,7 @@ function openMassWasm(id,file,rate) {
 	            preload: path.join(__dirname, 'preload.js')
 	        }
 		});
-		winMassWasm.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html');
+		winMassWasm.loadFile(getWam2File('wam-examples-master', 'packages', 'hostModules', 'host.html'));
 		winMassWasm.removeMenu();
 		if (!app.isPackaged) winMassWasm.webContents.openDevTools()
 		winMassWasmEtat=1;
@@ -2389,7 +2394,7 @@ function openSpectWasm(id,file,rate,mode) {
 	            preload: path.join(__dirname, 'preload.js')
 	        }
 		});
-		winSpectWam.loadFile('./Wam2/wam-examples-master/packages/hostModules/host.html');
+		winSpectWam.loadFile(getWam2File('wam-examples-master', 'packages', 'hostModules', 'host.html'));
 		winSpectWam.removeMenu();
 		if (!app.isPackaged) winSpectWam.webContents.openDevTools()
 		winSpectWamEtat=1;
@@ -2902,7 +2907,7 @@ function winPro54Open() {
 	        }
 		});
 		console.log('winPro54Open');
-		winPro54.loadFile('./Wam2/wam-examples-master/packages/Synthe/Pro54/index.html');
+		winPro54.loadFile(getWam2File('wam-examples-master', 'packages', 'Synthe', 'Pro54', 'index.html'));
 		winPro54.removeMenu();
 		if (!app.isPackaged) winPro54.webContents.openDevTools()
 		winPro54Etat=1;
@@ -2944,7 +2949,7 @@ function winObxdOpen() {
 	        }
 		});
 		console.log('winObxdOpen');
-		winObxd.loadFile('./Wam2/wam-examples-master/packages/Synthe/Obxd/index.html');
+		winObxd.loadFile(getWam2File('wam-examples-master', 'packages', 'Synthe', 'Obxd', 'index.html'));
 		winObxd.removeMenu();
 		if (!app.isPackaged) winObxd.webContents.openDevTools()
 		winObxdEtat=1;
@@ -2986,7 +2991,7 @@ function winHostOpen(id,objWav) {
 	            preload: path.join(__dirname, 'preload.js')
 	        }
 		});
-		winHost.loadFile('./Wam2/wam-examples-master/packages/hostModules/index.html');
+		winHost.loadFile(getWam2File('wam-examples-master', 'packages', 'hostModules', 'index.html'));
 		winHost.removeMenu();
 		if (!app.isPackaged) winHost.webContents.openDevTools()
 		winHostEtat=1;
