@@ -1669,7 +1669,7 @@ async function postRubberband(id,mode,file) {
     	const envX1 = (exportObj.envX && exportObj.envX[1] !== undefined) ? exportObj.envX[1] : 1;
     	const exportFadeIn = exportObj.fadeIn || 0;
     	const exportFade = `${exportFadeIn} ${durationAfterSpeed * envX0} ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
-    	const exportLengthSec = (exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut);
+    	const exportLengthSec = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
     	const exportSoxParams = `pitch ${exportObj.detune} speed ${exportObj.transposition} vol ${exportObj.gain} trim ${exportObj.debut} ${exportLengthSec} fade ${exportFade}`;
     	console.log("[export SoX]", exportSoxParams);
     	await window.api.soxProcessExport(outPath, exportSoxParams);
