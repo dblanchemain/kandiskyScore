@@ -2353,7 +2353,7 @@ function openMassWasm(id,file,rate) {
 		if (!app.isPackaged) winMassWasm.webContents.openDevTools()
 		winMassWasmEtat=1;
 		winMassWasm.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winMassWasm.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";0");
+    		winMassWasm.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+url.pathToFileURL(file).href+";"+rate+";0");
   		});
 
 		winMassWasm.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
@@ -2394,7 +2394,7 @@ function openSpectWasm(id,file,rate,mode) {
 		if (!app.isPackaged) winSpectWam.webContents.openDevTools()
 		winSpectWamEtat=1;
 		winSpectWam.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
-    		winSpectWam.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+file+";"+rate+";"+mode);
+    		winSpectWam.webContents.send("fromMain", "objsource;"+id+";"+audioPath+";"+url.pathToFileURL(file).href+";"+rate+";"+mode);
   		});
 
 		winSpectWam.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
