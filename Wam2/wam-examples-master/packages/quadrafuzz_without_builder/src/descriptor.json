@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.quadrafuzz-nobuilder",
+    "name": "Quadrafuzz (No builder)",
+    "vendor": "WebAudioModule",
+    "description": "Quadrafuzz written in native WebAudio nodes",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

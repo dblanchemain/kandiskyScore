@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.template-wam-parammgr-js",
+    "name": "TemplateWamPMJS",
+    "vendor": "WebAudioModule",
+    "description": "Template WAM: ParamMgr + JS - build",
+    "version": "0.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

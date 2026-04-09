@@ -1,0 +1,15 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.virtual-midi-keyboard",
+    "name": "VirtualMidiKeyboardNoSound",
+    "vendor": "WebAudioModule",
+    "description": "Midi Virtual keyboard",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": true,
+	"hasMidiInput":true,
+	"hasMidiOutput":true,
+	"hasAudioOutput":true,
+    "website": ""
+}

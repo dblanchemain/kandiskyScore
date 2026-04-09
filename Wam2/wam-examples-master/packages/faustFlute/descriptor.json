@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.faust-flute",
+    "name": "Faust Flute MIDI",
+    "vendor": "Grame",
+    "description": "Faust MIDI Instrument",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": ["flute", "faust"],
+    "isInstrument": true,
+    "website": ""
+}

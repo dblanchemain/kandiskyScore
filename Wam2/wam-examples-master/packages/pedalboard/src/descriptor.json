@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.pedalboard",
+    "name": "Pedalboard",
+    "vendor": "WebAudioModule",
+    "description": "A rack to load multiple WAMs",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

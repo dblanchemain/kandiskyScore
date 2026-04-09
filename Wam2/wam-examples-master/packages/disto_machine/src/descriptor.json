@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.distomachine-nobuilder",
+    "name": "DistoMachine (No builder)",
+    "vendor": "WebAudioModule",
+    "description": "DistoMachine written in native WebAudio nodes",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

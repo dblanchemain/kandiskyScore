@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.oscilloscope",
+    "name": "Oscilloscope",
+    "vendor": "Shihong Ren",
+    "description": "TypeScript/React Oscilloscope WebAudioModule",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": ["visualization"],
+    "isInstrument": false,
+    "website": ""
+}

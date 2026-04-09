@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.wam-event-viewer",
+    "name": "WAM Event Viewer",
+    "vendor": "WebAudioModule",
+    "description": "Display received events",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": false,
+    "website": ""
+}

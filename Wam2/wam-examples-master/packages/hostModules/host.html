@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple host for loading plugins</title>
+</head>
+<style>
+.plugins {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: center;
+    width:500px;
+}
+</style>
+<body>
+    <main>
+        <div>
+            <audio id="player" controls="controls" src="" loop crossOrigin="anonymous">
+            </audio>
+            <select  style="position:absolute;top:24px;left:320px;" name="pets" id="pet-select">
+				  <option value="">--sélectionner un module--</option>
+				  <option value="BigMuff">BigMuff</option>
+				  <option value="blipper">blipper</option>
+				  <option value="DistoM">Disto_Machine</option>
+				  <option value="faustPingPongDelay">faustPingPongDelay</option>
+				  <option value="GraphicEqu">GraphicEqualizer</option>
+				  <option value="GuitarAmp">GuitarAmpSim60s</option>
+				  <option value="kbverb">kbVerb</option>
+				  <option value="kppdistorder">kppdistorder</option>
+				  <option value="kppfuzz">kppfuzz</option>
+				  <option value="OscTube">OscTube</option>
+				  <option value="OverdriveRix">OverdriveRix</option>
+				  <option value="OwlDirty">OwlDirty</option>
+				  <option value="OwlShimmer">OwlShimmer</option>
+				  <option value="Quadrafuzz">Quadrafuzz</option>
+				  <option value="SmoothDelay">SmoothDelay</option>
+				  <option value="StonePhaser">StonePhaserStereo</option>
+				  <option value="SweetWah">SweetWah</option>
+				  <option value="Temper">Temper</option>
+				  <option value="ThruZeroFlanger">ThruZeroFlanger</option>
+				  <option value="TS9_Overdrive">TS9_Overdrive</option>
+				  <option value="WeirdPhaser">WeirdPhaser</option>
+				</select>
+            <button style="position:absolute;top:16px;left:520px;" id='saveButton' onclick="renderToWavBlob();"><img
+                    src=/home/dominique/Electron/kandiskyscore-dev/images/png/document-save.png /></button>
+            <button style="position:absolute;top:16px;left:570px;"  onclick="exit();" ><img  src=/home/dominique/Electron/kandiskyscore-dev/images/png/exit.png /></button>
+        </div>
+        <div  class="plugins" id="plugin-guis">
+    <div id="gui-0"></div>
+    <div id="gui-1"></div>
+    <div id="gui-2"></div>
+    
+  </div>
+    </main>
+    <script type="text/javascript">
+        let nwav = ""
+        let id = ""
+        let duration = 0;
+        let tablePlugin=[]
+        let ref=3
+        let pluginsPath=[]
+        const pluginInstances = [];
+        let audioNodes=[]
+        pluginsPath["BigMuff"]="../BigMuff/index.js"
+        pluginsPath["blipper"]="../blipper/index.js"
+        pluginsPath["DistoM"]="../disto_machine/src/index.js"
+        pluginsPath["faustPingPongDelay"]="../faustPingPongDelay/plugin/index.js"
+        pluginsPath["GraphicEqu"]="../graphicEqualizer/src/index.js"
+        pluginsPath["GuitarAmp"]="../GuitarAmpSim60s/index.js"
+        pluginsPath["kbverb"]="../kbverb/index.js"
+        pluginsPath["kppdistorder"]="../kppdistorder/index.js"
+        pluginsPath["kppfuzz"]="../kpp_fuzz/index.js"
+        pluginsPath["OscTube"]="../OscTube/index.js"
+        pluginsPath["OverdriveRix"]="../OverdriveRix/index.js"
+        pluginsPath["OwlDirty"]="../OwlDirty/index.js"
+        pluginsPath["OwlShimmer"]="../OwlShimmer/index.js"
+        pluginsPath["Quadrafuzz"]="../quadrafuzz_without_builder/src/index.js"
+        pluginsPath["SmoothDelay"]="../SmoothDelay/index.js"
+        pluginsPath["StonePhaser"]="../StonePhaserStereo/index.js"
+        pluginsPath["SweetWah"]="../sweetWah/index.js"
+        pluginsPath["Temper"]="../temper/index.js"
+        pluginsPath["ThruZeroFlanger"]="../ThruZeroFlanger/index.js"
+        pluginsPath["TS9_Overdrive"]="../TS9_OverdriveFaustGenerated/index.js"
+        pluginsPath["WeirdPhaser"]="../WeirdPhaser/index.js"
+        /*
+        const guiMountPoints = [
+			  document.getElementById("gui-0"),
+			  document.getElementById("gui-1"),
+			  document.getElementById("gui-2"),
+			];
+			*/
+let canal=0;
+let sampleRate=44100;
+let audioContext;
+let sourceNode;
+let mode=0;
+window.api.receive("fromMain", (data) => {
+   var cmd = data.split(";")
+   console.log(`openObjet ${data} from param`);
+   switch (cmd[0]) {
+       case 'objsource':
+    	  canal=cmd[1];
+    	  console.log("source",cmd[1],cmd[2]);
+        document.getElementById("player").src =cmd[3];
+        sampleRate=cmd[4];
+        mode=cmd[5];
+        audioContext=new AudioContext({ sampleRate: sampleRate})
+        console.log("audioContext",audioContext.sampleRate)
+        console.log(document.getElementById("player").src)
+        sourceNode = audioContext.createMediaElementSource(document.querySelector("audio"));
+        sourceNode.connect(audioContext.destination);
+       break
+   }
+});
+
+const audio = document.getElementById('player'); 
+audio.addEventListener('loadedmetadata', () => {
+console.log("duration",audio.duration)
+duration = audio.duration;
+});    
+const guiMountPoints = [];       
+		  //const wamURIs = [pluginsPath["BigMuff"],pluginsPath["StonePhaser"], pluginsPath["graphicEqualizer"]];
+const wamURIs = [];
+function exit(){
+console.log("exit")
+window.api.send("toMain", "hostWasmExit")
+}
+		
+async function pluginSelect(defPlugin){
+		
+	let dest=document.getElementById("plugin-guis")
+	var dupnode=document.createElement('div');
+	
+	dupnode.setAttribute("id","gui-"+guiMountPoints.length);
+	//guiMountPoints[guiMountPoints.length]="gui-"+guiMountPoints.length;
+	ref++;
+	wamURIs[wamURIs.length]=pluginsPath[defPlugin]
+	dest.appendChild(dupnode);
+	guiMountPoints.push(dupnode);
+	dupnode.addEventListener('click',selectModule)
+	insertWam(pluginsPath[defPlugin])
+	console.log('selected',guiMountPoints,wamURIs);
+}
+document.getElementById("pet-select").addEventListener('click'
+, function () {
+pluginSelect(this.value)
+console.log('selectedIndex => '+this.value);
+})
+			//document.getElementById("pet-select").addEventListener('click',pluginSelect);
+function selectModule() {
+	console.log(this.id)
+}		
+
+async function insertWam(i){
+	const { default: initializeWamHost } = await import("../sdk/src/initializeWamHost.js");
+	const [hostGroupId] = await initializeWamHost(audioContext);
+	const { default: pluginFactory } = await import(i);
+   const instance = await pluginFactory.createInstance(hostGroupId, audioContext);
+   pluginInstances.push(instance);
+    audioNodes[pluginInstances.length-1] = pluginInstances[pluginInstances.length-1].audioNode;
+   const gui = await instance.createGui();
+  
+   if(pluginInstances.length==1){
+   
+   guiMountPoints[0].appendChild(gui);
+  
+   //sourceNode.disconnect(audioContext.destination);
+   sourceNode.connect(audioNodes[0]);
+    console.log('selectedIndex => ',guiMountPoints,pluginInstances,audioNodes);
+   audioNodes[0].connect(audioContext.destination);
+  
+   }else{
+   guiMountPoints[guiMountPoints.length-1].appendChild(gui);
+  
+   audioNodes[wamURIs.length-2].disconnect(audioContext.destination);
+   audioNodes[wamURIs.length-2].connect(audioNodes[wamURIs.length-1]);
+   audioNodes[wamURIs.length-1].connect(audioContext.destination);
+   
+   }
+}		
+
+			
+async function cleanupAllPlugins() {
+    // Déconnecter les nœuds audio
+    if (sourceNode) {
+        sourceNode.disconnect();
+    }
+
+    // Supprimer les instances de plugin et nettoyer les éléments GUI
+    guiMountPoints.forEach((mountPoint, index) => {
+        if (mountPoint && mountPoint.firstChild) {
+            mountPoint.removeChild(mountPoint.firstChild);
+        }
+    });
+   }
+async function backupPluginStates() {
+console.log("savedStates1",window.pluginInstances)
+  if (!window.pluginInstances) return [];
+
+  const savedStates = [];
+
+  for (const instance of window.pluginInstances) {
+    try {
+      if (instance?.audioNode?.getState) {
+        const state = await instance.audioNode.getState();
+        savedStates.push({
+          guiId: instance.guiId,
+          wamId: instance.wamId || null, // facultatif si tu veux associer au plugin
+          state,
+        });
+      }
+    } catch (err) {
+      console.warn(`Échec de la sauvegarde état du plugin gui-${instance.guiId}`, err);
+    }
+  }
+console.log("savedStates1",savedStates)
+  return savedStates;
+}
+async function restorePluginStates(savedStates) {
+console.log("savedStates",savedStates)
+  if (!window.pluginInstances || !savedStates) return;
+
+  for (const instance of window.pluginInstances) {
+    try {
+      const saved = savedStates.find(s => s.guiId === instance.guiId);
+      if (saved && instance.audioNode?.setState) {
+        await instance.audioNode.setState(saved.state);
+        console.log(`État restauré pour gui-${instance.guiId}`);
+      }
+    } catch (err) {
+      console.warn(`Impossible de restaurer état pour gui-${instance.guiId}`, err);
+    }
+  }
+}
+</script>
+    
+<script type="text/javascript">
+		
+
+async function renderToWavBlob() {
+   const audioUrl = document.getElementById("player").src;
+   if (!audioUrl) {
+       console.error("Aucun fichier audio chargé !");
+       return;
+   }
+   
+   // Étape 1 : Charger l'audio source en ArrayBuffer
+   const response = await fetch(audioUrl);
+   const arrayBuffer = await response.arrayBuffer();
+   // Étape 2 : Décoder l'audio
+   const tmpCtx = new AudioContext();
+   const decodedBuffer = await tmpCtx.decodeAudioData(arrayBuffer);
+   const duration = decodedBuffer.duration;
+   // Étape 3 : Créer OfflineAudioContext
+   const offlineCtx = new OfflineAudioContext({
+       numberOfChannels: 1,
+       length: Math.ceil(duration * sampleRate),
+       sampleRate: sampleRate,
+   });
+   // Étape 4 : Initialiser WAM dans le OfflineAudioContext    
+   // MICHEL BUFFA : on peut utiliser le code suivant 
+   // CECI MARCHE AUSSI : const { default: initializeWamHost } = await import("https://www.webaudiomodules.com/sdk/2.0.0-alpha.6/src/initializeWamHost.js");
+   const { default: initializeWamHost } = await import("../sdk/src/initializeWamHost.js");
+   const [hostGroupId] = await initializeWamHost(offlineCtx);
+
+	// Étape 5 : Créer une source à partir du buffer décodé
+
+   const bufferSource = offlineCtx.createBufferSource();   
+   
+   bufferSource.buffer = decodedBuffer;
+   // MICHEL BUFFA : on peut utiliser le code suivant, wamURI = l'uri du plugin à charger
+   //const wamURI = "../graphicEqualizer/src/index.js"
+   const pluginInstance2=[]
+	for(let i=0;i<wamURIs.length;i++){
+      if(wamURIs.length>0){
+         const { default: WAM } = await import(wamURIs[i]);
+         console.log("wamURIs[0]",wamURIs[i]);
+         // Create a new instance of the plugin, pass groupId
+         const instance2 = await WAM.createInstance(hostGroupId, offlineCtx);
+         pluginInstance2.push(instance2);
+         
+         // pour récupérer les paramètres définis sinon on enregistre l'audio du fichier d'origine
+         if (pluginInstances[i]?.audioNode?.getState) {
+             const state = await pluginInstances[i].audioNode.getState();
+             await pluginInstance2[i].audioNode.setState(state);
+         }
+          if(i<1){
+          	bufferSource.connect(pluginInstance2[0].audioNode);
+          }else{
+				pluginInstance2[i-1].audioNode.connect(pluginInstance2[i].audioNode);
+      	}
+      }
+   }
+      // Étape 6 : Connecter source → plugin → destination
+   if(wamURIs.length==0){
+     bufferSource.connect(offlineCtx.destination);
+   }else{
+  	  pluginInstance2[wamURIs.length-1].audioNode.connect(offlineCtx.destination);
+   }
+ 
+   bufferSource.start(0);
+   // Étape 7 : Rendu
+   console.log("Start rendering...");
+   const renderedBuffer = await offlineCtx.startRendering();
+   const nwasm = new Float32Array(renderedBuffer.length);
+	renderedBuffer.copyFromChannel(nwasm, 0);
+
+   window.api.send("toMain", {
+    type: "rtWasmHost",
+    canal,
+    mode,
+    buffer: nwasm
+});
+}
+ 
+
+</script>
+</body>
+
+</html>

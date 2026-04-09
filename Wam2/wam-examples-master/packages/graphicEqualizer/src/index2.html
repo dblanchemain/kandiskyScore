@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Simple host that loads a non bundled plugin</title>
+</head>
+
+<body>
+        <main>
+					<div>                
+                <audio id="player" controls="controls" src="" 
+                        loop crossOrigin="anonymous">
+                </audio>
+                <button style="position:absolute;top:16px;left:320px;" id='saveButton' onclick="renderToWavBlob();" ><img  src=/home/dominique/Electron/kandiskyscore-dev/images/png/document-save.png /></button> 
+                </div>
+                <div id="mount"></div>
+        </main>
+        <script type="text/javascript" >
+        let nwav=""
+        let id=""
+        
+        	window.api.receive("fromMain", (data) => {
+				var nsize=data
+				var cmd=data.split(";")
+				switch(cmd[0]){
+				case 'equalizer':
+					console.log(`equalizer ${data}`);
+					nwav=cmd[2]
+					id=cmd[1]
+					graphEqua(cmd[1],cmd[2])
+					break
+			}      
+			});
+			function graphEqua(id,wav){
+			console.log("id",id,"wav",wav)
+			document.getElementById("player").src=wav
+			}
+			
+        </script>
+        <script type="module" src="host.js"></script>
+       <script type="text/javascript" >
+       
+ async function renderToWavBlob() {
+    const audioUrl = document.getElementById("player").src;
+
+    if (!audioUrl) {
+        console.error("Aucun fichier audio chargé !");
+        return;
+    }
+
+    const sampleRate = 48000;
+
+    // Étape 1 : Charger l'audio source en ArrayBuffer
+    const response = await fetch(audioUrl);
+    const arrayBuffer = await response.arrayBuffer();
+
+    // Étape 2 : Décoder l'audio
+    const tmpCtx = new AudioContext();
+    const decodedBuffer = await tmpCtx.decodeAudioData(arrayBuffer);
+    const duration = decodedBuffer.duration;
+
+    // Étape 3 : Créer OfflineAudioContext
+    const offlineCtx = new OfflineAudioContext({
+        numberOfChannels: 2,
+        length: Math.ceil(duration * sampleRate),
+        sampleRate: sampleRate,
+    });
+
+    // Étape 4 : Initialiser WAM dans le OfflineAudioContext
+    const { default: apiVersion } = await import("../../api/src/version.js");
+    const { default: addFunctionModule } = await import("../../sdk/src/addFunctionModule.js");
+    const { default: initializeWamEnv } = await import("../../sdk/src/WamEnv.js");
+    const { default: initializeWamGroup } = await import("../../sdk/src/WamGroup.js");
+    const { default: pluginFactory } = await import('./index.js');
+
+    const groupId = 'offline-render';
+    const groupKey = performance.now().toString();
+
+    await addFunctionModule(offlineCtx.audioWorklet, initializeWamEnv, apiVersion);
+    await addFunctionModule(offlineCtx.audioWorklet, initializeWamGroup, groupId, groupKey);
+
+    const pluginInstance = await pluginFactory.createInstance(groupId, offlineCtx, {});
+    if (window.instance?.audioNode?.getState) {
+    const state = await window.instance.audioNode.getState();
+    await pluginInstance.audioNode.setState(state);
+}
+    const pluginNode = pluginInstance.audioNode;
+
+    // Étape 5 : Créer une source à partir du buffer décodé
+    const bufferSource = offlineCtx.createBufferSource();
+    bufferSource.buffer = decodedBuffer;
+
+    // Étape 6 : Connecter source → plugin → destination
+    bufferSource.connect(pluginNode);
+    pluginNode.connect(offlineCtx.destination);
+
+    bufferSource.start(0);
+
+    // Étape 7 : Rendu
+    console.log("Start rendering...");
+    const renderedBuffer = await offlineCtx.startRendering();
+    console.log("Rendering done!");
+
+    saveAudioToFile(renderedBuffer);
+}
+function saveAudioToFile(buffer) {
+  const wavBlob = convertAudioBufferToBlob(buffer);
+  const audioUrl = URL.createObjectURL(wavBlob);
+
+  // Créer un lien de téléchargement
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = audioUrl;
+  a.download = 'audio.wav'; // Nom du fichier
+  document.body.appendChild(a);
+  a.click();
+
+  // Nettoyer
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(audioUrl);
+  }, 100);
+}
+function convertAudioBufferToBlob(audioBuffer) {
+
+    var channelData = [],
+      totalLength = 0,
+      channelLength = 0;
+
+    for (var i = 0; i < audioBuffer.numberOfChannels; i++) {
+      channelData.push(audioBuffer.getChannelData(i));
+      totalLength += channelData[i].length;
+      if (i == 0) channelLength = channelData[i].length;
+    }
+
+    // interleaved
+    const interleaved = new Float32Array(totalLength);
+
+    for (
+      let src = 0, dst = 0;
+      src < channelLength;
+      src++, dst += audioBuffer.numberOfChannels
+    ) {
+      for (var j = 0; j < audioBuffer.numberOfChannels; j++) {
+        interleaved[dst + j] = channelData[j][src];
+      }
+    }
+
+    // get WAV file bytes and audio params of your audio source
+    const wavBytes = this.getWavBytes(interleaved.buffer, {
+      isFloat: true, // floating point or 16-bit integer
+      numChannels:2,
+      sampleRate: 48000,
+    });
+    const wav = new Blob([wavBytes], { type: "audio/wav" });
+    return wav
+  }
+  function getWavBytes(buffer, options) {
+  const type = options.isFloat ? Float32Array : Uint16Array
+  const numFrames = buffer.byteLength / type.BYTES_PER_ELEMENT
+
+  const headerBytes = getWavHeader(Object.assign({}, options, { numFrames }))
+  const wavBytes = new Uint8Array(headerBytes.length + buffer.byteLength);
+
+  // prepend header, then add pcmBytes
+  wavBytes.set(headerBytes, 0)
+  wavBytes.set(new Uint8Array(buffer), headerBytes.length)
+
+  return wavBytes
+}
+function getWavHeader(options) {
+  const numFrames =      options.numFrames
+  const numChannels =    options.numChannels || 2
+  const sampleRate =     options.sampleRate || contextAudio.sampleRate
+  const bytesPerSample = options.isFloat? 4 : 2
+  const format =         options.isFloat? 3 : 1
+
+  const blockAlign = numChannels * bytesPerSample
+  const byteRate = sampleRate * blockAlign
+  const dataSize = numFrames * blockAlign
+
+  const buffer = new ArrayBuffer(44)
+  const dv = new DataView(buffer)
+
+  let p = 0
+
+  function writeString(s) {
+    for (let i = 0; i < s.length; i++) {
+      dv.setUint8(p + i, s.charCodeAt(i))
+    }
+    p += s.length
+  }
+
+  function writeUint32(d) {
+    dv.setUint32(p, d, true)
+    p += 4
+  }
+
+  function writeUint16(d) {
+    dv.setUint16(p, d, true)
+    p += 2
+  }
+
+  writeString('RIFF')              // ChunkID
+  writeUint32(dataSize + 36)       // ChunkSize
+  writeString('WAVE')              // Format
+  writeString('fmt ')              // Subchunk1ID
+  writeUint32(16)                  // Subchunk1Size
+  writeUint16(format)              // AudioFormat https://i.stack.imgur.com/BuSmb.png
+  writeUint16(numChannels)         // NumChannels
+  writeUint32(sampleRate)          // SampleRate
+  writeUint32(byteRate)            // ByteRate
+  writeUint16(blockAlign)          // BlockAlign
+  writeUint16(bytesPerSample * 8)  // BitsPerSample
+  writeString('data')              // Subchunk2ID
+  writeUint32(dataSize)            // Subchunk2Size
+
+  return new Uint8Array(buffer)
+}
+
+/*
+ async function renderToWavBlob() {
+    if (!window.pluginAudioNode) {
+        console.error("plugin audio node not available!");
+        return;
+    }else{
+    	console.log("plugin",window.pluginAudioNode)
+    }
+	
+    const sampleRate = 48000;
+    
+    const offlineCtx = new OfflineAudioContext(2, sampleRate * duration, sampleRate);
+
+    // 🧠 Tu dois recharger TOUS les modules pour le offlineCtx
+    const { default: apiVersion } = await import("../../api/src/version.js");
+    const { default: addFunctionModule } = await import("../../sdk/src/addFunctionModule.js");
+    const { default: initializeWamEnv } = await import("../../sdk/src/WamEnv.js");
+    const { default: initializeWamGroup } = await import("../../sdk/src/WamGroup.js");
+    const { default: pluginFactory } = await import('./index.js');
+
+    const groupId = 'offline-render';
+    const groupKey = performance.now().toString();
+
+    // 🧩 Étape CRUCIALE : init WamEnv dans *offlineCtx*
+    await addFunctionModule(offlineCtx.audioWorklet, initializeWamEnv, apiVersion);
+
+    // 🧩 Puis init WamGroup
+    await addFunctionModule(offlineCtx.audioWorklet, initializeWamGroup, groupId, groupKey);
+
+    // ✅ Créer l’instance du plugin dans ce nouveau contexte
+    const pluginInstance = await pluginFactory.createInstance(groupId, offlineCtx, {});
+    const pluginNode = pluginInstance.audioNode;
+console.log(pluginNode)
+    // 🔊 Charger l’audio source depuis la balise <audio>
+    const response = await fetch(document.getElementById("player").src);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await offlineCtx.decodeAudioData(arrayBuffer);
+
+    // 🎛️ Préparer source et connections
+    const source = offlineCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(pluginNode);
+    pluginNode.connect(offlineCtx.destination);
+
+    source.start();
+
+    // 🛠️ Rendu offline
+    const renderedBuffer = await offlineCtx.startRendering();
+
+    // 📁 Exporter en WAV
+    //const wavBlob = bufferToWavBlob(renderedBuffer); // <- tu veux cette fonction ?
+    //downloadBlob(wavBlob, "rendered.wav"); // <- ou utiliser ipcRenderer pour sauvegarder ?
+    var rwav=bufferToWavBlob(renderedBuffer)
+	
+			var reader = new FileReader();
+			reader.readAsArrayBuffer(rwav);
+			reader.onloadend = (event) => {
+	    		// The contents of the BLOB are in reader.result:	
+	    	//console.log("result ",audioDirectory+"exports/"+tableObjet[obj].id+".wav"," ",reader.result);
+	    	window.api.saveAudio('saveAudio',"/home/dominique/kandiskyscore/Projets/Projet3/Audios/exports/"+id+"-wam.wav", reader.result);
+	    	}
+}
+
+function bufferToWavBlob(buffer) {
+    let numOfChan = buffer.numberOfChannels,
+        length = buffer.length * numOfChan * 2 + 44,
+        bufferArray = new ArrayBuffer(length),
+        view = new DataView(bufferArray),
+        channels = [],
+        sampleRate = buffer.sampleRate,
+        offset = 0,
+        pos = 0;
+
+    // Write WAV container
+    function setUint16(data) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+    }
+
+    function setUint32(data) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+    }
+
+    // RIFF chunk descriptor
+    setUint32(0x46464952); // "RIFF"
+    setUint32(length - 8); // file length - 8
+    setUint32(0x45564157); // "WAVE"
+
+    // FMT sub-chunk
+    setUint32(0x20746d66); // "fmt "
+    setUint32(16); // size
+    setUint16(1); // PCM
+    setUint16(numOfChan);
+    setUint32(sampleRate);
+    setUint32(sampleRate * 2 * numOfChan); // avg. bytes/sec
+    setUint16(numOfChan * 2); // block-align
+    setUint16(16); // bits/sample
+
+    // data sub-chunk
+    setUint32(0x61746164); // "data"
+    setUint32(length - pos - 4); // chunk size
+
+    // write interleaved data
+    for (let i = 0; i < buffer.numberOfChannels; i++) {
+        channels.push(buffer.getChannelData(i));
+    }
+
+    while (pos < length) {
+        for (let i = 0; i < numOfChan; i++) {
+            const sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+            view.setInt16(pos, sample * 0x7FFF, true); // convert to PCM
+            pos += 2;
+        }
+        offset++;
+    }
+
+    return new Blob([bufferArray], { type: "audio/wav" });
+}
+*/
+ 
+  
+     	
+        </script>
+</body>
+</html>

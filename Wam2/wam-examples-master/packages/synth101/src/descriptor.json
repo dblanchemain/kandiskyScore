@@ -1,0 +1,12 @@
+{
+    "identifier": "com.webaudiomodules.wam-examples.synth101",
+    "name": "Synth-101",
+    "vendor": "Tom",
+    "description": "Synth-101 WAM2 MIDI Instrument",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": ["synth"],
+    "isInstrument": true,
+    "website": ""
+}

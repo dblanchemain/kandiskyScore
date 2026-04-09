@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple host for loading plugins</title>
+</head>
+<style>
+.plugins {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: center;
+    width:500px;
+}
+</style>
+<body>
+    <main>
+        <div>
+            <audio id="player" controls="controls" src="" loop crossOrigin="anonymous">
+            </audio>
+            <select  style="position:absolute;top:24px;left:320px;" name="pets" id="pet-select">
+				  <option value="">--sélectionner un module--</option>
+				  <option value="BigMuff">BigMuff</option>
+				  <option value="blipper">blipper</option>
+				  <option value="DistoM">Disto_Machine</option>
+				  <option value="faustPingPongDelay">faustPingPongDelay</option>
+				  <option value="GraphicEqu">GraphicEqualizer</option>
+				  <option value="GuitarAmp">GuitarAmpSim60s</option>
+				  <option value="kbverb">kbVerb</option>
+				  <option value="kppdistorder">kppdistorder</option>
+				  <option value="kppfuzz">kppfuzz</option>
+				  <option value="OscTube">OscTube</option>
+				  <option value="OverdriveRix">OverdriveRix</option>
+				  <option value="OwlDirty">OwlDirty</option>
+				  <option value="OwlShimmer">OwlShimmer</option>
+				  <option value="Quadrafuzz">Quadrafuzz</option>
+				  <option value="SmoothDelay">SmoothDelay</option>
+				  <option value="StonePhaser">StonePhaserStereo</option>
+				  <option value="SweetWah">SweetWah</option>
+				  <option value="Temper">Temper</option>
+				  <option value="ThruZeroFlanger">ThruZeroFlanger</option>
+				  <option value="TS9_Overdrive">TS9_Overdrive</option>
+				  <option value="WeirdPhaser">WeirdPhaser</option>
+				</select>
+            <button style="position:absolute;top:16px;left:520px;" id='saveButton' onclick="renderToWavBlob();"><img
+                    src=/home/dominique/Electron/kandiskyscore-dev/images/png/document-save.png /></button>
+            <button style="position:absolute;top:16px;left:570px;" id='saveButton' onclick="exit();" ><img  src=/home/dominique/Electron/kandiskyscore-dev/images/png/exit.png /></button>
+        </div>
+        <div  class="plugins" id="plugin-guis">
+    <div id="gui-0"></div>
+    <div id="gui-1"></div>
+    <div id="gui-2"></div>
+    
+  </div>
+    </main>
+    <script type="text/javascript">
+        let nwav = ""
+        let id = ""
+        let duration = 0;
+        let tablePlugin=[]
+        let ref=3
+        let pluginsPath=[]
+        const pluginInstances = [];
+        let audioNodes=[]
+        pluginsPath["BigMuff"]="../BigMuff/index.js"
+        pluginsPath["blipper"]="../blipper/index.js"
+        pluginsPath["DistoM"]="../disto_machine/src/index.js"
+        pluginsPath["faustPingPongDelay"]="../faustPingPongDelay/plugin/index.js"
+        pluginsPath["GraphicEqu"]="../graphicEqualizer/src/index.js"
+        pluginsPath["GuitarAmp"]="../GuitarAmpSim60s/index.js"
+        pluginsPath["kbverb"]="../kbverb/index.js"
+        pluginsPath["kppdistorder"]="../kppdistorder/index.js"
+        pluginsPath["kppfuzz"]="../kpp_fuzz/index.js"
+        pluginsPath["OscTube"]="../OscTube/index.js"
+        pluginsPath["OverdriveRix"]="../OverdriveRix/index.js"
+        pluginsPath["OwlDirty"]="../OwlDirty/index.js"
+        pluginsPath["OwlShimmer"]="../OwlShimmer/index.js"
+        pluginsPath["Quadrafuzz"]="../quadrafuzz_without_builder/src/index.js"
+        pluginsPath["SmoothDelay"]="../SmoothDelay/index.js"
+        pluginsPath["StonePhaser"]="../StonePhaserStereo/index.js"
+        pluginsPath["SweetWah"]="../sweetWah/index.js"
+        pluginsPath["Temper"]="../temper/index.js"
+        pluginsPath["ThruZeroFlanger"]="../ThruZeroFlanger/index.js"
+        pluginsPath["TS9_Overdrive"]="../TS9_OverdriveFaustGenerated/index.js"
+        pluginsPath["WeirdPhaser"]="../WeirdPhaser/index.js"
+        /*
+        const guiMountPoints = [
+			  document.getElementById("gui-0"),
+			  document.getElementById("gui-1"),
+			  document.getElementById("gui-2"),
+			];
+			*/
+			async function getChannelCount(audioElement) {
+		    const audioContext = new AudioContext();
+		
+		    // Récupérer l'URL de la source
+		    const url = audioElement.src;
+		
+		    // Télécharger le fichier audio
+		    const response = await fetch(url);
+		    const arrayBuffer = await response.arrayBuffer();
+		
+		    // Décoder en AudioBuffer
+		    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+		
+		    // Nombre de canaux
+		    return audioBuffer.numberOfChannels;
+			}
+		const guiMountPoints = []
+        let audioContext=new AudioContext()
+        let sourceNode = audioContext.createMediaElementSource(document.querySelector("audio"));
+         sourceNode.connect(audioContext.destination);
+        const audio = document.getElementById('player');
+        var m;
+        audio.addEventListener('loadedmetadata', () => {
+            console.log(audio.duration)
+            duration = audio.duration;
+        });
+        window.api.receive("fromMain", (data) => {
+            var nsize = data
+            var cmd = data.split(";")
+            switch (cmd[0]) {
+                case 'equalizer':
+                    console.log(`equalizer ${data}`);
+                    nwav = cmd[2]
+                    id = cmd[1]
+                    graphEqua(cmd[1], cmd[3]);
+                   
+                    break
+            }
+        });
+        
+		  //const wamURIs = [pluginsPath["BigMuff"],pluginsPath["StonePhaser"], pluginsPath["graphicEqualizer"]];
+		  const wamURIs = [];
+        function graphEqua(id, wav) {
+            console.log("id", id, "wav", wav) // le nom de l'objet et le path du fichier sont transmis à l'ouverture de la fenêtre.
+            document.getElementById("player").src = wav
+             //console.log("nbcanau",document.getElementById("player").src.buffer.numberOfChannels)
+        }
+        function exit(){
+			console.log("exit")
+			window.api.send("toMain", "hostExit")
+			}
+			for (i=0;i<3;i++ ){
+			console.log(wamURIs)
+			//insertWam(wamURIs[i])
+			}
+			
+async function pluginSelect(defPlugin){
+		
+				let dest=document.getElementById("plugin-guis")
+				var dupnode=document.createElement('div');
+				
+				dupnode.setAttribute("id","gui-"+guiMountPoints.length);
+				//guiMountPoints[guiMountPoints.length]="gui-"+guiMountPoints.length;
+				ref++;
+				wamURIs[wamURIs.length]=pluginsPath[defPlugin]
+				dest.appendChild(dupnode);
+				guiMountPoints.push(dupnode);
+				dupnode.addEventListener('click',selectModule)
+				insertWam(pluginsPath[defPlugin])
+				console.log('selected',guiMountPoints,wamURIs);
+			}
+document.getElementById("pet-select").addEventListener('click'
+, function () {
+pluginSelect(this.value)
+console.log('selectedIndex => '+this.value);
+})
+			//document.getElementById("pet-select").addEventListener('click',pluginSelect);
+function selectModule() {
+	console.log(this.id)
+}		
+
+async function insertWam(i){
+	const { default: initializeWamHost } = await import("../sdk/src/initializeWamHost.js");
+	const [hostGroupId] = await initializeWamHost(audioContext);
+	const { default: pluginFactory } = await import(i);
+   const instance = await pluginFactory.createInstance(hostGroupId, audioContext);
+   pluginInstances.push(instance);
+    audioNodes[pluginInstances.length-1] = pluginInstances[pluginInstances.length-1].audioNode;
+   const gui = await instance.createGui();
+  
+   if(pluginInstances.length==1){
+   
+   guiMountPoints[0].appendChild(gui);
+  
+   //sourceNode.disconnect(audioContext.destination);
+   sourceNode.connect(audioNodes[0]);
+    console.log('selectedIndex => ',guiMountPoints,pluginInstances,audioNodes);
+   audioNodes[0].connect(audioContext.destination);
+  
+   }else{
+   guiMountPoints[guiMountPoints.length-1].appendChild(gui);
+  
+   audioNodes[wamURIs.length-2].disconnect(audioContext.destination);
+   audioNodes[wamURIs.length-2].connect(audioNodes[wamURIs.length-1]);
+   audioNodes[wamURIs.length-1].connect(audioContext.destination);
+   
+   }
+}		
+
+			
+async function cleanupAllPlugins() {
+    // Déconnecter les nœuds audio
+    if (sourceNode) {
+        sourceNode.disconnect();
+    }
+
+    // Supprimer les instances de plugin et nettoyer les éléments GUI
+    guiMountPoints.forEach((mountPoint, index) => {
+        if (mountPoint && mountPoint.firstChild) {
+            mountPoint.removeChild(mountPoint.firstChild);
+        }
+    });
+   }
+async function backupPluginStates() {
+console.log("savedStates1",window.pluginInstances)
+  if (!window.pluginInstances) return [];
+
+  const savedStates = [];
+
+  for (const instance of window.pluginInstances) {
+    try {
+      if (instance?.audioNode?.getState) {
+        const state = await instance.audioNode.getState();
+        savedStates.push({
+          guiId: instance.guiId,
+          wamId: instance.wamId || null, // facultatif si tu veux associer au plugin
+          state,
+        });
+      }
+    } catch (err) {
+      console.warn(`Échec de la sauvegarde état du plugin gui-${instance.guiId}`, err);
+    }
+  }
+console.log("savedStates1",savedStates)
+  return savedStates;
+}
+async function restorePluginStates(savedStates) {
+console.log("savedStates",savedStates)
+  if (!window.pluginInstances || !savedStates) return;
+
+  for (const instance of window.pluginInstances) {
+    try {
+      const saved = savedStates.find(s => s.guiId === instance.guiId);
+      if (saved && instance.audioNode?.setState) {
+        await instance.audioNode.setState(saved.state);
+        console.log(`État restauré pour gui-${instance.guiId}`);
+      }
+    } catch (err) {
+      console.warn(`Impossible de restaurer état pour gui-${instance.guiId}`, err);
+    }
+  }
+}
+	/*
+    // Réinitialiser les tableaux et les variables
+    guiMountPoints.length = 0;
+    wamURIs.length = 0;
+    ref = 3;
+
+    // Réinitialiser les points de montage GUI
+    guiMountPoints.push(
+        document.getElementById("gui-0"),
+        document.getElementById("gui-1"),
+        document.getElementById("gui-2")
+    );
+
+    // Réinitialiser le contexte audio
+    sourceNode = audioContext.createMediaElementSource(document.querySelector("audio"));
+    */
+
+
+</script>
+    
+    <script type="text/javascript">
+
+			
+
+        async function renderToWavBlob() {
+            const audioUrl = document.getElementById("player").src;
+            if (!audioUrl) {
+                console.error("Aucun fichier audio chargé !");
+                return;
+            }
+            const sampleRate = 48000;
+            // Étape 1 : Charger l'audio source en ArrayBuffer
+            const response = await fetch(audioUrl);
+            const arrayBuffer = await response.arrayBuffer();
+            // Étape 2 : Décoder l'audio
+            const tmpCtx = new AudioContext();
+            const decodedBuffer = await tmpCtx.decodeAudioData(arrayBuffer);
+            const duration = decodedBuffer.duration;
+            // Étape 3 : Créer OfflineAudioContext
+            const offlineCtx = new OfflineAudioContext({
+                numberOfChannels: 2,
+                length: Math.ceil(duration * sampleRate),
+                sampleRate: sampleRate,
+            });
+            // Étape 4 : Initialiser WAM dans le OfflineAudioContext    
+            // MICHEL BUFFA : on peut utiliser le code suivant 
+            // CECI MARCHE AUSSI : const { default: initializeWamHost } = await import("https://www.webaudiomodules.com/sdk/2.0.0-alpha.6/src/initializeWamHost.js");
+            const { default: initializeWamHost } = await import("../sdk/src/initializeWamHost.js");
+            const [hostGroupId] = await initializeWamHost(offlineCtx);
+
+				// Étape 5 : Créer une source à partir du buffer décodé
+            const bufferSource = offlineCtx.createBufferSource();
+            bufferSource.buffer = decodedBuffer;
+            // MICHEL BUFFA : on peut utiliser le code suivant, wamURI = l'uri du plugin à charger
+            //const wamURI = "../graphicEqualizer/src/index.js"
+            const pluginInstance2=[]
+				for(let i=0;i<wamURIs.length;i++){
+	            if(wamURIs.length>0){
+		            const { default: WAM } = await import(wamURIs[i]);
+		            console.log("wamURIs[0]",wamURIs[i]);
+		            // Create a new instance of the plugin, pass groupId
+		            const instance2 = await WAM.createInstance(hostGroupId, offlineCtx);
+		            pluginInstance2.push(instance2);
+		            
+		            // pour récupérer les paramètres définis sinon on enregistre l'audio du fichier d'origine
+		            if (pluginInstances[i]?.audioNode?.getState) {
+		                const state = await pluginInstances[i].audioNode.getState();
+		                await pluginInstance2[i].audioNode.setState(state);
+		            }
+		             if(i<1){
+		             	bufferSource.connect(pluginInstance2[0].audioNode);
+		             }else{
+	   					pluginInstance2[i-1].audioNode.connect(pluginInstance2[i].audioNode);
+	            	}
+		         }
+	         }
+	            // Étape 6 : Connecter source → plugin → destination
+            if(wamURIs.length==0){
+              bufferSource.connect(offlineCtx.destination);
+            }else{
+           	  pluginInstance2[wamURIs.length-1].audioNode.connect(offlineCtx.destination);
+            }
+          
+            bufferSource.start(0);
+            // Étape 7 : Rendu
+            console.log("Start rendering...");
+            const renderedBuffer = await offlineCtx.startRendering();
+            console.log("Rendering done!");
+            saveAudioToFile(renderedBuffer);
+        }
+        function saveAudioToFile(buffer) {
+            const wavBlob = convertAudioBufferToBlob(buffer);
+            const audioUrl = URL.createObjectURL(wavBlob);
+            // Créer un lien de téléchargement
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = audioUrl;
+            a.download = 'audio.wav'; // Nom du fichier
+            document.body.appendChild(a);
+            a.click();
+            // Nettoyer
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(audioUrl);
+            }, 100);
+        }
+        function convertAudioBufferToBlob(audioBuffer) {
+            var channelData = [],
+                totalLength = 0,
+                channelLength = 0;
+            for (var i = 0; i < audioBuffer.numberOfChannels; i++) {
+                channelData.push(audioBuffer.getChannelData(i));
+                totalLength += channelData[i].length;
+                if (i == 0) channelLength = channelData[i].length;
+            }
+            // interleaved
+            const interleaved = new Float32Array(totalLength);
+            for (
+                let src = 0, dst = 0;
+                src < channelLength;
+                src++, dst += audioBuffer.numberOfChannels
+            ) {
+                for (var j = 0; j < audioBuffer.numberOfChannels; j++) {
+                    interleaved[dst + j] = channelData[j][src];
+                }
+            }
+            // get WAV file bytes and audio params of your audio source
+            const wavBytes = this.getWavBytes(interleaved.buffer, {
+                isFloat: true, // floating point or 16-bit integer
+                numChannels: 2,
+                sampleRate: 48000,
+            });
+            const wav = new Blob([wavBytes], { type: "audio/wav" });
+            return wav
+        }
+        function getWavBytes(buffer, options) {
+            const type = options.isFloat ? Float32Array : Uint16Array
+            const numFrames = buffer.byteLength / type.BYTES_PER_ELEMENT
+            const headerBytes = getWavHeader(Object.assign({}, options, { numFrames }))
+            const wavBytes = new Uint8Array(headerBytes.length + buffer.byteLength);
+            // prepend header, then add pcmBytes
+            wavBytes.set(headerBytes, 0)
+            wavBytes.set(new Uint8Array(buffer), headerBytes.length)
+            return wavBytes
+        }
+        function getWavHeader(options) {
+            const numFrames = options.numFrames
+            const numChannels = options.numChannels || 2
+            const sampleRate = options.sampleRate || contextAudio.sampleRate
+            const bytesPerSample = options.isFloat ? 4 : 2
+            const format = options.isFloat ? 3 : 1
+            const blockAlign = numChannels * bytesPerSample
+            const byteRate = sampleRate * blockAlign
+            const dataSize = numFrames * blockAlign
+            const buffer = new ArrayBuffer(44)
+            const dv = new DataView(buffer)
+            let p = 0
+            function writeString(s) {
+                for (let i = 0; i < s.length; i++) {
+                    dv.setUint8(p + i, s.charCodeAt(i))
+                }
+                p += s.length
+            }
+            function writeUint32(d) {
+                dv.setUint32(p, d, true)
+                p += 4
+            }
+            function writeUint16(d) {
+                dv.setUint16(p, d, true)
+                p += 2
+            }
+            writeString('RIFF')              // ChunkID
+            writeUint32(dataSize + 36)       // ChunkSize
+            writeString('WAVE')              // Format
+            writeString('fmt ')              // Subchunk1ID
+            writeUint32(16)                  // Subchunk1Size
+            writeUint16(format)              // AudioFormat https://i.stack.imgur.com/BuSmb.png
+            writeUint16(numChannels)         // NumChannels
+            writeUint32(sampleRate)          // SampleRate
+            writeUint32(byteRate)            // ByteRate
+            writeUint16(blockAlign)          // BlockAlign
+            writeUint16(bytesPerSample * 8)  // BitsPerSample
+            writeString('data')              // Subchunk2ID
+            writeUint32(dataSize)            // Subchunk2Size
+            return new Uint8Array(buffer)
+        }
+        /*
+         async function renderToWavBlob() {
+            if (!window.pluginAudioNode) {
+                console.error("plugin audio node not available!");
+                return;
+            }else{
+                    console.log("plugin",window.pluginAudioNode)
+            }
+                
+            const sampleRate = 48000;
+            
+            const offlineCtx = new OfflineAudioContext(2, sampleRate * duration, sampleRate);
+            // 🧠 Tu dois recharger TOUS les modules pour le offlineCtx
+            const { default: apiVersion } = await import("../../api/src/version.js");
+            const { default: addFunctionModule } = await import("../../sdk/src/addFunctionModule.js");
+            const { default: initializeWamEnv } = await import("../../sdk/src/WamEnv.js");
+            const { default: initializeWamGroup } = await import("../../sdk/src/WamGroup.js");
+            const { default: pluginFactory } = await import('./index.js');
+            const groupId = 'offline-render';
+            const groupKey = performance.now().toString();
+            // 🧩 Étape CRUCIALE : init WamEnv dans *offlineCtx*
+            await addFunctionModule(offlineCtx.audioWorklet, initializeWamEnv, apiVersion);
+            // 🧩 Puis init WamGroup
+            await addFunctionModule(offlineCtx.audioWorklet, initializeWamGroup, groupId, groupKey);
+            // ✅ Créer l’instance du plugin dans ce nouveau contexte
+            const pluginInstance = await pluginFactory.createInstance(groupId, offlineCtx, {});
+            const pluginNode = pluginInstance.audioNode;
+        console.log(pluginNode)
+            // 🔊 Charger l’audio source depuis la balise <audio>
+            const response = await fetch(document.getElementById("player").src);
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await offlineCtx.decodeAudioData(arrayBuffer);
+            // 🎛️ Préparer source et connections
+            const source = offlineCtx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(pluginNode);
+            pluginNode.connect(offlineCtx.destination);
+            source.start();
+            // 🛠️ Rendu offline
+            const renderedBuffer = await offlineCtx.startRendering();
+            // 📁 Exporter en WAV
+            //const wavBlob = bufferToWavBlob(renderedBuffer); // <- tu veux cette fonction ?
+            //downloadBlob(wavBlob, "rendered.wav"); // <- ou utiliser ipcRenderer pour sauvegarder ?
+            var rwav=bufferToWavBlob(renderedBuffer)
+                
+                                var reader = new FileReader();
+                                reader.readAsArrayBuffer(rwav);
+                                reader.onloadend = (event) => {
+                                    // The contents of the BLOB are in reader.result:        
+                            //console.log("result ",audioDirectory+"exports/"+tableObjet[obj].id+".wav"," ",reader.result);
+                            window.api.saveAudio('saveAudio',"/home/dominique/kandiskyscore/Projets/Projet3/Audios/exports/"+id+"-wam.wav", reader.result);
+                            }
+        }
+        function bufferToWavBlob(buffer) {
+            let numOfChan = buffer.numberOfChannels,
+                length = buffer.length * numOfChan * 2 + 44,
+                bufferArray = new ArrayBuffer(length),
+                view = new DataView(bufferArray),
+                channels = [],
+                sampleRate = buffer.sampleRate,
+                offset = 0,
+                pos = 0;
+            // Write WAV container
+            function setUint16(data) {
+                view.setUint16(pos, data, true);
+                pos += 2;
+            }
+            function setUint32(data) {
+                view.setUint32(pos, data, true);
+                pos += 4;
+            }
+            // RIFF chunk descriptor
+            setUint32(0x46464952); // "RIFF"
+            setUint32(length - 8); // file length - 8
+            setUint32(0x45564157); // "WAVE"
+            // FMT sub-chunk
+            setUint32(0x20746d66); // "fmt "
+            setUint32(16); // size
+            setUint16(1); // PCM
+            setUint16(numOfChan);
+            setUint32(sampleRate);
+            setUint32(sampleRate * 2 * numOfChan); // avg. bytes/sec
+            setUint16(numOfChan * 2); // block-align
+            setUint16(16); // bits/sample
+            // data sub-chunk
+            setUint32(0x61746164); // "data"
+            setUint32(length - pos - 4); // chunk size
+            // write interleaved data
+            for (let i = 0; i < buffer.numberOfChannels; i++) {
+                channels.push(buffer.getChannelData(i));
+            }
+            while (pos < length) {
+                for (let i = 0; i < numOfChan; i++) {
+                    const sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+                    view.setInt16(pos, sample * 0x7FFF, true); // convert to PCM
+                    pos += 2;
+                }
+                offset++;
+            }
+            return new Blob([bufferArray], { type: "audio/wav" });
+        }
+        */
+
+
+
+    </script>
+</body>
+
+</html>
