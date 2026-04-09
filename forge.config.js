@@ -12,6 +12,7 @@ module.exports = {
       /^\/public\/.*\.(cpp|cpp~|h)$/,
       /^\/out\//,
       /^\/\.git\//,
+      /^\/Wam2\//,
     ]
   },
   rebuildConfig: {},
