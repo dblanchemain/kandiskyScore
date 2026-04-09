@@ -4558,6 +4558,32 @@ ipcMain.handle("faust-load-file", async (event, path) => {
         throw e;
     }
 });
+ipcMain.handle('soxProcessExport', async (event, filePath, soxParams) => {
+    const tmpPath = filePath + '.tmp.wav';
+    const extraArgs = (soxParams || "").match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+    const args = [filePath, tmpPath, ...extraArgs];
+    console.log('[soxProcessExport]', args.join(' '));
+    return new Promise((resolve, reject) => {
+        const proc = spawn(soxPath, args, { shell: false });
+        if (proc.stderr) {
+            proc.stderr.on('data', d => console.error('soxProcessExport stderr:', d.toString()));
+        }
+        proc.on('exit', (code) => {
+            if (code === 0) {
+                try {
+                    fs.renameSync(tmpPath, filePath);
+                    resolve({ ok: true });
+                } catch (e) {
+                    reject(e);
+                }
+            } else {
+                reject(new Error(`soxProcessExport: SoX exit code ${code}`));
+            }
+        });
+        proc.on('error', reject);
+    });
+});
+
 ipcMain.handle("saveAudioBuffer", async (event, payload) => {
     const { filePath, buffer } = payload;
 consolg.log("payload",payload);

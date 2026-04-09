@@ -1662,6 +1662,17 @@ async function postRubberband(id,mode,file) {
     }else{
     	outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
     	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
+    	// Appliquer les paramètres SoX (pitch, speed, vol, trim, fade) pour le fichier export DAW
+    	const exportObj = tableObjet[id];
+    	const durationAfterSpeed = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
+    	const envX0 = (exportObj.envX && exportObj.envX[0] !== undefined) ? exportObj.envX[0] : 0;
+    	const envX1 = (exportObj.envX && exportObj.envX[1] !== undefined) ? exportObj.envX[1] : 1;
+    	const exportFadeIn = exportObj.fadeIn || 0;
+    	const exportFade = `${exportFadeIn} ${durationAfterSpeed * envX0} ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
+    	const exportLengthSec = (exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut);
+    	const exportSoxParams = `pitch ${exportObj.detune} speed ${exportObj.transposition} vol ${exportObj.gain} trim ${exportObj.debut} ${exportLengthSec} fade ${exportFade}`;
+    	console.log("[export SoX]", exportSoxParams);
+    	await window.api.soxProcessExport(outPath, exportSoxParams);
     	document.getElementById("loading").style.display="none";
    	console.log("[no spatialiseObjet] File save:", outPath);
    	exportCompteur++;
