@@ -1866,7 +1866,8 @@ function playTempoFile() {
 	if (tempoPlayerStat === 0) {
 		tempoPlayerStat = 1;
 		document.getElementById("tempoPlay").src = "./images/png/pauseLect.png";
-		window.api.playDirectFile(0, tempoFilePath, "vol "+soxVolume);
+		const ratio = parseFloat(document.getElementById("sliderTempo").value) || 1.0;
+		window.api.playDirectFile(0, tempoFilePath, "vol " + soxVolume + " tempo " + ratio);
 	} else {
 		tempoPlayerStat = 0;
 		document.getElementById("tempoPlay").src = "./images/png/lecture.png";
@@ -1912,7 +1913,12 @@ function playStretchingFile() {
 	if (stretchingPlayerStat === 0) {
 		stretchingPlayerStat = 1;
 		document.getElementById("stretchingPlay").src = "./images/png/pauseLect.png";
-		window.api.playDirectFile(0, stretchingFilePath, "vol "+soxVolume);
+		const ratio = parseFloat(document.getElementById("sliderStretching").value) || 1.0;
+		const pitch = parseFloat(document.getElementById("sliderPitch").value) || 0;
+		const pitchCents = Math.round(pitch * 100);
+		let soxFx = "vol " + soxVolume + " tempo " + ratio;
+		if (pitchCents !== 0) soxFx += " pitch " + pitchCents;
+		window.api.playDirectFile(0, stretchingFilePath, soxFx);
 	} else {
 		stretchingPlayerStat = 0;
 		document.getElementById("stretchingPlay").src = "./images/png/lecture.png";
