@@ -1885,8 +1885,9 @@ function inpTempo(){
 async function validTempoAudio() {
 	const ratio = parseFloat(document.getElementById("sliderTempo").value);
 	if (!tempoFilePath) return;
-	const destPath = await window.api.showSaveDialog();
-	if (!destPath) return;
+	const obj = tableObjet[objActif];
+	const baseName = obj.file.replace(/\.[^.]+$/, '');
+	const destPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), baseName + '-tempo.wav');
 	if (tempoPlayerStat === 1) { tempoPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("tempoAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
@@ -1941,8 +1942,9 @@ async function validStretchingAudio() {
 	const ratio = parseFloat(document.getElementById("sliderStretching").value);
 	const pitch = parseFloat(document.getElementById("sliderPitch").value);
 	if (!stretchingFilePath) return;
-	const destPath = await window.api.showSaveDialog();
-	if (!destPath) return;
+	const obj = tableObjet[objActif];
+	const baseName = obj.file.replace(/\.[^.]+$/, '');
+	const destPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), baseName + '-stretching.wav');
 	if (stretchingPlayerStat === 1) { stretchingPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("stretchingAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
