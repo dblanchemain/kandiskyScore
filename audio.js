@@ -1887,7 +1887,9 @@ async function validTempoAudio() {
 	if (!tempoFilePath) return;
 	const obj = tableObjet[objActif];
 	const baseName = obj.file.replace(/\.[^.]+$/, '');
-	const destPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), baseName + '-tempo.wav');
+	const suggested = window.api.joinPath(toAbsPath(paramProjet.audioPath), baseName + '-tempo.wav');
+	const destPath = await window.api.showSaveDialog(suggested);
+	if (!destPath) return;
 	if (tempoPlayerStat === 1) { tempoPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("tempoAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";
@@ -1944,7 +1946,9 @@ async function validStretchingAudio() {
 	if (!stretchingFilePath) return;
 	const obj = tableObjet[objActif];
 	const baseName = obj.file.replace(/\.[^.]+$/, '');
-	const destPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), baseName + '-stretching.wav');
+	const suggested = window.api.joinPath(toAbsPath(paramProjet.audioPath), baseName + '-stretching.wav');
+	const destPath = await window.api.showSaveDialog(suggested);
+	if (!destPath) return;
 	if (stretchingPlayerStat === 1) { stretchingPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("stretchingAudio").style.display = "none";
 	document.getElementById("loading").style.display = "block";

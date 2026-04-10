@@ -56,7 +56,7 @@ contextBridge.exposeInMainWorld(
         return ipcRenderer.invoke('filtreSelection',buffers,sampleRate,objSelect);},
    frequencyShift: (buffers, sr, start, end, objSelect, mouseY) =>
     ipcRenderer.invoke('frequencyShift', buffers, sr, start, end, objSelect, mouseY),
-    showSaveDialog: () => ipcRenderer.invoke("showSaveDialog"),
+    showSaveDialog: (defaultPath) => ipcRenderer.invoke("showSaveDialog", defaultPath),
     loadFile: (filePath) =>ipcRenderer.invoke("loadFile", filePath),
   	 saveAudioBuffer: (...args) => ipcRenderer.invoke("save-audio-buffer", ...args),
     mergeWithSox: (output, inputs) =>

@@ -5339,11 +5339,11 @@ ipcMain.handle('stft', async (event, buffer, fftSize, hopSize, sampleRate) => {
     return frames;
 });
 
-ipcMain.handle("showSaveDialog", async () => {
+ipcMain.handle("showSaveDialog", async (event, defaultPath) => {
 
     const { canceled, filePath } = await dialog.showSaveDialog({
         title: "Sauvegarder le rendu audio",
-        defaultPath: "rendu.wav",
+        defaultPath: defaultPath || "rendu.wav",
         filters: [
             { name: "WAV audio", extensions: ["wav"] }
         ]
