@@ -4228,7 +4228,9 @@ ipcMain.on ("toMain", (event, args) => {
 			const { id: strId, filePath: strFile, ratio: strRatio, pitch: strPitch, destPath: strDest } = JSON.parse(cmd[1]);
 			(async () => {
 				try {
-					await callRubberbandCLI(rubberbandPath, strId, 'stretching', strFile, strDest, strRatio, strPitch);
+					// Varispeed : la hauteur suit le ratio (bande magnétique), + décalage manuel éventuel
+					const autoSemitones = -12 * Math.log2(strRatio);
+					await callRubberbandCLI(rubberbandPath, strId, 'stretching', strFile, strDest, strRatio, autoSemitones + strPitch);
 				} catch (err) {
 					console.error("Rubberband stretching failed:", err);
 					mainWindow.webContents.send("fromMain", "tempoError");

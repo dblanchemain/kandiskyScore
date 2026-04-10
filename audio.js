@@ -1918,9 +1918,8 @@ function playStretchingFile() {
 		document.getElementById("stretchingPlay").src = "./images/png/pauseLect.png";
 		const ratio = parseFloat(document.getElementById("sliderStretching").value) || 1.0;
 		const pitch = parseFloat(document.getElementById("sliderPitch").value) || 0;
-		const pitchCents = Math.round(pitch * 100);
-		let soxFx = "vol " + soxVolume + " tempo " + ratio;
-		if (pitchCents !== 0) soxFx += " pitch " + pitchCents;
+		let soxFx = "vol " + soxVolume + " speed " + ratio;
+		if (pitch !== 0) soxFx += " pitch " + Math.round(pitch * 100);
 		window.api.playDirectFile(0, stretchingFilePath, soxFx);
 	} else {
 		stretchingPlayerStat = 0;
