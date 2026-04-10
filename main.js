@@ -3102,8 +3102,8 @@ function buildPdfHtml(nbPages) {
 }
 
 async function collectProjectPdfPages(projPath) {
-    const pdfDir = path.join(projPath, 'pdf');
-    console.log('[PDF] projPath:', projPath);
+    const pdfDir = path.join(path.dirname(currentProjet), 'pdf');
+    console.log('[PDF] projPath:', projPath, '→ currentProjet:', currentProjet);
     console.log('[PDF] pdfDir:', pdfDir, '— existe:', fs.existsSync(pdfDir));
     if (!fs.existsSync(pdfDir)) return { before: [], after: [] };
 
