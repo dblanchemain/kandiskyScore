@@ -802,7 +802,8 @@ window.api.receive("fromMain", (data) => {
 				(async () => {
 					if (cmd[2] === 'tempo' || cmd[2] === 'stretching') {
 						document.getElementById("loading").style.display = "none";
-						saveRenduAudio(0, cmd[3]);
+						const fname = cmd[3].split(/[\\/]/).pop();
+						alert("Fichier créé : " + fname);
 					} else {
 						await postRubberband(cmd[1],cmd[2],cmd[3]);
 					}
