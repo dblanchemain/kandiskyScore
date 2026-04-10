@@ -37,6 +37,7 @@ const FFTModule = require('fft.js');
 
 var AudioBuffer = require('audiobuffer');
 const { exec, execSync, spawn , spawnSync} = require("child_process");
+const { PDFDocument } = require("pdf-lib");
 const util = require("util");
 const execAsync = util.promisify(exec);
 
@@ -3100,10 +3101,52 @@ function buildPdfHtml(nbPages) {
 </html>`;
 }
 
-async function svgToPdf(svgPath) {
+async function collectProjectPdfPages(projPath) {
+    const pdfDir = path.join(path.dirname(projPath), 'pdf');
+    if (!fs.existsSync(pdfDir)) return { before: [], after: [] };
+
+    const fixed = ['couverture1', 'couverture2', 'dedicace1', 'dedicace2', 'preface1', 'preface2'];
+    const before = [];
+    for (const name of fixed) {
+        const p = path.join(pdfDir, name + '.pdf');
+        if (fs.existsSync(p)) before.push(p);
+    }
+    // Tous les fichiers glossaire*.pdf triés
+    const all = await fs.promises.readdir(pdfDir);
+    const glossaires = all
+        .filter(f => /^glossaire\d*\.pdf$/i.test(f))
+        .sort()
+        .map(f => path.join(pdfDir, f));
+    before.push(...glossaires);
+
+    const after = [];
+    for (const name of ['couverture3', 'couverture4']) {
+        const p = path.join(pdfDir, name + '.pdf');
+        if (fs.existsSync(p)) after.push(p);
+    }
+    return { before, after };
+}
+
+async function mergePdfs(pdfPaths) {
+    const merged = await PDFDocument.create();
+    for (const p of pdfPaths) {
+        try {
+            const bytes = await fs.promises.readFile(p);
+            const doc = await PDFDocument.load(bytes);
+            const pages = await merged.copyPages(doc, doc.getPageIndices());
+            for (const page of pages) merged.addPage(page);
+        } catch (e) {
+            console.error('mergePdfs: impossible de charger', p, e.message);
+        }
+    }
+    return await merged.save();
+}
+
+async function svgToPdf(svgPath, projPath) {
     const NB_PAGES = 10;
     const pdfDir = path.join(app.getPath('appData'), 'kandiskyscore', 'pdf');
     const htmlPath = path.join(pdfDir, 'partition.html');
+    const scorePdfPath = path.join(pdfDir, 'score.pdf');
     const pdfPath = path.join(pdfDir, 'partition.pdf');
 
     await fs.promises.mkdir(pdfDir, { recursive: true });
@@ -3118,8 +3161,17 @@ async function svgToPdf(svgPath) {
 
     const data = await win.webContents.printToPDF(pdfSettings());
     win.destroy();
+    await fs.promises.writeFile(scorePdfPath, data);
 
-    await fs.promises.writeFile(pdfPath, data);
+    // Fusion avec les pages du dossier pdf du projet
+    const { before, after } = await collectProjectPdfPages(projPath || '');
+    if (before.length === 0 && after.length === 0) {
+        await fs.promises.writeFile(pdfPath, data);
+    } else {
+        const merged = await mergePdfs([...before, scorePdfPath, ...after]);
+        await fs.promises.writeFile(pdfPath, merged);
+    }
+
     shell.openPath(pdfPath);
 }
 function createPdf(txt) {
@@ -3245,7 +3297,7 @@ async function spaceToSvg(projPath, txt) {
     try {
         await fs.promises.mkdir(pdfDir, { recursive: true });
         await fs.promises.writeFile(svgPath, ntxt, 'utf8');
-        await svgToPdf(svgPath);
+        await svgToPdf(svgPath, projPath);
     } catch (err) {
         console.error('spaceToSvg error:', err);
     }
