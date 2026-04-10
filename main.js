@@ -3102,7 +3102,7 @@ function buildPdfHtml(nbPages) {
 }
 
 async function collectProjectPdfPages(projPath) {
-    const pdfDir = path.join(path.dirname(projPath), 'pdf');
+    const pdfDir = path.join(projPath, 'pdf');
     if (!fs.existsSync(pdfDir)) return { before: [], after: [] };
 
     const fixed = ['couverture1', 'couverture2', 'dedicace1', 'dedicace2', 'preface1', 'preface2'];
