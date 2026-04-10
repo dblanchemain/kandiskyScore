@@ -3103,8 +3103,6 @@ function buildPdfHtml(nbPages) {
 
 async function collectProjectPdfPages(projPath) {
     const pdfDir = path.join(path.dirname(currentProjet), 'pdf');
-    console.log('[PDF] projPath:', projPath, '→ currentProjet:', currentProjet);
-    console.log('[PDF] pdfDir:', pdfDir, '— existe:', fs.existsSync(pdfDir));
     if (!fs.existsSync(pdfDir)) return { before: [], after: [] };
 
     const fixed = ['couverture1', 'couverture2', 'dedicace1', 'dedicace2', 'preface1', 'preface2'];
@@ -3126,8 +3124,6 @@ async function collectProjectPdfPages(projPath) {
         const p = path.join(pdfDir, name + '.pdf');
         if (fs.existsSync(p)) after.push(p);
     }
-    console.log('[PDF] before:', before);
-    console.log('[PDF] after:', after);
     return { before, after };
 }
 
