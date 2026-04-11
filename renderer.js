@@ -2465,13 +2465,11 @@ function importConfigProjet(){
 	
 	console.warn("TYPE console.log =", typeof console.log);
 
-	(async () => {
-		try {
-        window.wamSpat = await createLayout(spat3D, 1, spatMode, hoaOrder);
-    } catch (err) {
-        console.error("Erreur dans createLayout:", err);
-    }	
-	})();
+	// Stocke la Promise pour éviter une double compilation si spatialiseBuffer
+	// est appelé avant que la compilation initiale soit terminée.
+	window.wamSpatPromise = createLayout(spat3D, 1, spatMode, hoaOrder)
+		.then(result => { window.wamSpat = result; return result; })
+		.catch(err => { console.error("Erreur dans createLayout:", err); return null; });
 	
 	//createSpatializersForObjects(spat3D)
 }

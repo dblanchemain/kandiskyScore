@@ -1454,10 +1454,19 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
     }
     console.log("[spatialiseObjet] START VBAP", id);
 
-    // Si wamSpat absent (createLayout non encore exécuté), on le recompile
+    // Si wamSpat absent, attend la compilation initiale (lancée dans importConfigProjet)
+    // sans en démarrer une seconde, pour éviter la double compilation qui cause la coupure.
     if (!window.wamSpat) {
-        console.warn("[spatialiseBuffer] wamSpat absent, recompilation...");
-        window.wamSpat = await createLayout(spat3D, 1, spatMode, hoaOrder);
+        if (window.wamSpatPromise) {
+            console.warn("[spatialiseBuffer] wamSpat pas encore prêt, attente...");
+            window.wamSpat = await window.wamSpatPromise;
+        } else {
+            window.wamSpatPromise = createLayout(spat3D, 1, spatMode, hoaOrder)
+                .then(r => { window.wamSpat = r; return r; })
+                .catch(e => { console.error("createLayout fallback:", e); return null; });
+            window.wamSpat = await window.wamSpatPromise;
+        }
+        if (!window.wamSpat) { console.error("[spatialiseBuffer] wamSpat toujours absent"); return; }
     }
 
     const obj = tableObjet[id];
@@ -1543,6 +1552,10 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
 // ══════════════════════════════════════════════════════════
 async function spatialiseBufferHoa(id, outPath, numChannels, numSamples, sampleRate, currentChannels, interpType = "linear") {
     console.log("[spatialiseHOA] START", id);
+    if (!window.wamSpat && window.wamSpatPromise) {
+        window.wamSpat = await window.wamSpatPromise;
+    }
+    if (!window.wamSpat) { console.error("[spatialiseHOA] wamSpat absent"); return; }
     const obj = tableObjet[id];
     const blockSize = 64;
     const { encGenerator, decGenerator, P, nHoa } = window.wamSpat;
