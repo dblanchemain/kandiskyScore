@@ -1351,7 +1351,7 @@ function interpolate(times, values, t, type = "linear") {
     if (t <= times[0]) return values[0];
     if (t >= times[times.length - 1]) return values[values.length - 1];
 
-    // trouve l’intervalle
+    // trouve l'intervalle
     let lo = 0, hi = times.length - 1;
     while (hi - lo > 1) {
         const m = (lo + hi) >> 1;
@@ -1721,12 +1721,12 @@ async function postRubberband(id,mode,file) {
 	console.log("gain",gainPoints);
 	const extracted = extractEnvelopeForObject(
     gainPoints,
-    tableObjet[id].posX,        // position de l’objet dans le X global
+    tableObjet[id].posX,        // position de l'objet dans le X global
     song.buffer.duration * 18     // durée en X dans la partition
 );
 	const localEnv = convertToLocalEnvelope(
     extracted,
-    song.buffer.duration   // durée de l’audio en secondes
+    song.buffer.duration   // durée de l'audio en secondes
 );
 	applyEnvelopeToGainNode(gainNode, localEnv);
 	song.connect(gainNode);

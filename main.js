@@ -1272,7 +1272,7 @@ ipcMain.handle('saveAudioTempo', async (event, filePath, arrayBuffer) => {
     const fullPath = path.resolve(filePath);
     const buffer = Buffer.from(arrayBuffer);
 
-    // ✅ On attend la fin complète de l’écriture
+    // ✅ On attend la fin complète de l'écriture
     await fs.promises.writeFile(fullPath, buffer);
 
     console.log("✅ WAV sauvegardé :", fullPath);
@@ -4979,7 +4979,7 @@ function parseWavHeader(buffer) {
 }
 
 /**
- * Écrit l’en-tête W64 (64-bit)
+ * Écrit l'en-tête W64 (64-bit)
  */
 function writeWave64Header(fd, numChannels, sampleRate, bitsPerSample, numSamples) {
   const bytesPerSample = bitsPerSample / 8;
@@ -5748,7 +5748,7 @@ ipcMain.handle('spectralShift', async (
             fft.inverseTransform(output, shifted);
 
             // overlap-add compensé pour garder le volume
-            // hop = fftSize/4 → facteur 4 pour compenser l’overlap
+            // hop = fftSize/4 → facteur 4 pour compenser l'overlap
             for (let i = 0; i < fftSize; i++) {
                 const outIdx = offset + i;
                 if (outIdx < length) out[outIdx] += output[2*i] * window[i] * 4;

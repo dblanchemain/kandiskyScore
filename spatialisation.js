@@ -46,7 +46,7 @@ console.log("dsp",dspCode);
 /*
 Explications
 
-N → nombre de canaux de l’objet audio.
+N → nombre de canaux de l'objet audio.
 
 M → nombre de sorties du layout (ici 18).
 
@@ -113,7 +113,7 @@ async function createSpatializersForObjects(layoutName) {
     
     const spatializers = tableObjet.map(obj => {
     	(async () => {
-        let gen = new wasmFactory.constructor(); // ou selon l’API faustwasm
+        let gen = new wasmFactory.constructor(); // ou selon l'API faustwasm
         gen = await wasmFactory.createOfflineProcessor(48000, 1024);; // init avec sampleRate
         console.log("spatializers",gen);
         return gen;
@@ -121,7 +121,7 @@ async function createSpatializersForObjects(layoutName) {
 
 });
  
-    return spatializers; // tableau d’instances indépendantes
+    return spatializers; // tableau d'instances indépendantes
 
 }
 
@@ -130,7 +130,7 @@ async function createSpatializersForObjects(layoutName) {
 // ══════════════════════════════════════════════════════════
 
 /**
- * Calcule les harmoniques sphériques réelles ACN/SN3D jusqu’à l’ordre N
+ * Calcule les harmoniques sphériques réelles ACN/SN3D jusqu'à l'ordre N
  * pour une position (az, el) en radians.
  * Convention : x = cosAz*cosEl (avant), y = sinAz*cosEl (gauche), z = sinEl (haut)
  */
@@ -173,7 +173,7 @@ function computeSH(order, az, el) {
 }
 
 /**
- * Génère le DSP Faust d’encodage HOA (1 entrée mono → nHoa canaux B-format)
+ * Génère le DSP Faust d'encodage HOA (1 entrée mono → nHoa canaux B-format)
  * Les sliders /X /Y /Z pilotent la position source (coordonnées normalisées [-1,1])
  * comme dans le VBAP existant.
  */
@@ -214,7 +214,7 @@ function generateHoaEncoderDSP(order) {
         );
     }
 
-    const channels = Array.from({ length: nHoa }, (_, i) => `*(sh${i})`).join(‘, ‘);
+    const channels = Array.from({ length: nHoa }, (_, i) => `*(sh${i})`).join(', ');
 
     return `
 declare name "HOA Encoder Ord${order}";
