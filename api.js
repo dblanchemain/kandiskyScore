@@ -1669,23 +1669,33 @@ async function getObjAudioBuffer(id) {
 }
 
 /**
- * Export HOA AmbiX de toute la partition.
- * Force exportAmbiX=true le temps de l'export, puis restaure la valeur.
- * Utilise le même pipeline que l'export objet mais en mode HOA B-format.
+ * Export HOA AmbiX de toute la partition (mode=2 dans postRubberband).
+ * Chaque objet est encodé en B-format et sauvé dans exports/{id}_ambiX.wav
  */
 async function exportHoaAmbiXPartition() {
     if (!window.wamSpat || window.wamSpat.mode !== "hoa") {
-        alert("Le projet doit être en mode HOA (Ambisonics) pour cet export.\nChangez le mode dans les préférences du projet.");
+        alert("Le projet doit etre en mode HOA (Ambisonics) pour cet export.\nChangez le mode dans les preferences du projet.");
         return;
     }
-    // Sauvegarde et force exportAmbiX
-    const prev = (typeof exportAmbiX !== "undefined") ? exportAmbiX : false;
-    exportAmbiX = true;
-    try {
-        await exportObjAudio(1); // exporte tous les objets en mode HOA AmbiX
-    } finally {
-        exportAmbiX = prev;
+    // Collecte de tous les objets actifs avec fichier audio (comme exportPart)
+    const lsgrp = [];
+    for (let i = 0; i < tableObjet.length; i++) {
+        if (tableObjet[i].etat == 1 && tableObjet[i].mute == 0
+            && tableObjet[i].file && tableObjet[i].file !== ""
+            && tableObjet[i].type < 23) {
+            lsgrp.push(i);
+        }
     }
+    lsgrp.sort((a, b) => tableObjet[a].posX - tableObjet[b].posX);
+    if (lsgrp.length === 0) return;
+
+    exportTable    = lsgrp;
+    exportCompteur = 0;
+    document.getElementById("sliderLParam").style.width = "0%";
+    document.getElementById("popupLoader").style.display = "block";
+
+    // Lance le pipeline en mode=2 (HOA AmbiX)
+    await readSimpleAudioA(lsgrp[0], 2);
 }
 
 async function exportAdm() {
