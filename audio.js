@@ -1454,10 +1454,15 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
     }
     console.log("[spatialiseObjet] START VBAP", id);
 
+    // Si wamSpat absent (createLayout non encore exécuté), on le recompile
+    if (!window.wamSpat) {
+        console.warn("[spatialiseBuffer] wamSpat absent, recompilation...");
+        window.wamSpat = await createLayout(spat3D, 1, spatMode, hoaOrder);
+    }
+
     const obj = tableObjet[id];
     // ===== OFFLINE PROCESSOR =====
-    const blockSize = 64; // plus réactif
-    console.log("generator",await window.wamSpat.generator);
+    const blockSize = 64;
     const processor = await window.wamSpat.generator.createOfflineProcessor(sampleRate, blockSize);
 	
     // ===== READ AVAILABLE PARAMS =====
