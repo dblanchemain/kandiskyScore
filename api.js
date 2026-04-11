@@ -1668,6 +1668,26 @@ async function getObjAudioBuffer(id) {
 	return outBuf;
 }
 
+/**
+ * Export HOA AmbiX de toute la partition.
+ * Force exportAmbiX=true le temps de l'export, puis restaure la valeur.
+ * Utilise le même pipeline que l'export objet mais en mode HOA B-format.
+ */
+async function exportHoaAmbiXPartition() {
+    if (!window.wamSpat || window.wamSpat.mode !== "hoa") {
+        alert("Le projet doit être en mode HOA (Ambisonics) pour cet export.\nChangez le mode dans les préférences du projet.");
+        return;
+    }
+    // Sauvegarde et force exportAmbiX
+    const prev = (typeof exportAmbiX !== "undefined") ? exportAmbiX : false;
+    exportAmbiX = true;
+    try {
+        await exportObjAudio(1); // exporte tous les objets en mode HOA AmbiX
+    } finally {
+        exportAmbiX = prev;
+    }
+}
+
 async function exportAdm() {
 	const filePath = await window.api.showSaveDialog();
 	if (!filePath) return;

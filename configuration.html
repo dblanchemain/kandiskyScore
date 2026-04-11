@@ -32,6 +32,23 @@
 			<tr><td id="dimg">Dossier images :</td><td colspan="4" ><input id="dossierImg" style="width:600px;" type="text" value="" /></td></tr>
 			<tr><td id="greffon">Greffon spat3D :</td><td colspan="4" ><select id="selectGreffon"  >
 			</select><input id="spat3DCanaux" style="width:60px;" type="number" value="18" min="2" max="128" step="1" /></td></tr>
+			<tr><td id="tdSpatMode">Mode spatialisation :</td><td colspan="4">
+				<select id="selectSpatMode" onchange="toggleHoaOptions()">
+					<option value="vbap3d">VBAP 3D</option>
+					<option value="hoa">HOA (Ambisonics)</option>
+				</select>
+				<span id="spanHoaOrder" style="display:none;margin-left:12px;">Ordre HOA :
+					<select id="selectHoaOrder">
+						<option value="1">1 (4 canaux)</option>
+						<option value="2">2 (9 canaux)</option>
+						<option value="3" selected>3 (16 canaux)</option>
+					</select>
+				</span>
+				<span id="spanAmbiX" style="display:none;margin-left:16px;">
+					<input type="checkbox" id="chkExportAmbiX" />
+					<label for="chkExportAmbiX"> Export AmbiX (B-format brut)</label>
+				</span>
+			</td></tr>
 			<tr><td id="workspace" rowspan="2">Espace de travail </td><td><span id="regle" >Regle (ms/sec) : </span><input  id="spaceRegle" type="checkbox" checked /><span id="mesure"> Mesure : </span><input  id="spaceMesure" type="checkbox"  checked  /><span id="grille"> Grille : </span><input   id="spaceGrille" type="checkbox"  checked  /><span id="spaceS"> Seconde : </span><input   id="spaceSeconde" type="checkbox"  /></td></tr>
 			<tr><td ><span id="width">Dimension Lageur : </span><input  id="spaceWidth" style="width:60px;" type="number" value="" min="" max="" step="10" /><span id="height"> Hauteur : </span><input   id="spaceHeight" type="number" style="width:60px;"  value=""  min="" max="" step="10" /><span id="zoom"> Zoom : </span><input   id="spaceScale" type="number" style="width:60px;"  value="1"  min="" max="" step="0.1" /></td></tr>
 			<tr><td id="svg">SVG </td><td><span id="svgR">Regle (ms/sec) : </span><input  id="svgRegle" type="checkbox"  /><span id="svgM"> Mesure :</span> <input  id="svgMesure" type="checkbox"  /><span id="svgG"> Grille : </span><input   id="svgGrille" type="checkbox"  /><span id="svgS"> Seconde : </span><input   id="svgSeconde" type="checkbox"  /></td></tr>
@@ -542,6 +559,12 @@ function configInterface() {
  document.getElementById("clSvgFontColor").style.backgroundColor=vueSvgFontColor
  document.getElementById("selectLang").value=lang
 }
+function toggleHoaOptions() {
+	const mode = document.getElementById("selectSpatMode").value;
+	const isHoa = mode === "hoa";
+	document.getElementById("spanHoaOrder").style.display = isHoa ? "inline" : "none";
+	document.getElementById("spanAmbiX").style.display  = isHoa ? "inline" : "none";
+}
 function defautProjet(){
 	paramProjet={}
 		paramProjet={
@@ -564,7 +587,10 @@ function defautProjet(){
 		svgRegle:'false',
 		svgMesure:'false',
 		svgGrille:'false',
-		svgSeconde:'false'
+		svgSeconde:'false',
+		spatMode:'vbap3d',
+		hoaOrder:3,
+		exportAmbiX:false
 	}
 	configProjet()
 }
@@ -587,6 +613,10 @@ function configProjet(){
 	document.getElementById("dossierImg").value=paramProjet.imgPath
 	document.getElementById("selectGreffon").value=paramProjet.greffon3D
 	document.getElementById("spat3DCanaux").value=paramProjet.greffonC
+	document.getElementById("selectSpatMode").value=paramProjet.spatMode||"vbap3d"
+	document.getElementById("selectHoaOrder").value=paramProjet.hoaOrder||3
+	document.getElementById("chkExportAmbiX").checked=paramProjet.exportAmbiX===true||paramProjet.exportAmbiX==="true"
+	toggleHoaOptions()
 	document.getElementById("spaceRegle").checked=false
 	if(paramProjet.regle=="true"){
 		document.getElementById("spaceRegle").checked=true
@@ -633,6 +663,9 @@ function defProjet() {
 	paramProjet.imgPath=document.getElementById("dossierImg").value
 	paramProjet.greffon3D=document.getElementById("selectGreffon").value
 	paramProjet.greffonC=document.getElementById("spat3DCanaux").value
+	paramProjet.spatMode=document.getElementById("selectSpatMode").value
+	paramProjet.hoaOrder=parseInt(document.getElementById("selectHoaOrder").value)
+	paramProjet.exportAmbiX=document.getElementById("chkExportAmbiX").checked
 	paramProjet.regle=false
 	if(document.getElementById("spaceRegle").checked==true){
 		paramProjet.regle=true
@@ -680,7 +713,7 @@ const buf = await window.api.readFile(dest);
 var txt = new TextDecoder("utf-8").decode(buf);
 var rjson = JSON.parse(txt); 
 document.getElementById("spat3DCanaux").value= rjson.speakers.length;
-var txt=paramProjet.name+","+paramProjet.start+","+paramProjet.end+","+paramProjet.comment+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+paramProjet.greffon3D+","+paramProjet.greffonC+","+paramProjet.regle+","+paramProjet.mesure+","+paramProjet.grille+","+paramProjet.width+","+paramProjet.height+","+paramProjet.zoom+","+paramProjet.svgRegle+","+paramProjet.svgMesure+","+paramProjet.svgGrille+","+paramProjet.spaceSeconde+","+paramProjet.svgSeconde
+var txt=paramProjet.name+","+paramProjet.start+","+paramProjet.end+","+paramProjet.comment+","+paramProjet.path+","+paramProjet.audioPath+","+paramProjet.imgPath+","+paramProjet.greffon3D+","+paramProjet.greffonC+","+paramProjet.regle+","+paramProjet.mesure+","+paramProjet.grille+","+paramProjet.width+","+paramProjet.height+","+paramProjet.zoom+","+paramProjet.svgRegle+","+paramProjet.svgMesure+","+paramProjet.svgGrille+","+paramProjet.spaceSeconde+","+paramProjet.svgSeconde+","+(paramProjet.spatMode||"vbap3d")+","+(paramProjet.hoaOrder||3)+","+(paramProjet.exportAmbiX?1:0)
 
 window.api.send("toMain", 'exportProjet;'+txt)
 }

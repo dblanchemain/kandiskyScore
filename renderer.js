@@ -26,6 +26,9 @@ function toAbsPath(p) {
 }
 
 let soxVolume = 1.0;
+let spatMode = "vbap3d";
+let hoaOrder = 3;
+let exportAmbiX = false;
 function setSoxVolume(db) {
     soxVolume = Math.pow(10, parseFloat(db) / 20);
     document.getElementById("soxVolumeVal").textContent = (parseFloat(db) >= 0 ? "+" : "") + db + " dB";
@@ -731,6 +734,9 @@ window.api.receive("fromMain", (data) => {
 				break;
 			case 'exportAdm':
 				exportAdm(1);
+				break;
+			case 'exportHoaAmbiX':
+				exportHoaAmbiXPartition();
 				break;
 			case 'importAdm':
 				importAdmFromData(JSON.parse(decodeURIComponent(escape(atob(cmd[1])))));
@@ -2386,6 +2392,9 @@ var tableProjet=txt.split(',');
 	svgGrille:JSON.parse(tableProjet[17]),
 	spaceSeconde:JSON.parse(tableProjet[18]),
 	svgSeconde:JSON.parse(tableProjet[19]),
+	spatMode: tableProjet[20] || "vbap3d",
+	hoaOrder: parseInt(tableProjet[21]) || 3,
+	exportAmbiX: tableProjet[22] === "1",
 	};
 	zoomInit(100);
 	upDateWorkSpace(1);
@@ -2406,6 +2415,9 @@ function importConfigProjet(){
 	imgDirectory=paramProjet.imgPath;
 	spat3D=paramProjet.greffon3D;
 	spat3dCanaux=paramProjet.greffonC;
+	spatMode=paramProjet.spatMode||"vbap3d";
+	hoaOrder=parseInt(paramProjet.hoaOrder)||3;
+	exportAmbiX=paramProjet.exportAmbiX===true||paramProjet.exportAmbiX===1;
 	if(paramProjet.regle==true){
 		setTimeRegle=true;
 	}else{
@@ -2455,7 +2467,7 @@ function importConfigProjet(){
 
 	(async () => {
 		try {
-        window.wamSpat = await createLayout(spat3D,1);
+        window.wamSpat = await createLayout(spat3D, 1, spatMode, hoaOrder);
     } catch (err) {
         console.error("Erreur dans createLayout:", err);
     }	

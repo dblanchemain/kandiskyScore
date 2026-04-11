@@ -122,5 +122,160 @@ async function createSpatializersForObjects(layoutName) {
 });
  
     return spatializers; // tableau d’instances indépendantes
-    
+
+}
+
+// ══════════════════════════════════════════════════════════
+//  HOA — Higher Order Ambisonics (ACN/SN3D)
+// ══════════════════════════════════════════════════════════
+
+/**
+ * Calcule les harmoniques sphériques réelles ACN/SN3D jusqu’à l’ordre N
+ * pour une position (az, el) en radians.
+ * Convention : x = cosAz*cosEl (avant), y = sinAz*cosEl (gauche), z = sinEl (haut)
+ */
+function computeSH(order, az, el) {
+    const cosAz = Math.cos(az), sinAz = Math.sin(az);
+    const cosEl = Math.cos(el), sinEl = Math.sin(el);
+    const x = cosAz * cosEl;
+    const y = sinAz * cosEl;
+    const z = sinEl;
+
+    const c = [1.0]; // ACN 0
+    if (order >= 1) {
+        c.push(
+            1.7320508  * y,          // ACN 1  √3 y
+            1.7320508  * z,          // ACN 2  √3 z
+            1.7320508  * x           // ACN 3  √3 x
+        );
+    }
+    if (order >= 2) {
+        c.push(
+            3.8729833  * x * y,                      // ACN 4  √15 xy
+            3.8729833  * y * z,                      // ACN 5  √15 yz
+            1.1180340  * (3*z*z - 1),                // ACN 6  √5/2 (3z²-1)
+            3.8729833  * x * z,                      // ACN 7  √15 xz
+            1.9364917  * (x*x - y*y)                 // ACN 8  √15/2 (x²-y²)
+        );
+    }
+    if (order >= 3) {
+        c.push(
+            2.0916501  * y * (3*x*x - y*y),          // ACN 9
+            10.2469762 * x * y * z,                  // ACN 10
+            1.6201852  * y * (4*z*z - x*x - y*y),   // ACN 11
+            1.3228757  * z * (2*z*z - 3*(x*x+y*y)), // ACN 12
+            1.6201852  * x * (4*z*z - x*x - y*y),   // ACN 13
+            5.1234754  * (x*x - y*y) * z,            // ACN 14
+            2.0916501  * x * (x*x - 3*y*y)           // ACN 15
+        );
+    }
+    return c;
+}
+
+/**
+ * Génère le DSP Faust d’encodage HOA (1 entrée mono → nHoa canaux B-format)
+ * Les sliders /X /Y /Z pilotent la position source (coordonnées normalisées [-1,1])
+ * comme dans le VBAP existant.
+ */
+function generateHoaEncoderDSP(order) {
+    const nHoa = (order + 1) * (order + 1);
+
+    // Les SH sont exprimées via x,y,z = composantes cartésiennes du vecteur source normalisé
+    // On déduit az/el depuis les sliders X,Y,Z : az = atan2(X,Y), el = atan2(Z, sqrt(X²+Y²))
+    const shDefs = [
+        // ordre 0
+        `sh0  = 1.0;`
+    ];
+    if (order >= 1) {
+        shDefs.push(
+            `sh1  = 1.7320508  * vy;`,
+            `sh2  = 1.7320508  * vz;`,
+            `sh3  = 1.7320508  * vx;`
+        );
+    }
+    if (order >= 2) {
+        shDefs.push(
+            `sh4  = 3.8729833  * vx * vy;`,
+            `sh5  = 3.8729833  * vy * vz;`,
+            `sh6  = 1.1180340  * (3.0*vz*vz - 1.0);`,
+            `sh7  = 3.8729833  * vx * vz;`,
+            `sh8  = 1.9364917  * (vx*vx - vy*vy);`
+        );
+    }
+    if (order >= 3) {
+        shDefs.push(
+            `sh9  = 2.0916501  * vy * (3.0*vx*vx - vy*vy);`,
+            `sh10 = 10.2469762 * vx * vy * vz;`,
+            `sh11 = 1.6201852  * vy * (4.0*vz*vz - vx*vx - vy*vy);`,
+            `sh12 = 1.3228757  * vz * (2.0*vz*vz - 3.0*(vx*vx + vy*vy));`,
+            `sh13 = 1.6201852  * vx * (4.0*vz*vz - vx*vx - vy*vy);`,
+            `sh14 = 5.1234754  * (vx*vx - vy*vy) * vz;`,
+            `sh15 = 2.0916501  * vx * (vx*vx - 3.0*vy*vy);`
+        );
+    }
+
+    const channels = Array.from({ length: nHoa }, (_, i) => `*(sh${i})`).join(‘, ‘);
+
+    return `
+declare name "HOA Encoder Ord${order}";
+declare version "1.0";
+import("stdfaust.lib");
+
+// Position source (coordonnées cartésiennes normalisées)
+rawX = hslider("/X", 0, -1, 1, 0.001) : si.smoo;
+rawY = hslider("/Y", 0, -1, 1, 0.001) : si.smoo;
+rawZ = hslider("/Z", 0, -1, 1, 0.001) : si.smoo;
+gain = hslider("/Gain", 1, 0, 2, 0.001) : si.smoo;
+
+// Normalisation sur sphère unité
+len = sqrt(rawX*rawX + rawY*rawY + rawZ*rawZ + 0.0001);
+vx = rawX / len;
+vy = rawY / len;
+vz = rawZ / len;
+
+// Harmoniques sphériques ACN/SN3D
+${shDefs.join("\n")}
+
+process = *(gain) <: (${channels});
+`;
+}
+
+/**
+ * Génère le DSP Faust de décodage HOA → enceintes (SAD / pseudo-inverse)
+ * Utilise les positions x,y,z du layout JSON pour calculer les coefficients.
+ */
+function generateHoaDecoderDSP(layout, order) {
+    const N  = order;
+    const nHoa = (N + 1) * (N + 1);
+    const speakers = layout.speakers;
+    const P = speakers.length;
+
+    // Calcul de la matrice de décodage (SAD normalisé)
+    const D = speakers.map(sp => {
+        // Conversion Cartésien → az/el
+        const d = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
+        const nx = sp.x / d, ny = sp.y / d, nz = sp.z / d;
+        const az = Math.atan2(nx, ny);          // convention : y=avant, x=droite
+        const el = Math.atan2(nz, Math.sqrt(nx*nx + ny*ny));
+        return computeSH(N, az, el).map(c => c / P);
+    });
+
+    // Génère les constantes Faust
+    let decLines = "";
+    for (let k = 0; k < P; k++) {
+        for (let i = 0; i < nHoa; i++) {
+            decLines += `D(${k},${i}) = ${D[k][i].toFixed(8)};\n`;
+        }
+    }
+
+    return `
+declare name "HOA Decoder Ord${N} -> ${P}ch";
+declare version "1.0";
+import("stdfaust.lib");
+
+${decLines}
+
+speaker(k) = par(i, ${nHoa}, *(D(k,i))) :> _;
+process = si.bus(${nHoa}) <: par(k, ${P}, speaker(k));
+`;
 }

@@ -1409,34 +1409,50 @@ function mixToMono(channels) {
 
     return out;
 }
-async function createLayout(layout, numChannels) {
-    console.log("[compile] START", layout);
+async function createLayout(layout, numChannels, mode = "vbap3d", order = 3) {
+    console.log("[compile] START", layout, "mode:", mode);
     // ===== LOAD LAYOUT =====
     const layoutJSON = await loadLayoutJSON(layout, numChannels);
-    const dspSource = generateSpatDSP(layoutJSON, numChannels);
-	 const NP = layoutJSON.speakers.length;
-    // ===== INIT FAUST & COMPILE DSP =====
+    const NP = layoutJSON.speakers.length;
+
+    // ===== INIT FAUST =====
     const appPaths = await window.api.getPaths();
     const faustIdx = window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'dist', 'esm', 'index.js');
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } =
         await import(`file://${faustIdx}`);
-
     const faustModule = await instantiateFaustModuleFromFile(
         window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'libfaust-wasm', 'libfaust-wasm.js')
     );
-
     const libFaust = new LibFaust(faustModule);
     const compiler = new FaustCompiler(libFaust);
-    const generator = new FaustMonoDspGenerator();
 
-    await generator.compile(compiler, "spat", dspSource, "");
-    return {
-    	generator:generator,
-    	P:NP
-    	};
+    if (mode === "hoa") {
+        // === HOA : encodeur + décodeur séparés ===
+        const N = parseInt(order) || 3;
+        const nHoa = (N + 1) * (N + 1);
+
+        const encGen = new FaustMonoDspGenerator();
+        const encSrc = generateHoaEncoderDSP(N);
+        await encGen.compile(compiler, "hoaenc", encSrc, "");
+
+        const decGen = new FaustMonoDspGenerator();
+        const decSrc = generateHoaDecoderDSP(layoutJSON, N);
+        await decGen.compile(compiler, "hoadec", decSrc, "");
+
+        return { mode: "hoa", encGenerator: encGen, decGenerator: decGen, P: NP, nHoa, order: N };
+    } else {
+        // === VBAP 3D (comportement existant) ===
+        const dspSource = generateSpatDSP(layoutJSON, numChannels);
+        const generator = new FaustMonoDspGenerator();
+        await generator.compile(compiler, "spat", dspSource, "");
+        return { mode: "vbap3d", generator, P: NP };
+    }
 }
-async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate , currentChannels, interpType = "linear") {
-    console.log("[spatialiseObjet] START", id);
+async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate, currentChannels, interpType = "linear") {
+    if (window.wamSpat && window.wamSpat.mode === "hoa") {
+        return spatialiseBufferHoa(id, outPath, numChannels, numSamples, sampleRate, currentChannels, interpType);
+    }
+    console.log("[spatialiseObjet] START VBAP", id);
 
     const obj = tableObjet[id];
     // ===== OFFLINE PROCESSOR =====
@@ -1514,6 +1530,79 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
     console.log("[spatialiseObjet] Fichier spatialisé écrit:", outPath);
 
     return outPath;
+}
+
+// ══════════════════════════════════════════════════════════
+//  HOA pipeline : encodeur → décodeur → P canaux enceintes
+//  (ou encodeur seul si exportAmbiX===true → B-format brut)
+// ══════════════════════════════════════════════════════════
+async function spatialiseBufferHoa(id, outPath, numChannels, numSamples, sampleRate, currentChannels, interpType = "linear") {
+    console.log("[spatialiseHOA] START", id);
+    const obj = tableObjet[id];
+    const blockSize = 64;
+    const { encGenerator, decGenerator, P, nHoa } = window.wamSpat;
+
+    // ===== OFFLINE PROCESSORS =====
+    const encProc = await encGenerator.createOfflineProcessor(sampleRate, blockSize);
+    const encParams = encProc.getParams();
+    const paramX = encParams.find(p => /^\/X$/i.test(p)) || encParams.find(p => /\bX\b/i.test(p));
+    const paramY = encParams.find(p => /^\/Y$/i.test(p)) || encParams.find(p => /\bY\b/i.test(p));
+    const paramZ = encParams.find(p => /^\/Z$/i.test(p)) || encParams.find(p => /\bZ\b/i.test(p));
+    const paramG = encParams.find(p => /gain/i.test(p));
+
+    // ===== AUTOMATION =====
+    const spX = Array.isArray(obj.spX) ? obj.spX.slice() : [];
+    const spY = Array.isArray(obj.spY) ? obj.spY.slice() : [];
+    const spZ = Array.isArray(obj.spZ) ? obj.spZ.slice() : [];
+    const spT = Array.isArray(obj.spT) ? obj.spT.slice() : [];
+    if (!spT.length) {
+        const n = Math.max(spX.length, spY.length, spZ.length, 1);
+        for (let i = 0; i < n; i++) spT[i] = i / (n - 1 || 1);
+    }
+    const durationSec = numSamples / sampleRate;
+    const spTimesSec = spT.map(r => r * durationSec);
+
+    // ===== DÉTERMINER SI EXPORT AmbiX (B-format brut) =====
+    const isAmbiX = (typeof exportAmbiX !== "undefined") && exportAmbiX;
+    const outChannels = isAmbiX ? nHoa : P;
+
+    // Tampons de sortie intermédiaires
+    const hoaBuf  = Array.from({ length: nHoa }, () => new Float32Array(numSamples));
+    const outBuf  = isAmbiX ? hoaBuf : Array.from({ length: P }, () => new Float32Array(numSamples));
+
+    // ===== PASSE 1 : ENCODAGE =====
+    for (let offset = 0; offset < numSamples; offset += blockSize) {
+        const len = Math.min(blockSize, numSamples - offset);
+        const inputBlock = currentChannels.map(ch => ch.subarray(offset, offset + len));
+
+        for (let i = 0; i < len; i++) {
+            const t = (offset + i) / sampleRate;
+            if (paramX) encProc.setParamValue(paramX, interpolate(spTimesSec, spX, t, interpType));
+            if (paramY) encProc.setParamValue(paramY, interpolate(spTimesSec, spY, t, interpType));
+            if (paramZ) encProc.setParamValue(paramZ, interpolate(spTimesSec, spZ, t, interpType));
+        }
+        const encOut = encProc.render(inputBlock, len);
+        for (let ch = 0; ch < nHoa; ch++) hoaBuf[ch].set(encOut[ch], offset);
+    }
+
+    // ===== PASSE 2 : DÉCODAGE (si pas export AmbiX) =====
+    if (!isAmbiX) {
+        const decProc = await decGenerator.createOfflineProcessor(sampleRate, blockSize);
+        for (let offset = 0; offset < numSamples; offset += blockSize) {
+            const len = Math.min(blockSize, numSamples - offset);
+            const decIn = hoaBuf.map(ch => ch.subarray(offset, offset + len));
+            const decOut = decProc.render(decIn, len);
+            for (let ch = 0; ch < P; ch++) outBuf[ch].set(decOut[ch], offset);
+        }
+    }
+
+    // ===== SAVE =====
+    document.getElementById("loading").style.display = "none";
+    // Si AmbiX : modifier le chemin pour indiquer le format
+    const finalPath = isAmbiX ? outPath.replace(/\.wav$/i, '_ambiX.wav') : outPath;
+    await window.api.saveAudioBuffer({ filePath: finalPath, buffer: { sampleRate, channels: outBuf } });
+    console.log("[spatialiseHOA] Fichier écrit:", finalPath, `(${isAmbiX ? "AmbiX "+nHoa+"ch" : "decoded "+P+"ch"})`);
+    return finalPath;
 }
 
 async function spatialise(id,filePath,interpType="linear") {

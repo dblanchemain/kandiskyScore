@@ -594,6 +594,10 @@ const template = [
 				{ label: "Export ADM", click: () => exportAdm() },
 				{ label: "Import ADM", click: () => importAdmMenu() }
 			]},
+		{ label: "HOA",
+			submenu: [
+				{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() }
+			]},
 		{ label: Marchive, click: () => archiveProjet() },
     	{ type: 'separator' },
       isMac ? { role: 'close' } : { role: 'quit' }
@@ -3044,6 +3048,9 @@ function exportPart(){
 }
 function exportAdm(){
 	mainWindow.webContents.send("fromMain", "exportAdm");
+}
+function exportHoaAmbiX(){
+	mainWindow.webContents.send("fromMain", "exportHoaAmbiX");
 }
 function pdfSettings() {
     var option = {
