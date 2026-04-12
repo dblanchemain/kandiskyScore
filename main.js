@@ -5249,6 +5249,28 @@ function mainExternes2(txt) {
 	pdfBkg=parseInt(defc.pdfBkg);
 	editAudioCmd=defc.editAudioCmd;
 }
+ipcMain.handle('launchReaperHoaBinaural', async (event, ambiXPath, hoaOrder, sampleRate) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    // Écrire le fichier de config dans le dossier Resources de Reaper
+    const reaperResourcePath = path.join(app.getPath('home'), '.config', 'REAPER');
+    if (!fs.existsSync(reaperResourcePath)) fs.mkdirSync(reaperResourcePath, { recursive: true });
+    const configFile = path.join(reaperResourcePath, 'kandiskyscore_hoa.txt');
+    fs.writeFileSync(configFile, [ambiXPath, hoaOrder, sampleRate].join('\n'), 'utf8');
+
+    const luaScript = path.join(scriptsPath, 'Reaper', 'importHoaBinaural.lua');
+    const tmpRpp    = path.join(scriptsPath, 'Reaper', 'tmp.rpp');
+    const cmd = `"${cmdDaw}" "${tmpRpp}" "${luaScript}"`;
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) { console.error('Reaper HOA:', error.message); }
+            resolve({ configFile, luaScript });
+        });
+    });
+});
+
 function mainRead3D() {
 	const scriptsPath = app.isPackaged ? path.join(process.resourcesPath, 'Scripts') : path.join(__dirname, 'resources', 'Scripts');
 	if(daw=='reaper'){
