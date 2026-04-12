@@ -48,10 +48,6 @@ reaper.ShowConsoleMsg("=== Import HOA AmbiX Binaural ===\n")
 reaper.ShowConsoleMsg("Fichier : " .. ambiXPath .. "\n")
 reaper.ShowConsoleMsg("Ordre HOA : " .. hoaOrder .. " (" .. nHoaCh .. " canaux)\n")
 
--- ── Réglage du sample rate projet ──────────────────────────────
-reaper.SetProjectInfo(0, "SAMPLERATE", sampleRate)
-reaper.ShowConsoleMsg("Sample rate projet : " .. sampleRate .. " Hz\n")
-
 -- ── Création de la piste HOA ───────────────────────────────────
 local numTracks = reaper.GetNumTracks()
 reaper.InsertTrackAtIndex(numTracks, true)
