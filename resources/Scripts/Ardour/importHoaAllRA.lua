@@ -95,12 +95,12 @@ function factory () return function ()
       local plug = track:nth_plugin(0)
       if plug and not plug:isnil() then
         -- Paramètre 0 : inputOrderSetting = 0 (automatique)
-        local _, c0 = ARDOUR.LuaAPI.plugin_automation(plug, 0)
+        local c0 = ARDOUR.LuaAPI.plugin_automation(plug, 0)
         if c0 and not c0:isnil() then
           c0:set_value(0.0, PBD.GroupControlDisposition.NoGroup)
         end
         -- Paramètre 1 : useSN3D = 1
-        local _, c1 = ARDOUR.LuaAPI.plugin_automation(plug, 1)
+        local c1 = ARDOUR.LuaAPI.plugin_automation(plug, 1)
         if c1 and not c1:isnil() then
           c1:set_value(1.0, PBD.GroupControlDisposition.NoGroup)
         end
