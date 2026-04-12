@@ -213,6 +213,70 @@ function generateHoaEncoderDSP(order) {
             `sh15 = 2.0916501  * vx * (vx*vx - 3.0*vy*vy);`
         );
     }
+    if (order >= 4) {
+        shDefs.push(
+            `sh16 = 2.5033429  * vx * vy * (vx*vx - vy*vy);`,
+            `sh17 = 1.7701307  * vy * vz * (3.0*vx*vx - vy*vy);`,
+            `sh18 = 0.9461747  * vx * vy * (7.0*vz*vz - 1.0);`,
+            `sh19 = 0.6690466  * vy * vz * (7.0*vz*vz - 3.0);`,
+            `sh20 = 0.1057855  * (35.0*vz*vz*vz*vz - 30.0*vz*vz + 3.0);`,
+            `sh21 = 0.6690466  * vx * vz * (7.0*vz*vz - 3.0);`,
+            `sh22 = 0.4730874  * (vx*vx - vy*vy) * (7.0*vz*vz - 1.0);`,
+            `sh23 = 1.7701307  * vx * vz * (vx*vx - 3.0*vy*vy);`,
+            `sh24 = 0.6258357  * (vx*vx*vx*vx - 6.0*vx*vx*vy*vy + vy*vy*vy*vy);`
+        );
+    }
+    if (order >= 5) {
+        shDefs.push(
+            `sh25 = 0.6563820  * vy * (5.0*vx*vx*vx*vx - 10.0*vx*vx*vy*vy + vy*vy*vy*vy);`,
+            `sh26 = 8.3026942  * vx * vy * vz * (vx*vx - vy*vy);`,
+            `sh27 = 0.4892382  * vy * (3.0*vx*vx - vy*vy) * (9.0*vz*vz - 1.0);`,
+            `sh28 = 4.7935688  * vx * vy * vz * (3.0*vz*vz - 1.0);`,
+            `sh29 = 0.4528672  * vy * (21.0*vz*vz*vz*vz - 14.0*vz*vz + 1.0);`,
+            `sh30 = 0.1169503  * vz * (63.0*vz*vz*vz*vz - 70.0*vz*vz + 15.0);`,
+            `sh31 = 0.4528672  * vx * (21.0*vz*vz*vz*vz - 14.0*vz*vz + 1.0);`,
+            `sh32 = 2.3967844  * (vx*vx - vy*vy) * vz * (3.0*vz*vz - 1.0);`,
+            `sh33 = 0.4892382  * vx * (vx*vx - 3.0*vy*vy) * (9.0*vz*vz - 1.0);`,
+            `sh34 = 2.0756736  * (vx*vx*vx*vx - 6.0*vx*vx*vy*vy + vy*vy*vy*vy) * vz;`,
+            `sh35 = 0.6563820  * vx * (vx*vx*vx*vx - 10.0*vx*vx*vy*vy + 5.0*vy*vy*vy*vy);`
+        );
+    }
+    if (order >= 6) {
+        shDefs.push(
+            `sh36 = 1.3663682  * vx * vy * (3.0*vx*vx*vx*vx - 10.0*vx*vx*vy*vy + 3.0*vy*vy*vy*vy);`,
+            `sh37 = 2.3666191  * vy * vz * (5.0*vx*vx*vx*vx - 10.0*vx*vx*vy*vy + vy*vy*vy*vy);`,
+            `sh38 = 2.0182596  * vx * vy * (vx*vx - vy*vy) * (11.0*vz*vz - 1.0);`,
+            `sh39 = 0.9212052  * vy * vz * (3.0*vx*vx - vy*vy) * (11.0*vz*vz - 3.0);`,
+            `sh40 = 0.9212052  * vx * vy * (11.0*vz*vz*vz*vz - 6.0*vz*vz + 0.333333);`,
+            `sh41 = 0.5826070  * vy * vz * (33.0*vz*vz*vz*vz - 30.0*vz*vz + 5.0);`,
+            `sh42 = 0.0635693  * (231.0*vz*vz*vz*vz*vz*vz - 315.0*vz*vz*vz*vz + 105.0*vz*vz - 5.0);`,
+            `sh43 = 0.5826070  * vx * vz * (33.0*vz*vz*vz*vz - 30.0*vz*vz + 5.0);`,
+            `sh44 = 0.4606026  * (vx*vx - vy*vy) * (11.0*vz*vz*vz*vz - 6.0*vz*vz + 0.333333);`,
+            `sh45 = 0.9212052  * vx * vz * (vx*vx - 3.0*vy*vy) * (11.0*vz*vz - 3.0);`,
+            `sh46 = 0.5045649  * (vx*vx*vx*vx - 6.0*vx*vx*vy*vy + vy*vy*vy*vy) * (11.0*vz*vz - 1.0);`,
+            `sh47 = 2.3666191  * vx * vz * (vx*vx*vx*vx - 10.0*vx*vx*vy*vy + 5.0*vy*vy*vy*vy);`,
+            `sh48 = 0.6831841  * (vx*vx*vx*vx*vx*vx - 15.0*vx*vx*vx*vx*vy*vy + 15.0*vx*vx*vy*vy*vy*vy - vy*vy*vy*vy*vy*vy);`
+        );
+    }
+    if (order >= 7) {
+        shDefs.push(
+            `sh49 = 0.7071068  * vy * (7.0*vx*vx*vx*vx*vx*vx - 35.0*vx*vx*vx*vx*vy*vy + 21.0*vx*vx*vy*vy*vy*vy - vy*vy*vy*vy*vy*vy);`,
+            `sh50 = 6.0827625  * vx * vy * vz * (3.0*vx*vx*vx*vx - 10.0*vx*vx*vy*vy + 3.0*vy*vy*vy*vy);`,
+            `sh51 = 0.7284313  * vy * vz * (5.0*vx*vx*vx*vx - 10.0*vx*vx*vy*vy + vy*vy*vy*vy) * (13.0*vz*vz - 1.0);`,
+            `sh52 = 2.9026960  * vx * vy * (vx*vx - vy*vy) * vz * (13.0*vz*vz - 3.0);`,
+            `sh53 = 0.6472598  * vy * (3.0*vx*vx - vy*vy) * (13.0*vz*vz*vz*vz - 6.0*vz*vz + 0.2);`,
+            `sh54 = 1.0182337  * vx * vy * vz * (13.0*vz*vz*vz*vz - 10.0*vz*vz + 1.0);`,
+            `sh55 = 0.5641896  * vy * vz * (429.0*vz*vz*vz*vz*vz*vz - 495.0*vz*vz*vz*vz + 135.0*vz*vz - 5.0) * 0.125;`,
+            `sh56 = 0.0449435  * (429.0*vz*vz*vz*vz*vz*vz*vz - 693.0*vz*vz*vz*vz*vz + 315.0*vz*vz*vz - 35.0*vz);`,
+            `sh57 = 0.5641896  * vx * vz * (429.0*vz*vz*vz*vz*vz*vz - 495.0*vz*vz*vz*vz + 135.0*vz*vz - 5.0) * 0.125;`,
+            `sh58 = 0.5091169  * (vx*vx - vy*vy) * vz * (13.0*vz*vz*vz*vz - 10.0*vz*vz + 1.0);`,
+            `sh59 = 0.6472598  * vx * (vx*vx - 3.0*vy*vy) * (13.0*vz*vz*vz*vz - 6.0*vz*vz + 0.2);`,
+            `sh60 = 0.7256740  * (vx*vx*vx*vx - 6.0*vx*vx*vy*vy + vy*vy*vy*vy) * vz * (13.0*vz*vz - 3.0);`,
+            `sh61 = 0.7284313  * vx * vz * (vx*vx*vx*vx - 10.0*vx*vx*vy*vy + 5.0*vy*vy*vy*vy) * (13.0*vz*vz - 1.0);`,
+            `sh62 = 3.0413813  * (vx*vx*vx*vx*vx*vx - 15.0*vx*vx*vx*vx*vy*vy + 15.0*vx*vx*vy*vy*vy*vy - vy*vy*vy*vy*vy*vy) * vz;`,
+            `sh63 = 0.7071068  * vx * (vx*vx*vx*vx*vx*vx - 21.0*vx*vx*vx*vx*vy*vy + 35.0*vx*vx*vy*vy*vy*vy - 7.0*vy*vy*vy*vy*vy*vy);`
+        );
+    }
 
     const channels = Array.from({ length: nHoa }, (_, i) => `*(sh${i})`).join(', ');
 
