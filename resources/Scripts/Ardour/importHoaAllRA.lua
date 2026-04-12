@@ -94,28 +94,33 @@ function factory () return function ()
       -- inputOrderSetting=0 (auto) et useSN3D=1 sont les valeurs par défaut
       -- d'IEM AllRADecoder – le layout est chargé via le fichier XML ci-dessous.
 
-      -- ── Écriture de l'état XML pour chargement manuel ─────────
-      -- AllRADecoder accepte un fichier XML/JSON dans son UI
-      local xmlParts = {}
-      table.insert(xmlParts, '<?xml version="1.0" encoding="UTF-8"?>')
-      table.insert(xmlParts, '<AllRADecoder inputOrderSetting="0" useSN3D="1" exportDecoder="1">')
+      -- ── Écriture du JSON IEM pour chargement dans AllRADecoder ──
+      -- Format attendu par le bouton "Load" d'IEM AllRADecoder
+      local jsonLines = {}
+      table.insert(jsonLines, '{')
+      table.insert(jsonLines, '  "LoudspeakerLayout": {')
+      table.insert(jsonLines, string.format('    "Name": "%s",', layoutName))
+      table.insert(jsonLines, '    "Loudspeakers": [')
       for i, sp in ipairs(speakers) do
-        table.insert(xmlParts, string.format(
-          '  <Loudspeaker Azimuth="%.4f" Elevation="%.4f" Radius="%.4f" Gain="1.0" Channel="%d" IsImaginary="0"/>',
-          sp.az, sp.el, sp.r, i))
+        local comma = (i < #speakers) and "," or ""
+        table.insert(jsonLines, string.format(
+          '      {"Azimuth": %.4f, "Elevation": %.4f, "Radius": %.4f, "IsImaginary": false, "Channel": %d, "Gain": 1.0}%s',
+          sp.az, sp.el, sp.r, i, comma))
       end
-      table.insert(xmlParts, '</AllRADecoder>')
-      local xmlState = table.concat(xmlParts, '\n')
+      table.insert(jsonLines, '    ]')
+      table.insert(jsonLines, '  }')
+      table.insert(jsonLines, '}')
+      local jsonStr = table.concat(jsonLines, '\n')
 
-      local xmlPath = configDir .. "/allra_state.xml"
-      local xf = io.open(xmlPath, "w")
-      if xf then
-        xf:write(xmlState)
-        xf:close()
-        print("État AllRADecoder sauvegardé : " .. xmlPath)
+      local jsonPath = configDir .. "/allra_layout.json"
+      local jf = io.open(jsonPath, "w")
+      if jf then
+        jf:write(jsonStr)
+        jf:close()
+        print("Layout JSON sauvegardé : " .. jsonPath)
         print("")
-        print("→ Dans le plugin AllRADecoder, cliquez sur 'Import' ou 'Load'")
-        print("  et sélectionnez : " .. xmlPath)
+        print("→ Dans AllRADecoder : bouton 'Load' → sélectionner :")
+        print("  " .. jsonPath)
       end
     else
       print("⚠ Impossible d'ajouter AllRADecoder à la piste.")

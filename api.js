@@ -1790,8 +1790,8 @@ async function exportHoaToArdourAllRA() {
             msg += "Script installé dans :\n" + result.ardourScriptsDir + "\n\n";
         }
         msg += "Dans Ardour : Window > Scripting\n→ Exécuter « HOA AmbiX – IEM AllRADecoder »\n\n" +
-            "Le layout sera sauvé dans :\n~/.config/kandiskyscore/allra_state.xml\n" +
-            "→ Chargez-le dans AllRADecoder via Import/Load.";
+            "Le layout sera sauvé dans :\n~/.config/kandiskyscore/allra_layout.json\n" +
+            "→ Dans AllRADecoder : bouton Load → sélectionner ce fichier.";
         alert(msg);
     } catch(e) {
         alert("Erreur : " + e.message);
