@@ -3057,6 +3057,9 @@ function exportHoaAmbiX(){
 function mixHoaAmbiXFinal(){
 	mainWindow.webContents.send("fromMain", "mixHoaAmbiXFinal");
 }
+function exportHoaToReaper(){
+	mainWindow.webContents.send("fromMain", "exportHoaToReaper");
+}
 function pdfSettings() {
     var option = {
         printSelectionOnly: false,
