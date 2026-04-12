@@ -555,8 +555,8 @@ async function defSelectImg(rt){
 		objColor:'#000000',
 		objOpacity:1,
 		piste:0,
-		posX:(scrollDemo.scrollLeft/zoomScale)+100.0,
-		posY:(scrollDemo.scrollTop/zoomScale)+100.0,
+		posX:(scrollDemo.scrollLeft/(zoomScale||1))+100.0,
+		posY:(scrollDemo.scrollTop/(zoomScale||1))+100.0,
 		rotate:0,
 		scaleX:1.0,
 		scaleY:1.0,
@@ -2335,8 +2335,8 @@ function selectSymboleb(objType,bkgc){
 		objBorderW:0,
 		objColor:bkgc,
 		objOpacity:1,
-		posX:(scrollDemo.scrollLeft/zoomScale)+100.0,
-		posY:(scrollDemo.scrollTop/zoomScale)+100.0,
+		posX:(scrollDemo.scrollLeft/(zoomScale||1))+100.0,
+		posY:(scrollDemo.scrollTop/(zoomScale||1))+100.0,
 		rotate:0,
 		scaleX:1.0,
 		scaleY:1.0,
@@ -2852,6 +2852,8 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=16;
 			tableObjet[objActif].bkgWidth=94;
 			tableObjet[objActif].bkgHeight=16;
+			tableObjet[objActif].x1=0;
+			tableObjet[objActif].y1=0;
 			tableObjet[objActif].x2=94;
 			tableObjet[objActif].y2=0;
 			copyRepete(objActif);
@@ -2863,6 +2865,8 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=16;
 			tableObjet[objActif].bkgWidth=94;
 			tableObjet[objActif].bkgHeight=16;
+			tableObjet[objActif].x1=0;
+			tableObjet[objActif].y1=0;
 			tableObjet[objActif].x2=94;
 			tableObjet[objActif].y2=0;
 			copyRetrograde(objActif);
@@ -2874,6 +2878,8 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=16;
 			tableObjet[objActif].bkgWidth=94;
 			tableObjet[objActif].bkgHeight=16;
+			tableObjet[objActif].x1=0;
+			tableObjet[objActif].y1=0;
 			tableObjet[objActif].x2=94;
 			tableObjet[objActif].y2=0;
 			copyRenvers(objActif);
@@ -2885,6 +2891,8 @@ function defSymbole(objType) {
 			tableObjet[objActif].height=16;
 			tableObjet[objActif].bkgWidth=94;
 			tableObjet[objActif].bkgHeight=16;
+			tableObjet[objActif].x1=0;
+			tableObjet[objActif].y1=0;
 			tableObjet[objActif].x2=94;
 			tableObjet[objActif].y2=0;
 			copyRenversRetro(objActif);

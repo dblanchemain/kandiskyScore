@@ -715,17 +715,17 @@ function symbXmlToScore(id,i) {
 		objBorderW:parseFloat(org.getElementsByTagName("objborderw")[0].getAttribute("value")),
 		objColor:org.getElementsByTagName("objcolor")[0].getAttribute("value"),
 		objOpacity:parseFloat(org.getElementsByTagName("objopacity")[0].getAttribute("value")),
-		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
-		posY:parseFloat(org.getElementsByTagName("posY")[0].getAttribute("value")),
-		rotate:parseFloat(org.getElementsByTagName("rotate")[0].getAttribute("value")),
-		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value")),
-		scaleY:parseFloat(org.getElementsByTagName("scaley")[0].getAttribute("value")),
+		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value"))||0,
+		posY:parseFloat(org.getElementsByTagName("posY")[0].getAttribute("value"))||0,
+		rotate:parseFloat(org.getElementsByTagName("rotate")[0].getAttribute("value"))||0,
+		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value"))||1,
+		scaleY:parseFloat(org.getElementsByTagName("scaley")[0].getAttribute("value"))||1,
 		type:parseInt(org.getElementsByTagName("type")[0].getAttribute("value")),
-		x1:parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value")),
-		y1:parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value")),
-		x2:parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value")),
-		y2:parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value")),
-		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
+		x1:parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value"))||0,
+		y1:parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value"))||0,
+		x2:parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value"))||0,
+		y2:parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value"))||0,
+		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))||20
 		};
 		var _scaley2=org.getElementsByTagName("scaley2")[0];
 		tableObjet[id].scaleY2=_scaley2?parseFloat(_scaley2.getAttribute("value")):tableObjet[id].scaleY;
