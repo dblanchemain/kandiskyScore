@@ -142,7 +142,7 @@ function upDateWorkSpace(type){
 */	
 	defTempoFoo();
 	for(let i=0;i<tableObjet.length;i++){
-		if(tableObjet[i].etat==1){
+		if(tableObjet[i].etat==1 && isFinite(tableObjet[i].basePosY)){
 			tableObjet[i].posY=tableObjet[i].basePosY*ratioSpaceHeight;
 			document.getElementById(tableObjet[i].id).style.top=tableObjet[i].posY+"px";
 		}
