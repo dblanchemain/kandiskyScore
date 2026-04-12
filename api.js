@@ -1723,6 +1723,29 @@ async function mixAmbiXFinal(lsgrp) {
     }
 }
 
+async function exportHoaToReaperAllRA() {
+    const audioPath  = toAbsPath(paramProjet.audioPath);
+    const exportDir  = window.api.joinPath(audioPath, 'exports');
+    const ambiXPath  = window.api.joinPath(exportDir, 'partition_ambiX.wav');
+    const order      = parseInt(paramProjet.hoaOrder) || (typeof hoaOrder !== 'undefined' ? parseInt(hoaOrder) : 7) || 7;
+    const layoutName = paramProjet.greffon3D || spat3D || 'anneau8';
+    const sampleRate = 48000;
+
+    document.getElementById("popupLoader").style.display = "block";
+    try {
+        const result = await window.api.launchReaperHoaAllRA(ambiXPath, order, sampleRate, layoutName);
+        alert(
+            "Reaper lancé avec IEM AllRADecoder.\n\n" +
+            "Layout : " + layoutName + " (" + result.nSpeakers + " HP)\n" +
+            "Ordre HOA : " + order
+        );
+    } catch(e) {
+        alert("Erreur : " + e.message);
+    } finally {
+        document.getElementById("popupLoader").style.display = "none";
+    }
+}
+
 async function exportHoaToReaper() {
     const audioPath  = toAbsPath(paramProjet.audioPath);
     const exportDir  = window.api.joinPath(audioPath, 'exports');

@@ -598,7 +598,8 @@ const template = [
 			submenu: [
 				{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() },
 				{ label: "Mix HOA AmbiX final", click: () => mixHoaAmbiXFinal() },
-				{ label: "Ouvrir dans Reaper (IEM BinauralDecoder)", click: () => exportHoaToReaper() }
+				{ label: "Ouvrir dans Reaper (IEM BinauralDecoder)", click: () => exportHoaToReaper() },
+				{ label: "Ouvrir dans Reaper (IEM AllRADecoder)", click: () => exportHoaToReaperAllRA() }
 			]},
 		{ label: Marchive, click: () => archiveProjet() },
     	{ type: 'separator' },
@@ -3060,6 +3061,9 @@ function mixHoaAmbiXFinal(){
 function exportHoaToReaper(){
 	mainWindow.webContents.send("fromMain", "exportHoaToReaper");
 }
+function exportHoaToReaperAllRA(){
+	mainWindow.webContents.send("fromMain", "exportHoaToReaperAllRA");
+}
 function pdfSettings() {
     var option = {
         printSelectionOnly: false,
@@ -5271,6 +5275,46 @@ ipcMain.handle('launchReaperHoaBinaural', async (event, ambiXPath, hoaOrder, sam
         exec(cmd, (error, stdout, stderr) => {
             if (error) { console.error('Reaper HOA:', error.message); }
             resolve({ configFile, luaScript });
+        });
+    });
+});
+
+ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sampleRate, layoutName) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    // Charger le JSON du layout
+    const layoutPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Dsp', layoutName + '.json')
+        : path.join(__dirname, 'resources', 'Dsp', layoutName + '.json');
+    if (!fs.existsSync(layoutPath)) throw new Error('Layout introuvable : ' + layoutPath);
+    const layoutJSON = JSON.parse(fs.readFileSync(layoutPath, 'utf8'));
+    const speakers = layoutJSON.speakers;
+
+    // Conversion Cartésien KS (x=droite, y=haut, z=avant) → sphérique AllRADecoder (az CCW, el haut)
+    const spkLines = speakers.map((sp, i) => {
+        const r = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
+        const nx = sp.x/r, ny = sp.y/r, nz = sp.z/r;
+        const az = (Math.atan2(-nx, nz) * 180 / Math.PI);
+        const el = (Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI);
+        return `${az.toFixed(4)},${el.toFixed(4)},${r.toFixed(4)}`;
+    });
+
+    // Écrire le fichier de config AllRA
+    const reaperResourcePath = path.join(app.getPath('home'), '.config', 'REAPER');
+    if (!fs.existsSync(reaperResourcePath)) fs.mkdirSync(reaperResourcePath, { recursive: true });
+    const configFile = path.join(reaperResourcePath, 'kandiskyscore_allra.txt');
+    const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
+    fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
+
+    const luaScript = path.join(scriptsPath, 'Reaper', 'importHoaAllRA.lua');
+    const tmpRpp    = path.join(scriptsPath, 'Reaper', 'tmp.rpp');
+    const cmd = `"${cmdDaw}" "${tmpRpp}" "${luaScript}"`;
+    return new Promise((resolve) => {
+        exec(cmd, (error) => {
+            if (error) console.error('Reaper AllRA:', error.message);
+            resolve({ configFile, luaScript, nSpeakers: speakers.length });
         });
     });
 });

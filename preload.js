@@ -79,6 +79,8 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("renderBinauralFromAmbiX", ambiXPath, outPath),
     launchReaperHoaBinaural: (ambiXPath, hoaOrder, sampleRate) =>
         ipcRenderer.invoke("launchReaperHoaBinaural", ambiXPath, hoaOrder, sampleRate),
+    launchReaperHoaAllRA: (ambiXPath, hoaOrder, sampleRate, layoutName) =>
+        ipcRenderer.invoke("launchReaperHoaAllRA", ambiXPath, hoaOrder, sampleRate, layoutName),
     // Audio save
     saveAudioTempo: (filePath, arrayBuffer) =>
         ipcRenderer.invoke("saveAudioTempo", { filePath, arrayBuffer }),

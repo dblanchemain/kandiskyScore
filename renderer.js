@@ -741,6 +741,9 @@ window.api.receive("fromMain", (data) => {
 			case 'exportHoaToReaper':
 				exportHoaToReaper();
 				break;
+			case 'exportHoaToReaperAllRA':
+				exportHoaToReaperAllRA();
+				break;
 			case 'mixHoaAmbiXFinal':
 				mixAmbiXFinal(exportTable && exportTable.length ? exportTable : (() => {
 					const lsgrp = [];
