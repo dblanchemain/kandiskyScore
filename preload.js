@@ -73,6 +73,8 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("infoFile", filePath),
 	 renderGroupWidthSoX: (lsgrp,tbobjets,start) =>
         ipcRenderer.invoke("renderGroupWidthSoX",lsgrp,tbobjets,start),
+    renderHoaAmbiXMix: (objects, exportDir) =>
+        ipcRenderer.invoke("renderHoaAmbiXMix", objects, exportDir),
     // Audio save
     saveAudioTempo: (filePath, arrayBuffer) =>
         ipcRenderer.invoke("saveAudioTempo", { filePath, arrayBuffer }),

@@ -596,7 +596,8 @@ const template = [
 			]},
 		{ label: "HOA",
 			submenu: [
-				{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() }
+				{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() },
+				{ label: "Mix HOA AmbiX final", click: () => mixHoaAmbiXFinal() }
 			]},
 		{ label: Marchive, click: () => archiveProjet() },
     	{ type: 'separator' },
@@ -3052,6 +3053,9 @@ function exportAdm(){
 function exportHoaAmbiX(){
 	mainWindow.webContents.send("fromMain", "exportHoaAmbiX");
 }
+function mixHoaAmbiXFinal(){
+	mainWindow.webContents.send("fromMain", "mixHoaAmbiXFinal");
+}
 function pdfSettings() {
     var option = {
         printSelectionOnly: false,
@@ -5415,6 +5419,53 @@ ipcMain.handle("showSaveDialog", async (event, defaultPath) => {
     return filePath;
 });
 
+ipcMain.handle('renderHoaAmbiXMix', async (event, objects, exportDir) => {
+    const tmpDir = path.join(exportDir, 'tmp_hoa');
+    fs.mkdirSync(tmpDir, { recursive: true });
+
+    const paddedFiles = [];
+    const endTimes = [];
+
+    for (let idx = 0; idx < objects.length; idx++) {
+        const obj = objects[idx];
+        if (!fs.existsSync(obj.file)) {
+            console.warn('[HOA mix] fichier absent:', obj.file);
+            continue;
+        }
+        const tStart = obj.posX / 18;
+        let duration;
+        try {
+            duration = parseFloat(execSync(`"${soxiPath}" -D "${obj.file}"`).toString().trim());
+        } catch(e) {
+            console.error('[HOA mix] soxi erreur:', e);
+            continue;
+        }
+        endTimes.push(tStart + duration);
+        const tmpOut = path.join(tmpDir, `hoa_padded_${idx}.wav`);
+        spawnSync(soxPath, [obj.file, tmpOut, 'pad', tStart.toString()], { stdio: 'inherit' });
+        paddedFiles.push(tmpOut);
+    }
+
+    if (paddedFiles.length === 0) return { error: 'Aucun fichier AmbiX trouve' };
+
+    const mixDuration = Math.max(...endTimes);
+    const output = path.join(exportDir, 'partition_ambiX.wav');
+
+    let args;
+    if (paddedFiles.length > 1) {
+        args = ['-m', ...paddedFiles, output, 'trim', '0', mixDuration.toString()];
+    } else {
+        args = [paddedFiles[0], output];
+    }
+    console.log('[HOA mix] SoX:', [soxPath, ...args].join(' '));
+    spawnSync(soxPath, args, { stdio: 'inherit' });
+
+    // Nettoyage tmp
+    for (const f of paddedFiles) { try { fs.unlinkSync(f); } catch(_) {} }
+    try { fs.rmdirSync(tmpDir); } catch(_) {}
+
+    return { output };
+});
 
 
 ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {

@@ -1701,6 +1701,28 @@ async function exportHoaAmbiXPartition() {
     await readSimpleAudioA(lsgrp[0], 2);
 }
 
+async function mixAmbiXFinal(lsgrp) {
+    const audioPath = toAbsPath(paramProjet.audioPath);
+    const exportDir = window.api.joinPath(audioPath, 'exports');
+    const objects = lsgrp.map(i => ({
+        file: window.api.joinPath(exportDir, `${tableObjet[i].id}_ambiX.wav`),
+        posX: tableObjet[i].posX
+    }));
+    document.getElementById("popupLoader").style.display = "block";
+    document.getElementById("sliderLParam").style.width = "0%";
+    try {
+        const result = await window.api.renderHoaAmbiXMix(objects, exportDir);
+        document.getElementById("sliderLParam").style.width = "100%";
+        document.getElementById("popupLoader").style.display = "none";
+        if (result && result.output) {
+            alert("Mix AmbiX final genere :\n" + result.output);
+        }
+    } catch(e) {
+        document.getElementById("popupLoader").style.display = "none";
+        alert("Erreur mix AmbiX : " + e.message);
+    }
+}
+
 async function exportAdm() {
 	const filePath = await window.api.showSaveDialog();
 	if (!filePath) return;

@@ -1786,6 +1786,9 @@ async function postRubberband(id,mode,file) {
         } else {
             document.getElementById("sliderLParam").style.width = "100%";
             document.getElementById("popupLoader").style.display = "none";
+            if (confirm("Export AmbiX terminé.\nGénérer un mix AmbiX final (un seul fichier B-format pour toute la partition) ?")) {
+                await mixAmbiXFinal(exportTable);
+            }
         }
 
     } else {

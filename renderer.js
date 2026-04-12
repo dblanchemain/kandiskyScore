@@ -738,6 +738,18 @@ window.api.receive("fromMain", (data) => {
 			case 'exportHoaAmbiX':
 				exportHoaAmbiXPartition();
 				break;
+			case 'mixHoaAmbiXFinal':
+				mixAmbiXFinal(exportTable && exportTable.length ? exportTable : (() => {
+					const lsgrp = [];
+					for (let i = 0; i < tableObjet.length; i++) {
+						if (tableObjet[i].etat == 1 && tableObjet[i].mute == 0
+							&& tableObjet[i].file && tableObjet[i].file !== ""
+							&& tableObjet[i].type < 23) lsgrp.push(i);
+					}
+					lsgrp.sort((a, b) => tableObjet[a].posX - tableObjet[b].posX);
+					return lsgrp;
+				})());
+				break;
 			case 'importAdm':
 				importAdmFromData(JSON.parse(decodeURIComponent(escape(atob(cmd[1])))));
 				break;
