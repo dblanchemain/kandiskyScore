@@ -599,7 +599,9 @@ const template = [
 				{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() },
 				{ label: "Mix HOA AmbiX final", click: () => mixHoaAmbiXFinal() },
 				{ label: "Ouvrir dans Reaper (IEM BinauralDecoder)", click: () => exportHoaToReaper() },
-				{ label: "Ouvrir dans Reaper (IEM AllRADecoder)", click: () => exportHoaToReaperAllRA() }
+				{ label: "Ouvrir dans Reaper (IEM AllRADecoder)", click: () => exportHoaToReaperAllRA() },
+				{ label: "Ouvrir dans Ardour (IEM BinauralDecoder)", click: () => exportHoaToArdourBinaural() },
+				{ label: "Ouvrir dans Ardour (IEM AllRADecoder)", click: () => exportHoaToArdourAllRA() }
 			]},
 		{ label: Marchive, click: () => archiveProjet() },
     	{ type: 'separator' },
@@ -3064,6 +3066,12 @@ function exportHoaToReaper(){
 function exportHoaToReaperAllRA(){
 	mainWindow.webContents.send("fromMain", "exportHoaToReaperAllRA");
 }
+function exportHoaToArdourBinaural(){
+	mainWindow.webContents.send("fromMain", "exportHoaToArdourBinaural");
+}
+function exportHoaToArdourAllRA(){
+	mainWindow.webContents.send("fromMain", "exportHoaToArdourAllRA");
+}
 function pdfSettings() {
     var option = {
         printSelectionOnly: false,
@@ -5317,6 +5325,91 @@ ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sample
             resolve({ configFile, luaScript, nSpeakers: speakers.length });
         });
     });
+});
+
+// ── Helpers Ardour ─────────────────────────────────────────────────
+function findArdourScriptsDir(homeDir) {
+    for (const ver of ['ardour8', 'ardour7', 'ardour6', 'ardour5']) {
+        const confDir = path.join(homeDir, '.config', ver);
+        if (fs.existsSync(confDir)) {
+            const scriptsDir = path.join(confDir, 'scripts');
+            if (!fs.existsSync(scriptsDir)) fs.mkdirSync(scriptsDir, { recursive: true });
+            return scriptsDir;
+        }
+    }
+    return null;
+}
+
+ipcMain.handle('launchArdourHoaBinaural', async (event, ambiXPath, hoaOrder, sampleRate) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    // Écrire la config dans ~/.config/kandiskyscore/
+    const ksConfigDir = path.join(app.getPath('home'), '.config', 'kandiskyscore');
+    if (!fs.existsSync(ksConfigDir)) fs.mkdirSync(ksConfigDir, { recursive: true });
+    const configFile = path.join(ksConfigDir, 'kandiskyscore_hoa.txt');
+    fs.writeFileSync(configFile, [ambiXPath, hoaOrder, sampleRate].join('\n'), 'utf8');
+
+    // Copier le script dans le dossier scripts Ardour
+    const luaScript = path.join(scriptsPath, 'Ardour', 'importHoaBinaural.lua');
+    const ardourScriptsDir = findArdourScriptsDir(app.getPath('home'));
+    if (ardourScriptsDir) {
+        fs.copyFileSync(luaScript, path.join(ardourScriptsDir, 'importHoaBinaural.lua'));
+    }
+
+    // Lancer Ardour
+    const ardourCmd = process.platform === 'win32' ? 'ardour.exe' : 'ardour';
+    exec(ardourCmd, (error) => {
+        if (error) console.error('Ardour HOA binaural:', error.message);
+    });
+
+    return { configFile, ardourScriptsDir };
+});
+
+ipcMain.handle('launchArdourHoaAllRA', async (event, ambiXPath, hoaOrder, sampleRate, layoutName) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    // Charger le JSON du layout
+    const layoutPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Dsp', layoutName + '.json')
+        : path.join(__dirname, 'resources', 'Dsp', layoutName + '.json');
+    if (!fs.existsSync(layoutPath)) throw new Error('Layout introuvable : ' + layoutPath);
+    const layoutJSON = JSON.parse(fs.readFileSync(layoutPath, 'utf8'));
+    const speakers = layoutJSON.speakers;
+
+    // Conversion Cartésien KS → sphérique AllRADecoder
+    const spkLines = speakers.map((sp) => {
+        const r  = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
+        const nx = sp.x/r, ny = sp.y/r, nz = sp.z/r;
+        const az = (Math.atan2(-nx, nz) * 180 / Math.PI);
+        const el = (Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI);
+        return `${az.toFixed(4)},${el.toFixed(4)},${r.toFixed(4)}`;
+    });
+
+    // Écrire la config dans ~/.config/kandiskyscore/
+    const ksConfigDir = path.join(app.getPath('home'), '.config', 'kandiskyscore');
+    if (!fs.existsSync(ksConfigDir)) fs.mkdirSync(ksConfigDir, { recursive: true });
+    const configFile = path.join(ksConfigDir, 'kandiskyscore_allra.txt');
+    const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
+    fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
+
+    // Copier le script dans le dossier scripts Ardour
+    const luaScript = path.join(scriptsPath, 'Ardour', 'importHoaAllRA.lua');
+    const ardourScriptsDir = findArdourScriptsDir(app.getPath('home'));
+    if (ardourScriptsDir) {
+        fs.copyFileSync(luaScript, path.join(ardourScriptsDir, 'importHoaAllRA.lua'));
+    }
+
+    // Lancer Ardour
+    const ardourCmd = process.platform === 'win32' ? 'ardour.exe' : 'ardour';
+    exec(ardourCmd, (error) => {
+        if (error) console.error('Ardour HOA AllRA:', error.message);
+    });
+
+    return { configFile, ardourScriptsDir, nSpeakers: speakers.length };
 });
 
 function mainRead3D() {

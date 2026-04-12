@@ -81,6 +81,10 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("launchReaperHoaBinaural", ambiXPath, hoaOrder, sampleRate),
     launchReaperHoaAllRA: (ambiXPath, hoaOrder, sampleRate, layoutName) =>
         ipcRenderer.invoke("launchReaperHoaAllRA", ambiXPath, hoaOrder, sampleRate, layoutName),
+    launchArdourHoaBinaural: (ambiXPath, hoaOrder, sampleRate) =>
+        ipcRenderer.invoke("launchArdourHoaBinaural", ambiXPath, hoaOrder, sampleRate),
+    launchArdourHoaAllRA: (ambiXPath, hoaOrder, sampleRate, layoutName) =>
+        ipcRenderer.invoke("launchArdourHoaAllRA", ambiXPath, hoaOrder, sampleRate, layoutName),
     // Audio save
     saveAudioTempo: (filePath, arrayBuffer) =>
         ipcRenderer.invoke("saveAudioTempo", { filePath, arrayBuffer }),
