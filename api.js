@@ -1715,20 +1715,7 @@ async function mixAmbiXFinal(lsgrp) {
         document.getElementById("sliderLParam").style.width = "100%";
         document.getElementById("popupLoader").style.display = "none";
         if (result && result.output) {
-            if (confirm("Mix AmbiX final genere :\n" + result.output + "\n\nBinauraliser avec sparta_binauraliser (64->2ch) ?")) {
-                const binauralPath = result.output.replace(/(_ambiX)?\.wav$/i, '_binaural.wav');
-                document.getElementById("popupLoader").style.display = "block";
-                document.getElementById("sliderLParam").style.width = "0%";
-                try {
-                    const binResult = await window.api.renderBinauralFromAmbiX(result.output, binauralPath);
-                    document.getElementById("sliderLParam").style.width = "100%";
-                    alert("Fichier binaural genere :\n" + binResult.output);
-                } catch(e2) {
-                    alert("Erreur binauralisation : " + e2.message);
-                } finally {
-                    document.getElementById("popupLoader").style.display = "none";
-                }
-            }
+            alert("Mix AmbiX final genere :\n" + result.output);
         }
     } catch(e) {
         document.getElementById("popupLoader").style.display = "none";
