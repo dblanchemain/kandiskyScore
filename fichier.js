@@ -279,6 +279,9 @@ function defProjetConf(txt) {
 	<svgmesure value='"+paramProjet.svgMesure+"'></svgmesure>\n\
 	<svggrille value='"+paramProjet.svgGrille+"'></svggrille>\n\
 	<svgseconde value='"+paramProjet.svgSeconde+"'></svgseconde>\n\
+	<spatmode value='"+(paramProjet.spatMode||"vbap3d")+"'></spatmode>\n\
+	<hoadorder value='"+(paramProjet.hoaOrder||3)+"'></hoadorder>\n\
+	<exportambix value='"+(paramProjet.exportAmbiX?1:0)+"'></exportambix>\n\
 	</general>\n";
 	txt=txt+"<interface>\n\
 	<palettebkg value='"+paletteBkg+"'></palettebkg>\n\
@@ -1156,7 +1159,10 @@ function defProjetConfig() {
 		svgRegle:JSON.parse(obj.getElementsByTagName("svgregle")[0].getAttribute("value")),
 		svgMesure:JSON.parse(obj.getElementsByTagName("svgmesure")[0].getAttribute("value")),
 		svgGrille:JSON.parse(obj.getElementsByTagName("svggrille")[0].getAttribute("value")),
-		svgSeconde:JSON.parse(obj.getElementsByTagName("svgseconde")[0].getAttribute("value"))
+		svgSeconde:JSON.parse(obj.getElementsByTagName("svgseconde")[0].getAttribute("value")),
+		spatMode: (obj.getElementsByTagName("spatmode")[0] ? obj.getElementsByTagName("spatmode")[0].getAttribute("value") : null) || "vbap3d",
+		hoaOrder: parseInt(obj.getElementsByTagName("hoadorder")[0] ? obj.getElementsByTagName("hoadorder")[0].getAttribute("value") : 3) || 3,
+		exportAmbiX: (obj.getElementsByTagName("exportambix")[0] ? obj.getElementsByTagName("exportambix")[0].getAttribute("value") : "0") === "1"
 	};
 	importConfigProjet();
 }
