@@ -4027,6 +4027,8 @@ function pasteSymbole(obj,copyX,copyY){
 			graphSymbole(objActif,glyphReverse);
 			break;
 		case 56:
+			tableObjet[objActif].x1=tableObjet[obj].x1||0;
+			tableObjet[objActif].y1=tableObjet[obj].y1||0;
 			tableObjet[objActif].x2=tableObjet[obj].x2;
 			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyRepete(objActif);
@@ -4034,6 +4036,8 @@ function pasteSymbole(obj,copyX,copyY){
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 57:
+			tableObjet[objActif].x1=tableObjet[obj].x1||0;
+			tableObjet[objActif].y1=tableObjet[obj].y1||0;
 			tableObjet[objActif].x2=tableObjet[obj].x2;
 			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyRetrograde(objActif);
@@ -4041,6 +4045,8 @@ function pasteSymbole(obj,copyX,copyY){
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 58:
+			tableObjet[objActif].x1=tableObjet[obj].x1||0;
+			tableObjet[objActif].y1=tableObjet[obj].y1||0;
 			tableObjet[objActif].x2=tableObjet[obj].x2;
 			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyRenvers(objActif);
@@ -4048,6 +4054,8 @@ function pasteSymbole(obj,copyX,copyY){
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
 		case 59:
+			tableObjet[objActif].x1=tableObjet[obj].x1||0;
+			tableObjet[objActif].y1=tableObjet[obj].y1||0;
 			tableObjet[objActif].x2=tableObjet[obj].x2;
 			tableObjet[objActif].y2=tableObjet[obj].y2;
 			copyRenversRetro(objActif);

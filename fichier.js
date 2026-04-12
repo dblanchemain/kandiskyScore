@@ -186,19 +186,19 @@ function defSymbGrp(id,nbobjets) {
 		<objborderw  value='"+id.objBorderW+"'></objborderw>\n\
 		<objcolor value='"+id.objColor+"'></objcolor>\n\
 		<objopacity value='"+id.objOpacity+"'></objopacity>\n\
-		<posx value='"+id.posX+"'></posx>\n\
-		<posy value='"+id.posY+"'></posy>\n\
-		<rotate value='"+id.rotate+"'></rotate>\n\
-		<scalex value='"+id.scaleX+"'></scalex>\n\
-		<scaley value='"+id.scaleY+"'></scaley>\n";
+		<posx value='"+(isFinite(id.posX)?id.posX:0)+"'></posx>\n\
+		<posy value='"+(isFinite(id.posY)?id.posY:0)+"'></posy>\n\
+		<rotate value='"+(isFinite(id.rotate)?id.rotate:0)+"'></rotate>\n\
+		<scalex value='"+(isFinite(id.scaleX)?id.scaleX:1)+"'></scalex>\n\
+		<scaley value='"+(isFinite(id.scaleY)?id.scaleY:1)+"'></scaley>\n";
 		if(id.scaleY2){
 			txt=txt+"		<scaley2 value='"+id.scaleY2+"'></scaley2>\n";
 		}
 		txt=txt+"		<type value='"+id.type+"'></type>\n\
-		<x1 value='"+id.x1+"'></x1>\n\
-			<y1 value='"+id.y1+"'></y1>\n\
-			<x2 value='"+id.x2+"'></x2>\n\
-			<y2 value='"+id.y2+"'></y2>\n\
+		<x1 value='"+(isFinite(id.x1)?id.x1:0)+"'></x1>\n\
+			<y1 value='"+(isFinite(id.y1)?id.y1:0)+"'></y1>\n\
+			<x2 value='"+(isFinite(id.x2)?id.x2:94)+"'></x2>\n\
+			<y2 value='"+(isFinite(id.y2)?id.y2:0)+"'></y2>\n\
 		<width value='"+id.width+"'></width>\n";
 		if(parseInt(id.type)==69||parseInt(id.type)==70){
 			txt=txt+"<x3 value='"+(id.x3||0)+"'></x3>\n\
