@@ -5420,10 +5420,10 @@ ipcMain.handle("showSaveDialog", async (event, defaultPath) => {
 });
 
 ipcMain.handle('renderBinauralFromAmbiX', async (event, ambiXPath, outPath) => {
-    const LV2_BINAURALISER = 'http://AALTO.sparta_binauraliser.1.7.3';
-    const result = spawnSync('lv2apply', ['-i', ambiXPath, '-o', outPath, LV2_BINAURALISER], { stdio: 'inherit' });
+    const scriptPath = path.join(__dirname, 'hoa_binaural.py');
+    const result = spawnSync('python3', [scriptPath, ambiXPath, outPath], { stdio: 'inherit' });
     if (result.error) throw result.error;
-    if (result.status !== 0) throw new Error(`lv2apply exited with code ${result.status}`);
+    if (result.status !== 0) throw new Error(`hoa_binaural.py exited with code ${result.status}`);
     return { output: outPath };
 });
 
