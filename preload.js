@@ -75,6 +75,8 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("renderGroupWidthSoX",lsgrp,tbobjets,start),
     renderHoaAmbiXMix: (objects, exportDir) =>
         ipcRenderer.invoke("renderHoaAmbiXMix", objects, exportDir),
+    renderBinauralFromAmbiX: (ambiXPath, outPath) =>
+        ipcRenderer.invoke("renderBinauralFromAmbiX", ambiXPath, outPath),
     // Audio save
     saveAudioTempo: (filePath, arrayBuffer) =>
         ipcRenderer.invoke("saveAudioTempo", { filePath, arrayBuffer }),

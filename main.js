@@ -5419,6 +5419,14 @@ ipcMain.handle("showSaveDialog", async (event, defaultPath) => {
     return filePath;
 });
 
+ipcMain.handle('renderBinauralFromAmbiX', async (event, ambiXPath, outPath) => {
+    const LV2_BINAURALISER = 'http://AALTO.sparta_binauraliser.1.7.3';
+    const result = spawnSync('lv2apply', ['-i', ambiXPath, '-o', outPath, LV2_BINAURALISER], { stdio: 'inherit' });
+    if (result.error) throw result.error;
+    if (result.status !== 0) throw new Error(`lv2apply exited with code ${result.status}`);
+    return { output: outPath };
+});
+
 ipcMain.handle('renderHoaAmbiXMix', async (event, objects, exportDir) => {
     const tmpDir = path.join(exportDir, 'tmp_hoa');
     fs.mkdirSync(tmpDir, { recursive: true });
