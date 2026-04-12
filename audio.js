@@ -1769,7 +1769,7 @@ async function postRubberband(id,mode,file) {
 
     } else if (mode == 2) {
         // ===== MODE HOA AmbiX : encodage HOA -> B-format, 1 fichier par objet =====
-        const ambiXPath = window.api.joinPath(`${dir}`,'exports',`${obj.id}_ambiX.wav`);
+        const ambiXPath = window.api.joinPath(`${dir}`,'exports',`${obj.id}.wav`);
         // spatialiseBufferHoa avec exportAmbiX=true sort le B-format brut
         const prevAmbiX = (typeof exportAmbiX !== "undefined") ? exportAmbiX : false;
         exportAmbiX = true;
