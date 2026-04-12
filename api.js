@@ -1673,6 +1673,9 @@ async function getObjAudioBuffer(id) {
  * Chaque objet est encodé en B-format et sauvé dans exports/{id}_ambiX.wav
  */
 async function exportHoaAmbiXPartition() {
+    if (!window.wamSpat && window.wamSpatPromise) {
+        window.wamSpat = await window.wamSpatPromise;
+    }
     if (!window.wamSpat || window.wamSpat.mode !== "hoa") {
         alert("Le projet doit etre en mode HOA (Ambisonics) pour cet export.\nChangez le mode dans les preferences du projet.");
         return;
