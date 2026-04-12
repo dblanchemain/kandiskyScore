@@ -5536,7 +5536,6 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 		} else {
 		  args.push(paddedFiles[0]);
 		  args.push("-b", "32");
-		  args.push("-c", "1");
 		  args.push(output);
 		  args.push("fade", "0.005", "0", "0.1");
 		}
