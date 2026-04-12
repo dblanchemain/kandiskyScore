@@ -2465,8 +2465,9 @@ function importConfigProjet(){
 	
 	console.warn("TYPE console.log =", typeof console.log);
 
-	// Stocke la Promise pour éviter une double compilation si spatialiseBuffer
-	// est appelé avant que la compilation initiale soit terminée.
+	// Remet wamSpat à null pour forcer l'attente de la nouvelle compilation
+	// (ex: changement d'ordre HOA dans les préférences)
+	window.wamSpat = null;
 	window.wamSpatPromise = createLayout(spat3D, 1, spatMode, hoaOrder)
 		.then(result => { window.wamSpat = result; return result; })
 		.catch(err => { console.error("Erreur dans createLayout:", err); return null; });
