@@ -91,11 +91,21 @@ function factory () return function ()
     if ok then
       print("AllRADecoder ajouté.")
 
-      -- Paramètre 0 : inputOrderSetting = 0 (automatique)
-      ARDOUR.LuaAPI.set_plugin_param(proc, 0, 0.0)
-      -- Paramètre 1 : useSN3D = 1 (normalisation SN3D)
-      ARDOUR.LuaAPI.set_plugin_param(proc, 1, 1.0)
-      print("inputOrderSetting : auto / useSN3D : 1")
+      -- Réglage des paramètres via les contrôles d'automation
+      local plug = track:nth_plugin(0)
+      if plug and not plug:isnil() then
+        -- Paramètre 0 : inputOrderSetting = 0 (automatique)
+        local _, c0 = ARDOUR.LuaAPI.plugin_automation(plug, 0)
+        if c0 and not c0:isnil() then
+          c0:set_value(0.0, ARDOUR.GroupControlDisposition.NoGroup)
+        end
+        -- Paramètre 1 : useSN3D = 1
+        local _, c1 = ARDOUR.LuaAPI.plugin_automation(plug, 1)
+        if c1 and not c1:isnil() then
+          c1:set_value(1.0, ARDOUR.GroupControlDisposition.NoGroup)
+        end
+        print("inputOrderSetting : auto / useSN3D : 1")
+      end
 
       -- ── Écriture de l'état XML pour chargement manuel ─────────
       -- AllRADecoder accepte un fichier XML/JSON dans son UI
