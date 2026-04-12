@@ -597,7 +597,8 @@ const template = [
 		{ label: "HOA",
 			submenu: [
 				{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() },
-				{ label: "Mix HOA AmbiX final", click: () => mixHoaAmbiXFinal() }
+				{ label: "Mix HOA AmbiX final", click: () => mixHoaAmbiXFinal() },
+				{ label: "Ouvrir dans Reaper (IEM BinauralDecoder)", click: () => exportHoaToReaper() }
 			]},
 		{ label: Marchive, click: () => archiveProjet() },
     	{ type: 'separator' },
