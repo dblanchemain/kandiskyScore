@@ -5642,9 +5642,16 @@ ipcMain.handle('fileExists', async (event, filePath) => {
 
 ipcMain.handle('renderBinauralFromAmbiX', async (event, ambiXPath, outPath) => {
     const scriptPath = path.join(__dirname, 'hoa_binaural.py');
-    const result = spawnSync('python3', [scriptPath, ambiXPath, outPath], { stdio: 'inherit' });
+    const result = spawnSync('python3', [scriptPath, ambiXPath, outPath], { stdio: 'pipe', encoding: 'utf8' });
+    const stderr = (result.stderr || '').trim();
+    const stdout = (result.stdout || '').trim();
+    if (stdout) console.log('[hoa_binaural.py]', stdout);
+    if (stderr) console.error('[hoa_binaural.py stderr]', stderr);
     if (result.error) throw result.error;
-    if (result.status !== 0) throw new Error(`hoa_binaural.py exited with code ${result.status}`);
+    if (result.status !== 0) {
+        const msg = stderr || `exit code ${result.status}`;
+        throw new Error(`hoa_binaural.py : ${msg}`);
+    }
     return { output: outPath };
 });
 
