@@ -6,6 +6,9 @@ const extraResource = allResources.filter(p => fs.existsSync(p));
 module.exports = {
   packagerConfig: {
     asar: true,
+    asarUnpack: [
+      '**/node_modules/h5wasm/**',
+    ],
     extraResource,
     ignore: [
       /^\/public\/emsdk/,
