@@ -139,10 +139,12 @@ else
   if f then
     f:write(xmlState)
     f:close()
+    local jsonFile = reaper.GetResourcePath() .. "/allra_layout.json"
     reaper.ShowConsoleMsg("⚠ vst_chunk non appliqué. XML sauvegardé :\n  " .. xmlFile .. "\n")
     reaper.ShowMessageBox(
       "L'état du plugin n'a pas pu être appliqué automatiquement.\n\n" ..
-      "Chargez manuellement le fichier XML dans AllRADecoder :\n" .. xmlFile,
+      "Option 1 – charger le JSON dans AllRADecoder (bouton Load) :\n" .. jsonFile ..
+      "\n\nOption 2 – charger le XML :\n" .. xmlFile,
       "Configuration manuelle requise", 0)
   end
 end

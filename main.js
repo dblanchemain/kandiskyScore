@@ -5300,21 +5300,41 @@ ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     const layoutJSON = JSON.parse(fs.readFileSync(layoutPath, 'utf8'));
     const speakers = layoutJSON.speakers;
 
-    // Conversion Cartésien KS (x=droite, y=haut, z=avant) → sphérique AllRADecoder (az CCW, el haut)
-    const spkLines = speakers.map((sp, i) => {
-        const r = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
+    // Conversion Cartésien KS → sphérique AllRADecoder
+    const spkSph = speakers.map((sp) => {
+        const r  = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
         const nx = sp.x/r, ny = sp.y/r, nz = sp.z/r;
-        const az = (Math.atan2(-nx, nz) * 180 / Math.PI);
-        const el = (Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI);
-        return `${az.toFixed(4)},${el.toFixed(4)},${r.toFixed(4)}`;
+        return {
+            az: Math.atan2(-nx, nz) * 180 / Math.PI,
+            el: Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI,
+            r
+        };
     });
 
     // Écrire le fichier de config AllRA
     const reaperResourcePath = path.join(app.getPath('home'), '.config', 'REAPER');
     if (!fs.existsSync(reaperResourcePath)) fs.mkdirSync(reaperResourcePath, { recursive: true });
     const configFile = path.join(reaperResourcePath, 'kandiskyscore_allra.txt');
+    const spkLines = spkSph.map(sp => `${sp.az.toFixed(4)},${sp.el.toFixed(4)},${sp.r.toFixed(4)}`);
     const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
     fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
+
+    // Générer le JSON AllRADecoder (fallback si vst_chunk échoue dans le Lua)
+    const allraJSON = {
+        LoudspeakerLayout: {
+            Name: layoutName,
+            Loudspeakers: spkSph.map((sp, i) => ({
+                Azimuth:     parseFloat(sp.az.toFixed(4)),
+                Elevation:   parseFloat(sp.el.toFixed(4)),
+                Radius:      parseFloat(sp.r.toFixed(4)),
+                IsImaginary: false,
+                Channel:     i + 1,
+                Gain:        1.0
+            }))
+        }
+    };
+    const jsonPath = path.join(reaperResourcePath, 'allra_layout.json');
+    fs.writeFileSync(jsonPath, JSON.stringify(allraJSON, null, 2), 'utf8');
 
     const luaScript = path.join(scriptsPath, 'Reaper', 'importHoaAllRA.lua');
     const tmpRpp    = path.join(scriptsPath, 'Reaper', 'tmp.rpp');
@@ -5322,7 +5342,7 @@ ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     return new Promise((resolve) => {
         exec(cmd, (error) => {
             if (error) console.error('Reaper AllRA:', error.message);
-            resolve({ configFile, luaScript, nSpeakers: speakers.length });
+            resolve({ configFile, jsonPath, luaScript, nSpeakers: speakers.length });
         });
     });
 });
