@@ -579,30 +579,44 @@ const template = [
 				click: () => lstAudio() },
     	{ label: Mexport,
       	submenu: [
-  				{ label: MexportObj,
-					click: () => exportObjetActif() },
-     			 { label: MexportGrp,
-					click: () => exportGrp() },
-      		{ label: MexportInterv,
-					click: () => exportIntv()  },
-      		{ label: MexportPart,
-					click: () => exportPart()  },
-  				]
-  		 },
-		{ label: "ADM",
-			submenu: [
-				{ label: "Export ADM", click: () => exportAdm() },
-				{ label: "Import ADM", click: () => importAdmMenu() }
-			]},
-		{ label: "HOA",
-			submenu: [
-				{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() },
-				{ label: "Mix HOA AmbiX final", click: () => mixHoaAmbiXFinal() },
-				{ label: "Ouvrir dans Reaper (IEM BinauralDecoder)", click: () => exportHoaToReaper() },
-				{ label: "Ouvrir dans Reaper (IEM AllRADecoder)", click: () => exportHoaToReaperAllRA() },
-				{ label: "Ouvrir dans Ardour (IEM BinauralDecoder)", click: () => exportHoaToArdourBinaural() },
-				{ label: "Ouvrir dans Ardour (IEM AllRADecoder)", click: () => exportHoaToArdourAllRA() }
-			]},
+				{ label: "Séquenceurs",
+					submenu: [
+						{ label: MexportObj,   click: () => exportObjetActif() },
+						{ label: MexportGrp,   click: () => exportGrp() },
+						{ label: MexportInterv,click: () => exportIntv() },
+						{ label: MexportPart,  click: () => exportPart() },
+					]
+				},
+				{ label: "ADM",
+					submenu: [
+						{ label: "Exports", click: () => exportAdm() },
+						{ label: "Import",  click: () => importAdmMenu() }
+					]
+				},
+				{ label: "HOA",
+					submenu: [
+						{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() },
+						{ label: "Mix HOA AmbiX final",         click: () => mixHoaAmbiXFinal() },
+						{ label: "Séquenceurs",
+							submenu: [
+								{ label: "Ardour",
+									submenu: [
+										{ label: "IEM BinauralDecoder", click: () => exportHoaToArdourBinaural() },
+										{ label: "IEM AllRADecoder",    click: () => exportHoaToArdourAllRA() }
+									]
+								},
+								{ label: "Reaper",
+									submenu: [
+										{ label: "IEM BinauralDecoder", click: () => exportHoaToReaper() },
+										{ label: "IEM AllRADecoder",    click: () => exportHoaToReaperAllRA() }
+									]
+								}
+							]
+						}
+					]
+				},
+  			]
+  		},
 		{ label: Marchive, click: () => archiveProjet() },
     	{ type: 'separator' },
       isMac ? { role: 'close' } : { role: 'quit' }
