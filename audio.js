@@ -1770,11 +1770,29 @@ async function postRubberband(id,mode,file) {
     } else if (mode == 2) {
         // ===== MODE HOA AmbiX : encodage HOA -> B-format, 1 fichier par objet =====
         const ambiXPath = window.api.joinPath(`${dir}`,'exports',`${obj.id}.wav`);
+
+        // Appliquer les paramètres de lecture via SoX (idem mode 1)
+        const durationAfterSpeed = ((obj.duree * obj.fin) - (obj.duree * obj.debut)) / obj.transposition;
+        const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
+        const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
+        const exportFadeIn  = obj.fadeIn || 0;
+        const exportFade    = `${exportFadeIn} ${durationAfterSpeed * envX0} ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
+        const exportLengthSec = durationAfterSpeed;
+        const exportSoxParams = `pitch ${obj.detune} speed ${obj.transposition} vol ${obj.gain} trim ${obj.debut} ${exportLengthSec} fade ${exportFade}`;
+        console.log("[HOA export SoX]", exportSoxParams);
+
+        const tmpSoxPath = window.api.joinPath(`${dir}`, 'tmp', `${obj.id}-hoa-sox.wav`);
+        await window.api.saveAudioBuffer({ filePath: tmpSoxPath, buffer: { sampleRate, channels: currentChannels } });
+        await window.api.soxProcessExport(tmpSoxPath, exportSoxParams);
+        const soxRt = await window.api.loadBuffers(tmpSoxPath);
+        const soxChannels = soxRt.channels.map(ch => new Float32Array(ch));
+        const soxSamples  = soxRt.numSamples;
+
         // spatialiseBufferHoa avec exportAmbiX=true sort le B-format brut
         const prevAmbiX = (typeof exportAmbiX !== "undefined") ? exportAmbiX : false;
         exportAmbiX = true;
         try {
-            await spatialiseBufferHoa(id, ambiXPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
+            await spatialiseBufferHoa(id, ambiXPath, soxRt.numChannels, soxSamples, soxRt.sampleRate, soxChannels, "linear");
         } finally {
             exportAmbiX = prevAmbiX;
         }
