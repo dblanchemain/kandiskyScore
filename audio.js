@@ -741,13 +741,15 @@ console.log("duree",duree,file);
 }
 
 async function renderObjAudio(){
+	if (window.wamSpat?.mode === 'hoa') {
+		await renderHoaBinaural([objActif]);
+		return;
+	}
 	var lsgrp=[];
 	lsgrp.push(objActif);
 	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX);
 	console.log("retour",rt.duration,rt.output);
-	 
 	saveRenduAudio(rt.duration,rt.output);
-	
 }
 
 function renderGrpAudio3(ngrp){
@@ -776,6 +778,10 @@ function renderGrpAudio3(ngrp){
 	console.log("base",base);
 	document.getElementById("barVerticale").style.left=(tableObjet[lsgrp[0]].posX-8)+"px";
 	(async () => {
+		if (window.wamSpat?.mode === 'hoa') {
+			await renderHoaBinaural(lsgrp);
+			return;
+		}
 		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
 		console.log("retour",rt);
 		saveRenduAudio(rt.duration,rt.output);
@@ -799,6 +805,10 @@ function renderIntervalleAudio(){
 	console.log("debut",deb,"fin",fin,lsgrp);
 	// window.api.send("toMain", "renderGroupSoX;"+lsgrp+";"+JSON.stringify(tableObjet)+";"+tableObjet[0].posX);
 	(async () => {
+		if (window.wamSpat?.mode === 'hoa') {
+			await renderHoaBinaural(lsgrp);
+			return;
+		}
 		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb);
 		console.log("retour",rt.duration,rt.output);
 		saveRenduAudio(rt.duration,rt.output);
@@ -819,6 +829,10 @@ async function renderPartAudio(mode){
 		}
 	}
 	console.log(lsgrp);
+	if (window.wamSpat?.mode === 'hoa') {
+		await renderHoaBinaural(lsgrp);
+		return;
+	}
 	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx);
 	console.log("retour",rt);
 	var start=startx/18;
@@ -1804,7 +1818,9 @@ async function postRubberband(id,mode,file) {
         } else {
             document.getElementById("sliderLParam").style.width = "100%";
             document.getElementById("popupLoader").style.display = "none";
-            if (confirm("Export AmbiX terminé.\nGénérer un mix AmbiX final (un seul fichier B-format pour toute la partition) ?")) {
+            if (renderBinauralMode) {
+                await mixAndBinaural(exportTable);
+            } else if (confirm("Export AmbiX terminé.\nGénérer un mix AmbiX final (un seul fichier B-format pour toute la partition) ?")) {
                 await mixAmbiXFinal(exportTable);
             }
         }
@@ -1836,6 +1852,39 @@ async function postRubberband(id,mode,file) {
     }
 }
 
+// ── Rendu HOA binaural (menu Rendu) ──────────────────────────────────
+async function renderHoaBinaural(lsgrp) {
+    if (!lsgrp || lsgrp.length === 0) return;
+    exportTable    = lsgrp.slice();
+    exportCompteur = 0;
+    renderBinauralMode = true;
+    document.getElementById("popupLoader").style.display = "block";
+    document.getElementById("sliderLParam").style.width = "0%";
+    await readSimpleAudioA(exportTable[0], 2);
+}
+
+async function mixAndBinaural(lsgrp) {
+    renderBinauralMode = false;
+    const audioPath  = toAbsPath(paramProjet.audioPath);
+    const exportDir  = window.api.joinPath(audioPath, 'exports');
+    const objects    = lsgrp.map(i => ({
+        file: window.api.joinPath(exportDir, `${tableObjet[i].id}_ambiX.wav`),
+        posX: tableObjet[i].posX
+    }));
+    document.getElementById("popupLoader").style.display = "block";
+    try {
+        const mixResult = await window.api.renderHoaAmbiXMix(objects, exportDir);
+        if (!mixResult || !mixResult.output) throw new Error('Mix AmbiX échoué');
+        const binauralPath = window.api.joinPath(exportDir, 'rendu_binaural.wav');
+        await window.api.renderBinauralFromAmbiX(mixResult.output, binauralPath);
+        document.getElementById("popupLoader").style.display = "none";
+        saveRenduAudio(0, binauralPath);
+    } catch(e) {
+        document.getElementById("popupLoader").style.display = "none";
+        alert("Erreur rendu binaural HOA : " + e.message);
+    }
+}
+
 async function exportObjAudio(mode){
 	const obj = tableObjet[objActif];
 	if (!obj || !obj.file) return;
@@ -1849,6 +1898,7 @@ async function exportObjAudio(mode){
 
 let exportTable=[];
 let exportCompteur=0;
+let renderBinauralMode = false;
 async function exportIntv(){
 	var lsgrp=[];
 	var tempoMap=[];
