@@ -1897,7 +1897,7 @@ async function mixAndBinaural(lsgrp) {
         saveRenduAudio(0, binauralPath);
     } catch(e) {
         document.getElementById("popupLoader").style.display = "none";
-        console.error('[binaural] erreur:', e);
+        console.error('[binaural] erreur:', e.message, e);
         alert("Erreur rendu binaural HOA :\n" + e.message);
     }
 }
