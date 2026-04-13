@@ -21,7 +21,16 @@ const WavEncoder = require('wav-encoder');
 const FFTModule  = require('fft.js');
 
 // Chemin vers le module h5wasm ESM (chargé via import() dynamique)
-const H5WASM_ESM = path.join(__dirname, 'node_modules/h5wasm/dist/node/hdf5_hl.js');
+// require.resolve('h5wasm/package.json') localise le paquet même dans un node_modules parent
+function resolveH5WasmPath() {
+    try {
+        const pkgJson = require.resolve('h5wasm/package.json');
+        return path.join(path.dirname(pkgJson), 'dist/node/hdf5_hl.js');
+    } catch (e) {
+        return path.join(__dirname, 'node_modules/h5wasm/dist/node/hdf5_hl.js');
+    }
+}
+const H5WASM_ESM = resolveH5WasmPath();
 
 // SOFA par défaut selon le système
 const DEFAULT_SOFA = process.platform === 'win32'
