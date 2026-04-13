@@ -5768,7 +5768,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 			  input,
 			  tmpOut,
 			  "trim", obj.debut.toString(), trimmedDuration.toString(),
-			  "pitch", (obj.detune * 100).toString(),
+			  "pitch", obj.detune.toString(),
 			  "speed", speedFactor.toString(),
 			  "vol", obj.gain.toString(),
 			  "fade", obj.fadeIn.toString(),
