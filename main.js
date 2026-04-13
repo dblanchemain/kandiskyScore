@@ -5319,7 +5319,7 @@ ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
     fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
 
-    // Générer le JSON AllRADecoder (fallback si vst_chunk échoue dans le Lua)
+    // Générer le JSON AllRADecoder à côté du fichier ambiX (visible depuis IEM)
     const allraJSON = {
         LoudspeakerLayout: {
             Name: layoutName,
@@ -5333,7 +5333,7 @@ ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sample
             }))
         }
     };
-    const jsonPath = path.join(reaperResourcePath, 'allra_layout.json');
+    const jsonPath = path.join(path.dirname(ambiXPath), 'allra_layout.json');
     fs.writeFileSync(jsonPath, JSON.stringify(allraJSON, null, 2), 'utf8');
 
     const luaScript = path.join(scriptsPath, 'Reaper', 'importHoaAllRA.lua');
@@ -5419,7 +5419,7 @@ ipcMain.handle('launchArdourHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
     fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
 
-    // Générer le JSON AllRADecoder (JSON.stringify garantit des points décimaux quelle que soit la locale)
+    // Générer le JSON AllRADecoder à côté du fichier ambiX (visible depuis IEM)
     const allraJSON = {
         LoudspeakerLayout: {
             Name: layoutName,
@@ -5433,7 +5433,7 @@ ipcMain.handle('launchArdourHoaAllRA', async (event, ambiXPath, hoaOrder, sample
             }))
         }
     };
-    const jsonPath = path.join(ksConfigDir, 'allra_layout.json');
+    const jsonPath = path.join(path.dirname(ambiXPath), 'allra_layout.json');
     fs.writeFileSync(jsonPath, JSON.stringify(allraJSON, null, 2), 'utf8');
 
     // Copier le script dans le dossier scripts Ardour

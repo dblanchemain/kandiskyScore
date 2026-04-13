@@ -139,7 +139,8 @@ else
   if f then
     f:write(xmlState)
     f:close()
-    local jsonFile = reaper.GetResourcePath() .. "/allra_layout.json"
+    local exportDir = ambiXPath:match("^(.*)[/\\][^/\\]*$") or reaper.GetResourcePath()
+    local jsonFile  = exportDir .. "/allra_layout.json"
     reaper.ShowConsoleMsg("⚠ vst_chunk non appliqué. XML sauvegardé :\n  " .. xmlFile .. "\n")
     reaper.ShowMessageBox(
       "L'état du plugin n'a pas pu être appliqué automatiquement.\n\n" ..

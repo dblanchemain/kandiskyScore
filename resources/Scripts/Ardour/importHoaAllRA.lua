@@ -83,8 +83,9 @@ function factory () return function ()
       -- d'IEM AllRADecoder – le layout est chargé via le fichier XML ci-dessous.
 
       -- Le fichier JSON allra_layout.json est généré par KandiskyScore
-      -- (JSON.stringify garantit des points décimaux quelle que soit la locale).
-      local jsonPath = configDir .. "/allra_layout.json"
+      -- dans le même dossier que partition_ambiX.wav.
+      local exportDir = ambiXPath:match("^(.*)[/\\][^/\\]*$") or configDir
+      local jsonPath  = exportDir .. "/allra_layout.json"
       print("Layout JSON : " .. jsonPath)
       print("")
       print("→ Dans AllRADecoder : bouton 'Load' → sélectionner :")
