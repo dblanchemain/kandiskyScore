@@ -5636,6 +5636,10 @@ ipcMain.handle("showSaveDialog", async (event, defaultPath) => {
     return filePath;
 });
 
+ipcMain.handle('fileExists', async (event, filePath) => {
+    return fs.existsSync(filePath);
+});
+
 ipcMain.handle('renderBinauralFromAmbiX', async (event, ambiXPath, outPath) => {
     const scriptPath = path.join(__dirname, 'hoa_binaural.py');
     const result = spawnSync('python3', [scriptPath, ambiXPath, outPath], { stdio: 'inherit' });

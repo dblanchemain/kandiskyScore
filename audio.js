@@ -1867,21 +1867,38 @@ async function mixAndBinaural(lsgrp) {
     renderBinauralMode = false;
     const audioPath  = toAbsPath(paramProjet.audioPath);
     const exportDir  = window.api.joinPath(audioPath, 'exports');
-    const objects    = lsgrp.map(i => ({
-        file: window.api.joinPath(exportDir, `${tableObjet[i].id}_ambiX.wav`),
-        posX: tableObjet[i].posX
-    }));
+
+    // Vérifier que les fichiers AmbiX existent
+    const objects = [];
+    for (const i of lsgrp) {
+        const f = window.api.joinPath(exportDir, `${tableObjet[i].id}_ambiX.wav`);
+        if (await window.api.fileExists(f)) {
+            objects.push({ file: f, posX: tableObjet[i].posX });
+        } else {
+            console.warn('[binaural] fichier AmbiX absent:', f);
+        }
+    }
+    if (objects.length === 0) {
+        alert("Erreur rendu binaural HOA : aucun fichier AmbiX trouvé dans\n" + exportDir);
+        return;
+    }
+
     document.getElementById("popupLoader").style.display = "block";
     try {
         const mixResult = await window.api.renderHoaAmbiXMix(objects, exportDir);
         if (!mixResult || !mixResult.output) throw new Error('Mix AmbiX échoué');
+        console.log('[binaural] mix AmbiX:', mixResult.output);
+
         const binauralPath = window.api.joinPath(exportDir, 'rendu_binaural.wav');
         await window.api.renderBinauralFromAmbiX(mixResult.output, binauralPath);
+        console.log('[binaural] rendu binaural:', binauralPath);
+
         document.getElementById("popupLoader").style.display = "none";
         saveRenduAudio(0, binauralPath);
     } catch(e) {
         document.getElementById("popupLoader").style.display = "none";
-        alert("Erreur rendu binaural HOA : " + e.message);
+        console.error('[binaural] erreur:', e);
+        alert("Erreur rendu binaural HOA :\n" + e.message);
     }
 }
 
