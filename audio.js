@@ -1893,8 +1893,11 @@ async function mixAndBinaural(lsgrp) {
         await window.api.renderBinauralFromAmbiX(mixResult.output, binauralPath);
         console.log('[binaural] rendu binaural:', binauralPath);
 
+        const info = await window.api.infoFile(binauralPath);
+        const duration = info.nbsamples / info.rate;
+
         document.getElementById("popupLoader").style.display = "none";
-        saveRenduAudio(0, binauralPath);
+        saveRenduAudio(duration, binauralPath);
     } catch(e) {
         document.getElementById("popupLoader").style.display = "none";
         console.error('[binaural] erreur:', e.message, e);
