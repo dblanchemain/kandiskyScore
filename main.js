@@ -5641,24 +5641,8 @@ ipcMain.handle('fileExists', async (event, filePath) => {
 });
 
 ipcMain.handle('renderBinauralFromAmbiX', async (event, ambiXPath, outPath) => {
-    const scriptPath = path.join(__dirname, 'hoa_binaural.py');
-    const result = spawnSync('python3', [scriptPath, ambiXPath, outPath], { stdio: 'pipe', encoding: 'utf8' });
-    const stderr = (result.stderr || '').trim();
-    const stdout = (result.stdout || '').trim();
-    if (stdout) console.log('[hoa_binaural.py]', stdout);
-    if (stderr) console.error('[hoa_binaural.py stderr]', stderr);
-    if (result.error) throw result.error;
-    if (result.status !== 0) {
-        const missingModule = (stderr.match(/No module named '(\S+)'/) || [])[1];
-        if (missingModule) {
-            throw new Error(
-                `Module Python manquant : ${missingModule}\n\n` +
-                `Installez les dépendances :\n` +
-                `  pip3 install soundfile numpy h5py scipy`
-            );
-        }
-        throw new Error(`hoa_binaural.py : ${stderr || `exit code ${result.status}`}`);
-    }
+    const { renderHoaBinaural } = require('./hoa_binaural');
+    await renderHoaBinaural(ambiXPath, outPath, { soxPath, soxiPath });
     return { output: outPath };
 });
 
