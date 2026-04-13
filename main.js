@@ -5649,8 +5649,15 @@ ipcMain.handle('renderBinauralFromAmbiX', async (event, ambiXPath, outPath) => {
     if (stderr) console.error('[hoa_binaural.py stderr]', stderr);
     if (result.error) throw result.error;
     if (result.status !== 0) {
-        const msg = stderr || `exit code ${result.status}`;
-        throw new Error(`hoa_binaural.py : ${msg}`);
+        const missingModule = (stderr.match(/No module named '(\S+)'/) || [])[1];
+        if (missingModule) {
+            throw new Error(
+                `Module Python manquant : ${missingModule}\n\n` +
+                `Installez les dépendances :\n` +
+                `  pip3 install soundfile numpy h5py scipy`
+            );
+        }
+        throw new Error(`hoa_binaural.py : ${stderr || `exit code ${result.status}`}`);
     }
     return { output: outPath };
 });
