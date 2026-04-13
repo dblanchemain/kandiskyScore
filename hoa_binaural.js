@@ -21,19 +21,15 @@ const WavEncoder = require('wav-encoder');
 const FFTModule  = require('fft.js');
 
 // Chemin vers le module h5wasm ESM (chargé via import() dynamique)
-// require.resolve localise le paquet même dans un node_modules parent.
 // En prod (asar), import() ne peut pas charger depuis l'intérieur du .asar —
 // on remplace .asar/ par .asar.unpacked/ pour cibler la copie dépaquetée.
+// Note : require.resolve('h5wasm/package.json') échoue (exports map restreinte),
+// on utilise __dirname qui reflète le chemin asar réel du module courant.
 function resolveH5WasmPath() {
-    try {
-        const pkgJson = require.resolve('h5wasm/package.json');
-        let p = path.join(path.dirname(pkgJson), 'dist/node/hdf5_hl.js');
-        // Remap asar → asar.unpacked pour que import() fonctionne en prod
-        p = p.replace(/\.asar([/\\])/, '.asar.unpacked$1');
-        return p;
-    } catch (e) {
-        return path.join(__dirname, 'node_modules/h5wasm/dist/node/hdf5_hl.js');
-    }
+    let p = path.join(__dirname, 'node_modules/h5wasm/dist/node/hdf5_hl.js');
+    // Remap asar → asar.unpacked pour que import() fonctionne en prod
+    p = p.replace(/\.asar([/\\])/, '.asar.unpacked$1');
+    return p;
 }
 const H5WASM_ESM = resolveH5WasmPath();
 
