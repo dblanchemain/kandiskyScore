@@ -601,6 +601,9 @@ const template = [
 					submenu: [
 						{ label: "Export HOA AmbiX (B-format)", click: () => exportHoaAmbiX() },
 						{ label: "Mix HOA AmbiX final",         click: () => mixHoaAmbiXFinal() },
+						{ type: "separator" },
+						{ label: "Nettoyer fichiers AmbiX",     click: () => cleanHoaAmbiX() },
+						{ type: "separator" },
 						{ label: "Séquenceurs",
 							submenu: [
 								{ label: "Ardour",
@@ -3077,6 +3080,9 @@ function exportHoaAmbiX(){
 }
 function mixHoaAmbiXFinal(){
 	mainWindow.webContents.send("fromMain", "mixHoaAmbiXFinal");
+}
+function cleanHoaAmbiX(){
+	mainWindow.webContents.send("fromMain", "cleanHoaAmbiX");
 }
 function exportHoaToReaper(){
 	mainWindow.webContents.send("fromMain", "exportHoaToReaper");
@@ -5665,6 +5671,28 @@ ipcMain.handle("showSaveDialog", async (event, defaultPath) => {
 
 ipcMain.handle('fileExists', async (event, filePath) => {
     return fs.existsSync(filePath);
+});
+
+ipcMain.handle('cleanHoaAmbiX', async (event, exportDir) => {
+    if (!fs.existsSync(exportDir)) return { deleted: [], totalMB: 0 };
+
+    const entries = fs.readdirSync(exportDir);
+    const toDelete = entries.filter(f =>
+        f.endsWith('_ambiX.wav') || f === 'partition_ambiX.wav'
+    ).map(f => path.join(exportDir, f));
+
+    let totalBytes = 0;
+    const deleted = [];
+    for (const f of toDelete) {
+        try {
+            totalBytes += fs.statSync(f).size;
+            fs.unlinkSync(f);
+            deleted.push(path.basename(f));
+        } catch (e) {
+            console.warn('[cleanHoaAmbiX] impossible de supprimer:', f, e.message);
+        }
+    }
+    return { deleted, totalMB: (totalBytes / 1024 / 1024).toFixed(1) };
 });
 
 ipcMain.handle('renderBinauralFromAmbiX', async (event, ambiXPath, outPath) => {

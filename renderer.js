@@ -762,6 +762,9 @@ window.api.receive("fromMain", (data) => {
 					return lsgrp;
 				})());
 				break;
+			case 'cleanHoaAmbiX':
+				nettoyerFichiersAmbiX();
+				break;
 			case 'importAdm':
 				importAdmFromData(JSON.parse(decodeURIComponent(escape(atob(cmd[1])))));
 				break;

@@ -1823,6 +1823,28 @@ async function exportHoaToReaper() {
     }
 }
 
+async function nettoyerFichiersAmbiX() {
+    const audioPath = toAbsPath(paramProjet.audioPath);
+    const exportDir = window.api.joinPath(audioPath, 'exports');
+
+    if (!await window.api.fileExists(exportDir)) {
+        alert("Aucun dossier exports trouvé.");
+        return;
+    }
+
+    const result = await window.api.cleanHoaAmbiX(exportDir);
+
+    if (result.deleted.length === 0) {
+        alert("Aucun fichier AmbiX trouvé dans :\n" + exportDir);
+        return;
+    }
+
+    alert(
+        `${result.deleted.length} fichier(s) AmbiX supprimé(s) (${result.totalMB} Mo libérés) :\n\n` +
+        result.deleted.join('\n')
+    );
+}
+
 async function exportAdm() {
 	const filePath = await window.api.showSaveDialog();
 	if (!filePath) return;
