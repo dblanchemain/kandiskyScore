@@ -37,16 +37,13 @@ if ambiXPath == "" or nSpeakers == 0 then
   return
 end
 
--- Lire les positions az,el,radius
+-- Lire les positions az,el,radius (garder les chaînes brutes pour éviter
+-- le reformatage par string.format qui utilise la locale système)
 local speakers = {}
 for i = 1, nSpeakers do
   local ln = lines[5 + i] or "0,0,1"
   local az, el, r = ln:match("([^,]+),([^,]+),([^,]+)")
-  table.insert(speakers, {
-    az = tonumber(az) or 0,
-    el = tonumber(el) or 0,
-    r  = tonumber(r)  or 1
-  })
+  table.insert(speakers, { az = az or "0", el = el or "0", r = r or "1" })
 end
 
 local nHoaCh = (hoaOrder + 1) * (hoaOrder + 1)
@@ -108,7 +105,7 @@ table.insert(xmlParts, '<?xml version="1.0" encoding="UTF-8"?>')
 table.insert(xmlParts, '<AllRADecoder inputOrderSetting="0" useSN3D="1" exportDecoder="1">')
 for i, sp in ipairs(speakers) do
   table.insert(xmlParts, string.format(
-    '  <Loudspeaker Azimuth="%.4f" Elevation="%.4f" Radius="%.4f" Gain="1.0" Channel="%d" IsImaginary="0"/>',
+    '  <Loudspeaker Azimuth="%s" Elevation="%s" Radius="%s" Gain="1.0" Channel="%d" IsImaginary="0"/>',
     sp.az, sp.el, sp.r, i))
 end
 table.insert(xmlParts, '</AllRADecoder>')

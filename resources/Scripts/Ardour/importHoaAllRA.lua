@@ -43,18 +43,6 @@ function factory () return function ()
   end
   io.close(f)
 
-  -- Lire les positions az, el, radius
-  local speakers = {}
-  for i = 1, nSpeakers do
-    local ln = lines[5 + i] or "0,0,1"
-    local az, el, r = ln:match("([^,]+),([^,]+),([^,]+)")
-    table.insert(speakers, {
-      az = tonumber(az) or 0,
-      el = tonumber(el) or 0,
-      r  = tonumber(r)  or 1
-    })
-  end
-
   print("=== Import HOA AmbiX – IEM AllRADecoder ===")
   print("Fichier  : " .. ambiXPath)
   print("Layout   : " .. layoutName .. " (" .. nSpeakers .. " HP)")
@@ -94,34 +82,13 @@ function factory () return function ()
       -- inputOrderSetting=0 (auto) et useSN3D=1 sont les valeurs par défaut
       -- d'IEM AllRADecoder – le layout est chargé via le fichier XML ci-dessous.
 
-      -- ── Écriture du JSON IEM pour chargement dans AllRADecoder ──
-      -- Format attendu par le bouton "Load" d'IEM AllRADecoder
-      local jsonLines = {}
-      table.insert(jsonLines, '{')
-      table.insert(jsonLines, '  "LoudspeakerLayout": {')
-      table.insert(jsonLines, string.format('    "Name": "%s",', layoutName))
-      table.insert(jsonLines, '    "Loudspeakers": [')
-      for i, sp in ipairs(speakers) do
-        local comma = (i < #speakers) and "," or ""
-        table.insert(jsonLines, string.format(
-          '      {"Azimuth": %.4f, "Elevation": %.4f, "Radius": %.4f, "IsImaginary": false, "Channel": %d, "Gain": 1.0}%s',
-          sp.az, sp.el, sp.r, i, comma))
-      end
-      table.insert(jsonLines, '    ]')
-      table.insert(jsonLines, '  }')
-      table.insert(jsonLines, '}')
-      local jsonStr = table.concat(jsonLines, '\n')
-
+      -- Le fichier JSON allra_layout.json est généré par KandiskyScore
+      -- (JSON.stringify garantit des points décimaux quelle que soit la locale).
       local jsonPath = configDir .. "/allra_layout.json"
-      local jf = io.open(jsonPath, "w")
-      if jf then
-        jf:write(jsonStr)
-        jf:close()
-        print("Layout JSON sauvegardé : " .. jsonPath)
-        print("")
-        print("→ Dans AllRADecoder : bouton 'Load' → sélectionner :")
-        print("  " .. jsonPath)
-      end
+      print("Layout JSON : " .. jsonPath)
+      print("")
+      print("→ Dans AllRADecoder : bouton 'Load' → sélectionner :")
+      print("  " .. jsonPath)
     else
       print("⚠ Impossible d'ajouter AllRADecoder à la piste.")
     end

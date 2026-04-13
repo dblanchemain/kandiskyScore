@@ -5381,20 +5381,40 @@ ipcMain.handle('launchArdourHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     const speakers = layoutJSON.speakers;
 
     // Conversion Cartésien KS → sphérique AllRADecoder
-    const spkLines = speakers.map((sp) => {
+    const spkSph = speakers.map((sp) => {
         const r  = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
         const nx = sp.x/r, ny = sp.y/r, nz = sp.z/r;
-        const az = (Math.atan2(-nx, nz) * 180 / Math.PI);
-        const el = (Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI);
-        return `${az.toFixed(4)},${el.toFixed(4)},${r.toFixed(4)}`;
+        return {
+            az: Math.atan2(-nx, nz) * 180 / Math.PI,
+            el: Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI,
+            r
+        };
     });
 
     // Écrire la config dans ~/.config/kandiskyscore/
     const ksConfigDir = path.join(app.getPath('home'), '.config', 'kandiskyscore');
     if (!fs.existsSync(ksConfigDir)) fs.mkdirSync(ksConfigDir, { recursive: true });
     const configFile = path.join(ksConfigDir, 'kandiskyscore_allra.txt');
+    const spkLines = spkSph.map(sp => `${sp.az.toFixed(4)},${sp.el.toFixed(4)},${sp.r.toFixed(4)}`);
     const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
     fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
+
+    // Générer le JSON AllRADecoder (JSON.stringify garantit des points décimaux quelle que soit la locale)
+    const allraJSON = {
+        LoudspeakerLayout: {
+            Name: layoutName,
+            Loudspeakers: spkSph.map((sp, i) => ({
+                Azimuth:     parseFloat(sp.az.toFixed(4)),
+                Elevation:   parseFloat(sp.el.toFixed(4)),
+                Radius:      parseFloat(sp.r.toFixed(4)),
+                IsImaginary: false,
+                Channel:     i + 1,
+                Gain:        1.0
+            }))
+        }
+    };
+    const jsonPath = path.join(ksConfigDir, 'allra_layout.json');
+    fs.writeFileSync(jsonPath, JSON.stringify(allraJSON, null, 2), 'utf8');
 
     // Copier le script dans le dossier scripts Ardour
     const luaScript = path.join(scriptsPath, 'Ardour', 'importHoaAllRA.lua');
@@ -5409,7 +5429,7 @@ ipcMain.handle('launchArdourHoaAllRA', async (event, ambiXPath, hoaOrder, sample
         if (error) console.error('Ardour HOA AllRA:', error.message);
     });
 
-    return { configFile, ardourScriptsDir, nSpeakers: speakers.length };
+    return { configFile, jsonPath, ardourScriptsDir, nSpeakers: speakers.length };
 });
 
 function mainRead3D() {
