@@ -8,8 +8,15 @@ ardour {
 function factory () return function ()
 
   -- ── Lecture du fichier de config généré par KandiskyScore ─────
-  local home       = os.getenv("HOME") or ""
-  local configDir  = (os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")) .. "/kandiskyscore"
+  local home = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
+  local configDir
+  if package.config:sub(1,1) == "\\" then
+    configDir = (os.getenv("APPDATA") or (home .. "\\AppData\\Roaming")) .. "\\kandiskyscore"
+  elseif os.getenv("TMPDIR") and os.getenv("TMPDIR"):find("/var/folders") then
+    configDir = home .. "/Library/Application Support/kandiskyscore"
+  else
+    configDir = (os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")) .. "/kandiskyscore"
+  end
   local configPath = configDir .. "/kandiskyscore_hoa.txt"
 
   local file, err = io.open(configPath, "r")

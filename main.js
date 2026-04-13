@@ -430,7 +430,11 @@ let imgPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 let editor='libreoffice --draw';
 let editAudioCmd='audacity';
 let daw=0;
-let cmdDaw=path.join(app.getPath('home'), 'Reaper', 'reaper_linux_x86_64', 'REAPER', 'reaper');
+let cmdDaw = process.platform === 'win32'
+    ? path.join('C:\\Program Files\\REAPER (x64)', 'reaper.exe')
+    : process.platform === 'darwin'
+    ? '/Applications/REAPER.app/Contents/MacOS/REAPER'
+    : path.join(app.getPath('home'), 'Reaper', 'reaper_linux_x86_64', 'REAPER', 'reaper');
 let pdfPage=1;
 let pdfLandscape=1;
 let pdfScale=1;
@@ -5285,7 +5289,7 @@ ipcMain.handle('launchReaperHoaBinaural', async (event, ambiXPath, hoaOrder, sam
         : path.join(__dirname, 'resources', 'Scripts');
 
     // Écrire le fichier de config dans le dossier Resources de Reaper
-    const reaperResourcePath = path.join(app.getPath('home'), '.config', 'REAPER');
+    const reaperResourcePath = getOsConfigPath('REAPER');
     if (!fs.existsSync(reaperResourcePath)) fs.mkdirSync(reaperResourcePath, { recursive: true });
     const configFile = path.join(reaperResourcePath, 'kandiskyscore_hoa.txt');
     fs.writeFileSync(configFile, [ambiXPath, hoaOrder, sampleRate].join('\n'), 'utf8');
@@ -5326,7 +5330,7 @@ ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     });
 
     // Écrire le fichier de config AllRA
-    const reaperResourcePath = path.join(app.getPath('home'), '.config', 'REAPER');
+    const reaperResourcePath = getOsConfigPath('REAPER');
     if (!fs.existsSync(reaperResourcePath)) fs.mkdirSync(reaperResourcePath, { recursive: true });
     const configFile = path.join(reaperResourcePath, 'kandiskyscore_allra.txt');
     const spkLines = spkSph.map(sp => `${sp.az.toFixed(4)},${sp.el.toFixed(4)},${sp.r.toFixed(4)}`);
@@ -5361,10 +5365,33 @@ ipcMain.handle('launchReaperHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     });
 });
 
+// ── Helpers config paths multi-OS ──────────────────────────────────
+
+/**
+ * Retourne le répertoire de config applicatif selon l'OS :
+ *   Linux   : ~/.config/<subdir>   (XDG)
+ *   macOS   : ~/Library/Application Support/<subdir>
+ *   Windows : %APPDATA%\<subdir>
+ */
+function getOsConfigPath(subdir) {
+    if (process.platform === 'win32') {
+        return path.join(app.getPath('appData'), subdir);
+    } else if (process.platform === 'darwin') {
+        return path.join(app.getPath('home'), 'Library', 'Application Support', subdir);
+    } else {
+        return path.join(app.getPath('home'), '.config', subdir);
+    }
+}
+
 // ── Helpers Ardour ─────────────────────────────────────────────────
 function findArdourScriptsDir(homeDir) {
     for (const ver of ['ardour8', 'ardour7', 'ardour6', 'ardour5']) {
-        const confDir = path.join(homeDir, '.config', ver);
+        const confDir = process.platform === 'darwin'
+            // macOS : ~/Library/Application Support/Ardour8  (majuscule)
+            ? path.join(homeDir, 'Library', 'Application Support', ver.charAt(0).toUpperCase() + ver.slice(1))
+            : process.platform === 'win32'
+            ? path.join(app.getPath('appData'), ver.charAt(0).toUpperCase() + ver.slice(1))
+            : path.join(homeDir, '.config', ver);
         if (fs.existsSync(confDir)) {
             const scriptsDir = path.join(confDir, 'scripts');
             if (!fs.existsSync(scriptsDir)) fs.mkdirSync(scriptsDir, { recursive: true });
@@ -5379,8 +5406,8 @@ ipcMain.handle('launchArdourHoaBinaural', async (event, ambiXPath, hoaOrder, sam
         ? path.join(process.resourcesPath, 'Scripts')
         : path.join(__dirname, 'resources', 'Scripts');
 
-    // Écrire la config dans ~/.config/kandiskyscore/
-    const ksConfigDir = path.join(app.getPath('home'), '.config', 'kandiskyscore');
+    // Écrire la config dans le dossier config kandiskyscore (multi-OS)
+    const ksConfigDir = getOsConfigPath('kandiskyscore');
     if (!fs.existsSync(ksConfigDir)) fs.mkdirSync(ksConfigDir, { recursive: true });
     const configFile = path.join(ksConfigDir, 'kandiskyscore_hoa.txt');
     fs.writeFileSync(configFile, [ambiXPath, hoaOrder, sampleRate].join('\n'), 'utf8');
@@ -5425,8 +5452,8 @@ ipcMain.handle('launchArdourHoaAllRA', async (event, ambiXPath, hoaOrder, sample
         };
     });
 
-    // Écrire la config dans ~/.config/kandiskyscore/
-    const ksConfigDir = path.join(app.getPath('home'), '.config', 'kandiskyscore');
+    // Écrire la config dans le dossier config kandiskyscore (multi-OS)
+    const ksConfigDir = getOsConfigPath('kandiskyscore');
     if (!fs.existsSync(ksConfigDir)) fs.mkdirSync(ksConfigDir, { recursive: true });
     const configFile = path.join(ksConfigDir, 'kandiskyscore_allra.txt');
     const spkLines = spkSph.map(sp => `${sp.az.toFixed(4)},${sp.el.toFixed(4)},${sp.r.toFixed(4)}`);

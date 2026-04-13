@@ -32,11 +32,26 @@ function resolveH5WasmPath() {
 }
 const H5WASM_ESM = resolveH5WasmPath();
 
-// SOFA par défaut selon le système
-const DEFAULT_SOFA = process.platform === 'win32'
-    ? path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)',
-                'libmysofa', 'MIT_KEMAR_normal_pinna.sofa')
-    : '/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa';
+// Chemin SOFA par défaut selon le système
+function findDefaultSofa() {
+    const fname = 'MIT_KEMAR_normal_pinna.sofa';
+    if (process.platform === 'win32') {
+        return path.join(
+            process.env['ProgramFiles(x86)'] || process.env['ProgramFiles'] || 'C:\\Program Files',
+            'libmysofa', fname);
+    }
+    if (process.platform === 'darwin') {
+        // Homebrew ARM (M1/M2/M3) puis Intel puis fallback
+        const candidates = [
+            `/opt/homebrew/share/libmysofa/${fname}`,
+            `/usr/local/share/libmysofa/${fname}`,
+        ];
+        return candidates.find(p => fs.existsSync(p)) || candidates[0];
+    }
+    // Linux
+    return `/usr/share/libmysofa/${fname}`;
+}
+const DEFAULT_SOFA = findDefaultSofa();
 
 // ─── Utilitaires mathématiques ────────────────────────────────────────────────
 
