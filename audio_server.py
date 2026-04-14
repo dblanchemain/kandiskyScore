@@ -312,36 +312,44 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
     if len(data) == 0:
         return np.zeros((1, 2), dtype=np.float32), sr
 
-    # ── Speed + Pitch + Tempo via pyrubberband ───────────────────────────────
-    # SoX "speed X"  = varispeed : tempo ET hauteur changent de facteur X.
-    # SoX "tempo X"  = time stretch pur, hauteur inchangée.
-    # Priorité : tempo_ratio > speed (on ne cumule pas les deux).
-    _need_pyrb = (abs(speed - 1.0) > 1e-4 or abs(pitch_semitones) > 1e-4
-                  or abs(tempo_ratio - 1.0) > 1e-4)
-    if _PYRB_AVAILABLE and _need_pyrb:
-        if abs(tempo_ratio - 1.0) > 1e-4:
-            # Tempo seul : étirement sans changement de hauteur
-            time_ratio  = 1.0 / max(tempo_ratio, 1e-4)
-            pitch_shift = pitch_semitones
+    # ── Speed via rééchantillonnage numpy (SoX "speed" = varispeed) ─────────
+    # SoX "speed X" change vitesse ET hauteur simultanément (comme changer la
+    # vitesse d'une bande magnétique). C'est un simple rééchantillonnage,
+    # PAS une préservation de hauteur — numpy suffit, pyrubberband serait 100x
+    # plus lent inutilement.
+    if abs(speed - 1.0) > 1e-4:
+        new_len = max(1, int(round(len(data) / speed)))
+        x_old   = np.arange(len(data), dtype=np.float64)
+        x_new   = np.linspace(0, len(data) - 1, new_len, dtype=np.float64)
+        data    = np.column_stack([
+            np.interp(x_new, x_old, data[:, ch]) for ch in range(data.shape[1])
+        ]).astype(np.float32)
+
+    # ── Pitch shift seul via pyrubberband ────────────────────────────────────
+    # Utilisé uniquement quand le pitch doit changer sans modifier le tempo
+    # (objet.detune != 0).
+    if abs(pitch_semitones) > 1e-4:
+        if _PYRB_AVAILABLE:
+            processed = []
+            for ch in range(data.shape[1]):
+                processed.append(pyrb.pitch_shift(data[:, ch], sr, pitch_semitones))
+            min_len = min(len(c) for c in processed)
+            data = np.column_stack([c[:min_len] for c in processed]).astype(np.float32)
         else:
-            # Varispeed : temps ET hauteur changent
-            time_ratio  = 1.0 / max(speed, 1e-4)
-            pitch_shift = pitch_semitones + (
-                -12.0 * math.log2(speed) if speed > 0.0 else 0.0
-            )
-        n_channels = data.shape[1]
-        processed_channels = []
-        for ch in range(n_channels):
-            ch_data = data[:, ch]
-            ch_data = pyrb.time_stretch(ch_data, sr, time_ratio)
-            if abs(pitch_shift) > 1e-4:
-                ch_data = pyrb.pitch_shift(ch_data, sr, pitch_shift)
-            processed_channels.append(ch_data)
-        # Aligner les longueurs (pyrubberband peut varier légèrement entre canaux)
-        min_len = min(len(c) for c in processed_channels)
-        data = np.column_stack([c[:min_len] for c in processed_channels]).astype(np.float32)
-    elif not _PYRB_AVAILABLE and _need_pyrb:
-        log.warning("pyrubberband absent — speed/pitch/tempo ignorés pour %s", file_path)
+            log.warning("pyrubberband absent — pitch ignoré pour %s", file_path)
+
+    # ── Tempo (time stretch sans changement de hauteur) via pyrubberband ─────
+    # SoX "tempo X" — seulement si explicitement demandé.
+    if abs(tempo_ratio - 1.0) > 1e-4:
+        if _PYRB_AVAILABLE:
+            time_ratio = 1.0 / max(tempo_ratio, 1e-4)
+            processed  = []
+            for ch in range(data.shape[1]):
+                processed.append(pyrb.time_stretch(data[:, ch], sr, time_ratio))
+            min_len = min(len(c) for c in processed)
+            data = np.column_stack([c[:min_len] for c in processed]).astype(np.float32)
+        else:
+            log.warning("pyrubberband absent — tempo ignoré pour %s", file_path)
 
     _t2 = time.time()
     log.info("Timings load_and_process — cache/io: %.0f ms, pyrb: %.0f ms, total: %.0f ms | "
