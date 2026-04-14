@@ -1590,7 +1590,7 @@ async function importAdmFromData(data) {
 		timePosObjet(id, obj.startSec);
 
 		if (obj.file) {
-			loadSoundTableBufferB(id, '', obj.file, 2, obj.durSec);
+			loadSoundTableBufferB(id, '', obj.file, obj.canaux || 2, obj.durSec);
 		}
 
 		await new Promise(resolve => setTimeout(resolve, 20));

@@ -985,9 +985,7 @@ function selectBkgObj(e){
       	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
      	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
      	 	}else{
-     	 		var _bid=tableObjet[objActif].bufferId;
-     	 		var _nch=(_bid!==undefined && tableBuffer[_bid])?tableBuffer[_bid].buffer.numberOfChannels:(tableObjet[objActif].canaux||0);
-     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+_nch+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
+     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+getCanauxObjet(objActif)+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
      	 	}
 	      window.api.send("toMain", ntxt );
 	      console.log("ntxt",ntxt);
@@ -1014,9 +1012,7 @@ function selectBkgObj(e){
 		      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 		     	 	}else{
-		     	 		var _bid=tableObjet[objActif].bufferId;
-		     	 		var _nch=(_bid!==undefined && tableBuffer[_bid])?tableBuffer[_bid].buffer.numberOfChannels:(tableObjet[objActif].canaux||0);
-		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+_nch+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
+		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+getCanauxObjet(objActif)+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 		     	 	}
 		     	 	console.log("ntxt",ntxt);
 	     	 	}
@@ -1047,7 +1043,7 @@ function selectBkgObj(e){
 	      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 	     	 	}else{
-	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";"+tableObjet[objActif].canaux+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
+	     	 		var ntxt="openObjetParam;"+objActif+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";"+getCanauxObjet(objActif)+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 	     	 	}
 	     	 	window.api.send("toMain", 'objGraphValid');
 
@@ -1062,7 +1058,7 @@ function selectBkgObj(e){
 	      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 	     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 	     	 	}else{
-	     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
+	     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+JSON.stringify(tableObjet[objActif])+";"+getCanauxObjet(objActif)+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 	     	 	}	
 		      window.api.send("toMain", ntxt );
 	      }
@@ -1524,6 +1520,12 @@ function audioGain(id,m) {
 function audioCanaux(id,m) {
 	var c=parseInt(m);
 	if(c>0) tableObjet[id].canaux=c;
+}
+/** Retourne le nombre de canaux d'un objet, depuis le buffer décodé si disponible. */
+function getCanauxObjet(id) {
+	var bid=tableObjet[id].bufferId;
+	if(bid!==undefined && tableBuffer[bid]) return tableBuffer[bid].buffer.numberOfChannels;
+	return tableObjet[id].canaux||0;
 }
 function defReverse(id,m) {
 	tableObjet[id].reverse=JSON.parse(m);
