@@ -152,7 +152,7 @@ function foo() {
 		 points=0;
 		 
 		 for(i=0;i<tableListSource.length;i++){
-			if(tableListSource[i].etat==0 && tableListSource[i].start<=parseFloat(document.getElementById("barVerticale").style.left)/18){
+			if(tableListSource[i].etat==0 && tableListSource[i].start<=parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
 				try {
 				var obj=tableObjet[tableListSource[i].obj];
 				var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
@@ -180,7 +180,7 @@ function foo() {
 		 if(vueStudio==1 ){
 		 	
 		 	for(i=0;i<tableListSource.length;i++){
-			 	if(tableListSource[i].etat==1 && tableListSource[i].start<parseFloat(document.getElementById("barVerticale").style.left)/18){
+			 	if(tableListSource[i].etat==1 && tableListSource[i].start<parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
 			 		tableListSource[i].etat=2;
 			 		cmd="obj"+i+";"+tableListSource[i].x+";"+tableListSource[i].y+";"+tableListSource[i].z+";"+tableListSource[i].w+";"+tableListSource[i].index+";"+tableListSource[i].img;
 					console.log("createEvtAudio",cmd);					
@@ -188,7 +188,7 @@ function foo() {
 			 	}
 		 	}
 		 	for(i=0;i<tableListSource.length;i++){
-			 	if(tableListSource[i].etat==2 && tableListSource[i].end<parseFloat(document.getElementById("barVerticale").style.left)/18){
+			 	if(tableListSource[i].etat==2 && tableListSource[i].end<parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
 			 		tableListSource[i].etat=3;
 			 		window.api.send("toMain", "delEvtAudio;obj"+i);
 			 	}
@@ -759,7 +759,7 @@ async function renderObjAudio(){
 	}
 	var lsgrp=[];
 	lsgrp.push(objActif);
-	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX/zoomScale,zoomScale);
+	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX);
 	console.log("retour",rt.duration,rt.output);
 	saveRenduAudio(rt.duration,rt.output);
 }
@@ -786,7 +786,7 @@ function renderGrpAudio3(ngrp){
 	var indFin=tempoFoo.find((element) => element.X>=nfin);
 	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
 	var i=0;
-	var base=tableObjet[lsgrp[0]].posX/zoomScale;
+	var base=tableObjet[lsgrp[0]].posX;
 	console.log("base",base);
 	document.getElementById("barVerticale").style.left=(tableObjet[lsgrp[0]].posX-8)+"px";
 	(async () => {
@@ -794,7 +794,7 @@ function renderGrpAudio3(ngrp){
 			await renderHoaBinaural(lsgrp);
 			return;
 		}
-		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base,zoomScale);
+		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
 		console.log("retour",rt);
 		saveRenduAudio(rt.duration,rt.output);
 	})();
@@ -805,7 +805,7 @@ function renderIntervalleAudio(){
 	var deb=(parseFloat(document.getElementById("barDebut").style.left)+36)/zoomScale;
 	var fin=parseFloat(document.getElementById("barFin").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
-		if(tableObjet[i].etat==1  && tableObjet[i].type<23 && tableObjet[i].posX/zoomScale>deb && tableObjet[i].posX/zoomScale<fin){
+		if(tableObjet[i].etat==1  && tableObjet[i].type<23 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
 			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				lsgrp.push(i);
 			}
@@ -821,7 +821,7 @@ function renderIntervalleAudio(){
 			await renderHoaBinaural(lsgrp);
 			return;
 		}
-		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb,zoomScale);
+		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb);
 		console.log("retour",rt.duration,rt.output);
 		saveRenduAudio(rt.duration,rt.output);
 	})();
@@ -833,7 +833,7 @@ async function renderPartAudio(mode){
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
 			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
-				if (tableObjet[i].class==1 && tableObjet[i].type<23 && tableObjet[i].posX/zoomScale>startx) {
+				if (tableObjet[i].class==1 && tableObjet[i].type<23 && tableObjet[i].posX>startx) {
 					lsgrp.push(i);
 					lstate.push(0);
 				}
@@ -845,7 +845,7 @@ async function renderPartAudio(mode){
 		await renderHoaBinaural(lsgrp);
 		return;
 	}
-	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx,zoomScale);
+	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx);
 	console.log("retour",rt);
 	var start=startx/18;
 	var end=rt.duration-start;
