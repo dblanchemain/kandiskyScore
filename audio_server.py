@@ -314,22 +314,10 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
     if len(data) == 0:
         return np.zeros((1, 2), dtype=np.float32), sr
 
-    # ── Speed via rééchantillonnage numpy (SoX "speed" = varispeed) ─────────
-    # SoX "speed X" change vitesse ET hauteur simultanément (comme changer la
-    # vitesse d'une bande magnétique). C'est un simple rééchantillonnage,
-    # PAS une préservation de hauteur — numpy suffit, pyrubberband serait 100x
-    # plus lent inutilement.
-    if abs(speed - 1.0) > 1e-4:
-        new_len = max(1, int(round(len(data) / speed)))
-        x_old   = np.arange(len(data), dtype=np.float64)
-        x_new   = np.linspace(0, len(data) - 1, new_len, dtype=np.float64)
-        data    = np.column_stack([
-            np.interp(x_new, x_old, data[:, ch]) for ch in range(data.shape[1])
-        ]).astype(np.float32)
-
-    # ── Pitch shift seul via pyrubberband ────────────────────────────────────
-    # Utilisé uniquement quand le pitch doit changer sans modifier le tempo
-    # (objet.detune != 0).
+    # ── Pitch shift AVANT speed (pyrubberband sur le plus petit array possible) ─
+    # SoX applique les effets gauche→droite : pitch d'abord, puis speed.
+    # On fait pareil : pyrubberband opère sur l'audio original (court),
+    # AVANT que numpy interp ne l'étire (potentiellement 7×).
     if abs(pitch_semitones) > 1e-4:
         if _PYRB_AVAILABLE:
             processed = []
@@ -339,6 +327,16 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
             data = np.column_stack([c[:min_len] for c in processed]).astype(np.float32)
         else:
             log.warning("pyrubberband absent — pitch ignoré pour %s", file_path)
+
+    # ── Speed via rééchantillonnage numpy (SoX "speed" = varispeed) ─────────
+    # Opère après pitch pour ne pas agrandir inutilement le tableau avant pyrb.
+    if abs(speed - 1.0) > 1e-4:
+        new_len = max(1, int(round(len(data) / speed)))
+        x_old   = np.arange(len(data), dtype=np.float64)
+        x_new   = np.linspace(0, len(data) - 1, new_len, dtype=np.float64)
+        data    = np.column_stack([
+            np.interp(x_new, x_old, data[:, ch]) for ch in range(data.shape[1])
+        ]).astype(np.float32)
 
     # ── Tempo (time stretch sans changement de hauteur) via pyrubberband ─────
     # SoX "tempo X" — seulement si explicitement demandé.

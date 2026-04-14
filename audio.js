@@ -219,6 +219,11 @@ function foo() {
 	 
 		 if(parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)<maxDuree){
 	    	timer=setTimeout(foo, delay);
+	    } else {
+	    	// Fin du score : arrêter toutes les voix audio
+	    	playerStat=0;
+	    	window.api.send("toMain", "killPlay");
+	    	document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
 	    }
     }
 }
