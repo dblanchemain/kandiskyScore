@@ -5765,7 +5765,7 @@ ipcMain.handle('renderHoaAmbiXMix', async (event, objects, exportDir) => {
 });
 
 
-ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
+ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start,zoomScale=1) => {
 
 
     tableObjet = JSON.parse(tbobjets);
@@ -5800,7 +5800,8 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         const input = fs.existsSync(premixFile) ? premixFile : path.join(tmpDir, `${obj.id}-fx.wav`);
 			console.log("sox_dir", input);
         // Position dans la timeline (en secondes)
-        const tStart = (obj.posX-start) / 18;
+        // posX est stocké en pixels zoomés (t*18*zoomScale), start est en pixels zoom=1 (t*18)
+        const tStart = (obj.posX / zoomScale - start) / 18;
 
         // Durée réelle du fichier
         let realDuration;

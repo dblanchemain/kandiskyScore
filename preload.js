@@ -71,8 +71,8 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("audioSelect"),
     infoFile: (filePath) =>
         ipcRenderer.invoke("infoFile", filePath),
-	 renderGroupWidthSoX: (lsgrp,tbobjets,start) =>
-        ipcRenderer.invoke("renderGroupWidthSoX",lsgrp,tbobjets,start),
+	 renderGroupWidthSoX: (lsgrp,tbobjets,start,zoomScale) =>
+        ipcRenderer.invoke("renderGroupWidthSoX",lsgrp,tbobjets,start,zoomScale),
     renderHoaAmbiXMix: (objects, exportDir) =>
         ipcRenderer.invoke("renderHoaAmbiXMix", objects, exportDir),
     renderBinauralFromAmbiX: (ambiXPath, outPath) =>

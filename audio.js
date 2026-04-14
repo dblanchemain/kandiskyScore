@@ -759,7 +759,7 @@ async function renderObjAudio(){
 	}
 	var lsgrp=[];
 	lsgrp.push(objActif);
-	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX);
+	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX/zoomScale,zoomScale);
 	console.log("retour",rt.duration,rt.output);
 	saveRenduAudio(rt.duration,rt.output);
 }
@@ -786,7 +786,7 @@ function renderGrpAudio3(ngrp){
 	var indFin=tempoFoo.find((element) => element.X>=nfin);
 	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
 	var i=0;
-	var base=tableObjet[lsgrp[0]].posX;
+	var base=tableObjet[lsgrp[0]].posX/zoomScale;
 	console.log("base",base);
 	document.getElementById("barVerticale").style.left=(tableObjet[lsgrp[0]].posX-8)+"px";
 	(async () => {
@@ -794,7 +794,7 @@ function renderGrpAudio3(ngrp){
 			await renderHoaBinaural(lsgrp);
 			return;
 		}
-		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
+		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base,zoomScale);
 		console.log("retour",rt);
 		saveRenduAudio(rt.duration,rt.output);
 	})();
@@ -805,7 +805,7 @@ function renderIntervalleAudio(){
 	var deb=(parseFloat(document.getElementById("barDebut").style.left)+36)/zoomScale;
 	var fin=parseFloat(document.getElementById("barFin").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
-		if(tableObjet[i].etat==1  && tableObjet[i].type<23 && tableObjet[i].posX>deb && tableObjet[i].posX<fin){
+		if(tableObjet[i].etat==1  && tableObjet[i].type<23 && tableObjet[i].posX/zoomScale>deb && tableObjet[i].posX/zoomScale<fin){
 			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
 				lsgrp.push(i);
 			}
@@ -821,7 +821,7 @@ function renderIntervalleAudio(){
 			await renderHoaBinaural(lsgrp);
 			return;
 		}
-		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb);
+		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb,zoomScale);
 		console.log("retour",rt.duration,rt.output);
 		saveRenduAudio(rt.duration,rt.output);
 	})();
@@ -833,7 +833,7 @@ async function renderPartAudio(mode){
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
 			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
-				if (tableObjet[i].class==1 && tableObjet[i].type<23 && tableObjet[i].posX>startx) {
+				if (tableObjet[i].class==1 && tableObjet[i].type<23 && tableObjet[i].posX/zoomScale>startx) {
 					lsgrp.push(i);
 					lstate.push(0);
 				}
@@ -845,7 +845,7 @@ async function renderPartAudio(mode){
 		await renderHoaBinaural(lsgrp);
 		return;
 	}
-	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx);
+	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx,zoomScale);
 	console.log("retour",rt);
 	var start=startx/18;
 	var end=rt.duration-start;
