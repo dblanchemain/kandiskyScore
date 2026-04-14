@@ -37,6 +37,7 @@ const FFTModule = require('fft.js');
 
 var AudioBuffer = require('audiobuffer');
 const { exec, execSync, spawn , spawnSync} = require("child_process");
+const WebSocket = require('ws');
 const { PDFDocument } = require("pdf-lib");
 const util = require("util");
 const execAsync = util.promisify(exec);
@@ -45,6 +46,13 @@ const baseDir = getBinBaseDir();
 const platform = os.platform();
 let playState=0;
 let playProcess=new Set();
+
+// ─── Serveur audio Python ────────────────────────────────────────────────────
+let audioServerProc   = null;   // processus audio_server.py
+let audioWs           = null;   // client WebSocket vers le serveur
+let audioWsReady      = false;
+const audioWsPending  = [];     // messages mis en file avant que le WS soit prêt
+const audioWsCbs      = new Map(); // reqId → {resolve, reject, timer} pour req/resp
 
 function getBinBaseDir() {
   return app.isPackaged
@@ -173,6 +181,179 @@ console.log("playPath",playPath);
 const rubberbandPath = findRubberbandPath();
 const { ffmpegPath, ffplayPath, ffprobePath } = getFFmpegPaths();
 console.log("🎧 Sox détecté :", soxPath,soxiPath,playPath,rubberbandPath,ffmpegPath, ffplayPath, ffprobePath );
+
+// ─── Serveur audio Python : cycle de vie ────────────────────────────────────
+
+function findPythonPath() {
+  const sub = platform === 'win32' ? 'win' : platform === 'darwin' ? 'mac' : 'linux';
+  const bin = platform === 'win32' ? 'python.exe' : 'python3';
+  const bundled = path.join(baseDir, sub, bin);
+  if (existsSync(bundled)) return bundled;
+  return platform === 'win32' ? 'python' : 'python3';
+}
+
+function startAudioServer() {
+  return new Promise((resolve, reject) => {
+    const python = findPythonPath();
+    const script = app.isPackaged
+      ? path.join(process.resourcesPath, 'audio_server.py')
+      : path.join(__dirname, 'audio_server.py');
+
+    console.log('🎵 Lancement audio_server.py :', python, script);
+    audioServerProc = spawn(python, [script], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
+
+    const timeout = setTimeout(() => {
+      reject(new Error('Timeout démarrage audio_server.py (10 s)'));
+    }, 10000);
+
+    audioServerProc.stdout.on('data', (data) => {
+      if (data.toString().includes('AUDIO_SERVER_READY')) {
+        clearTimeout(timeout);
+        connectAudioWs().then(resolve).catch(reject);
+      }
+    });
+
+    audioServerProc.stderr.on('data', (data) => {
+      console.error('[audio_server]', data.toString().trimEnd());
+    });
+
+    audioServerProc.on('exit', (code) => {
+      console.log('audio_server.py terminé, code :', code);
+      audioWsReady = false;
+      audioWs = null;
+    });
+  });
+}
+
+function connectAudioWs() {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket('ws://127.0.0.1:9876');
+
+    ws.on('open', () => {
+      audioWs = ws;
+      audioWsReady = true;
+      console.log('🎵 WebSocket audio connecté');
+      for (const msg of audioWsPending) ws.send(msg);
+      audioWsPending.length = 0;
+      resolve();
+    });
+
+    ws.on('message', (raw) => {
+      try { handleAudioMessage(JSON.parse(raw.toString())); }
+      catch (e) { console.error('audioWs parse error:', e); }
+    });
+
+    ws.on('error', (err) => {
+      console.error('audioWs error:', err.message);
+      if (!audioWsReady) reject(err);
+    });
+
+    ws.on('close', () => {
+      audioWsReady = false;
+      audioWs = null;
+    });
+  });
+}
+
+/** Envoie un message JSON au serveur audio (ou met en file si pas encore prêt). */
+function sendAudio(msg) {
+  const data = JSON.stringify(msg);
+  if (audioWsReady && audioWs) audioWs.send(data);
+  else audioWsPending.push(data);
+}
+
+/**
+ * Envoie une requête et attend la réponse correspondante (_reqId round-trip).
+ * @returns {Promise<object>} message de réponse du serveur
+ */
+function sendAudioRequest(msg, timeoutMs = 5000) {
+  return new Promise((resolve, reject) => {
+    if (!audioWsReady) {
+      return reject(new Error('Audio server non disponible'));
+    }
+    const reqId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const timer = setTimeout(() => {
+      audioWsCbs.delete(reqId);
+      reject(new Error(`Audio server timeout : ${msg.cmd}`));
+    }, timeoutMs);
+    audioWsCbs.set(reqId, { resolve, reject, timer });
+    sendAudio({ ...msg, _reqId: reqId });
+  });
+}
+
+function handleAudioMessage(msg) {
+  // Réponse à une requête sendAudioRequest
+  if (msg._reqId && audioWsCbs.has(msg._reqId)) {
+    const { resolve, reject, timer } = audioWsCbs.get(msg._reqId);
+    clearTimeout(timer);
+    audioWsCbs.delete(msg._reqId);
+    if (msg.type === 'error') reject(new Error(msg.message));
+    else resolve(msg);
+    return;
+  }
+
+  // Notifications spontanées
+  switch (msg.type) {
+    case 'voice_ended':
+      if (mainWindow) mainWindow.webContents.send('fromMain', 'playStop;');
+      if (winSpatMassEtat === 1) winSpatMass.webContents.send('fromMain', 'playStop;');
+      break;
+    case 'error':
+      console.error('[audio_server] erreur :', msg.message, msg.id || '');
+      break;
+  }
+}
+
+/**
+ * Parse une chaîne de paramètres SoX en objet structuré pour le serveur audio.
+ * Formats gérés : pitch, speed, tempo, vol, trim, fade (entrée + sortie).
+ */
+function parseSoxParams(soxParams) {
+  const parts = (soxParams || '').trim().split(/\s+/).filter(Boolean);
+  const p = {
+    pitch_semitones: 0, speed: 1.0, tempo_ratio: 1.0, vol: 1.0,
+    trim_start: 0, trim_len: 0,
+    fade_in_type: 'l', fade_in_len: 0,
+    fade_out_type: 'l', fade_out_len: 0,
+  };
+  let i = 0, fadeCount = 0;
+  while (i < parts.length) {
+    switch (parts[i]) {
+      case 'pitch': p.pitch_semitones = parseFloat(parts[++i]) || 0;   i++; break;
+      case 'speed': p.speed           = parseFloat(parts[++i]) || 1.0; i++; break;
+      case 'tempo': p.tempo_ratio     = parseFloat(parts[++i]) || 1.0; i++; break;
+      case 'vol':   p.vol             = parseFloat(parts[++i]) || 1.0; i++; break;
+      case 'trim':
+        p.trim_start = parseFloat(parts[++i]) || 0;
+        p.trim_len   = parseFloat(parts[++i]) || 0;
+        i++; break;
+      case 'fade': {
+        i++;
+        const ftype = parts[i] || 'l'; i++;
+        if (fadeCount === 0) {
+          // "fade l fadeInLen" — premier fondu = entrée
+          p.fade_in_type = ftype;
+          p.fade_in_len  = parseFloat(parts[i]) || 0; i++;
+        } else {
+          // "fade l 0 totalDur fadeOutLen" — deuxième fondu = sortie
+          i++;  // skip "0"
+          i++;  // skip totalDur
+          p.fade_out_type = ftype;
+          p.fade_out_len  = parseFloat(parts[i]) || 0; i++;
+        }
+        fadeCount++;
+        break;
+      }
+      default: i++;
+    }
+  }
+  return p;
+}
+
+// ─── Fin serveur audio Python ────────────────────────────────────────────────
 
 function waitForFile(file, timeout = 4000) {
   const start = Date.now();
@@ -542,6 +723,10 @@ app.whenReady().then(async () => {
     console.log = () => {};
     console.debug = () => {};
   }
+  // Démarrer le serveur audio Python en arrière-plan
+  startAudioServer().catch(err => {
+    console.error('⚠️ audio_server.py non disponible :', err.message);
+  });
   // Charger dynamiquement Rubber Band
  	//await initializeRubberBand();
 	//testRubberband().catch(console.error);
@@ -1262,34 +1447,14 @@ ipcMain.handle('playDirectFile', async (event, mode, filePath, soxParams) => {
     if (winStudioEtat == 1) {
         winStudio.webContents.send("fromMain", "endEvtAudio");
     }
-    let proc;
-    if (os.platform() === "win32") {
-        const extraArgs = (soxParams || "").match(/(?:[^\s"]+|"[^"]*")+/g) || [];
-        const args = [filePath, "-t", "waveaudio", "-d", ...extraArgs];
-        proc = spawn(soxPath, args, { shell: false });
-    } else {
-        proc = spawn(playPath, [filePath, soxParams], {
-            shell: true,
-            stdio: "ignore",
-            env: process.env
-        });
-    }
-    if (!proc) {
-        console.error("playDirectFile: impossible de lancer le lecteur audio");
-        return;
-    }
-    playProcess.add(proc);
-    if (proc.stderr) {
-        proc.stderr.on("data", data => console.error("playDirectFile stderr:", data.toString()));
-    }
-    proc.on("exit", (code) => {
-        playProcess.delete(proc);
-        if (mode == 0) {
-            mainWindow.webContents.send("fromMain", "playStop;");
-            if (winSpatMassEtat == 1) {
-                winSpatMass.webContents.send("fromMain", "playStop;");
-            }
-        }
+    const dsp = parseSoxParams(soxParams);
+    // mode 0 = lecteur simple (notifie la fin) ; mode 1 = lecture partitions (mixé, silencieux)
+    sendAudio({
+        cmd:         'play',
+        id:          mode === 0 ? `direct_${Date.now()}` : `score_${path.basename(filePath)}_${Date.now()}`,
+        file:        filePath,
+        notify_end:  mode === 0,
+        ...dsp,
     });
 });
 
@@ -4589,13 +4754,19 @@ ipcMain.handle("loadFileAsArrayBuffer", async (event, filePath) => {
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 });
 ipcMain.handle("infoFile", async (event, filePath) => {
-	const info = {
-  	 chans : parseInt(execSync(`"${soxPath}" --i -c "${filePath}"`).toString().trim(),10),
-  	 rate : parseInt(execSync(`"${soxPath}" --i -r "${filePath}"`).toString().trim(),10),
-  	 nbsamples : parseInt(execSync(`"${soxPath}" --i -s "${filePath}"`).toString().trim(),10)
-  	};
-  	console.log(info);
-  	return info;
+  if (audioWsReady) {
+    try {
+      const resp = await sendAudioRequest({ cmd: 'info', file: filePath });
+      return { chans: resp.channels, rate: resp.rate, nbsamples: resp.samples };
+    } catch (e) {
+      console.warn('infoFile via Python échoué, fallback SoX :', e.message);
+    }
+  }
+  // Fallback SoX (serveur non disponible)
+  const chans     = parseInt(execSync(`"${soxPath}" --i -c "${filePath}"`).toString().trim(), 10);
+  const rate      = parseInt(execSync(`"${soxPath}" --i -r "${filePath}"`).toString().trim(), 10);
+  const nbsamples = parseInt(execSync(`"${soxPath}" --i -s "${filePath}"`).toString().trim(), 10);
+  return { chans, rate, nbsamples };
 });
 ipcMain.handle("loadBuffers", async (event, filePath) => {
 
@@ -4848,16 +5019,15 @@ async function splitW64ToWav(inputPath, outputDir, channelCount, prefix = "ch") 
 }
 
 function killPlay() {
-console.log("KILL ALL AUDIO");
-for (const proc of playProcess) {
-	try {
-	tkill(proc.pid, "SIGKILL");
-	} catch (e) {
-	console.error("Kill error:", e);
-	}
-}
-playProcess.clear();
-mainWindow.webContents.send("fromMain", "playStop;");
+  console.log("KILL ALL AUDIO");
+  // Arrêter toutes les voix du serveur audio Python
+  sendAudio({ cmd: 'stop' });
+  // Tuer les éventuels processus SoX hérités (cas non migrés)
+  for (const proc of playProcess) {
+    try { tkill(proc.pid, "SIGKILL"); } catch (e) { console.error("Kill error:", e); }
+  }
+  playProcess.clear();
+  mainWindow.webContents.send("fromMain", "playStop;");
 }
  function allocStringSafe(str,Module) {
     const encoder = new TextEncoder();
@@ -6358,6 +6528,11 @@ ipcMain.handle('audioSelect', async (event) => {
 // de manière explicite par Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('before-quit', () => {
+  if (audioWs) { try { audioWs.close(); } catch (_) {} }
+  if (audioServerProc) { try { audioServerProc.kill(); } catch (_) {} }
 });
 
 // Dans ce fichier vous pouvez inclure le reste du code spécifique au processus principal. Vous pouvez également le mettre dans des fichiers séparés et les inclure ici.
