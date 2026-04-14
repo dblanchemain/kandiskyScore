@@ -459,6 +459,12 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
             mixer.set_device(device_idx, channels, samplerate)
             log.info("Device reconfiguré → %d canaux, %d Hz, device=%s",
                      mixer.channels, mixer.sample_rate, mixer.device_index)
+        # Démarrer le stream maintenant si pas encore actif (layout connu)
+        if mixer.stream is None or not mixer.stream.active:
+            try:
+                mixer.start_stream()
+            except Exception as exc:
+                log.warning("Impossible de démarrer le stream : %s", exc)
         await reply({"type": "device_set", "device": mixer.device_index,
                      "channels": mixer.channels, "changed": changed})
 
@@ -645,24 +651,21 @@ async def async_main():
 
     mixer.set_event_loop(loop, queue)
 
-    # Auto-sélection JACK sur Linux si disponible
+    # Auto-sélection JACK sur Linux : on retient uniquement le device,
+    # PAS le nombre de canaux — c'est le layout du projet qui fait autorité.
     if sys.platform.startswith("linux"):
         jack_dev = find_jack_device()
         if jack_dev is not None:
             mixer.device_index = jack_dev
             d = sd.query_devices(jack_dev)
-            n_ch = int(d["max_output_channels"])
-            mixer.channels = n_ch   # utiliser tous les canaux du device JACK
-            log.info("JACK détecté → device [%d] %s (%d canaux)",
-                     jack_dev, d["name"], n_ch)
+            log.info("JACK détecté → device [%d] %s (max %d ch) — "
+                     "canaux effectifs définis par le layout projet",
+                     jack_dev, d["name"], d["max_output_channels"])
         else:
             log.info("JACK non détecté, utilisation du device par défaut")
 
-    # Stream audio démarré en avance pour réduire la latence du premier son
-    try:
-        mixer.start_stream()
-    except Exception as exc:
-        log.warning("Impossible de démarrer le stream audio au démarrage : %s", exc)
+    # Le stream démarre au premier play (quand les canaux du layout sont connus).
+    # Ne pas démarrer ici pour éviter une reconfiguration inutile.
 
     asyncio.create_task(notification_broadcaster(queue))
 
