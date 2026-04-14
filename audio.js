@@ -414,9 +414,18 @@ async function readSimpleAudio() {
 				 maxDuree=durationAfterSpeed+(obj.posX/18);
 				 console.log("maxDuree",maxDuree);
 	  			 foo();
-			 window.api.playDirectFile(0, outPath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade);
-	  				
-			//spatialiseObjet(objActif,"spline");
+			 const soxParamsSpeaker = "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade;
+			 const soxProcPath    = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-spk-proc.wav`);
+			 const spatSpeakerPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-spk-spat.wav`);
+			 try {
+			     await window.api.soxProcessTo(outPath, soxProcPath, soxParamsSpeaker);
+			     const rtSpk = await window.api.loadBuffers(soxProcPath);
+			     await spatialiseBuffer(objActif, spatSpeakerPath, rtSpk.numChannels, rtSpk.numSamples, rtSpk.sampleRate, rtSpk.channels.map(ch => new Float32Array(ch)));
+			     window.api.playDirectFile(0, spatSpeakerPath, "");
+			 } catch(e) {
+			     console.warn("[speaker] spatialisation échouée, lecture directe:", e);
+			     window.api.playDirectFile(0, outPath, soxParamsSpeaker);
+			 }
 			}else if(grpSelect==1 ||  tableObjet[objActif].class==4){
 				playerStat=1;
 				readGrpAudio(0);

@@ -116,6 +116,8 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke('playDirectFile', mode, filePath, soxParams),
     soxProcessExport: (filePath, soxParams) =>
         ipcRenderer.invoke('soxProcessExport', filePath, soxParams),
+    soxProcessTo: (inputPath, outputPath, soxParams) =>
+        ipcRenderer.invoke('soxProcessTo', inputPath, outputPath, soxParams),
     admStreamStart: (data) => ipcRenderer.invoke('adm-stream-start', data),
     admStreamChunk: (buf)  => ipcRenderer.invoke('adm-stream-chunk', buf),
     admStreamEnd:   (data) => ipcRenderer.invoke('adm-stream-end',   data),

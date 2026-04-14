@@ -4694,6 +4694,21 @@ ipcMain.handle('soxProcessExport', async (event, filePath, soxParams) => {
     });
 });
 
+ipcMain.handle('soxProcessTo', async (event, inputPath, outputPath, soxParams) => {
+    const extraArgs = (soxParams || "").match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+    const args = [inputPath, outputPath, ...extraArgs];
+    console.log('[soxProcessTo]', args.join(' '));
+    return new Promise((resolve, reject) => {
+        const proc = spawn(soxPath, args, { shell: false });
+        if (proc.stderr) proc.stderr.on('data', d => console.error('soxProcessTo stderr:', d.toString()));
+        proc.on('exit', (code) => {
+            if (code === 0) resolve({ ok: true });
+            else reject(new Error(`soxProcessTo: SoX exit code ${code}`));
+        });
+        proc.on('error', reject);
+    });
+});
+
 ipcMain.handle("saveAudioBuffer", async (event, payload) => {
     const { filePath, buffer } = payload;
 consolg.log("payload",payload);
