@@ -308,7 +308,12 @@ function objetStringDef(txt,c) {
 	
 	if(selectObj.file!=""){
 		document.getElementById("paramDr").textContent=parseFloat(selectObj.duree).toFixed(2)
-		document.getElementById("paramCanaux").textContent=c
+		var _c=parseInt(c)||0;
+		document.getElementById("paramCanaux").textContent=_c;
+		if(_c>0 && _c!==selectObj.canaux){
+			selectObj.canaux=_c;
+			window.api.send("toMain","canaux;"+selectId+";"+_c);
+		}
 	}
 	if(selectObj.mute==1){
 		document.getElementById("objMute").checked=true
@@ -483,8 +488,13 @@ function paramFileAudio(id,name,d,c){
 		var nfile=name.split("/")
 		document.getElementById("lbfichier").textContent="Fichier : "+nfile[nfile.length-1];
 		document.getElementById("paramDr").textContent=parseFloat(d).toFixed(2)
-		document.getElementById("paramCanaux").textContent=c
-		selectObj.duree=parseFloat(d).toFixed(2)
+		var _c=parseInt(c)||0;
+		document.getElementById("paramCanaux").textContent=_c;
+		selectObj.duree=parseFloat(d).toFixed(2);
+		if(_c>0){
+			selectObj.canaux=_c;
+			window.api.send("toMain","canaux;"+selectId+";"+_c);
+		}
 		var nduree=selectObj.duree/parseFloat(document.getElementById("transposition").value)
 		var relative=nduree
 		document.getElementById("inprelatif").value=relative.toFixed(3)

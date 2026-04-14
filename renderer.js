@@ -249,6 +249,9 @@ window.api.receive("fromMain", (data) => {
 			case 'audioGain':
 				audioGain(cmd[1],cmd[2]);
 				break;
+			case 'audioCanaux':
+				audioCanaux(cmd[1],cmd[2]);
+				break;
 			case 'defReverse':
 				defReverse(cmd[1],cmd[2]);
 				break;
@@ -1514,8 +1517,12 @@ function defTempo(){
 function audioMute(id,m) {
 	tableObjet[id].mute=m;
 }
-function audioGain(id,m) {  
+function audioGain(id,m) {
 	tableObjet[id].gain=parseFloat(m);
+}
+function audioCanaux(id,m) {
+	var c=parseInt(m);
+	if(c>0) tableObjet[id].canaux=c;
 }
 function defReverse(id,m) {
 	tableObjet[id].reverse=JSON.parse(m);

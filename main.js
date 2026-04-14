@@ -3773,6 +3773,9 @@ ipcMain.on ("toMain", (event, args) => {
 				mainWindow.webContents.send("fromMain", "audioGain;"+cmd[1]+";"+cmd[2]);
 			}
 			break;
+		case 'canaux':
+			mainWindow.webContents.send("fromMain", "audioCanaux;"+cmd[1]+";"+cmd[2]);
+			break;
 		case 'reverse':
 				mainWindow.webContents.send("fromMain", "defReverse;"+cmd[1]+";"+cmd[2]);
 			break;
