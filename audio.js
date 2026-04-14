@@ -167,8 +167,9 @@ function foo() {
 				 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
 				 const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
 				 const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
-				 const fadeIn = obj.fadeIn || 0;
-				 const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
+				 const fadeIn  = obj.fadeIn  || 'l';
+				 const fadeOut = obj.fadeOut || fadeIn;
+				 const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" fade "+fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
 				 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
 		 		window.api.playDirectFile(1, outPath, soxParams);
 		 		console.log("obj",obj.id,options);
@@ -390,7 +391,9 @@ async function readSimpleAudio() {
 		    outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
 		    console.log('baseName',dir,baseName,outPath);
 		    const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
-		    const defFade=obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
+		    const _fadeIn  = obj.fadeIn  || 'l';
+		    const _fadeOut = obj.fadeOut || _fadeIn;
+		    const defFade=_fadeIn+" "+(durationAfterSpeed*obj.envX[0])+" fade "+_fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
 		    const options = {
 			    pitchSemitones: obj.detune,  // équivalent à -500 cents
 			    speedFactor: obj.transposition,       // speed 2x
@@ -1789,8 +1792,9 @@ async function postRubberband(id,mode,file) {
         const durationAfterSpeed = ((obj.duree * obj.fin) - (obj.duree * obj.debut)) / obj.transposition;
         const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
         const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
-        const exportFadeIn  = obj.fadeIn || 0;
-        const exportFade    = `${exportFadeIn} ${durationAfterSpeed * envX0} ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
+        const exportFadeIn  = obj.fadeIn  || 'l';
+        const exportFadeOut = obj.fadeOut || exportFadeIn;
+        const exportFade    = `${exportFadeIn} ${durationAfterSpeed * envX0} fade ${exportFadeOut} 0 ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
         const exportLengthSec = durationAfterSpeed;
         const exportSoxParams = `pitch ${obj.detune} speed ${obj.transposition} vol ${obj.gain} trim ${obj.debut} ${exportLengthSec} fade ${exportFade}`;
         console.log("[HOA export SoX]", exportSoxParams);
@@ -1833,8 +1837,9 @@ async function postRubberband(id,mode,file) {
         const durationAfterSpeed = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
         const envX0 = (exportObj.envX && exportObj.envX[0] !== undefined) ? exportObj.envX[0] : 0;
         const envX1 = (exportObj.envX && exportObj.envX[1] !== undefined) ? exportObj.envX[1] : 1;
-        const exportFadeIn = exportObj.fadeIn || 0;
-        const exportFade = `${exportFadeIn} ${durationAfterSpeed * envX0} ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
+        const exportFadeIn  = exportObj.fadeIn  || 'l';
+        const exportFadeOut = exportObj.fadeOut || exportFadeIn;
+        const exportFade = `${exportFadeIn} ${durationAfterSpeed * envX0} fade ${exportFadeOut} 0 ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
         const exportLengthSec = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
         const exportSoxParams = `pitch ${exportObj.detune} speed ${exportObj.transposition} vol ${exportObj.gain} trim ${exportObj.debut} ${exportLengthSec} fade ${exportFade}`;
         console.log("[export SoX]", exportSoxParams);

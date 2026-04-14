@@ -1545,6 +1545,7 @@ async function importAdmFromData(data) {
 			envX:          [0.2, 0.8],
 			etat:          1,
 			fadeIn:        'l',
+			fadeOut:       'l',
 			file:          obj.file,
 			fin:           1,
 			flagTranspo:   0,

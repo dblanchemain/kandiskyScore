@@ -5776,6 +5776,9 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const obj = tableObjet[i];
 
+        // Objet muté : ignoré dans le rendu
+        if (obj.mute == 1) continue;
+
         const objfile = path.join(audioPath,obj.file);
         const { dir, name } = path.parse(objfile);
         const premixFile = path.join(tmpDir, `${obj.id}-premix.wav`);
@@ -5800,7 +5803,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         let trimmedDuration = (obj.fin - obj.debut)*realDuration ;
         if (trimmedDuration < 0) trimmedDuration = 0;
 
-       
+
         // SPEED dans SoX : si transposition < 1 → ralentissement
         const speedFactor = obj.transposition || 1;
 
@@ -5819,23 +5822,28 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const tmpOut = path.join(tmpDir, `object_${idx}.wav`);
         console.log("path", input, tmpOut);
-		  var fade = obj.fadeIn +" "+(durationAfterSpeed*obj.envX[0])+" "+durationAfterSpeed+" "+durationAfterSpeed*(1-obj.envX[1]);
+        const fadeInType  = obj.fadeIn  || 'l';
+        const fadeOutType = obj.fadeOut || fadeInType;
         // -- COMMAND SOX ---------------------------------------------------
-        spawnSync(soxPath, [
+        const soxArgs = [
 			  input,
 			  tmpOut,
 			  "trim", obj.debut.toString(), trimmedDuration.toString(),
+			  ...(obj.reverse ? ["reverse"] : []),
 			  "pitch", obj.detune.toString(),
 			  "speed", speedFactor.toString(),
 			  "vol", obj.gain.toString(),
-			  "fade", obj.fadeIn.toString(),
+			  // fade-in (type propre)
+			  "fade", fadeInType,
 			          (durationAfterSpeed * obj.envX[0]).toString(),
+			  // fade-out (type propre, séparé)
+			  "fade", fadeOutType,
+			          "0",
 			          durationAfterSpeed.toString(),
 			          (durationAfterSpeed * (1 - obj.envX[1])).toString(),
 			  "pad", tStart.toString()
-			], {
-			  stdio: "inherit"
-			});
+        ];
+        spawnSync(soxPath, soxArgs, { stdio: "inherit" });
         paddedFiles.push(tmpOut);
 
         idx++;

@@ -58,6 +58,7 @@ function defObjGrp(id,nbobjets,cla) {
 		<detune value='"+id.detune+"'></detune>\n\
 		<duree value='"+id.duree+"'></duree>\n\
 		<fadein value='"+id.fadeIn+"'></fadein>\n\
+		<fadeout value='"+id.fadeOut+"'></fadeout>\n\
 		<envx value='"+id.envX+"'></envx>\n\
 		<etat value='1'></etat>\n\
 		<file value='"+id.file+"'></file>\n\
@@ -548,6 +549,7 @@ async function objXmlToScore(id,i) {
 		detune:parseFloat(org.getElementsByTagName("detune")[0].getAttribute("value")),
 		duree:parseFloat(org.getElementsByTagName("duree")[0].getAttribute("value")),
 		fadeIn:org.getElementsByTagName("fadein")[0].getAttribute("value"),
+		fadeOut:(org.getElementsByTagName("fadeout")[0] ? org.getElementsByTagName("fadeout")[0].getAttribute("value") : null) || 'l',
 		envX:org.getElementsByTagName("envx")[0].getAttribute("value").split(','),
 		etat:parseInt(org.getElementsByTagName("etat")[0].getAttribute("value")),
 		file:org.getElementsByTagName("file")[0].getAttribute("value"),
