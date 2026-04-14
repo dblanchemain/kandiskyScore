@@ -148,14 +148,16 @@ class AudioMixer:
                     ended.append(voice)
                     continue
 
-                # Adapter le nombre de canaux
+                # Adapter le nombre de canaux du chunk au stream
                 if chunk.ndim == 1:
                     chunk = chunk[:, np.newaxis]
                 n_ch = chunk.shape[1]
                 if n_ch < self.channels:
-                    chunk = np.repeat(chunk, self.channels // n_ch, axis=1)
-                    if chunk.shape[1] > self.channels:
-                        chunk = chunk[:, :self.channels]
+                    # Compléter avec des zéros : audio sur les premiers canaux,
+                    # le reste silencieux (le routage JACK gère la spatialisation)
+                    padded = np.zeros((chunk.shape[0], self.channels), dtype=np.float32)
+                    padded[:, :n_ch] = chunk
+                    chunk = padded
                 elif n_ch > self.channels:
                     chunk = chunk[:, :self.channels]
 
@@ -510,11 +512,13 @@ async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
             mixer.start_stream()
 
         # Adapter le nombre de canaux de la voix à celui du stream
-        if data.shape[1] < mixer.channels:
-            data = np.repeat(data, mixer.channels // data.shape[1], axis=1)
-            if data.shape[1] > mixer.channels:
-                data = data[:, :mixer.channels]
-        elif data.shape[1] > mixer.channels:
+        # Les canaux supplémentaires sont mis à zéro (spatialisation JACK en aval)
+        n_ch = data.shape[1]
+        if n_ch < mixer.channels:
+            padded = np.zeros((len(data), mixer.channels), dtype=np.float32)
+            padded[:, :n_ch] = data
+            data = padded
+        elif n_ch > mixer.channels:
             data = data[:, :mixer.channels]
 
         voice = Voice(voice_id, data.astype(np.float32), notify_end=notify_end)
@@ -637,8 +641,10 @@ async def async_main():
         if jack_dev is not None:
             mixer.device_index = jack_dev
             d = sd.query_devices(jack_dev)
+            n_ch = int(d["max_output_channels"])
+            mixer.channels = n_ch   # utiliser tous les canaux du device JACK
             log.info("JACK détecté → device [%d] %s (%d canaux)",
-                     jack_dev, d["name"], d["max_output_channels"])
+                     jack_dev, d["name"], n_ch)
         else:
             log.info("JACK non détecté, utilisation du device par défaut")
 
