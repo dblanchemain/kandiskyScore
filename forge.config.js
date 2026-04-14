@@ -2,7 +2,9 @@ const fs   = require('fs');
 const path = require('path');
 
 const allResources = ["resources/bin","resources/Dsp","resources/@grame","resources/images","resources/Scripts","resources/Themes","Wam2"];
-const extraResource = allResources.filter(p => fs.existsSync(p));
+// audio_server.py doit être hors du asar pour pouvoir être spawn()é en prod
+const rootFiles = ["audio_server.py"].filter(p => fs.existsSync(p));
+const extraResource = [...allResources.filter(p => fs.existsSync(p)), ...rootFiles];
 
 module.exports = {
   packagerConfig: {
