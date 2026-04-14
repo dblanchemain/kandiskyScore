@@ -140,6 +140,7 @@ function foo() {
 		var _barLeft = parseFloat(document.getElementById("barVerticale").style.left);
 		var _totalSec;
 		try { _totalSec = pixelToTime(_barLeft); } catch(e) { _totalSec = _barLeft / (18 * zoomScale); }
+		barverticTime = _totalSec;
 		dheures   = Math.floor(_totalSec / 3600);
 		dminutes  = Math.floor((_totalSec % 3600) / 60);
 		dsecondes = _totalSec % 60;
