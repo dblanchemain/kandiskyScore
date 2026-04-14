@@ -43,6 +43,7 @@ import math
 import signal
 import sys
 import threading
+import time
 from typing import Optional
 
 import numpy as np
@@ -433,13 +434,26 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
 
 
 async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
-    voice_id   = params.get("id", f"voice_{id(params)}")
-    notify_end = bool(params.get("notify_end", True))
+    voice_id          = params.get("id", f"voice_{id(params)}")
+    notify_end        = bool(params.get("notify_end", True))
+    compensate_delay  = bool(params.get("compensate_delay", False))
+    t_sent_ms         = params.get("t_sent")   # horodatage JS (ms)
+
+    t_before = time.time()
 
     try:
         # Traitement audio dans un thread (opérations I/O + DSP bloquantes)
         loop = asyncio.get_event_loop()
         data, sr = await loop.run_in_executor(None, load_and_process, params)
+
+        # Compensation du retard : sauter les frames qui auraient dû jouer pendant le traitement
+        if compensate_delay:
+            t_now_ms   = time.time() * 1000.0
+            delay_ms   = t_now_ms - (t_sent_ms if t_sent_ms else t_before * 1000.0)
+            skip_frames = int(max(0.0, delay_ms / 1000.0) * sr)
+            if 0 < skip_frames < len(data):
+                data = data[skip_frames:]
+                log.debug("Compensation délai : %.0f ms → skip %d frames", delay_ms, skip_frames)
 
         # Démarrer le stream si nécessaire (ou si le sr a changé)
         if mixer.stream is None or not mixer.stream.active:

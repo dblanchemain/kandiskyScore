@@ -1450,10 +1450,12 @@ ipcMain.handle('playDirectFile', async (event, mode, filePath, soxParams) => {
     const dsp = parseSoxParams(soxParams);
     // mode 0 = lecteur simple (notifie la fin) ; mode 1 = lecture partitions (mixé, silencieux)
     sendAudio({
-        cmd:         'play',
-        id:          mode === 0 ? `direct_${Date.now()}` : `score_${path.basename(filePath)}_${Date.now()}`,
-        file:        filePath,
-        notify_end:  mode === 0,
+        cmd:              'play',
+        id:               mode === 0 ? `direct_${Date.now()}` : `score_${path.basename(filePath)}_${Date.now()}`,
+        file:             filePath,
+        notify_end:       mode === 0,
+        compensate_delay: mode !== 0,  // compenser le délai de traitement pour la lecture partitions
+        t_sent:           Date.now(),  // horodatage ms pour mesurer le retard total
         ...dsp,
     });
 });
