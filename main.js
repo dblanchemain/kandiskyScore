@@ -405,9 +405,7 @@ async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio,
   await new Promise((resolve, reject) => {
     const proc = spawn(wrb, args, { windowsHide: true, cwd: path.dirname(wrb) });
 
-    //proc.stdout.on('data', d => console.log(d.toString()));
-
-    proc.stderr.on('data', d => console.error(d.toString()));
+    // stdout/stderr du binaire rubberband intentionnellement ignorés
 
     proc.on('error', reject);
     
@@ -425,9 +423,7 @@ async function autoRubberbandCLI(rb,inputPath, outputPath, timeRatio, pitchSemit
   if (timeMapPath) {
     cmd += ` -M "${timeMapPath}"`;
   }
-  const { stdout, stderr } = await execAsync(cmd);
-  //if (stderr) console.error("rubberband stderr:", stderr);
-  console.log("Rubberband terminé !");
+  await execAsync(cmd);
   mainWindow.webContents.send("fromMain", "autoRubberband;"+obj+";"+outputPath);
 }
 async function checkTimeMapLength(timeMapPath) {
