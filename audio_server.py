@@ -544,6 +544,26 @@ async def notification_broadcaster(queue: asyncio.Queue):
             )
 
 
+# ─────────────────────────────── Détection JACK ─────────────────────────────
+
+def find_jack_device() -> Optional[int]:
+    """
+    Retourne l'index du device de sortie JACK si disponible, sinon None.
+    Cherche d'abord via l'API JACK de PortAudio, puis par nom de device.
+    """
+    # Méthode 1 : via l'API JACK (PortAudio host API)
+    for api in sd.query_hostapis():
+        if "JACK" in api.get("name", ""):
+            dev_idx = api.get("default_output_device", -1)
+            if dev_idx >= 0:
+                return dev_idx
+    # Méthode 2 : par nom de device (fallback)
+    for i, d in enumerate(sd.query_devices()):
+        if d["name"].lower() == "jack" and d["max_output_channels"] > 0:
+            return i
+    return None
+
+
 # ─────────────────────────────── Point d'entrée ─────────────────────────────
 
 async def async_main():
@@ -551,6 +571,17 @@ async def async_main():
     queue: asyncio.Queue = asyncio.Queue()
 
     mixer.set_event_loop(loop, queue)
+
+    # Auto-sélection JACK sur Linux si disponible
+    if sys.platform.startswith("linux"):
+        jack_dev = find_jack_device()
+        if jack_dev is not None:
+            mixer.device_index = jack_dev
+            d = sd.query_devices(jack_dev)
+            log.info("JACK détecté → device [%d] %s (%d canaux)",
+                     jack_dev, d["name"], d["max_output_channels"])
+        else:
+            log.info("JACK non détecté, utilisation du device par défaut")
 
     # Stream audio démarré en avance pour réduire la latence du premier son
     try:
