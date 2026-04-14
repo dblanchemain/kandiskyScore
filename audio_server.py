@@ -54,16 +54,36 @@ import soundfile as sf
 
 try:
     import pyrubberband as pyrb
-    # Si le binaire rubberband est fourni dans les resources (Windows/macOS packagé),
-    # on l'injecte directement dans le module pyrubberband.
+    import pyrubberband.pyrb as _pyrb_internal
+    import subprocess as _subprocess_orig
+    import types as _types
+
+    # ── Binaire rubberband depuis les resources (Windows/macOS packagé) ──────
     _rb_path = os.environ.get("RUBBERBAND_PATH", "").strip()
     if _rb_path:
-        try:
-            import pyrubberband.pyrb as _pyrb_internal
-            _pyrb_internal.__RUBBERBAND_UTIL = _rb_path
-            print(f"[audio_server] rubberband binaire : {_rb_path}", flush=True)
-        except Exception as _e:
-            print(f"[audio_server] WARNING chemin rubberband : {_e}", flush=True)
+        _pyrb_internal.__RUBBERBAND_UTIL = _rb_path
+        print(f"[audio_server] rubberband binaire : {_rb_path}", flush=True)
+
+    # ── Silencer stdout/stderr du binaire rubberband ─────────────────────────
+    # pyrubberband appelle subprocess.check_call (ou run) sans redirection ;
+    # on remplace son référence au module subprocess par un wrapper muet.
+    class _QuietSubprocess(_types.ModuleType):
+        """Wrapper subprocess qui redirige stdout+stderr vers DEVNULL."""
+        DEVNULL = _subprocess_orig.DEVNULL
+        PIPE    = _subprocess_orig.PIPE
+        STDOUT  = _subprocess_orig.STDOUT
+        def __getattr__(self, name):
+            fn = getattr(_subprocess_orig, name)
+            if name in ("check_call", "run", "check_output", "call"):
+                def _quiet(args, **kw):
+                    kw.setdefault("stdout", _subprocess_orig.DEVNULL)
+                    kw.setdefault("stderr", _subprocess_orig.DEVNULL)
+                    return fn(args, **kw)
+                return _quiet
+            return fn
+
+    _pyrb_internal.subprocess = _QuietSubprocess("subprocess")
+
     _PYRB_AVAILABLE = True
 except ImportError:
     _PYRB_AVAILABLE = False
