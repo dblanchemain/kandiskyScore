@@ -446,10 +446,15 @@ async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
         loop = asyncio.get_event_loop()
         data, sr = await loop.run_in_executor(None, load_and_process, params)
 
-        # Compensation du retard : sauter les frames qui auraient dû jouer pendant le traitement
+        # Compensation du retard : sauter les frames correspondant au temps de traitement Python.
+        # On mesure uniquement le délai côté Python (load + DSP) — t_sent_ms sert de diagnostic.
         if compensate_delay:
             t_now_ms    = time.time() * 1000.0
-            delay_ms    = t_now_ms - (t_sent_ms if t_sent_ms else t_before * 1000.0)
+            delay_ms    = t_now_ms - t_before * 1000.0   # délai de traitement Python uniquement
+            if t_sent_ms:
+                transit_ms = (t_before * 1000.0) - t_sent_ms
+                log.debug("Transit IPC→WS : %.0f ms, traitement Python : %.0f ms",
+                          transit_ms, delay_ms)
             skip_frames = int(max(0.0, delay_ms / 1000.0) * sr)
             # Ne jamais sauter plus de 500 ms ni plus de 50 % de l'audio
             max_skip    = min(int(0.5 * sr), len(data) // 2)

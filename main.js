@@ -260,7 +260,9 @@ function connectAudioWs() {
 
 /** Envoie un message JSON au serveur audio (ou met en file si pas encore prêt). */
 function sendAudio(msg) {
-  const data = JSON.stringify(msg);
+  // Mettre à jour t_sent au moment de l'envoi effectif (évite les délais de file d'attente)
+  const stamped = msg.t_sent !== undefined ? { ...msg, t_sent: Date.now() } : msg;
+  const data = JSON.stringify(stamped);
   if (audioWsReady && audioWs) audioWs.send(data);
   else audioWsPending.push(data);
 }
