@@ -455,14 +455,9 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
         )
         if changed:
             mixer.set_device(device_idx, channels, samplerate)
-            log.info("Device reconfiguré → %d canaux, %d Hz, device=%s",
-                     mixer.channels, mixer.sample_rate, mixer.device_index)
-        # Démarrer le stream maintenant si pas encore actif (layout connu)
-        if mixer.stream is None or not mixer.stream.active:
-            try:
-                mixer.start_stream()
-            except Exception as exc:
-                log.warning("Impossible de démarrer le stream : %s", exc)
+            log.info("Layout → %d canaux (stream démarrera au premier son)",
+                     mixer.channels)
+        # Ne pas démarrer le stream ici : cmd_play le fera avec le bon sample rate.
         await reply({"type": "device_set", "device": mixer.device_index,
                      "channels": mixer.channels, "changed": changed})
 
@@ -520,10 +515,26 @@ async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
                 log.info("Compensation délai : %.0f ms → skip %d frames (%.0f ms audio restant)",
                          delay_ms, skip_frames, len(data) / sr * 1000)
 
-        # Démarrer le stream si nécessaire (ou si le sr a changé)
+        # Démarrer le stream si nécessaire avec le taux natif du device
         if mixer.stream is None or not mixer.stream.active:
-            mixer.sample_rate = sr
+            if mixer.device_index is not None:
+                # Utiliser le taux natif du device (JACK impose son propre clock)
+                d = sd.query_devices(mixer.device_index)
+                mixer.sample_rate = int(d["default_samplerate"])
+            else:
+                mixer.sample_rate = sr   # fallback : taux du fichier
             mixer.start_stream()
+
+        # Rééchantillonner si le fichier n'est pas au taux du stream
+        if sr != mixer.sample_rate and sr > 0:
+            ratio   = mixer.sample_rate / sr
+            new_len = max(1, int(round(len(data) * ratio)))
+            x_old   = np.arange(len(data), dtype=np.float64)
+            x_new   = np.linspace(0, len(data) - 1, new_len, dtype=np.float64)
+            data    = np.column_stack([
+                np.interp(x_new, x_old, data[:, ch]) for ch in range(data.shape[1])
+            ]).astype(np.float32)
+            log.debug("Rééchantillonnage %d→%d Hz (ratio %.4f)", sr, mixer.sample_rate, ratio)
 
         # Adapter le nombre de canaux de la voix à celui du stream
         # Les canaux supplémentaires sont mis à zéro (spatialisation JACK en aval)
