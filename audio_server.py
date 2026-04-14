@@ -61,9 +61,9 @@ try:
         try:
             import pyrubberband.pyrb as _pyrb_internal
             _pyrb_internal.__RUBBERBAND_UTIL = _rb_path
-            log.info("rubberband binaire : %s", _rb_path)
+            print(f"[audio_server] rubberband binaire : {_rb_path}", flush=True)
         except Exception as _e:
-            log.warning("Impossible de configurer le chemin rubberband : %s", _e)
+            print(f"[audio_server] WARNING chemin rubberband : {_e}", flush=True)
     _PYRB_AVAILABLE = True
 except ImportError:
     _PYRB_AVAILABLE = False
