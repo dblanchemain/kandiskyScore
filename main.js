@@ -4757,6 +4757,14 @@ ipcMain.handle("loadFileAsArrayBuffer", async (event, filePath) => {
   const buf = fs.readFileSync(filePath);
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 });
+// Met à jour le nombre de canaux de sortie du serveur audio (= nb haut-parleurs du layout).
+ipcMain.handle('setAudioChannels', async (event, channels) => {
+  const n = parseInt(channels) || 18;
+  sendAudio({ cmd: 'set_device', channels: n });
+  console.log(`🔊 Audio layout → ${n} canaux`);
+  return { ok: true, channels: n };
+});
+
 // Pré-charge une liste de fichiers audio dans le cache du serveur Python.
 // Appeler avant le démarrage de la lecture pour éviter les délais au premier son.
 ipcMain.handle("preloadAudio", async (event, filePaths) => {

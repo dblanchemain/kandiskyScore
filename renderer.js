@@ -123,6 +123,7 @@ function defconfig(conf) {
   audioDirectory=defc[61];
   spat3D=defc[62];
   spat3DCanaux=defc[63];
+  window.api.setAudioChannels(parseInt(spat3DCanaux) || 18);
   editor=defc[64];
   paletteDisque=defc[65];
   paletteCarre=defc[66];
@@ -2442,6 +2443,7 @@ function importConfigProjet(){
 	imgDirectory=paramProjet.imgPath;
 	spat3D=paramProjet.greffon3D;
 	spat3dCanaux=paramProjet.greffonC;
+	window.api.setAudioChannels(parseInt(paramProjet.greffonC) || 18);
 	spatMode=paramProjet.spatMode||"vbap3d";
 	hoaOrder=parseInt(paramProjet.hoaOrder)||3;
 	exportAmbiX=paramProjet.exportAmbiX===true||paramProjet.exportAmbiX===1;

@@ -116,6 +116,8 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke('playDirectFile', mode, filePath, soxParams),
     preloadAudio: (filePaths) =>
         ipcRenderer.invoke('preloadAudio', filePaths),
+    setAudioChannels: (channels) =>
+        ipcRenderer.invoke('setAudioChannels', channels),
     soxProcessExport: (filePath, soxParams) =>
         ipcRenderer.invoke('soxProcessExport', filePath, soxParams),
     soxProcessTo: (inputPath, outputPath, soxParams) =>
