@@ -298,7 +298,9 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
     fade_out_len     = float(params.get("fade_out_len", 0.0))
 
     # ── Lecture (avec cache disque) ──────────────────────────────────────────
+    _t0 = time.time()
     data, sr = _cached_sf_read(file_path)
+    _t1 = time.time()
     # data : (total_frames, channels)
 
     # ── Trim ─────────────────────────────────────────────────────────────────
@@ -340,6 +342,12 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
         data = np.column_stack([c[:min_len] for c in processed_channels]).astype(np.float32)
     elif not _PYRB_AVAILABLE and _need_pyrb:
         log.warning("pyrubberband absent — speed/pitch/tempo ignorés pour %s", file_path)
+
+    _t2 = time.time()
+    log.info("Timings load_and_process — cache/io: %.0f ms, pyrb: %.0f ms, total: %.0f ms | "
+             "speed=%.3f pitch=%.1f tempo=%.3f file=%s",
+             (_t1-_t0)*1000, (_t2-_t1)*1000, (_t2-_t0)*1000,
+             speed, pitch_semitones, tempo_ratio, file_path)
 
     # ── Volume ───────────────────────────────────────────────────────────────
     if abs(vol - 1.0) > 1e-6:

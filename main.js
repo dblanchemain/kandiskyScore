@@ -4766,7 +4766,7 @@ ipcMain.handle("preloadAudio", async (event, filePaths) => {
   );
   const ok    = results.filter(r => r.status === 'fulfilled').length;
   const error = results.filter(r => r.status === 'rejected').length;
-  log.info?.(`preloadAudio : ${ok} ok, ${error} erreurs sur ${filePaths.length} fichiers`);
+  console.log(`preloadAudio : ${ok} ok, ${error} erreurs sur ${filePaths.length} fichiers`);
   return { ok, error };
 });
 
