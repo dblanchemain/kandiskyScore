@@ -1453,6 +1453,7 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 				tableBuffer.push({name:base,buffer:buffer});
 				tableObjet[id].bufferId=tableBuffer.length-1;
 				tableObjet[id].canaux=buffer.numberOfChannels;
+				window.api.send("toMain","canaux;"+id+";"+buffer.numberOfChannels);
 			});
 		};
 		req.send();

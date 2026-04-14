@@ -1181,6 +1181,7 @@ async function readSimpleAudioA(id,mode) {
     const numChannels = rt.numChannels;
     let numSamples = rt.numSamples;
     const sampleRate = rt.sampleRate;
+    tableObjet[id].canaux = numChannels;   // source de vérité : le fichier audio lui-même
 	 console.log("length",numSamples);
     // Clone des buffers pour traitement
     let currentChannels = rt.channels.map(chAb => new Float32Array(chAb));

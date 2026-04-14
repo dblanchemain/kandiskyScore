@@ -405,6 +405,13 @@ console.log(`objparam ${data} from renderer process`);
 			case 'defAudioObj':
 				defAudioFile(cmd[1],cmd[2])
 				break
+			case 'updateCanaux':
+				var _uc=parseInt(cmd[1])||0;
+				if(_uc>0){
+					document.getElementById("paramCanaux").textContent=_uc;
+					selectObj.canaux=_uc;
+				}
+				break
 			case 'fileAudioParam':
 				paramFileAudio(cmd[1],cmd[2],cmd[3],cmd[4])
 				break
