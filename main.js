@@ -218,7 +218,7 @@ function startAudioServer() {
     });
 
     audioServerProc.stderr.on('data', (data) => {
-      console.error('[audio_server]', data.toString().trimEnd());
+      process.stderr.write(data);
     });
 
     audioServerProc.on('exit', (code) => {
