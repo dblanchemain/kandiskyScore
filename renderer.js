@@ -123,7 +123,6 @@ function defconfig(conf) {
   audioDirectory=defc[61];
   spat3D=defc[62];
   spat3DCanaux=defc[63];
-  window.api.setAudioChannels(parseInt(spat3DCanaux) || 18);
   editor=defc[64];
   paletteDisque=defc[65];
   paletteCarre=defc[66];

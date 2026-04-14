@@ -449,8 +449,18 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
         device_idx = msg.get("device")
         channels   = msg.get("channels")
         samplerate = msg.get("samplerate")
-        mixer.set_device(device_idx, channels, samplerate)
-        await reply({"type": "device_set", "device": device_idx})
+        # Ne reconfigurer que si quelque chose change réellement
+        changed = (
+            (device_idx is not None and device_idx != mixer.device_index) or
+            (channels   is not None and int(channels)   != mixer.channels)   or
+            (samplerate is not None and int(samplerate) != mixer.sample_rate)
+        )
+        if changed:
+            mixer.set_device(device_idx, channels, samplerate)
+            log.info("Device reconfiguré → %d canaux, %d Hz, device=%s",
+                     mixer.channels, mixer.sample_rate, mixer.device_index)
+        await reply({"type": "device_set", "device": mixer.device_index,
+                     "channels": mixer.channels, "changed": changed})
 
     elif cmd == "info":
         await cmd_info(ws, msg, reply)
