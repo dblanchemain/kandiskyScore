@@ -54,7 +54,7 @@ function readPart(){
 		 for(i=0;i<tableListSource.length;i++){
 			 var obj=tableObjet[tableListSource[i].obj];
 			 var m=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
-			 m=m+(obj.posX/(18*zoomScale));
+			 m=m+(obj.posX/18);
 			 if(m>maxDuree){
 			 	maxDuree=m;
 			 }
@@ -412,7 +412,7 @@ async function readSimpleAudio() {
 				 lsgrp=[];
 				 lsgrp[0]=objActif;
 				 defStudioSrc(lsgrp);
-				 maxDuree=durationAfterSpeed+(obj.posX/(18*zoomScale));
+				 maxDuree=durationAfterSpeed+(obj.posX/18);
 				 console.log("maxDuree",maxDuree);
 	  			 foo();
 			 const soxParamsSpeaker = "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade;
