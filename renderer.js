@@ -982,8 +982,10 @@ function selectBkgObj(e){
       	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
      	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
      	 	}else{
-     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+tableBuffer[tableObjet[objActif].bufferId].buffer.numberOfChannels+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
-     	 	}	
+     	 		var _bid=tableObjet[objActif].bufferId;
+     	 		var _nch=(_bid!==undefined && tableBuffer[_bid])?tableBuffer[_bid].buffer.numberOfChannels:(tableObjet[objActif].canaux||0);
+     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+_nch+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
+     	 	}
 	      window.api.send("toMain", ntxt );
 	      console.log("ntxt",ntxt);
      	}
@@ -1009,7 +1011,9 @@ function selectBkgObj(e){
 		      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 		     	 	}else{
-		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+tableBuffer[tableObjet[objActif].bufferId].buffer.numberOfChannels+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
+		     	 		var _bid=tableObjet[objActif].bufferId;
+		     	 		var _nch=(_bid!==undefined && tableBuffer[_bid])?tableBuffer[_bid].buffer.numberOfChannels:(tableObjet[objActif].canaux||0);
+		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+_nch+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 		     	 	}
 		     	 	console.log("ntxt",ntxt);
 	     	 	}
@@ -1445,6 +1449,7 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 			contextAudio.decodeAudioData(req.response,function(buffer){
 				tableBuffer.push({name:base,buffer:buffer});
 				tableObjet[id].bufferId=tableBuffer.length-1;
+				tableObjet[id].canaux=buffer.numberOfChannels;
 			});
 		};
 		req.send();
