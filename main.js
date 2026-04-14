@@ -187,6 +187,12 @@ console.log("🎧 Sox détecté :", soxPath,soxiPath,playPath,rubberbandPath,ffm
 function findPythonPath() {
   const sub = platform === 'win32' ? 'win' : platform === 'darwin' ? 'mac' : 'linux';
   const bin = platform === 'win32' ? 'python.exe' : 'python3';
+  // Cherche d'abord Python embeddable dans resources/bin/<os>/python/
+  if (platform === 'win32') {
+    const embedded = path.join(baseDir, 'win', 'python', 'python.exe');
+    if (existsSync(embedded)) return embedded;
+  }
+  // Puis dans resources/bin/<os>/ (binaire unique, Linux/Mac)
   const bundled = path.join(baseDir, sub, bin);
   if (existsSync(bundled)) return bundled;
   return platform === 'win32' ? 'python' : 'python3';
