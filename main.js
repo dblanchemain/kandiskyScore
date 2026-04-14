@@ -4757,6 +4757,19 @@ ipcMain.handle("loadFileAsArrayBuffer", async (event, filePath) => {
   const buf = fs.readFileSync(filePath);
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 });
+// Pré-charge une liste de fichiers audio dans le cache du serveur Python.
+// Appeler avant le démarrage de la lecture pour éviter les délais au premier son.
+ipcMain.handle("preloadAudio", async (event, filePaths) => {
+  if (!audioWsReady) return { skipped: true };
+  const results = await Promise.allSettled(
+    filePaths.map(fp => sendAudioRequest({ cmd: 'preload', file: fp }, 8000))
+  );
+  const ok    = results.filter(r => r.status === 'fulfilled').length;
+  const error = results.filter(r => r.status === 'rejected').length;
+  log.info?.(`preloadAudio : ${ok} ok, ${error} erreurs sur ${filePaths.length} fichiers`);
+  return { ok, error };
+});
+
 ipcMain.handle("infoFile", async (event, filePath) => {
   if (audioWsReady) {
     try {

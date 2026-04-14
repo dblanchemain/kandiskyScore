@@ -59,9 +59,20 @@ function readPart(){
 			 	maxDuree=m;
 			 }
 		 }
-		console.log("maxduree",maxDuree); 
+		console.log("maxduree",maxDuree);
 		curTempo=0;
-		foo(); 
+
+		// Pré-charger tous les fichiers audio du score en cache Python
+		// pour éliminer la latence disque au premier son
+		try {
+			const filesToPreload = tableListSource.map(src => {
+				const obj = tableObjet[src.obj];
+				return window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-fx.wav`);
+			});
+			window.api.preloadAudio(filesToPreload).catch(e => console.warn("preloadAudio:", e));
+		} catch(e) { console.warn("preloadAudio init:", e); }
+
+		foo();
 		 
 
 		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M5,40 L5,0 M25,0 L25,40');

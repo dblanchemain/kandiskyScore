@@ -11,12 +11,13 @@ Remplace les appels spawn(sox play ...) par un moteur de mixage unifié :
 Protocole WebSocket JSON sur ws://127.0.0.1:9876 :
 
   Commandes → serveur :
-    {"cmd":"play",  "id":"obj5", "file":"/abs/path.wav",
-                    "pitch_semitones":0.0, "speed":1.0, "vol":1.0,
-                    "trim_start":0.0, "trim_len":0.0,
-                    "fade_in_type":"l",  "fade_in_len":0.0,
-                    "fade_out_type":"l", "fade_out_len":0.0,
-                    "notify_end":true}
+    {"cmd":"play",    "id":"obj5", "file":"/abs/path.wav",
+                      "pitch_semitones":0.0, "speed":1.0, "vol":1.0,
+                      "trim_start":0.0, "trim_len":0.0,
+                      "fade_in_type":"l",  "fade_in_len":0.0,
+                      "fade_out_type":"l", "fade_out_len":0.0,
+                      "notify_end":true}
+    {"cmd":"preload", "file":"/abs/path.wav"}        ← pré-charge en cache (pas de lecture)
     {"cmd":"stop"}
     {"cmd":"stop_id",     "id":"obj5"}
     {"cmd":"list_devices"}
@@ -296,8 +297,8 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
     fade_out_type    = str(params.get("fade_out_type", "l"))
     fade_out_len     = float(params.get("fade_out_len", 0.0))
 
-    # ── Lecture ──────────────────────────────────────────────────────────────
-    data, sr = sf.read(file_path, dtype="float32", always_2d=True)
+    # ── Lecture (avec cache disque) ──────────────────────────────────────────
+    data, sr = _cached_sf_read(file_path)
     # data : (total_frames, channels)
 
     # ── Trim ─────────────────────────────────────────────────────────────────
@@ -351,6 +352,26 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
     return data, sr
 
 
+# ─────────────────────────────── Cache audio ────────────────────────────────
+# Stocke les données brutes (avant DSP) pour éviter la relecture disque.
+# Clé : chemin absolu du fichier. Valeur : (ndarray float32, sample_rate).
+_raw_cache: dict[str, tuple[np.ndarray, int]] = {}
+_raw_cache_lock = threading.Lock()
+
+
+def _cached_sf_read(file_path: str) -> tuple[np.ndarray, int]:
+    """sf.read() avec cache en mémoire pour éviter les accès disque répétés."""
+    with _raw_cache_lock:
+        if file_path in _raw_cache:
+            data, sr = _raw_cache[file_path]
+            return data.copy(), sr   # copie pour ne pas altérer le cache
+    data, sr = sf.read(file_path, dtype="float32", always_2d=True)
+    with _raw_cache_lock:
+        _raw_cache[file_path] = (data, sr)
+    log.debug("Cache : ajout %s (%.1f s, %d Hz)", file_path, len(data)/sr, sr)
+    return data.copy(), sr
+
+
 # ─────────────────────────────── Serveur WebSocket ──────────────────────────
 
 mixer              = AudioMixer()
@@ -390,6 +411,9 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
 
     if cmd == "play":
         await cmd_play(ws, msg, reply)
+
+    elif cmd == "preload":
+        await cmd_preload(ws, msg, reply)
 
     elif cmd == "stop":
         mixer.stop_all()
@@ -489,6 +513,20 @@ async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
     except Exception as exc:
         log.error("Erreur play id=%s : %s", voice_id, exc)
         await reply({"type": "error", "id": voice_id, "message": str(exc)})
+
+
+async def cmd_preload(ws: "WebSocketServerProtocol", msg: dict, reply):
+    """Pré-charge un fichier audio en mémoire sans le lire."""
+    file_path = msg.get("file", "")
+    try:
+        already = file_path in _raw_cache
+        if not already:
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, _cached_sf_read, file_path)
+        await reply({"type": "preloaded", "file": file_path, "already_cached": already})
+        log.info("Pré-chargé : %s%s", file_path, " (déjà en cache)" if already else "")
+    except Exception as exc:
+        await reply({"type": "error", "message": str(exc)})
 
 
 async def cmd_list_devices(ws: "WebSocketServerProtocol", reply):
