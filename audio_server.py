@@ -448,12 +448,16 @@ async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
 
         # Compensation du retard : sauter les frames qui auraient dû jouer pendant le traitement
         if compensate_delay:
-            t_now_ms   = time.time() * 1000.0
-            delay_ms   = t_now_ms - (t_sent_ms if t_sent_ms else t_before * 1000.0)
+            t_now_ms    = time.time() * 1000.0
+            delay_ms    = t_now_ms - (t_sent_ms if t_sent_ms else t_before * 1000.0)
             skip_frames = int(max(0.0, delay_ms / 1000.0) * sr)
+            # Ne jamais sauter plus de 500 ms ni plus de 50 % de l'audio
+            max_skip    = min(int(0.5 * sr), len(data) // 2)
+            skip_frames = min(skip_frames, max_skip)
             if 0 < skip_frames < len(data):
                 data = data[skip_frames:]
-                log.debug("Compensation délai : %.0f ms → skip %d frames", delay_ms, skip_frames)
+                log.info("Compensation délai : %.0f ms → skip %d frames (%.0f ms audio restant)",
+                         delay_ms, skip_frames, len(data) / sr * 1000)
 
         # Démarrer le stream si nécessaire (ou si le sr a changé)
         if mixer.stream is None or not mixer.stream.active:
