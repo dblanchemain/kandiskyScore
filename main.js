@@ -203,6 +203,7 @@ function startAudioServer() {
     audioServerProc = spawn(python, [script], {
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
+      env: { ...process.env, RUBBERBAND_PATH: findRubberbandPath() },
     });
 
     const timeout = setTimeout(() => {

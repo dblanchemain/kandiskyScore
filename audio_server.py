@@ -41,6 +41,7 @@ import asyncio
 import json
 import logging
 import math
+import os
 import signal
 import sys
 import threading
@@ -53,6 +54,16 @@ import soundfile as sf
 
 try:
     import pyrubberband as pyrb
+    # Si le binaire rubberband est fourni dans les resources (Windows/macOS packagé),
+    # on l'injecte directement dans le module pyrubberband.
+    _rb_path = os.environ.get("RUBBERBAND_PATH", "").strip()
+    if _rb_path:
+        try:
+            import pyrubberband.pyrb as _pyrb_internal
+            _pyrb_internal.__RUBBERBAND_UTIL = _rb_path
+            log.info("rubberband binaire : %s", _rb_path)
+        except Exception as _e:
+            log.warning("Impossible de configurer le chemin rubberband : %s", _e)
     _PYRB_AVAILABLE = True
 except ImportError:
     _PYRB_AVAILABLE = False
