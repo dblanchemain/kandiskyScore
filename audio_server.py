@@ -443,10 +443,14 @@ def jack_restore_connections():
             else:
                 log.warning("JACK: échec restauration %s → %s : %s", src, dst, err)
 
-    # 2. Couper system:playback_* seulement si au moins une connexion a réussi
+    # 2. Couper system:playback_* uniquement pour les sources du fichier sauvegardé
+    #    (ne pas toucher aux connexions des autres clients JACK)
     if connected > 0:
+        our_sources = set(connections.keys())
         current = _jack_lsp_connections()
         for src, dsts in current.items():
+            if src not in our_sources:
+                continue   # port d'un autre client → ne pas toucher
             for dst in dsts:
                 if dst.startswith("system:playback_"):
                     rc, err = _jack_cli(["jack_disconnect", src, dst])
