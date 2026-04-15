@@ -790,20 +790,30 @@ def load_and_process(params: dict) -> tuple[np.ndarray, int]:
 
 # ─────────────────────────────── Cache audio ────────────────────────────────
 # Stocke les données brutes (avant DSP) pour éviter la relecture disque.
-# Clé : chemin absolu du fichier. Valeur : (ndarray float32, sample_rate).
-_raw_cache: dict[str, tuple[np.ndarray, int]] = {}
+# Clé : chemin absolu du fichier. Valeur : (ndarray float32, sample_rate, mtime).
+# Le mtime est vérifié à chaque accès : si le fichier a été modifié sur disque
+# (ex. renduout.wav écrasé par spectrEdit), le cache est automatiquement invalidé.
+_raw_cache: dict[str, tuple[np.ndarray, int, float]] = {}
 _raw_cache_lock = threading.Lock()
 
 
 def _cached_sf_read(file_path: str) -> tuple[np.ndarray, int]:
-    """sf.read() avec cache en mémoire pour éviter les accès disque répétés."""
+    """sf.read() avec cache en mémoire, invalidé automatiquement si le fichier change."""
+    try:
+        mtime = os.path.getmtime(file_path)
+    except OSError:
+        mtime = 0.0
+
     with _raw_cache_lock:
         if file_path in _raw_cache:
-            data, sr = _raw_cache[file_path]
-            return data.copy(), sr   # copie pour ne pas altérer le cache
+            data, sr, cached_mtime = _raw_cache[file_path]
+            if mtime == cached_mtime:
+                return data.copy(), sr   # copie pour ne pas altérer le cache
+            log.debug("Cache : invalidé %s (fichier modifié)", file_path)
+
     data, sr = sf.read(file_path, dtype="float32", always_2d=True)
     with _raw_cache_lock:
-        _raw_cache[file_path] = (data, sr)
+        _raw_cache[file_path] = (data, sr, mtime)
     log.debug("Cache : ajout %s (%.1f s, %d Hz)", file_path, len(data)/sr, sr)
     return data.copy(), sr
 
