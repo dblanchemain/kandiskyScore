@@ -108,6 +108,60 @@ except ImportError:
     print("ERREUR: le paquet 'websockets' est requis. Installez-le avec : pip install websockets", flush=True)
     sys.exit(1)
 
+# ─── Déconnexion JACK auto-system (Linux) ────────────────────────────────────
+
+def _jack_unplug_system(delay: float = 0.4) -> None:
+    """
+    Déconnecte toutes les connexions entrantes vers system:playback_*
+    que PortAudio branche automatiquement.
+    Appelé dans un thread après stream.start() pour laisser RaySession gérer.
+    """
+    if not sys.platform.startswith("linux"):
+        return
+    time.sleep(delay)          # laisser PortAudio terminer ses jack_connect()
+    try:
+        import ctypes, ctypes.util as _cu2
+        _lib = _cu2.find_library("jack") or "libjack.so.0"
+        lj = ctypes.CDLL(_lib)
+
+        lj.jack_client_open.restype  = ctypes.c_void_p
+        lj.jack_port_by_name.restype = ctypes.c_void_p
+        lj.jack_port_get_all_connections.restype = ctypes.POINTER(ctypes.c_char_p)
+        lj.jack_free.restype         = None
+        lj.jack_disconnect.restype   = ctypes.c_int
+
+        JackNoStartServer = 1
+        status = ctypes.c_int(0)
+        client = lj.jack_client_open(b"_ks_unplug", JackNoStartServer,
+                                      ctypes.byref(status))
+        if not client:
+            return
+        lj.jack_activate(client)
+
+        i = 1
+        while True:
+            dst = f"system:playback_{i}".encode()
+            port = lj.jack_port_by_name(client, dst)
+            if not port:
+                break
+            conns = lj.jack_port_get_all_connections(client, port)
+            if conns:
+                j = 0
+                while conns[j]:
+                    src = conns[j]
+                    ret = lj.jack_disconnect(client, src, dst)
+                    if ret == 0:
+                        log.info("JACK: déconnecté %s → %s",
+                                 src.decode(), dst.decode())
+                    j += 1
+                lj.jack_free(conns)
+            i += 1
+
+        lj.jack_client_close(client)
+    except Exception as exc:
+        log.warning("JACK unplug system: %s", exc)
+
+
 # ─────────────────────────────── Configuration ──────────────────────────────
 
 HOST        = "127.0.0.1"
@@ -246,6 +300,10 @@ class AudioMixer:
             "Stream démarré : %d Hz, %d canaux, device=%s",
             self.sample_rate, self.channels, self.device_index,
         )
+        # Sur Linux + JACK : couper les auto-connexions vers system:playback_*
+        # pour laisser RaySession (ou tout gestionnaire NSM) définir le routage.
+        if sys.platform.startswith("linux") and self.device_index is not None:
+            threading.Thread(target=_jack_unplug_system, daemon=True).start()
 
     def _stop_stream(self):
         if self.stream:
