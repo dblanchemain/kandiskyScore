@@ -377,14 +377,15 @@ function validSpectrEdit() {
 	window.api.send("toMain", "spatialValid;"+spatialId+";"+svSpatial);
 }
 function sliderGain() {
-	document.getElementById("tgain").value=document.getElementById("sgain").value;
-	const gainDb = parseFloat(document.getElementById("tgain").value);
-	applyGain();
+	document.getElementById("tgain").value = document.getElementById("sgain").value;
 }
 function nbGain() {
-	document.getElementById("sgain").value=document.getElementById("tgain").value;
-	const gainDb = parseFloat(document.getElementById("tgain").value);
-	applyGain();
+	document.getElementById("sgain").value = document.getElementById("tgain").value;
+}
+function getVolParam() {
+	const dB = parseFloat(document.getElementById("tgain").value) || 0;
+	const linear = Math.pow(10, dB / 20);
+	return `vol ${linear.toFixed(4)}`;
 }
 function zoom() {
 	zoomScale=document.getElementById("zoom").value;
@@ -413,9 +414,9 @@ async function defGain(){
     });
 }
 async function playBuffers() {
-    var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+    var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
-    await window.api.playDirectFile(0, outPath, "");
+    await window.api.playDirectFile(0, outPath, getVolParam());
     playStartTime = performance.now();
     isPlaying = true;
 
@@ -434,7 +435,7 @@ async function playSelection() {
 	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  selectBuffers } });
 	 
 	 //await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:fxBuffers} }); 
-	 window.api.playDirectFile(0, outPath, "");
+	 window.api.playDirectFile(0, outPath, getVolParam());
 }
 let playheadSample = 0;
 function drawPlayhead() {
