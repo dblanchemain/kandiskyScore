@@ -530,8 +530,8 @@ def jack_save_connections():
 
 def jack_restore_connections():
     """Restaure les connexions JACK depuis le fichier config.
-    Si des connexions non-system sont trouvées : coupe system, applique les connexions.
-    Sinon : ne fait rien (son via system conservé)."""
+    Ordre sûr : connecter d'abord, couper system seulement si ça a marché.
+    Si la restauration échoue entièrement : system conservé → pas de silence."""
     if not os.path.exists(_JACK_CONN_FILE):
         return
     try:
@@ -548,26 +548,7 @@ def jack_restore_connections():
     if not client:
         return
     try:
-        # 1. Couper system:playback_* (brute-force sur tous les ports de sortie)
-        out_ports = lj.jack_get_ports(client, None, None, 0x2)
-        disconnected = 0
-        if out_ports:
-            i = 1
-            while True:
-                dst = f"system:playback_{i}".encode()
-                if not lj.jack_port_by_name(client, dst):
-                    break
-                j = 0
-                while out_ports[j]:
-                    if lj.jack_disconnect(client, out_ports[j], dst) == 0:
-                        log.info("JACK: déconnecté %s → %s",
-                                 out_ports[j].decode(), dst.decode())
-                        disconnected += 1
-                    j += 1
-                i += 1
-            lj.jack_free(out_ports)
-
-        # 2. Appliquer les connexions sauvegardées
+        # 1. Connecter d'abord vers les destinations sauvegardées
         connected = 0
         for src, dsts in connections.items():
             for dst in dsts:
@@ -576,20 +557,28 @@ def jack_restore_connections():
                 if lj.jack_connect(client, src.encode(), dst.encode()) == 0:
                     log.info("JACK: restauré %s → %s", src, dst)
                     connected += 1
+                else:
+                    log.warning("JACK: échec restauration %s → %s", src, dst)
 
-        # 3. Fallback : si aucune connexion établie après déconnexion, restaurer system
-        if connected == 0 and disconnected > 0:
-            log.warning("JACK: aucune restauration possible — reconnexion system")
+        # 2. Couper system:playback_* seulement si au moins une connexion a réussi
+        if connected > 0:
             out_ports = lj.jack_get_ports(client, None, None, 0x2)
             if out_ports:
-                i, j = 1, 0
-                while out_ports[j]:
+                i = 1
+                while True:
                     dst = f"system:playback_{i}".encode()
                     if not lj.jack_port_by_name(client, dst):
                         break
-                    lj.jack_connect(client, out_ports[j], dst)
-                    i += 1; j += 1
+                    j = 0
+                    while out_ports[j]:
+                        if lj.jack_disconnect(client, out_ports[j], dst) == 0:
+                            log.info("JACK: déconnecté %s → %s",
+                                     out_ports[j].decode(), dst.decode())
+                        j += 1
+                    i += 1
                 lj.jack_free(out_ports)
+        else:
+            log.warning("JACK: aucune connexion restaurée — system conservé")
     finally:
         lj.jack_client_close(client)
 
