@@ -301,8 +301,11 @@ class AudioMixer:
             self.sample_rate, self.channels, self.device_index,
         )
         # Sur Linux + JACK : couper les auto-connexions vers system:playback_*
-        # pour laisser RaySession (ou tout gestionnaire NSM) définir le routage.
-        if sys.platform.startswith("linux") and self.device_index is not None:
+        # uniquement si un gestionnaire NSM/RaySession est actif (NSM_URL défini),
+        # afin qu'il puisse restaurer son propre routage sans écraser le son par défaut.
+        if (sys.platform.startswith("linux")
+                and self.device_index is not None
+                and os.environ.get("NSM_URL")):
             threading.Thread(target=_jack_unplug_system, daemon=True).start()
 
     def _stop_stream(self):
