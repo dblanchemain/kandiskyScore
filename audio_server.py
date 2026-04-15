@@ -391,9 +391,11 @@ class NsmClient:
                     lj.jack_free(conns)
                 i += 1
 
-            # 2. Appliquer les connexions sauvegardées
+            # 2. Appliquer les connexions sauvegardées (system:* toujours ignoré)
             for src, dsts in connections.items():
                 for dst in dsts:
+                    if dst.startswith("system:"):
+                        continue
                     ret = lj.jack_connect(client, src.encode(), dst.encode())
                     if ret == 0:
                         log.info("NSM: restauré %s → %s", src, dst)
