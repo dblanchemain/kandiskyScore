@@ -352,56 +352,91 @@ class NsmClient:
         """
         Si des connexions sont sauvegardées :
           1. Attend que PortAudio enregistre ses ports.
-          2. Déconnecte toutes les auto-connexions vers system:playback_*.
-          3. Applique les connexions sauvegardées.
+          2. Déconnecte en force tous les ports de sortie de system:playback_*
+             (brute-force : essaie chaque port de sortie × chaque playback_N,
+             sans jack_port_get_all_connections qui échouait silencieusement).
+          3. Applique les connexions sauvegardées via ctypes (fonctionnait avant).
+          En cas d'échec total, reconnecte system en fallback pour garantir le son.
         Si aucune connexion sauvegardée : ne fait rien (son via system conservé).
-        Utilise les CLI jack_lsp/jack_disconnect/jack_connect (plus fiables que
-        ctypes pour cette opération).
         """
         if not connections:
-            return   # pas de connexions à restaurer → laisser system intact
+            return
         time.sleep(0.5)
         if not sys.platform.startswith("linux"):
             return
-        import subprocess
-
-        def run(cmd):
-            return subprocess.run(cmd, capture_output=True, text=True, timeout=3)
-
-        # 1. Couper les connexions vers system:playback_* via jack_lsp + jack_disconnect
         try:
-            r = run(['jack_lsp', '-c'])
-            if r.returncode == 0:
-                current = None
-                for line in r.stdout.splitlines():
-                    if not line.startswith((' ', '\t')):
-                        current = line.strip()
-                    else:
-                        dst = line.strip()
-                        if dst.startswith('system:playback_') and current:
-                            ret = run(['jack_disconnect', current, dst])
-                            if ret.returncode == 0:
-                                log.info("NSM: déconnecté %s → %s", current, dst)
-                            else:
-                                log.warning("NSM: échec déconnexion %s → %s : %s",
-                                            current, dst, ret.stderr.strip())
-        except Exception as exc:
-            log.warning("NSM disconnect CLI: %s", exc)
+            import ctypes, ctypes.util as _cu
+            lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
+            lj.jack_client_open.restype  = ctypes.c_void_p
+            lj.jack_port_by_name.restype = ctypes.c_void_p
+            lj.jack_get_ports.restype    = ctypes.POINTER(ctypes.c_char_p)
+            lj.jack_free.restype         = None
+            lj.jack_connect.restype      = ctypes.c_int
+            lj.jack_disconnect.restype   = ctypes.c_int
 
-        # 2. Appliquer les connexions sauvegardées (system:* ignoré)
-        for src, dsts in connections.items():
-            for dst in dsts:
-                if dst.startswith('system:'):
-                    continue
-                try:
-                    ret = run(['jack_connect', src, dst])
-                    if ret.returncode == 0:
+            status = ctypes.c_int(0)
+            client = lj.jack_client_open(b"_ks_restore", 1, ctypes.byref(status))
+            if not client:
+                return
+            ret = lj.jack_activate(client)
+            if ret != 0:
+                lj.jack_client_close(client)
+                return
+
+            # 1. Brute-force : tous les ports de sortie × tous les system:playback_*
+            JackPortIsOutput = 0x2
+            out_ports = lj.jack_get_ports(client, None, None, JackPortIsOutput)
+            disconnected = 0
+            if out_ports:
+                i = 1
+                while True:
+                    dst = f"system:playback_{i}".encode()
+                    if not lj.jack_port_by_name(client, dst):
+                        break
+                    j = 0
+                    while out_ports[j]:
+                        r = lj.jack_disconnect(client, out_ports[j], dst)
+                        if r == 0:
+                            log.info("NSM: déconnecté %s → %s",
+                                     out_ports[j].decode(), dst.decode())
+                            disconnected += 1
+                        j += 1
+                    i += 1
+                lj.jack_free(out_ports)
+
+            # 2. Appliquer les connexions sauvegardées (system:* ignoré)
+            connected = 0
+            for src, dsts in connections.items():
+                for dst in dsts:
+                    if dst.startswith("system:"):
+                        continue
+                    r = lj.jack_connect(client, src.encode(), dst.encode())
+                    if r == 0:
                         log.info("NSM: restauré %s → %s", src, dst)
+                        connected += 1
                     else:
-                        log.warning("NSM: échec connexion %s → %s : %s",
-                                    src, dst, ret.stderr.strip())
-                except Exception as exc:
-                    log.warning("NSM connect CLI %s → %s : %s", src, dst, exc)
+                        log.warning("NSM: échec connexion %s → %s (code %d)",
+                                    src, dst, r)
+
+            # 3. Fallback : si aucune connexion n'a pu être établie, reconnecter system
+            if connected == 0 and disconnected > 0:
+                log.warning("NSM: aucune connexion restaurée — reconnexion system en fallback")
+                out_ports = lj.jack_get_ports(client, None, None, JackPortIsOutput)
+                if out_ports:
+                    i = 1
+                    j = 0
+                    while out_ports[j]:
+                        dst = f"system:playback_{i}".encode()
+                        if not lj.jack_port_by_name(client, dst):
+                            break
+                        lj.jack_connect(client, out_ports[j], dst)
+                        i += 1
+                        j += 1
+                    lj.jack_free(out_ports)
+
+            lj.jack_client_close(client)
+        except Exception as exc:
+            log.warning("NSM apply JACK: %s", exc)
 
     def stop(self):
         self._stop.set()
