@@ -341,16 +341,23 @@ class NsmClient:
                              daemon=True, name="nsm-restore").start()
 
     def _apply_jack(self, connections: dict):
-        """Reconnecte les ports JACK (avec un court délai pour laisser
-        PortAudio enregistrer les siens)."""
+        """
+        1. Attend que PortAudio enregistre ses ports.
+        2. Déconnecte toutes les auto-connexions vers system:playback_*.
+        3. Applique les connexions sauvegardées.
+        """
         time.sleep(0.5)
         if not sys.platform.startswith("linux"):
             return
         try:
             import ctypes, ctypes.util as _cu
             lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
-            lj.jack_client_open.restype = ctypes.c_void_p
-            lj.jack_connect.restype     = ctypes.c_int
+            lj.jack_client_open.restype  = ctypes.c_void_p
+            lj.jack_port_by_name.restype = ctypes.c_void_p
+            lj.jack_port_get_all_connections.restype = ctypes.POINTER(ctypes.c_char_p)
+            lj.jack_free.restype         = None
+            lj.jack_connect.restype      = ctypes.c_int
+            lj.jack_disconnect.restype   = ctypes.c_int
 
             status = ctypes.c_int(0)
             client = lj.jack_client_open(b"_ks_restore", 1,
@@ -358,11 +365,32 @@ class NsmClient:
             if not client:
                 return
             lj.jack_activate(client)
+
+            # 1. Couper les auto-connexions PortAudio → system:playback_*
+            i = 1
+            while True:
+                dst = f"system:playback_{i}".encode()
+                port = lj.jack_port_by_name(client, dst)
+                if not port:
+                    break
+                conns = lj.jack_port_get_all_connections(client, port)
+                if conns:
+                    j = 0
+                    while conns[j]:
+                        lj.jack_disconnect(client, conns[j], dst)
+                        log.info("NSM: déconnecté %s → %s",
+                                 conns[j].decode(), dst.decode())
+                        j += 1
+                    lj.jack_free(conns)
+                i += 1
+
+            # 2. Appliquer les connexions sauvegardées
             for src, dsts in connections.items():
                 for dst in dsts:
                     ret = lj.jack_connect(client, src.encode(), dst.encode())
                     if ret == 0:
                         log.info("NSM: restauré %s → %s", src, dst)
+
             lj.jack_client_close(client)
         except Exception as exc:
             log.warning("NSM apply JACK: %s", exc)
