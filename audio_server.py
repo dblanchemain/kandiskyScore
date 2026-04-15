@@ -413,7 +413,9 @@ def jack_save_connections():
 
 def jack_restore_connections():
     """Restaure les connexions JACK (CLI uniquement, pas de ctypes).
-    Ordre sûr : connecter d'abord, couper system seulement si ça a marché."""
+    Stratégie : retry jusqu'à 10s pour que les ports destination soient prêts
+    (Non-Mixer peut démarrer lentement via RaySession). Ne déconnecter system
+    que si TOUTES les connexions sauvegardées ont pu être établies."""
     if not sys.platform.startswith("linux") or not os.path.exists(_JACK_CONN_FILE):
         return
     try:
@@ -425,42 +427,64 @@ def jack_restore_connections():
     if not connections:
         return
 
-    time.sleep(0.5)   # laisser PortAudio enregistrer ses ports JACK
+    # Filtrer les destinations non-system à restaurer
+    targets = {src: [d for d in dsts if not d.startswith("system:")]
+               for src, dsts in connections.items()}
+    targets = {src: dsts for src, dsts in targets.items() if dsts}
+    if not targets:
+        return
 
-    # 1. Connecter vers les destinations sauvegardées
+    total = sum(len(v) for v in targets.values())
+
+    # Retry jusqu'à 10s par tranches de 0.5s
+    # → attend que les ports destination (Non-Mixer, etc.) soient enregistrés dans JACK
+    deadline = time.time() + 10.0
     connected = 0
-    for src, dsts in connections.items():
-        for dst in dsts:
-            if dst.startswith("system:"):
-                continue
-            rc, err = _jack_cli(["jack_connect", src, dst])
-            if rc == 0:
-                log.info("JACK: restauré %s → %s", src, dst)
-                connected += 1
-            elif "already connected" in err:
-                # Déjà connecté = OK, la connexion est en place
-                connected += 1
-            else:
-                log.warning("JACK: échec restauration %s → %s : %s", src, dst, err)
+    failed = 0
 
-    # 2. Couper system:playback_* uniquement pour les sources du fichier sauvegardé
-    #    (ne pas toucher aux connexions des autres clients JACK)
-    if connected > 0:
-        our_sources = set(connections.keys())
-        current = _jack_lsp_connections()
-        for src, dsts in current.items():
-            if src not in our_sources:
-                continue   # port d'un autre client → ne pas toucher
+    while time.time() < deadline:
+        time.sleep(0.5)
+        connected = 0
+        failed = 0
+        for src, dsts in targets.items():
             for dst in dsts:
-                if dst.startswith("system:playback_"):
-                    rc, err = _jack_cli(["jack_disconnect", src, dst])
-                    if rc == 0:
-                        log.info("JACK: déconnecté %s → %s", src, dst)
-                    else:
-                        log.warning("JACK: échec déconnexion %s → %s : %s",
-                                    src, dst, err)
-    else:
+                rc, err = _jack_cli(["jack_connect", src, dst])
+                if rc == 0:
+                    log.info("JACK: restauré %s → %s", src, dst)
+                    connected += 1
+                elif "already connected" in err:
+                    connected += 1
+                else:
+                    failed += 1
+                    log.debug("JACK: port absent %s → %s, retry...", src, dst)
+
+        if failed == 0:
+            break   # Toutes les connexions sont en place
+
+    if connected == 0:
         log.warning("JACK: aucune connexion restaurée — system conservé")
+        return
+
+    if failed > 0:
+        log.warning("JACK: %d/%d connexions en échec après 10s — system conservé",
+                    failed, total)
+        return
+
+    # Toutes les connexions sauvegardées sont établies → couper system:playback_*
+    # uniquement pour les sources de kandiskyScore (ne pas toucher aux autres clients)
+    our_sources = set(targets.keys())
+    current = _jack_lsp_connections()
+    for src, dsts in current.items():
+        if src not in our_sources:
+            continue   # port d'un autre client → ne pas toucher
+        for dst in dsts:
+            if dst.startswith("system:playback_"):
+                rc, err = _jack_cli(["jack_disconnect", src, dst])
+                if rc == 0:
+                    log.info("JACK: déconnecté %s → %s", src, dst)
+                else:
+                    log.warning("JACK: échec déconnexion %s → %s : %s",
+                                src, dst, err)
 
 
 # ─────────────────────────────── Voice ──────────────────────────────────────
