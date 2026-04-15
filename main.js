@@ -223,6 +223,8 @@ function startAudioServer() {
     audioServerProc = spawn(python, [script], {
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
+      // Sur Linux, argv0 est lu par PortAudio pour nommer le client JACK
+      ...(process.platform === 'linux' ? { argv0: 'kandiskyscore' } : {}),
       env: { ...process.env, RUBBERBAND_PATH: findRubberbandPath() },
     });
 

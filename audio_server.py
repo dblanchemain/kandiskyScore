@@ -48,6 +48,19 @@ import threading
 import time
 from typing import Optional
 
+# ── Nom du client JACK (Linux) ───────────────────────────────────────────────
+# PortAudio lit /proc/self/cmdline (argv[0]) et /proc/self/comm pour nommer
+# le bloc dans le patch-bay JACK.  On impose "kandiskyscore" via prctl avant
+# l'import de sounddevice afin que PortAudio ne lise pas encore argv[0].
+if sys.platform.startswith("linux"):
+    try:
+        import ctypes, ctypes.util as _cu
+        _libc = ctypes.CDLL(_cu.find_library("c"), use_errno=True)
+        _JACK_NAME = b"kandiskyscore"
+        _libc.prctl(15, _JACK_NAME, 0, 0, 0)   # PR_SET_NAME = 15 (max 15 car.)
+    except Exception:
+        pass
+
 import numpy as np
 import sounddevice as sd
 import soundfile as sf
