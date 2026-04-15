@@ -350,10 +350,14 @@ class NsmClient:
 
     def _apply_jack(self, connections: dict):
         """
-        1. Attend que PortAudio enregistre ses ports.
-        2. Déconnecte toutes les auto-connexions vers system:playback_*.
-        3. Applique les connexions sauvegardées.
+        Si des connexions sont sauvegardées :
+          1. Attend que PortAudio enregistre ses ports.
+          2. Déconnecte toutes les auto-connexions vers system:playback_*.
+          3. Applique les connexions sauvegardées.
+        Si aucune connexion sauvegardée : ne fait rien (son via system conservé).
         """
+        if not connections:
+            return   # pas de connexions à restaurer → laisser system intact
         time.sleep(0.5)
         if not sys.platform.startswith("linux"):
             return
