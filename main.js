@@ -184,6 +184,17 @@ console.log("🎧 Sox détecté :", soxPath,soxiPath,playPath,rubberbandPath,ffm
 
 // ─── Serveur audio Python : cycle de vie ────────────────────────────────────
 
+/**
+ * Retourne le chemin du binaire PyInstaller autonome si disponible,
+ * null sinon (fallback vers Python + script .py).
+ */
+function findAudioServerBin() {
+  const sub = platform === 'win32' ? 'win' : platform === 'darwin' ? 'mac' : 'linux';
+  const bin = platform === 'win32' ? 'audio_server.exe' : 'audio_server';
+  const bundled = path.join(baseDir, sub, bin);
+  return existsSync(bundled) ? bundled : null;
+}
+
 function findPythonPath() {
   const sub = platform === 'win32' ? 'win' : platform === 'darwin' ? 'mac' : 'linux';
   const bin = platform === 'win32' ? 'python.exe' : 'python3';
@@ -200,27 +211,40 @@ function findPythonPath() {
 
 function startAudioServer() {
   return new Promise((resolve, reject) => {
-    const python = findPythonPath();
+    const audioBin = findAudioServerBin();
+    let cmd, args;
 
-    // Sous Windows, si Python embeddable absent, afficher un message clair
-    if (platform === 'win32') {
-      const embedded = path.join(baseDir, 'win', 'python', 'python.exe');
-      if (!existsSync(embedded) && python === 'python') {
-        const msg =
-          'Python introuvable.\n\n' +
-          'Exécutez une fois avant de lancer l\'application :\n' +
-          'powershell -ExecutionPolicy Bypass -File scripts\\setup-python-win.ps1';
-        const { dialog } = require('electron');
-        dialog.showErrorBox('kandiskyScore — dépendance manquante', msg);
+    if (audioBin) {
+      // ── Binaire PyInstaller autonome (Linux/macOS/Windows packagé) ──────────
+      console.log('🎵 Lancement audio_server (binaire autonome) :', audioBin);
+      cmd  = audioBin;
+      args = [];
+    } else {
+      // ── Fallback : Python + script .py ──────────────────────────────────────
+      const python = findPythonPath();
+
+      // Sous Windows, si Python embeddable absent, afficher un message clair
+      if (platform === 'win32') {
+        const embedded = path.join(baseDir, 'win', 'python', 'python.exe');
+        if (!existsSync(embedded) && python === 'python') {
+          const msg =
+            'Python introuvable.\n\n' +
+            'Exécutez une fois avant de lancer l\'application :\n' +
+            'powershell -ExecutionPolicy Bypass -File scripts\\setup-python-win.ps1';
+          dialog.showErrorBox('kandiskyScore — dépendance manquante', msg);
+        }
       }
+
+      const script = app.isPackaged
+        ? path.join(process.resourcesPath, 'audio_server.py')
+        : path.join(__dirname, 'audio_server.py');
+
+      console.log('🎵 Lancement audio_server.py :', python, script);
+      cmd  = python;
+      args = [script];
     }
 
-    const script = app.isPackaged
-      ? path.join(process.resourcesPath, 'audio_server.py')
-      : path.join(__dirname, 'audio_server.py');
-
-    console.log('🎵 Lancement audio_server.py :', python, script);
-    audioServerProc = spawn(python, [script], {
+    audioServerProc = spawn(cmd, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
       // Sur Linux, argv0 est lu par PortAudio pour nommer le client JACK
