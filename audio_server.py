@@ -628,8 +628,9 @@ class AudioMixer:
     def set_device(self, device_index: Optional[int],
                    channels: Optional[int] = None,
                    samplerate: Optional[int] = None):
-        """Change de périphérique de sortie (redémarre le stream)."""
-        was_active = self.stream and self.stream.active
+        """Change de périphérique de sortie (redémarre le stream).
+        Sur Linux/JACK : démarre le stream immédiatement pour que la
+        restauration des connexions JACK ait lieu avant le premier play."""
         self._stop_stream()
         if device_index is not None:
             self.device_index = device_index
@@ -637,7 +638,13 @@ class AudioMixer:
             self.channels = channels
         if samplerate is not None:
             self.sample_rate = samplerate
-        if was_active:
+        if self.device_index is not None:
+            # Utiliser le taux natif du device (JACK impose 48000, etc.)
+            try:
+                d = sd.query_devices(self.device_index)
+                self.sample_rate = int(d["default_samplerate"])
+            except Exception:
+                pass
             self.start_stream()
 
     # ── Contrôle des voix ────────────────────────────────────────────────────
@@ -868,9 +875,8 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
         )
         if changed:
             mixer.set_device(device_idx, channels, samplerate)
-            log.info("Layout → %d canaux (stream démarrera au premier son)",
-                     mixer.channels)
-        # Ne pas démarrer le stream ici : cmd_play le fera avec le bon sample rate.
+            log.info("Layout → %d canaux, stream démarré à %d Hz",
+                     mixer.channels, mixer.sample_rate)
         await reply({"type": "device_set", "device": mixer.device_index,
                      "channels": mixer.channels, "changed": changed})
 
