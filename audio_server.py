@@ -355,59 +355,53 @@ class NsmClient:
           2. Déconnecte toutes les auto-connexions vers system:playback_*.
           3. Applique les connexions sauvegardées.
         Si aucune connexion sauvegardée : ne fait rien (son via system conservé).
+        Utilise les CLI jack_lsp/jack_disconnect/jack_connect (plus fiables que
+        ctypes pour cette opération).
         """
         if not connections:
             return   # pas de connexions à restaurer → laisser system intact
         time.sleep(0.5)
         if not sys.platform.startswith("linux"):
             return
+        import subprocess
+
+        def run(cmd):
+            return subprocess.run(cmd, capture_output=True, text=True, timeout=3)
+
+        # 1. Couper les connexions vers system:playback_* via jack_lsp + jack_disconnect
         try:
-            import ctypes, ctypes.util as _cu
-            lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
-            lj.jack_client_open.restype  = ctypes.c_void_p
-            lj.jack_port_by_name.restype = ctypes.c_void_p
-            lj.jack_port_get_all_connections.restype = ctypes.POINTER(ctypes.c_char_p)
-            lj.jack_free.restype         = None
-            lj.jack_connect.restype      = ctypes.c_int
-            lj.jack_disconnect.restype   = ctypes.c_int
-
-            status = ctypes.c_int(0)
-            client = lj.jack_client_open(b"_ks_restore", 1,
-                                          ctypes.byref(status))
-            if not client:
-                return
-            lj.jack_activate(client)
-
-            # 1. Couper les auto-connexions PortAudio → system:playback_*
-            i = 1
-            while True:
-                dst = f"system:playback_{i}".encode()
-                port = lj.jack_port_by_name(client, dst)
-                if not port:
-                    break
-                conns = lj.jack_port_get_all_connections(client, port)
-                if conns:
-                    j = 0
-                    while conns[j]:
-                        lj.jack_disconnect(client, conns[j], dst)
-                        log.info("NSM: déconnecté %s → %s",
-                                 conns[j].decode(), dst.decode())
-                        j += 1
-                    lj.jack_free(conns)
-                i += 1
-
-            # 2. Appliquer les connexions sauvegardées (system:* toujours ignoré)
-            for src, dsts in connections.items():
-                for dst in dsts:
-                    if dst.startswith("system:"):
-                        continue
-                    ret = lj.jack_connect(client, src.encode(), dst.encode())
-                    if ret == 0:
-                        log.info("NSM: restauré %s → %s", src, dst)
-
-            lj.jack_client_close(client)
+            r = run(['jack_lsp', '-c'])
+            if r.returncode == 0:
+                current = None
+                for line in r.stdout.splitlines():
+                    if not line.startswith((' ', '\t')):
+                        current = line.strip()
+                    else:
+                        dst = line.strip()
+                        if dst.startswith('system:playback_') and current:
+                            ret = run(['jack_disconnect', current, dst])
+                            if ret.returncode == 0:
+                                log.info("NSM: déconnecté %s → %s", current, dst)
+                            else:
+                                log.warning("NSM: échec déconnexion %s → %s : %s",
+                                            current, dst, ret.stderr.strip())
         except Exception as exc:
-            log.warning("NSM apply JACK: %s", exc)
+            log.warning("NSM disconnect CLI: %s", exc)
+
+        # 2. Appliquer les connexions sauvegardées (system:* ignoré)
+        for src, dsts in connections.items():
+            for dst in dsts:
+                if dst.startswith('system:'):
+                    continue
+                try:
+                    ret = run(['jack_connect', src, dst])
+                    if ret.returncode == 0:
+                        log.info("NSM: restauré %s → %s", src, dst)
+                    else:
+                        log.warning("NSM: échec connexion %s → %s : %s",
+                                    src, dst, ret.stderr.strip())
+                except Exception as exc:
+                    log.warning("NSM connect CLI %s → %s : %s", src, dst, exc)
 
     def stop(self):
         self._stop.set()
