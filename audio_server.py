@@ -278,55 +278,16 @@ class NsmClient:
             log.warning("NSM save: %s", exc)
 
     def _snapshot_jack(self) -> dict:
-        """Retourne {port_src: [port_dst, …]} pour tous les clients non-système."""
+        """Retourne {port_src: [port_dst, …]} pour tous les clients non-système (CLI)."""
+        all_conns = _jack_lsp_connections()
         result = {}
-        if not sys.platform.startswith("linux"):
-            return result
-        try:
-            import ctypes, ctypes.util as _cu
-            lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
-            lj.jack_client_open.restype  = ctypes.c_void_p
-            lj.jack_port_by_name.restype = ctypes.c_void_p
-            lj.jack_get_ports.restype    = ctypes.POINTER(ctypes.c_char_p)
-            lj.jack_port_get_all_connections.restype = ctypes.POINTER(ctypes.c_char_p)
-            lj.jack_free.restype         = None
-
-            status = ctypes.c_int(0)
-            client = lj.jack_client_open(b"_ks_snapshot", 1,
-                                          ctypes.byref(status))
-            if not client:
-                return result
-            lj.jack_activate(client)
-
-            ports = lj.jack_get_ports(client, None, None, 0x2)  # JackPortIsOutput
-            if ports:
-                i = 0
-                while ports[i]:
-                    name   = ports[i].decode()
-                    prefix = name.split(":")[0]
-                    if prefix not in self._SKIP:
-                        port = lj.jack_port_by_name(client, ports[i])
-                        if port:
-                            conns = lj.jack_port_get_all_connections(client, port)
-                            if conns:
-                                lst, j = [], 0
-                                while conns[j]:
-                                    dst = conns[j].decode()
-                                    # Ne pas sauvegarder les connexions vers
-                                    # system:* — elles sont gérées par le
-                                    # patch-bay et ne doivent pas être
-                                    # restaurées automatiquement.
-                                    if not dst.startswith("system:"):
-                                        lst.append(dst)
-                                    j += 1
-                                lj.jack_free(conns)
-                                if lst:
-                                    result[name] = lst
-                    i += 1
-                lj.jack_free(ports)
-            lj.jack_client_close(client)
-        except Exception as exc:
-            log.warning("NSM snapshot JACK: %s", exc)
+        for src, dsts in all_conns.items():
+            prefix = src.split(":")[0]
+            if prefix in self._SKIP:
+                continue
+            non_sys = [d for d in dsts if not d.startswith("system:")]
+            if non_sys:
+                result[src] = non_sys
         return result
 
     # ── JACK : restauration ──────────────────────────────────────────────────
@@ -349,94 +310,33 @@ class NsmClient:
                          daemon=True, name="nsm-restore").start()
 
     def _apply_jack(self, connections: dict):
-        """
-        Si des connexions sont sauvegardées :
-          1. Attend que PortAudio enregistre ses ports.
-          2. Déconnecte en force tous les ports de sortie de system:playback_*
-             (brute-force : essaie chaque port de sortie × chaque playback_N,
-             sans jack_port_get_all_connections qui échouait silencieusement).
-          3. Applique les connexions sauvegardées via ctypes (fonctionnait avant).
-          En cas d'échec total, reconnecte system en fallback pour garantir le son.
-        Si aucune connexion sauvegardée : ne fait rien (son via system conservé).
-        """
+        """Même logique que jack_restore_connections() mais pour NSM (CLI uniquement)."""
         if not connections:
             return
         time.sleep(0.5)
         if not sys.platform.startswith("linux"):
             return
-        try:
-            import ctypes, ctypes.util as _cu
-            lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
-            lj.jack_client_open.restype  = ctypes.c_void_p
-            lj.jack_port_by_name.restype = ctypes.c_void_p
-            lj.jack_get_ports.restype    = ctypes.POINTER(ctypes.c_char_p)
-            lj.jack_free.restype         = None
-            lj.jack_connect.restype      = ctypes.c_int
-            lj.jack_disconnect.restype   = ctypes.c_int
-
-            status = ctypes.c_int(0)
-            client = lj.jack_client_open(b"_ks_restore", 1, ctypes.byref(status))
-            if not client:
-                return
-            ret = lj.jack_activate(client)
-            if ret != 0:
-                lj.jack_client_close(client)
-                return
-
-            # 1. Brute-force : tous les ports de sortie × tous les system:playback_*
-            JackPortIsOutput = 0x2
-            out_ports = lj.jack_get_ports(client, None, None, JackPortIsOutput)
-            disconnected = 0
-            if out_ports:
-                i = 1
-                while True:
-                    dst = f"system:playback_{i}".encode()
-                    if not lj.jack_port_by_name(client, dst):
-                        break
-                    j = 0
-                    while out_ports[j]:
-                        r = lj.jack_disconnect(client, out_ports[j], dst)
-                        if r == 0:
-                            log.info("NSM: déconnecté %s → %s",
-                                     out_ports[j].decode(), dst.decode())
-                            disconnected += 1
-                        j += 1
-                    i += 1
-                lj.jack_free(out_ports)
-
-            # 2. Appliquer les connexions sauvegardées (system:* ignoré)
-            connected = 0
-            for src, dsts in connections.items():
+        connected = 0
+        for src, dsts in connections.items():
+            for dst in dsts:
+                if dst.startswith("system:"):
+                    continue
+                rc, err = _jack_cli(["jack_connect", src, dst])
+                if rc == 0:
+                    log.info("NSM: restauré %s → %s", src, dst)
+                    connected += 1
+                else:
+                    log.warning("NSM: échec connexion %s → %s : %s", src, dst, err)
+        if connected > 0:
+            current = _jack_lsp_connections()
+            for src, dsts in current.items():
                 for dst in dsts:
-                    if dst.startswith("system:"):
-                        continue
-                    r = lj.jack_connect(client, src.encode(), dst.encode())
-                    if r == 0:
-                        log.info("NSM: restauré %s → %s", src, dst)
-                        connected += 1
-                    else:
-                        log.warning("NSM: échec connexion %s → %s (code %d)",
-                                    src, dst, r)
-
-            # 3. Fallback : si aucune connexion n'a pu être établie, reconnecter system
-            if connected == 0 and disconnected > 0:
-                log.warning("NSM: aucune connexion restaurée — reconnexion system en fallback")
-                out_ports = lj.jack_get_ports(client, None, None, JackPortIsOutput)
-                if out_ports:
-                    i = 1
-                    j = 0
-                    while out_ports[j]:
-                        dst = f"system:playback_{i}".encode()
-                        if not lj.jack_port_by_name(client, dst):
-                            break
-                        lj.jack_connect(client, out_ports[j], dst)
-                        i += 1
-                        j += 1
-                    lj.jack_free(out_ports)
-
-            lj.jack_client_close(client)
-        except Exception as exc:
-            log.warning("NSM apply JACK: %s", exc)
+                    if dst.startswith("system:playback_"):
+                        rc, _ = _jack_cli(["jack_disconnect", src, dst])
+                        if rc == 0:
+                            log.info("NSM: déconnecté %s → %s", src, dst)
+        else:
+            log.warning("NSM: aucune connexion restaurée — system conservé")
 
     def stop(self):
         self._stop.set()
@@ -466,61 +366,42 @@ _JACK_CONN_FILE = os.path.join(
     "kandiskyscore", "jack_connections.json"
 )
 
-def _jack_ctypes():
-    """Retourne (libjack, client) prêt à l'emploi, ou (None, None)."""
-    try:
-        import ctypes, ctypes.util as _cu
-        lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
-        lj.jack_client_open.restype  = ctypes.c_void_p
-        lj.jack_port_by_name.restype = ctypes.c_void_p
-        lj.jack_get_ports.restype    = ctypes.POINTER(ctypes.c_char_p)
-        lj.jack_port_get_all_connections.restype = ctypes.POINTER(ctypes.c_char_p)
-        lj.jack_free.restype         = None
-        lj.jack_connect.restype      = ctypes.c_int
-        lj.jack_disconnect.restype   = ctypes.c_int
-        status = ctypes.c_int(0)
-        client = lj.jack_client_open(b"_ks_jack", 1, ctypes.byref(status))
-        if not client:
-            return None, None
-        lj.jack_activate(client)
-        return lj, client
-    except Exception as exc:
-        log.warning("JACK ctypes: %s", exc)
-        return None, None
+def _jack_cli(cmd: list) -> tuple[int, str]:
+    """Exécute une commande JACK CLI. Retourne (returncode, stderr)."""
+    import subprocess, shutil
+    if not shutil.which(cmd[0]):
+        return -1, f"{cmd[0]} introuvable"
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=4)
+    return r.returncode, r.stderr.strip()
+
+
+def _jack_lsp_connections() -> dict:
+    """Retourne {src: [dst, …]} depuis jack_lsp -c."""
+    import subprocess, shutil
+    if not shutil.which("jack_lsp"):
+        return {}
+    r = subprocess.run(["jack_lsp", "-c"], capture_output=True, text=True, timeout=4)
+    result: dict = {}
+    current = None
+    for line in r.stdout.splitlines():
+        if not line.startswith((" ", "\t")):
+            current = line.strip()
+        elif current:
+            dst = line.strip()
+            result.setdefault(current, []).append(dst)
+    return result
 
 
 def jack_save_connections():
-    """Sauvegarde les connexions JACK courantes (hors system:*) dans le fichier config."""
+    """Sauvegarde les connexions JACK courantes (hors system:*) via jack_lsp."""
     if not sys.platform.startswith("linux"):
         return
-    lj, client = _jack_ctypes()
-    if not client:
-        return
+    all_conns = _jack_lsp_connections()
     result = {}
-    try:
-        ports = lj.jack_get_ports(client, None, None, 0x2)  # JackPortIsOutput
-        if ports:
-            i = 0
-            while ports[i]:
-                name = ports[i].decode()
-                if not name.split(":")[0].startswith("_ks"):
-                    port = lj.jack_port_by_name(client, ports[i])
-                    if port:
-                        conns = lj.jack_port_get_all_connections(client, port)
-                        if conns:
-                            lst, j = [], 0
-                            while conns[j]:
-                                dst = conns[j].decode()
-                                if not dst.startswith("system:"):
-                                    lst.append(dst)
-                                j += 1
-                            lj.jack_free(conns)
-                            if lst:
-                                result[name] = lst
-                i += 1
-            lj.jack_free(ports)
-    finally:
-        lj.jack_client_close(client)
+    for src, dsts in all_conns.items():
+        non_sys = [d for d in dsts if not d.startswith("system:")]
+        if non_sys:
+            result[src] = non_sys
     os.makedirs(os.path.dirname(_JACK_CONN_FILE), exist_ok=True)
     with open(_JACK_CONN_FILE, "w") as f:
         json.dump(result, f, indent=2)
@@ -529,10 +410,9 @@ def jack_save_connections():
 
 
 def jack_restore_connections():
-    """Restaure les connexions JACK depuis le fichier config.
-    Ordre sûr : connecter d'abord, couper system seulement si ça a marché.
-    Si la restauration échoue entièrement : system conservé → pas de silence."""
-    if not os.path.exists(_JACK_CONN_FILE):
+    """Restaure les connexions JACK (CLI uniquement, pas de ctypes).
+    Ordre sûr : connecter d'abord, couper system seulement si ça a marché."""
+    if not sys.platform.startswith("linux") or not os.path.exists(_JACK_CONN_FILE):
         return
     try:
         with open(_JACK_CONN_FILE) as f:
@@ -544,43 +424,34 @@ def jack_restore_connections():
         return
 
     time.sleep(0.5)   # laisser PortAudio enregistrer ses ports JACK
-    lj, client = _jack_ctypes()
-    if not client:
-        return
-    try:
-        # 1. Connecter d'abord vers les destinations sauvegardées
-        connected = 0
-        for src, dsts in connections.items():
-            for dst in dsts:
-                if dst.startswith("system:"):
-                    continue
-                if lj.jack_connect(client, src.encode(), dst.encode()) == 0:
-                    log.info("JACK: restauré %s → %s", src, dst)
-                    connected += 1
-                else:
-                    log.warning("JACK: échec restauration %s → %s", src, dst)
 
-        # 2. Couper system:playback_* seulement si au moins une connexion a réussi
-        if connected > 0:
-            out_ports = lj.jack_get_ports(client, None, None, 0x2)
-            if out_ports:
-                i = 1
-                while True:
-                    dst = f"system:playback_{i}".encode()
-                    if not lj.jack_port_by_name(client, dst):
-                        break
-                    j = 0
-                    while out_ports[j]:
-                        if lj.jack_disconnect(client, out_ports[j], dst) == 0:
-                            log.info("JACK: déconnecté %s → %s",
-                                     out_ports[j].decode(), dst.decode())
-                        j += 1
-                    i += 1
-                lj.jack_free(out_ports)
-        else:
-            log.warning("JACK: aucune connexion restaurée — system conservé")
-    finally:
-        lj.jack_client_close(client)
+    # 1. Connecter vers les destinations sauvegardées
+    connected = 0
+    for src, dsts in connections.items():
+        for dst in dsts:
+            if dst.startswith("system:"):
+                continue
+            rc, err = _jack_cli(["jack_connect", src, dst])
+            if rc == 0:
+                log.info("JACK: restauré %s → %s", src, dst)
+                connected += 1
+            else:
+                log.warning("JACK: échec restauration %s → %s : %s", src, dst, err)
+
+    # 2. Couper system:playback_* seulement si au moins une connexion a réussi
+    if connected > 0:
+        current = _jack_lsp_connections()
+        for src, dsts in current.items():
+            for dst in dsts:
+                if dst.startswith("system:playback_"):
+                    rc, err = _jack_cli(["jack_disconnect", src, dst])
+                    if rc == 0:
+                        log.info("JACK: déconnecté %s → %s", src, dst)
+                    else:
+                        log.warning("JACK: échec déconnexion %s → %s : %s",
+                                    src, dst, err)
+    else:
+        log.warning("JACK: aucune connexion restaurée — system conservé")
 
 
 # ─────────────────────────────── Voice ──────────────────────────────────────
