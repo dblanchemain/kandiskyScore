@@ -108,91 +108,6 @@ except ImportError:
     print("ERREUR: le paquet 'websockets' est requis. Installez-le avec : pip install websockets", flush=True)
     sys.exit(1)
 
-# ─── Watchdog JACK (Linux) ───────────────────────────────────────────────────
-
-def _jack_watchdog_thread() -> None:
-    """
-    Client JACK persistant qui intercepte via port_connect_callback toute
-    connexion vers system:playback_* et la déconnecte immédiatement.
-    Démarre au lancement de l'app (avant le premier play) pour bloquer les
-    auto-connexions de PortAudio sans jamais couper une lecture en cours.
-    """
-    import queue as _q
-    try:
-        import ctypes, ctypes.util as _cu2
-        _lib = _cu2.find_library("jack") or "libjack.so.0"
-        lj = ctypes.CDLL(_lib)
-
-        lj.jack_client_open.restype  = ctypes.c_void_p
-        lj.jack_port_by_id.restype   = ctypes.c_void_p
-        lj.jack_port_name.restype    = ctypes.c_char_p
-        lj.jack_port_by_name.restype = ctypes.c_void_p
-        lj.jack_port_get_all_connections.restype = ctypes.POINTER(ctypes.c_char_p)
-        lj.jack_free.restype         = None
-        lj.jack_disconnect.restype   = ctypes.c_int
-
-        JackNoStartServer = 1
-        status = ctypes.c_int(0)
-        client = lj.jack_client_open(b"_ks_watchdog", JackNoStartServer,
-                                      ctypes.byref(status))
-        if not client:
-            log.warning("JACK watchdog: impossible d'ouvrir le client")
-            return
-
-        dq: _q.Queue = _q.Queue()
-
-        # Callback appelé par JACK pour toute connexion/déconnexion de ports.
-        # NE PAS appeler jack_disconnect ici (thread RT) — on enfile le travail.
-        CB_TYPE = ctypes.CFUNCTYPE(None, ctypes.c_uint, ctypes.c_uint,
-                                   ctypes.c_int, ctypes.c_void_p)
-        def _on_connect(port_a_id, port_b_id, connected, _arg):
-            if not connected:
-                return
-            pa = lj.jack_port_by_id(client, port_a_id)
-            pb = lj.jack_port_by_id(client, port_b_id)
-            if not pa or not pb:
-                return
-            na = lj.jack_port_name(pa)
-            nb = lj.jack_port_name(pb)
-            if na and nb and b"system:playback_" in nb:
-                dq.put((na, nb))
-
-        _cb = CB_TYPE(_on_connect)   # garder une référence pour éviter le GC
-        lj.jack_set_port_connect_callback(client, _cb, None)
-        lj.jack_activate(client)
-
-        # Déconnecter les éventuelles connexions déjà existantes au démarrage
-        time.sleep(0.3)
-        i = 1
-        while True:
-            dst = f"system:playback_{i}".encode()
-            port = lj.jack_port_by_name(client, dst)
-            if not port:
-                break
-            conns = lj.jack_port_get_all_connections(client, port)
-            if conns:
-                j = 0
-                while conns[j]:
-                    dq.put((conns[j], dst))
-                    j += 1
-                lj.jack_free(conns)
-            i += 1
-
-        log.info("JACK watchdog actif — system:playback_* protégé")
-
-        # Boucle principale : vide la file de déconnexions
-        while True:
-            try:
-                src, dst = dq.get(timeout=1.0)
-                ret = lj.jack_disconnect(client, src, dst)
-                if ret == 0:
-                    log.info("JACK watchdog: déconnecté %s → %s",
-                             src.decode(), dst.decode())
-            except _q.Empty:
-                pass
-    except Exception as exc:
-        log.warning("JACK watchdog: %s", exc)
-
 
 # ─────────────────────────────── Configuration ──────────────────────────────
 
@@ -800,10 +715,7 @@ async def async_main():
             log.info("JACK détecté → device [%d] %s (max %d ch) — "
                      "canaux effectifs définis par le layout projet",
                      jack_dev, d["name"], d["max_output_channels"])
-            # Watchdog : bloque les auto-connexions vers system:playback_*
-            # dès maintenant, avant le premier play.
-            threading.Thread(target=_jack_watchdog_thread,
-                             daemon=True, name="jack-watchdog").start()
+
         else:
             log.info("JACK non détecté, utilisation du device par défaut")
 
