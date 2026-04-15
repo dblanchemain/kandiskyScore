@@ -113,6 +113,10 @@ window.api.receive("fromMain", (data) => {
         sourceNode = audioContext.createMediaElementSource(document.querySelector("audio"));
         sourceNode.connect(audioContext.destination);
        break
+       case 'reloadPlayer':
+        // spectrEdit a mis à jour renduout.wav — forcer le rechargement du lecteur
+        document.getElementById("player").src = cmd[1];
+       break
    }
 });
 
@@ -247,8 +251,8 @@ async function renderToWavBlob() {
        return;
    }
    
-   // Étape 1 : Charger l'audio source en ArrayBuffer
-   const response = await fetch(audioUrl);
+   // Étape 1 : Charger l'audio source en ArrayBuffer (no-store : évite le cache si renduout.wav a été mis à jour)
+   const response = await fetch(audioUrl, { cache: 'no-store' });
    const arrayBuffer = await response.arrayBuffer();
    // Étape 2 : Décoder l'audio
    const tmpCtx = new AudioContext();

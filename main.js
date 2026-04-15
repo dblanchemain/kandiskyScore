@@ -4710,6 +4710,12 @@ ipcMain.on ("toMain", (event, args) => {
 				console.log(`openObjetParam ${args} from param`);
 				 openSpectWasm(cmd[1],cmd[2],cmd[3],cmd[4]);
 			break;
+			case "reloadWamPlayer":
+				if (winSpectWamEtat == 1) {
+					const reloadFileUrl = url.pathToFileURL(cmd[1]).href;
+					winSpectWam.webContents.send("fromMain", `reloadPlayer;${reloadFileUrl}`);
+				}
+			break;
 			case "openMassWasm":
 				console.log(`openObjetParam ${args} from param`);
 				 openMassWasm(cmd[1],cmd[2],cmd[3]);

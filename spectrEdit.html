@@ -322,6 +322,8 @@ async function rtWasmHost(canal, buffer) {
 	objSelect.tableFxParam = [];
 	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
 	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+	// Notifier WAM2 de recharger son lecteur (renduout.wav vient d'être mis à jour)
+	window.api.send("toMain", `reloadWamPlayer;${outPath}`);
 	updateSpectro();
 }
 async function wasm() {
