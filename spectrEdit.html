@@ -309,23 +309,27 @@ if (data && typeof data === "object" && data.type) {
 function quiter(){
 	window.api.send("toMain", "closeSpectrEdit");
 }
-async function rtWasmHost(canal,buffer){
+async function rtWasmHost(canal, buffer) {
 	pushUndoState(gainBuffers);
-	mouseX=objSelect.debut;
-	mouseY=objSelect.Fh;
-	gainBuffers=await pasteWam(gainBuffers);
-	//fxBuffers=wamBuffers.map(c => new Float32Array(c));
-	//gainBuffers=wamBuffers.map(c => new Float32Array(c));
-	objSelect.tableFx=["0","0","0","0","0","0","0"];
-	objSelect.tableFxParam=[];
-	var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
-	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });
-	 updateSpectro();
+
+	// buffer = Float32Array mono rendu par le plugin WAM2 (offline rendering)
+	// On l'applique à tous les canaux de gainBuffers
+	if (buffer && buffer.length > 0) {
+		gainBuffers = gainBuffers.map(() => new Float32Array(buffer));
+	}
+
+	objSelect.tableFx = ["0","0","0","0","0","0","0"];
+	objSelect.tableFxParam = [];
+	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+	updateSpectro();
 }
 async function wasm() {
-	const appPaths = await window.api.getPaths();
-	window.api.send("toMain", `openSpectWasm;${0};${window.api.joinPath(appPaths.userData, 'renduout.wav')};${sampleRate};${mode}`);
-	
+	// Sauvegarder l'état courant avant d'ouvrir WAM2
+	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+	// Envoyer le fichier courant (baseDatatPath) au WAM2, pas userData
+	window.api.send("toMain", `openSpectWasm;${0};${outPath};${sampleRate};${mode}`);
 }
 
 function pushUndoState(channels) {
