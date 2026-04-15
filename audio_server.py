@@ -332,20 +332,21 @@ class NsmClient:
     # ── JACK : restauration ──────────────────────────────────────────────────
 
     def restore_connections(self):
-        """Lance la restauration des connexions JACK en arrière-plan."""
+        """Lance la restauration des connexions JACK en arrière-plan.
+        _apply_jack tourne TOUJOURS en mode NSM pour couper system:playback_*,
+        même si aucun fichier de sauvegarde n'existe encore."""
         self._pending_restore = False
+        conns: dict = {}
         path = self._state_file()
-        if not path or not os.path.exists(path):
-            return
-        try:
-            with open(path) as f:
-                conns = json.load(f)
-        except Exception as exc:
-            log.warning("NSM restore lecture: %s", exc)
-            return
-        if conns:
-            threading.Thread(target=self._apply_jack, args=(conns,),
-                             daemon=True, name="nsm-restore").start()
+        if path and os.path.exists(path):
+            try:
+                with open(path) as f:
+                    conns = json.load(f)
+            except Exception as exc:
+                log.warning("NSM restore lecture: %s", exc)
+        # Lancer _apply_jack même si conns est vide : il doit couper system
+        threading.Thread(target=self._apply_jack, args=(conns,),
+                         daemon=True, name="nsm-restore").start()
 
     def _apply_jack(self, connections: dict):
         """
