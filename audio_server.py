@@ -109,6 +109,270 @@ except ImportError:
     sys.exit(1)
 
 
+# ─── Protocole NSM / RaySession ──────────────────────────────────────────────
+import re      as _re
+import socket  as _socket
+import struct  as _struct
+
+
+def _osc_pad(b: bytes) -> bytes:
+    """Aligne sur 4 octets (padding nul)."""
+    r = len(b) % 4
+    return b + (b'\x00' * ((4 - r) % 4))
+
+
+def _osc_str(s: str) -> bytes:
+    return _osc_pad(s.encode() + b'\x00')
+
+
+def _osc_encode(address: str, *args) -> bytes:
+    tags, payload = b',', b''
+    for a in args:
+        if isinstance(a, str):
+            tags   += b's';  payload += _osc_str(a)
+        elif isinstance(a, int):
+            tags   += b'i';  payload += _struct.pack('>i', a)
+        elif isinstance(a, float):
+            tags   += b'f';  payload += _struct.pack('>f', a)
+    return _osc_str(address) + _osc_str(tags.decode()) + payload
+
+
+def _osc_decode(data: bytes) -> tuple:
+    def read_str(pos: int):
+        end = data.index(b'\x00', pos)
+        s   = data[pos:end].decode(errors='replace')
+        pos = end + 1
+        pos += (4 - pos % 4) % 4
+        return s, pos
+
+    address, pos  = read_str(0)
+    tags_raw, pos = read_str(pos)
+    args = []
+    for t in tags_raw.lstrip(','):
+        if t == 's':
+            s, pos = read_str(pos); args.append(s)
+        elif t == 'i':
+            args.append(_struct.unpack('>i', data[pos:pos+4])[0]); pos += 4
+        elif t == 'f':
+            args.append(_struct.unpack('>f', data[pos:pos+4])[0]); pos += 4
+    return address, args
+
+
+class NsmClient:
+    """
+    Client NSM (Non Session Manager) minimal — intégration RaySession.
+
+    Au démarrage (si NSM_URL est défini) :
+      • S'annonce au serveur NSM
+      • Sur /nsm/client/open  : retient le chemin de session, marque une
+        restauration de connexions JACK en attente
+      • Sur /nsm/client/save  : écrit les connexions JACK courantes en JSON
+      • Sur session_is_loaded : restaure les connexions si le stream est actif
+    start_stream() consulte _pending_restore pour restaurer dès l'ouverture.
+    """
+
+    _SKIP = {"system", "_ks_snapshot", "_ks_restore"}   # préfixes ignorés
+
+    def __init__(self):
+        self.url              = os.environ.get("NSM_URL", "")
+        self._sock: Optional[_socket.socket] = None
+        self._server          = None          # (host, port)
+        self._stop            = threading.Event()
+        self.session_path: Optional[str] = None
+        self.client_id:    Optional[str] = None
+        self._pending_restore             = False
+
+    # ── Démarrage ────────────────────────────────────────────────────────────
+
+    def start(self) -> bool:
+        if not self.url:
+            return False
+        m = _re.match(r'osc\.udp://([^:]+):(\d+)/?', self.url)
+        if not m:
+            log.warning("NSM: URL invalide : %s", self.url)
+            return False
+        self._server = (m.group(1), int(m.group(2)))
+        self._sock   = _socket.socket(_socket.AF_INET, _socket.SOCK_DGRAM)
+        self._sock.bind(('', 0))
+        self._sock.settimeout(0.5)
+        self._announce()
+        threading.Thread(target=self._loop, daemon=True,
+                         name="nsm-client").start()
+        return True
+
+    def _announce(self):
+        exe = os.path.basename(sys.argv[0])
+        self._send("/nsm/server/announce",
+                   "kandiskyScore", ":dirty:", exe, 1, 2, os.getpid())
+        log.info("NSM: annonce envoyée → %s:%d", *self._server)
+
+    # ── OSC send/recv ────────────────────────────────────────────────────────
+
+    def _send(self, address: str, *args):
+        self._sock.sendto(_osc_encode(address, *args), self._server)
+
+    def _loop(self):
+        while not self._stop.is_set():
+            try:
+                data, _ = self._sock.recvfrom(4096)
+                addr, args = _osc_decode(data)
+                self._dispatch(addr, args)
+            except _socket.timeout:
+                pass
+            except Exception as exc:
+                if not self._stop.is_set():
+                    log.warning("NSM recv: %s", exc)
+
+    # ── Gestion des messages NSM ──────────────────────────────────────────────
+
+    def _dispatch(self, address: str, args: list):
+        log.debug("NSM ← %s %s", address, args)
+
+        if address == "/reply" and args and args[0] == "/nsm/server/announce":
+            self.client_id = args[3] if len(args) > 3 else ""
+            log.info("NSM: connecté — client_id=%s", self.client_id)
+
+        elif address == "/nsm/client/open":
+            self.session_path  = args[0] if args else ""
+            self.client_id     = args[2] if len(args) > 2 else self.client_id
+            log.info("NSM: open → %s", self.session_path)
+            os.makedirs(self.session_path, exist_ok=True)
+            self._pending_restore = True
+            self._send("/reply", "/nsm/client/open", "OK")
+
+        elif address == "/nsm/client/save":
+            log.info("NSM: save")
+            self._save()
+            self._send("/reply", "/nsm/client/save", "OK")
+
+        elif address == "/nsm/client/session_is_loaded":
+            log.info("NSM: session chargée")
+            if mixer.stream and mixer.stream.active:
+                self.restore_connections()
+
+        elif address == "/nsm/client/quit":
+            log.info("NSM: quit")
+            os.kill(os.getpid(), signal.SIGTERM)
+
+        elif address == "/error":
+            log.warning("NSM erreur: %s", args)
+
+    # ── JACK : sauvegarde ────────────────────────────────────────────────────
+
+    def _state_file(self) -> Optional[str]:
+        if not self.session_path:
+            return None
+        return os.path.join(self.session_path, "jack_connections.json")
+
+    def _save(self):
+        path = self._state_file()
+        if not path:
+            return
+        conns = self._snapshot_jack()
+        try:
+            with open(path, 'w') as f:
+                json.dump(conns, f, indent=2)
+            total = sum(len(v) for v in conns.values())
+            log.info("NSM: %d connexion(s) JACK sauvegardée(s)", total)
+        except Exception as exc:
+            log.warning("NSM save: %s", exc)
+
+    def _snapshot_jack(self) -> dict:
+        """Retourne {port_src: [port_dst, …]} pour tous les clients non-système."""
+        result = {}
+        if not sys.platform.startswith("linux"):
+            return result
+        try:
+            import ctypes, ctypes.util as _cu
+            lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
+            lj.jack_client_open.restype  = ctypes.c_void_p
+            lj.jack_port_by_name.restype = ctypes.c_void_p
+            lj.jack_get_ports.restype    = ctypes.POINTER(ctypes.c_char_p)
+            lj.jack_port_get_all_connections.restype = ctypes.POINTER(ctypes.c_char_p)
+            lj.jack_free.restype         = None
+
+            status = ctypes.c_int(0)
+            client = lj.jack_client_open(b"_ks_snapshot", 1,
+                                          ctypes.byref(status))
+            if not client:
+                return result
+            lj.jack_activate(client)
+
+            ports = lj.jack_get_ports(client, None, None, 0x2)  # JackPortIsOutput
+            if ports:
+                i = 0
+                while ports[i]:
+                    name   = ports[i].decode()
+                    prefix = name.split(":")[0]
+                    if prefix not in self._SKIP:
+                        port = lj.jack_port_by_name(client, ports[i])
+                        if port:
+                            conns = lj.jack_port_get_all_connections(client, port)
+                            if conns:
+                                lst, j = [], 0
+                                while conns[j]:
+                                    lst.append(conns[j].decode()); j += 1
+                                lj.jack_free(conns)
+                                if lst:
+                                    result[name] = lst
+                    i += 1
+                lj.jack_free(ports)
+            lj.jack_client_close(client)
+        except Exception as exc:
+            log.warning("NSM snapshot JACK: %s", exc)
+        return result
+
+    # ── JACK : restauration ──────────────────────────────────────────────────
+
+    def restore_connections(self):
+        """Lance la restauration des connexions JACK en arrière-plan."""
+        self._pending_restore = False
+        path = self._state_file()
+        if not path or not os.path.exists(path):
+            return
+        try:
+            with open(path) as f:
+                conns = json.load(f)
+        except Exception as exc:
+            log.warning("NSM restore lecture: %s", exc)
+            return
+        if conns:
+            threading.Thread(target=self._apply_jack, args=(conns,),
+                             daemon=True, name="nsm-restore").start()
+
+    def _apply_jack(self, connections: dict):
+        """Reconnecte les ports JACK (avec un court délai pour laisser
+        PortAudio enregistrer les siens)."""
+        time.sleep(0.5)
+        if not sys.platform.startswith("linux"):
+            return
+        try:
+            import ctypes, ctypes.util as _cu
+            lj = ctypes.CDLL(_cu.find_library("jack") or "libjack.so.0")
+            lj.jack_client_open.restype = ctypes.c_void_p
+            lj.jack_connect.restype     = ctypes.c_int
+
+            status = ctypes.c_int(0)
+            client = lj.jack_client_open(b"_ks_restore", 1,
+                                          ctypes.byref(status))
+            if not client:
+                return
+            lj.jack_activate(client)
+            for src, dsts in connections.items():
+                for dst in dsts:
+                    ret = lj.jack_connect(client, src.encode(), dst.encode())
+                    if ret == 0:
+                        log.info("NSM: restauré %s → %s", src, dst)
+            lj.jack_client_close(client)
+        except Exception as exc:
+            log.warning("NSM apply JACK: %s", exc)
+
+    def stop(self):
+        self._stop.set()
+        if self._sock:
+            self._sock.close()
+
+
 # ─────────────────────────────── Configuration ──────────────────────────────
 
 HOST        = "127.0.0.1"
@@ -121,6 +385,9 @@ logging.basicConfig(
     stream=sys.stderr,
 )
 log = logging.getLogger(__name__)
+
+# Instance NSM globale (active uniquement si NSM_URL est défini)
+nsm = NsmClient()
 
 
 # ─────────────────────────────── Voice ──────────────────────────────────────
@@ -247,6 +514,9 @@ class AudioMixer:
             "Stream démarré : %d Hz, %d canaux, device=%s",
             self.sample_rate, self.channels, self.device_index,
         )
+        # NSM : restaurer les connexions JACK si une session est en attente
+        if nsm._pending_restore:
+            nsm.restore_connections()
 
     def _stop_stream(self):
         if self.stream:
@@ -705,6 +975,10 @@ async def async_main():
 
     mixer.set_event_loop(loop, queue)
 
+    # NSM / RaySession : s'annoncer si lancé dans une session
+    if nsm.start():
+        log.info("NSM: client démarré (url=%s)", nsm.url)
+
     # Auto-sélection JACK sur Linux : on retient uniquement le device,
     # PAS le nombre de canaux — c'est le layout du projet qui fait autorité.
     if sys.platform.startswith("linux"):
@@ -745,6 +1019,7 @@ async def async_main():
 
         await stop_event.wait()
 
+    nsm.stop()
     log.info("Arrêt propre du serveur")
 
 
