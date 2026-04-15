@@ -325,6 +325,8 @@ class NsmClient:
                 if rc == 0:
                     log.info("NSM: restauré %s → %s", src, dst)
                     connected += 1
+                elif "already connected" in err:
+                    connected += 1
                 else:
                     log.warning("NSM: échec connexion %s → %s : %s", src, dst, err)
         if connected > 0:
@@ -434,6 +436,9 @@ def jack_restore_connections():
             rc, err = _jack_cli(["jack_connect", src, dst])
             if rc == 0:
                 log.info("JACK: restauré %s → %s", src, dst)
+                connected += 1
+            elif "already connected" in err:
+                # Déjà connecté = OK, la connexion est en place
                 connected += 1
             else:
                 log.warning("JACK: échec restauration %s → %s : %s", src, dst, err)
