@@ -311,7 +311,14 @@ class NsmClient:
                             if conns:
                                 lst, j = [], 0
                                 while conns[j]:
-                                    lst.append(conns[j].decode()); j += 1
+                                    dst = conns[j].decode()
+                                    # Ne pas sauvegarder les connexions vers
+                                    # system:* — elles sont gérées par le
+                                    # patch-bay et ne doivent pas être
+                                    # restaurées automatiquement.
+                                    if not dst.startswith("system:"):
+                                        lst.append(dst)
+                                    j += 1
                                 lj.jack_free(conns)
                                 if lst:
                                     result[name] = lst
