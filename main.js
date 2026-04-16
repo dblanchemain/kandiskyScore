@@ -5109,6 +5109,8 @@ function killPlay() {
   playProcess.clear();
   mainWindow.webContents.send("fromMain", "playStop;");
 }
+
+ipcMain.handle('killAudio', () => { killPlay(); });
  function allocStringSafe(str,Module) {
     const encoder = new TextEncoder();
     const bytes = encoder.encode(str + '\0'); // NUL terminated

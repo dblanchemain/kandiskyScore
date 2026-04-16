@@ -400,11 +400,32 @@ function annulSpectrEdit() {
 function validSpectrEdit() {
 	window.api.send("toMain", "spatialValid;"+spatialId+";"+svSpatial);
 }
+let _volRestartTimer = null;
 function sliderGain() {
 	document.getElementById("tgain").value = document.getElementById("sgain").value;
+	if (isPlaying) {
+		if (_volRestartTimer) clearTimeout(_volRestartTimer);
+		_volRestartTimer = setTimeout(restartWithVol, 120);
+	}
 }
 function nbGain() {
 	document.getElementById("sgain").value = document.getElementById("tgain").value;
+	if (isPlaying) {
+		if (_volRestartTimer) clearTimeout(_volRestartTimer);
+		_volRestartTimer = setTimeout(restartWithVol, 120);
+	}
+}
+async function restartWithVol() {
+	_volRestartTimer = null;
+	if (!isPlaying) return;
+	const trimStart = Math.max(0, playheadSample / sampleRate);
+	const volParam = getVolParam();
+	const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+	await window.api.killAudio();
+	// Recaler playStartTime pour que la tête de lecture continue sans saut
+	playStartTime = performance.now() - trimStart * 1000;
+	const soxParams = `${volParam} trim ${trimStart.toFixed(4)} 0`;
+	await window.api.playDirectFile(0, outPath, soxParams);
 }
 function getVolParam() {
 	const dB = parseFloat(document.getElementById("tgain").value) || 0;
@@ -438,12 +459,12 @@ async function defGain(){
     });
 }
 async function playBuffers() {
+    await window.api.killAudio();
     var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
     await window.api.playDirectFile(0, outPath, getVolParam());
     playStartTime = performance.now();
     isPlaying = true;
-
     updatePlayhead();
 }
 async function playSelection() {

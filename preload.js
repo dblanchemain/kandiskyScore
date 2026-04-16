@@ -114,6 +114,7 @@ contextBridge.exposeInMainWorld(
     ipcRenderer.invoke("load-buffers-multichannel", path),
     playDirectFile: (mode, filePath, soxParams) =>
         ipcRenderer.invoke('playDirectFile', mode, filePath, soxParams),
+    killAudio: () => ipcRenderer.invoke('killAudio'),
     preloadAudio: (filePaths) =>
         ipcRenderer.invoke('preloadAudio', filePaths),
     setAudioChannels: (channels) =>
