@@ -4962,7 +4962,7 @@ ipcMain.handle('soxProcessTo', async (event, inputPath, outputPath, soxParams) =
 
 ipcMain.handle("saveAudioBuffer", async (event, payload) => {
     const { filePath, buffer } = payload;
-consolg.log("payload",payload);
+console.log("payload",payload);
     if (!buffer || !buffer.channels || buffer.channels.length === 0) {
         throw new Error("buffer.channels vide !");
     }
