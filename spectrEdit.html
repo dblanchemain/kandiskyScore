@@ -461,7 +461,13 @@ async function defGain(){
 async function playBuffers() {
     await window.api.killAudio();
     var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
-    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+    // Normaliser à ±1.0 si amplitude > 1 pour que le slider vol soit efficace dès 0 dB
+    let maxAmp = 0;
+    for (const ch of gainBuffers) for (const v of ch) if (Math.abs(v) > maxAmp) maxAmp = Math.abs(v);
+    const saveChannels = maxAmp > 1.0
+        ? gainBuffers.map(ch => new Float32Array(ch.map(v => v / maxAmp)))
+        : gainBuffers;
+    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: saveChannels } });
     await window.api.playDirectFile(0, outPath, getVolParam());
     playStartTime = performance.now();
     isPlaying = true;
