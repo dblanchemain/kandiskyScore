@@ -312,19 +312,37 @@ function quiter(){
 async function rtWasmHost(canal, buffer) {
 	pushUndoState(gainBuffers);
 
-	// buffer = Float32Array mono rendu par le plugin WAM2 (offline rendering)
-	// On l'applique à tous les canaux de gainBuffers
-	if (buffer && buffer.length > 0) {
-		gainBuffers = gainBuffers.map(() => new Float32Array(buffer));
+	// buffer = rendu WAM2 (offline) — normaliser en Float32Array
+	// (IPC peut livrer Float32Array ou ArrayBuffer selon la version d'Electron)
+	let f32 = null;
+	if (buffer instanceof Float32Array) {
+		f32 = buffer;
+	} else if (buffer instanceof ArrayBuffer) {
+		f32 = new Float32Array(buffer);
+	} else if (buffer && typeof buffer.length === 'number' && buffer.length > 0) {
+		f32 = new Float32Array(buffer);
+	}
+	if (f32 && f32.length > 0) {
+		gainBuffers = gainBuffers.map(() => new Float32Array(f32));
 	}
 
 	objSelect.tableFx = ["0","0","0","0","0","0","0"];
 	objSelect.tableFxParam = [];
 	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
 	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
-	// Notifier WAM2 de recharger son lecteur (renduout.wav vient d'être mis à jour)
+
+	// Recharger le lecteur de spectrEdit depuis le fichier mis à jour
+	// (garantit que gainBuffers et currentChannels reflètent exactement le fichier sur disque)
+	const rt = await window.api.loadBuffers(outPath);
+	if (rt && Array.isArray(rt.channels) && rt.channels.length > 0) {
+		currentChannels = rt.channels.map(ch => new Float32Array(ch));
+		gainBuffers = currentChannels.map(c => new Float32Array(c));
+	}
+
+	// Notifier WAM2 de recharger son lecteur
 	window.api.send("toMain", `reloadWamPlayer;${outPath}`);
 	updateSpectro();
+	drawWaveform();
 }
 async function wasm() {
 	// Sauvegarder l'état courant avant d'ouvrir WAM2
