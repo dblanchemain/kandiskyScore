@@ -250,74 +250,67 @@ async function renderToWavBlob() {
        console.error("Aucun fichier audio chargé !");
        return;
    }
-   
-   // Étape 1 : Charger l'audio source en ArrayBuffer (no-store : évite le cache si renduout.wav a été mis à jour)
-   const response = await fetch(audioUrl, { cache: 'no-store' });
-   const arrayBuffer = await response.arrayBuffer();
-   // Étape 2 : Décoder l'audio
-   const tmpCtx = new AudioContext();
-   const decodedBuffer = await tmpCtx.decodeAudioData(arrayBuffer);
-   const duration = decodedBuffer.duration;
-   // Étape 3 : Créer OfflineAudioContext
-   const offlineCtx = new OfflineAudioContext({
-       numberOfChannels: 1,
-       length: Math.ceil(duration * sampleRate),
-       sampleRate: sampleRate,
+
+   // Pas de plugin chargé — renvoyer le signal source tel quel
+   if (wamURIs.length === 0) {
+       const response = await fetch(audioUrl, { cache: 'no-store' });
+       const arrayBuffer = await response.arrayBuffer();
+       const tmpCtx = new AudioContext({ sampleRate });
+       const decodedBuffer = await tmpCtx.decodeAudioData(arrayBuffer);
+       const nwasm = new Float32Array(decodedBuffer.length);
+       decodedBuffer.copyFromChannel(nwasm, 0);
+       window.api.send("toMain", { type: "rtWasmHost", canal, mode, buffer: nwasm });
+       return;
+   }
+
+   // Capture en temps réel via ScriptProcessorNode :
+   // L'approche OfflineAudioContext + setState() ne fonctionne pas car les messages
+   // postMessage() vers l'AudioWorkletProcessor ne sont pas traités avant startRendering().
+   // On rembobine le lecteur et on capture la sortie de la chaîne de plugins active.
+   const totalSamples = Math.ceil(duration * sampleRate);
+   const captured = new Float32Array(totalSamples);
+   let capturedSamples = 0;
+   let isCapturing = false;
+   let done = false;
+
+   const scriptNode = audioContext.createScriptProcessor(4096, 1, 1);
+   const lastNode = audioNodes[wamURIs.length - 1];
+
+   try { lastNode.disconnect(audioContext.destination); } catch(e) {}
+   lastNode.connect(scriptNode);
+   scriptNode.connect(audioContext.destination);
+
+   return new Promise((resolve) => {
+       const finish = (buffer) => {
+           if (done) return;
+           done = true;
+           scriptNode.onaudioprocess = null;
+           try { scriptNode.disconnect(); } catch(e) {}
+           try { lastNode.disconnect(scriptNode); } catch(e) {}
+           lastNode.connect(audioContext.destination);
+           console.log("Capture terminée :", capturedSamples, "samples");
+           window.api.send("toMain", { type: "rtWasmHost", canal, mode, buffer });
+           resolve();
+       };
+
+       scriptNode.onaudioprocess = (event) => {
+           if (!isCapturing || done) return;
+           const inputData = event.inputBuffer.getChannelData(0);
+           const toCopy = Math.min(inputData.length, totalSamples - capturedSamples);
+           captured.set(inputData.subarray(0, toCopy), capturedSamples);
+           capturedSamples += toCopy;
+           if (capturedSamples >= totalSamples) {
+               finish(captured);
+           }
+       };
+
+       const player = document.getElementById("player");
+       player.addEventListener('ended', () => finish(captured.slice(0, capturedSamples)), { once: true });
+       player.currentTime = 0;
+       player.play()
+           .then(() => { isCapturing = true; })
+           .catch(err => { console.error("Erreur lecture :", err); finish(captured.slice(0, capturedSamples)); });
    });
-   // Étape 4 : Initialiser WAM dans le OfflineAudioContext    
-   // MICHEL BUFFA : on peut utiliser le code suivant 
-   // CECI MARCHE AUSSI : const { default: initializeWamHost } = await import("https://www.webaudiomodules.com/sdk/2.0.0-alpha.6/src/initializeWamHost.js");
-   const { default: initializeWamHost } = await import("../sdk/src/initializeWamHost.js");
-   const [hostGroupId] = await initializeWamHost(offlineCtx);
-
-	// Étape 5 : Créer une source à partir du buffer décodé
-
-   const bufferSource = offlineCtx.createBufferSource();   
-   
-   bufferSource.buffer = decodedBuffer;
-   // MICHEL BUFFA : on peut utiliser le code suivant, wamURI = l'uri du plugin à charger
-   //const wamURI = "../graphicEqualizer/src/index.js"
-   const pluginInstance2=[]
-	for(let i=0;i<wamURIs.length;i++){
-      if(wamURIs.length>0){
-         const { default: WAM } = await import(wamURIs[i]);
-         console.log("wamURIs[0]",wamURIs[i]);
-         // Create a new instance of the plugin, pass groupId
-         const instance2 = await WAM.createInstance(hostGroupId, offlineCtx);
-         pluginInstance2.push(instance2);
-         
-         // pour récupérer les paramètres définis sinon on enregistre l'audio du fichier d'origine
-         if (pluginInstances[i]?.audioNode?.getState) {
-             const state = await pluginInstances[i].audioNode.getState();
-             await pluginInstance2[i].audioNode.setState(state);
-         }
-          if(i<1){
-          	bufferSource.connect(pluginInstance2[0].audioNode);
-          }else{
-				pluginInstance2[i-1].audioNode.connect(pluginInstance2[i].audioNode);
-      	}
-      }
-   }
-      // Étape 6 : Connecter source → plugin → destination
-   if(wamURIs.length==0){
-     bufferSource.connect(offlineCtx.destination);
-   }else{
-  	  pluginInstance2[wamURIs.length-1].audioNode.connect(offlineCtx.destination);
-   }
- 
-   bufferSource.start(0);
-   // Étape 7 : Rendu
-   console.log("Start rendering...");
-   const renderedBuffer = await offlineCtx.startRendering();
-   const nwasm = new Float32Array(renderedBuffer.length);
-	renderedBuffer.copyFromChannel(nwasm, 0);
-
-   window.api.send("toMain", {
-    type: "rtWasmHost",
-    canal,
-    mode,
-    buffer: nwasm
-});
 }
  
 
