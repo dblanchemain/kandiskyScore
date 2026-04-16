@@ -364,7 +364,7 @@ function pushUndoState(channels) {
     // dès qu'on modifie → redo devient invalide
     redoStack.length = 0;
 }
-function undo(){
+async function undo(){
 
     if (undoStack.length === 0) return;
 
@@ -376,10 +376,15 @@ function undo(){
     });
 
     gainBuffers = state.channels;
+    numSamples = gainBuffers[0].length;
+    Duree = numSamples / sampleRate;
+
+    const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
 
     updateSpectro();
 }
-function redo(){
+async function redo(){
 
     if (redoStack.length === 0) return;
 
@@ -391,6 +396,11 @@ function redo(){
     });
 
     gainBuffers = state.channels;
+    numSamples = gainBuffers[0].length;
+    Duree = numSamples / sampleRate;
+
+    const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
 
     updateSpectro();
 }
@@ -461,10 +471,10 @@ async function defGain(){
 async function playBuffers() {
     await window.api.killAudio();
     var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
-    // Normaliser à ±1.0 si amplitude > 1 pour que le slider vol soit efficace dès 0 dB
+    // Normaliser à ±1.0 (pic) pour que le slider vol soit toujours référencé à 0 dBFS
     let maxAmp = 0;
     for (const ch of gainBuffers) for (const v of ch) if (Math.abs(v) > maxAmp) maxAmp = Math.abs(v);
-    const saveChannels = maxAmp > 1.0
+    const saveChannels = (maxAmp > 0 && maxAmp !== 1.0)
         ? gainBuffers.map(ch => new Float32Array(ch.map(v => v / maxAmp)))
         : gainBuffers;
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: saveChannels } });
