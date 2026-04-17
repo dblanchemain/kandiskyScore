@@ -794,6 +794,7 @@ function renderGrpAudio3(ngrp){
 			document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
 			}
 	}
+	lsgrp = grp.slice();
 	lsgrp.sort(function (a, b) {
   return tableObjet[a].posX - tableObjet[b].posX;
 });
