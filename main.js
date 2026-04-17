@@ -347,8 +347,12 @@ function handleAudioMessage(msg) {
   // Notifications spontanées
   switch (msg.type) {
     case 'voice_ended':
-      if (mainWindow) mainWindow.webContents.send('fromMain', 'playStop;');
-      if (winSpatMassEtat === 1) winSpatMass.webContents.send('fromMain', 'playStop;');
+      if (msg.id && msg.id.startsWith('media_loop_') && winMediaExplorerEtat === 1) {
+        winMediaExplorer.webContents.send('fromMain', 'loop');
+      } else {
+        if (mainWindow) mainWindow.webContents.send('fromMain', 'playStop;');
+        if (winSpatMassEtat === 1) winSpatMass.webContents.send('fromMain', 'playStop;');
+      }
       break;
     case 'error':
       console.error('[audio_server] erreur :', msg.message, msg.id || '');
@@ -4582,48 +4586,20 @@ ipcMain.on ("toMain", (event, args) => {
 
      	   break;
      	  case "playFile":
-	     	  
-	     	  var args;
-	     	  	if (playProcess) {
-		        killPlay();
-		      }
-	     	  	var proc ;
-			  if (platform === "win32") {
-				     if (cmd[2] > 0) {
-					      args = [cmd[1], "-d", "trim", cmd[2].toString()];
-					    } else {
-					      args = [cmd[1], "-d"];
-					  }
-			  } else {
-			  	if (cmd[2] > 0) {
-			      args = [cmd[1], "trim", cmd[2].toString(),"vol", cmd[3].toString()];
-			    } else {
-			      args = [cmd[1],"vol", cmd[3].toString()];
-			    }
-			    proc = spawn(playPath, args, {
-		        shell: true,
-		        detached: true, // 🔑 crée un groupe de processus
-		      });
-		      playProcess.add(proc);
-				console.log("args :",args);
-		      console.log("PID du lecteur :", proc.pid);
-		
-		      proc.stdout.on("data", (data) =>
-		        console.log("stdout:", data.toString())
-		      );
-		      proc.stderr.on("data", (data) =>
-		        console.error("stderr:", data.toString())
-		      );
-			    
-			  }
-
-				 proc.on("exit", (code) => {
-				      console.log("Lecture terminée, code:", code);
-				      playProcess.delete(proc);
-				      if(cmd[4]==1){
-				      	winMediaExplorer.webContents.send("fromMain", "loop");
-				      }
-				    });
+		  	killPlay();
+		  	{
+		  	  const loop = parseInt(cmd[4]) === 1;
+		  	  const trimStart = parseFloat(cmd[2]) || 0;
+		  	  const vol = parseFloat(cmd[3]) || 1.0;
+		  	  sendAudio({
+		  	    cmd: 'play',
+		  	    id: (loop ? 'media_loop_' : 'media_') + Date.now(),
+		  	    file: cmd[1],
+		  	    trim_start: trimStart,
+		  	    vol,
+		  	    notify_end: true,
+		  	  });
+		  	}
      	  	break;
      	  case "playDirectFile":
      	  	// Migré vers ipcMain.handle('playDirectFile') — voir ci-dessous
@@ -4659,34 +4635,9 @@ ipcMain.on ("toMain", (event, args) => {
 			})();
 			break;
 		case "playAudioFile":
-			console.log(`openObjetParam ${args} from param`);
-			(async () => {
-				if (playProcess) {
-			        //killPlay();
-			      }
-	     	  	try {
-	     	  	//const path=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]+".wav";
-	     	  	//const outputDir=app.getPath('home')+"/kandiskyscore/Projets/Projet3/Audios/"+cmd[1]
-	     	  	//await splitW64ToWav(path, outputDir, 18, "stem");
-   // console.log("🎚️ Fichiers exportés dans :", outputDir);
-	     	  	/*
-				  await execSync(`"${soxPath}" -M "${path}"//*.wav "${path}"//out.w64 `);
-				  const dest=path+"/out.w64";
-				  playProcess = spawn(playPath, [dest], {
-		        shell: true,
-		        detached: true, // 🔑 crée un groupe de processus
-		      	});
-		      	*/
-		      	
-				  playProcess = spawn(playPath, [cmd[1]], {
-		        shell: true,
-		        detached: true, // 🔑 crée un groupe de processus
-		      	});
-
-				} catch (err) {
-				  console.error("Erreur lors de l'exécution de sox --i :", err);
-				}
-			})();
+			console.log(`playAudioFile ${cmd[1]}`);
+			killPlay();
+			sendAudio({ cmd: 'play', id: 'objet_' + Date.now(), file: cmd[1], notify_end: false });
 			break;
 			case "openSpatMass":
 				 spatMass(cmd[1],cmd[2]);
