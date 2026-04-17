@@ -798,9 +798,13 @@ function validFxParamB(tableObjet,objActif,greffon) {
 }
 async function applyFxBuffersMono(obj, currentBuffer, numSamples, sampleRate) {
 
-
     const fxSlots = obj.tableFx || [];
     const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
+
+    // Aucun FX actif : retour direct sans charger Faust
+    if (validSlots.length === 0) {
+        return [new Float32Array(currentBuffer)];
+    }
 
     const blockSize = 1024;
 	 const appPaths = await window.api.getPaths();
