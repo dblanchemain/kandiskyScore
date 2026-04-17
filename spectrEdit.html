@@ -430,12 +430,12 @@ async function restartWithVol() {
 	if (!isPlaying) return;
 	const trimStart = Math.max(0, playheadSample / sampleRate);
 	const volParam = getVolParam();
-	const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+	const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
 	await window.api.killAudio();
 	// Recaler playStartTime pour que la tête de lecture continue sans saut
 	playStartTime = performance.now() - trimStart * 1000;
 	const soxParams = `${volParam} trim ${trimStart.toFixed(4)} 0`;
-	await window.api.playDirectFile(0, outPath, soxParams);
+	await window.api.playDirectFile(0, playPath, soxParams);
 }
 function getVolParam() {
 	const dB = parseFloat(document.getElementById("tgain").value) || 0;
@@ -470,15 +470,15 @@ async function defGain(){
 }
 async function playBuffers() {
     await window.api.killAudio();
-    var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
-    // Normaliser à ±1.0 (pic) pour que le slider vol soit toujours référencé à 0 dBFS
+    // Normaliser à ±1.0 dans un fichier temporaire pour ne pas corrompre renduout.wav
     let maxAmp = 0;
     for (const ch of gainBuffers) for (const v of ch) if (Math.abs(v) > maxAmp) maxAmp = Math.abs(v);
     const saveChannels = (maxAmp > 0 && maxAmp !== 1.0)
         ? gainBuffers.map(ch => new Float32Array(ch.map(v => v / maxAmp)))
         : gainBuffers;
-    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: saveChannels } });
-    await window.api.playDirectFile(0, outPath, getVolParam());
+    const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: saveChannels } });
+    await window.api.playDirectFile(0, playPath, getVolParam());
     playStartTime = performance.now();
     isPlaying = true;
     updatePlayhead();
