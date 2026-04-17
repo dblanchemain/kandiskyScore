@@ -150,6 +150,14 @@
 			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>Éditeur Audio</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='audioEditor' type="texte" style="width:520px" value='' /></td></tr>
+			<tr ><td colspan="4">  </td></tr>
+			<tr ><td colspan="4"> <b>Sortie audio</b> </td></tr>
+			<tr><td></td><td colspan="3">
+				<select id="selectAudioDevice" style="width:520px;" onchange="onAudioDeviceChange()">
+					<option value="">— device par défaut —</option>
+				</select>
+				<button onclick="refreshAudioDevices()" style="margin-left:6px;">↻</button>
+			</td></tr>
 			<tr ><td colspan="4"> <b>PDF</b> </td></tr>
 			<tr ><td >Page </td><td id="pagePdf"  ><div style="margin:20px;" ><select id="selectPage" size="1"  >
 			<option value="1" >A4</option>
@@ -400,6 +408,43 @@ function defongletExt(e) {
 	document.getElementById("panInterface").style.display="none";
 	document.getElementById("panPalette").style.display="none";
 	document.getElementById("panExt").style.display="block";
+	refreshAudioDevices();
+}
+
+async function refreshAudioDevices() {
+	const sel = document.getElementById("selectAudioDevice");
+	sel.innerHTML = "<option value=''>— device par défaut —</option>";
+	try {
+		const resp = await window.api.listAudioDevices();
+		if (!resp || !resp.list) return;
+		const byApi = {};
+		for (const d of resp.list) {
+			const api = d.hostapi || "Autre";
+			if (!byApi[api]) byApi[api] = [];
+			byApi[api].push(d);
+		}
+		for (const [apiName, devs] of Object.entries(byApi)) {
+			const grp = document.createElement("optgroup");
+			grp.label = apiName;
+			for (const d of devs) {
+				const opt = document.createElement("option");
+				opt.value = d.index;
+				opt.textContent = d.name + (d.is_default ? " ★" : "");
+				if (d.index == paramExterne.audioDeviceIndex) opt.selected = true;
+				grp.appendChild(opt);
+			}
+			sel.appendChild(grp);
+		}
+		if (paramExterne.audioDeviceIndex === undefined || paramExterne.audioDeviceIndex === null) {
+			sel.value = "";
+		}
+	} catch(e) { console.error("listAudioDevices:", e); }
+}
+
+function onAudioDeviceChange() {
+	const val = document.getElementById("selectAudioDevice").value;
+	paramExterne.audioDeviceIndex = val === "" ? null : parseInt(val);
+	window.api.setAudioDevice(paramExterne.audioDeviceIndex);
 }
 function closeConfigProjet() {
 	exportProjet()
@@ -1049,6 +1094,7 @@ function externeRestore() {
 	pdfMgRight:0.2,
 	pdfBkg:0,
 	editAudioCmd:'audacity',
+	audioDeviceIndex:null,
 	}
 }
 function importExterne(txt){
@@ -1107,6 +1153,8 @@ function defExterne(txt) {
 		paramExterne.pdfBkg=1;
 	}
 	paramExterne.editAudioCmd=document.getElementById("audioEditor").value;
+	const selDev = document.getElementById("selectAudioDevice").value;
+	paramExterne.audioDeviceIndex = selDev === "" ? null : parseInt(selDev);
 }
 
 /* ************************************************* palette *************************************** */

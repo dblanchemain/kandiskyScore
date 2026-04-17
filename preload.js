@@ -119,6 +119,10 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke('preloadAudio', filePaths),
     setAudioChannels: (channels) =>
         ipcRenderer.invoke('setAudioChannels', channels),
+    listAudioDevices: () =>
+        ipcRenderer.invoke('listAudioDevices'),
+    setAudioDevice: (deviceIndex) =>
+        ipcRenderer.invoke('setAudioDevice', deviceIndex),
     soxProcessExport: (filePath, soxParams) =>
         ipcRenderer.invoke('soxProcessExport', filePath, soxParams),
     soxProcessTo: (inputPath, outputPath, soxParams) =>

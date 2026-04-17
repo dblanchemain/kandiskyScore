@@ -1006,17 +1006,21 @@ async def cmd_preload(ws: "WebSocketServerProtocol", msg: dict, reply):
 async def cmd_list_devices(ws: "WebSocketServerProtocol", reply):
     try:
         devices    = sd.query_devices()
+        hostapis   = sd.query_hostapis()
         default_in, default_out = sd.default.device
         device_list = []
         for i, d in enumerate(devices):
             if d["max_output_channels"] < 1:
                 continue
+            api_idx  = d.get("hostapi", 0)
+            api_name = hostapis[api_idx]["name"] if api_idx < len(hostapis) else ""
             device_list.append({
                 "index":               i,
                 "name":                d["name"],
                 "max_output_channels": d["max_output_channels"],
                 "default_samplerate":  d["default_samplerate"],
                 "is_default":          i == default_out,
+                "hostapi":             api_name,
             })
         await reply({"type": "devices", "list": device_list})
     except Exception as exc:

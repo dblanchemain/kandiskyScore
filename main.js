@@ -4820,6 +4820,22 @@ ipcMain.handle('setAudioChannels', async (event, channels) => {
   return { ok: true, channels: n };
 });
 
+ipcMain.handle('listAudioDevices', async () => {
+  if (!audioWsReady) return { error: 'Audio server non disponible' };
+  try {
+    return await sendAudioRequest({ cmd: 'list_devices' }, 5000);
+  } catch (e) {
+    return { error: e.message };
+  }
+});
+
+ipcMain.handle('setAudioDevice', async (event, deviceIndex) => {
+  const idx = deviceIndex === null || deviceIndex === undefined ? null : parseInt(deviceIndex);
+  sendAudio({ cmd: 'set_device', device: idx });
+  console.log(`🔊 Audio device → ${idx}`);
+  return { ok: true, device: idx };
+});
+
 // Pré-charge une liste de fichiers audio dans le cache du serveur Python.
 // Appeler avant le démarrage de la lecture pour éviter les délais au premier son.
 ipcMain.handle("preloadAudio", async (event, filePaths) => {
@@ -5530,6 +5546,9 @@ function mainExternes(txt) {
 	pdfMgRight=parseFloat(defc.pdfMgRight);
 	pdfBkg=parseInt(defc.pdfBkg);
 	editAudioCmd=defc.editAudioCmd;
+	if (defc.audioDeviceIndex !== undefined && defc.audioDeviceIndex !== null) {
+		sendAudio({ cmd: 'set_device', device: parseInt(defc.audioDeviceIndex) });
+	}
 }
 function mainExternes2(txt) {
 	var defc=JSON.parse(decodeURIComponent(escape(atob(txt))));
