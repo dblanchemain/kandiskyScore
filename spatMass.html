@@ -1271,10 +1271,21 @@ async function wasm() {
 	window.api.send("toMain", `openMassWasm;${inActif};${window.api.joinPath(appPaths.userData, 'renduout.wav')};${sampleRate};${mode}`);
 	
 }
-async function rtWasmHost(canal,buffer){
-	currentChannels[canal]=buffer;
-	tableObjIn[canal].tableFx=["0","0","0","0","0","0","0"];
-	tableObjIn[canal].tableFxParam=[];
+async function rtWasmHost(canal, buffer) {
+	let f32 = null;
+	if (buffer instanceof Float32Array) {
+		f32 = buffer;
+	} else if (buffer instanceof ArrayBuffer) {
+		f32 = new Float32Array(buffer);
+	} else if (buffer && typeof buffer.length === 'number' && buffer.length > 0) {
+		f32 = new Float32Array(buffer);
+	}
+	if (f32 && f32.length > 0) {
+		currentChannels[canal] = f32;
+	}
+	tableObjIn[canal].tableFx = ["0","0","0","0","0","0","0"];
+	tableObjIn[canal].tableFxParam = [];
+	await readMasterOutput();
 }
 async function restoreCanal(){
 	currentChannels[this.id.substring(3)]=saveChannels[this.id.substring(3)];
