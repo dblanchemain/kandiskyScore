@@ -983,8 +983,8 @@ async function spkInput() {
 	inActif=this.id.substring(5);
 	readInput(this.id);
 	const appPaths = await window.api.getPaths();
-	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduout.wav'), buffer: { sampleRate, channels: [currentChannels[inActif]] } });
-	window.api.send("toMain", `wasmSpectrogram;${window.api.joinPath(appPaths.userData, 'renduout.wav')}`);
+	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduMass.wav'), buffer: { sampleRate, channels: [currentChannels[inActif]] } });
+	window.api.send("toMain", `wasmSpectrogram;${window.api.joinPath(appPaths.userData, 'renduMass.wav')}`);
 }
 function fxOut() {
 	outActif=this.id.substring(2);
@@ -998,8 +998,8 @@ async function spkOut() {
 	outActif=this.id.substring(6);
 	var buf= await readOutput(this.id,0);
 	const appPaths = await window.api.getPaths();
-	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduout.wav'), buffer: { sampleRate, channels: [buf] } });
-	window.api.send("toMain", `wasmSpectrogram;${window.api.joinPath(appPaths.userData, 'renduout.wav')}`);
+	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduMass.wav'), buffer: { sampleRate, channels: [buf] } });
+	window.api.send("toMain", `wasmSpectrogram;${window.api.joinPath(appPaths.userData, 'renduMass.wav')}`);
 }
 function defSelectInFx(){
 	var txt=""
@@ -1235,7 +1235,7 @@ dureePlayer = duree;
 	}
   //const fileName = file.split(/[\\/]/).pop(); 
   const appPaths = await window.api.getPaths();
-  a.href = window.api.joinPath(appPaths.userData, 'renduout.wav')//URL.createObjectURL(rwav);
+  a.href = window.api.joinPath(appPaths.userData, 'renduMass.wav')//URL.createObjectURL(rwav);
   a.download = file;
   a.textContent = 'Sauvegarder le fichier audio';
   a.style.display = 'inline-block';
@@ -1245,7 +1245,7 @@ dureePlayer = duree;
   a.style.color = 'white';
   a.style.borderRadius = '6px';
   a.style.textDecoration = 'none';
-  window.api.send("toMain", `wasmSpectrogram;${window.api.joinPath(appPaths.userData, 'renduout.wav')}`);
+  window.api.send("toMain", `wasmSpectrogram;${window.api.joinPath(appPaths.userData, 'renduMass.wav')}`);
 }
 async function readMasterOutput() {
 	var nbOut=parseInt(document.getElementById("nbc").value);
@@ -1255,8 +1255,8 @@ async function readMasterOutput() {
 		masterChannels[i]=await readOutput("spkOut"+i,1);
 	}
 	const appPaths = await window.api.getPaths();
-	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduout.wav'), buffer: { sampleRate, channels: masterChannels } });
-	saveRenduAudio(numSamples/sampleRate, window.api.joinPath(appPaths.userData, 'renduout.wav'));
+	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduMass.wav'), buffer: { sampleRate, channels: masterChannels } });
+	saveRenduAudio(numSamples/sampleRate, window.api.joinPath(appPaths.userData, 'renduMass.wav'));
 }
 
 async function wasm() {
@@ -1267,8 +1267,8 @@ async function wasm() {
    curChannel = await applyFxBuffersMono(tableObjIn[inActif],curChannel,numSamples,sampleRate);
    const appPaths = await window.api.getPaths();
    const mode=0;
-	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduout.wav'), buffer: { sampleRate, channels: curChannel } });
-	window.api.send("toMain", `openMassWasm;${inActif};${window.api.joinPath(appPaths.userData, 'renduout.wav')};${sampleRate};${mode}`);
+	await window.api.saveAudioBuffer({ filePath: window.api.joinPath(appPaths.userData, 'renduMass.wav'), buffer: { sampleRate, channels: curChannel } });
+	window.api.send("toMain", `openMassWasm;${inActif};${window.api.joinPath(appPaths.userData, 'renduMass.wav')};${sampleRate};${mode}`);
 	
 }
 async function rtWasmHost(canal, buffer) {
