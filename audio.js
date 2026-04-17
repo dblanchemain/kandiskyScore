@@ -839,7 +839,8 @@ function renderIntervalleAudio(){
 			await renderHoaBinaural(lsgrp);
 			return;
 		}
-		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),deb);
+		const base = lsgrp.length > 0 ? tableObjet[lsgrp[0]].posX : deb;
+		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
 		console.log("retour",rt.duration,rt.output);
 		saveRenduAudio(rt.duration,rt.output);
 	})();
