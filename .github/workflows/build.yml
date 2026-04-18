@@ -40,7 +40,7 @@ jobs:
 
       - name: Install PortAudio (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y rpm libportaudio2 portaudio19-dev
+        run: sudo apt-get install -y rpm libportaudio2 portaudio19-dev libsndfile1 libsndfile1-dev
 
       - name: Install PortAudio (macOS)
         if: matrix.os == 'macos-latest'

@@ -15,45 +15,57 @@
 
 import sys
 import os
-from PyInstaller.utils.hooks import collect_all, collect_dynamic_libs, collect_data_files
+import ctypes.util
+from PyInstaller.utils.hooks import collect_all, collect_data_files
 
-datas      = []
-binaries   = []
+datas         = []
+binaries      = []
 hiddenimports = []
 
-# sounddevice et soundfile sont des modules simples (pas des packages),
-# collect_all ne fonctionne pas — collecter leurs données compagnes explicitement.
-# _sounddevice_data contient les binaires PortAudio.
-# _soundfile_data contient libsndfile.
-for companion in ['_sounddevice_data', '_soundfile_data']:
-    try:
-        d, b, h = collect_all(companion)
-        datas      += d
-        binaries   += b
-        hiddenimports += h
-    except Exception:
-        pass
+# ── sounddevice ──────────────────────────────────────────────────────────────
+# sounddevice est un module simple (pas un package) : collect_all ne fonctionne
+# pas. Sur Linux il charge libportaudio via ctypes.util.find_library ; sur
+# Windows/macOS le wheel embarque ses propres binaires dans _sounddevice_data.
+import sounddevice as _sd
+datas.append((_sd.__file__, '.'))
 
-# Collecter sounddevice/soundfile en tant que modules simples
-import sounddevice, soundfile
-for mod, obj in [('sounddevice', sounddevice), ('soundfile', soundfile)]:
-    mod_file = obj.__file__
-    datas.append((mod_file, '.'))
-    # Collecter les libs dynamiques dans le répertoire du module
-    mod_dir = os.path.dirname(mod_file)
-    for lib_dir in [mod_dir, os.path.join(mod_dir, '_sounddevice_data'),
-                    os.path.join(mod_dir, '_soundfile_data')]:
-        if os.path.isdir(lib_dir):
-            datas.append((lib_dir, os.path.basename(lib_dir)))
+if sys.platform.startswith('linux'):
+    for lib in ['portaudio', 'portaudio-2.0']:
+        p = ctypes.util.find_library(lib)
+        if p and os.path.isfile(p):
+            binaries.append((p, '.'))
+            break
+else:
+    # Windows / macOS : _sounddevice_data contient les binaires PortAudio
+    sd_dir = os.path.dirname(_sd.__file__)
+    sd_data = os.path.join(sd_dir, '_sounddevice_data')
+    if os.path.isdir(sd_data):
+        datas.append((sd_data, '_sounddevice_data'))
 
-# numpy, pyrubberband, websockets : packages normaux
+# ── soundfile ────────────────────────────────────────────────────────────────
+import soundfile as _sf
+datas.append((_sf.__file__, '.'))
+
+if sys.platform.startswith('linux'):
+    for lib in ['sndfile', 'sndfile-1.0']:
+        p = ctypes.util.find_library(lib)
+        if p and os.path.isfile(p):
+            binaries.append((p, '.'))
+            break
+else:
+    sf_dir = os.path.dirname(_sf.__file__)
+    for sub in ['_soundfile_data', '_soundfile_binaries']:
+        sf_data = os.path.join(sf_dir, sub)
+        if os.path.isdir(sf_data):
+            datas.append((sf_data, sub))
+
+# ── numpy, pyrubberband, websockets ─────────────────────────────────────────
 for pkg in ['numpy', 'pyrubberband', 'websockets']:
     d, b, h = collect_all(pkg)
     datas      += d
     binaries   += b
     hiddenimports += h
 
-# Imports cachés supplémentaires
 hiddenimports += [
     'sounddevice',
     'soundfile',
@@ -78,7 +90,7 @@ a = Analysis(
         'tkinter', 'matplotlib', 'PIL', 'cv2',
         'IPython', 'jupyter', 'notebook',
         'PyQt5', 'PyQt6', 'wx', 'gi',
-        # Exclure tous les tests numpy (très lourds, inutiles en runtime)
+        # Tests numpy inutiles en runtime (allègent considérablement le bundle)
         'numpy.core.tests', 'numpy.distutils.tests', 'numpy.f2py.tests',
         'numpy.fft.tests', 'numpy.lib.tests', 'numpy.linalg.tests',
         'numpy.ma.tests', 'numpy.matrixlib.tests', 'numpy.polynomial.tests',
