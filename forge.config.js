@@ -48,7 +48,7 @@ module.exports = {
         options: {
           depends: ['libportaudio2', 'libsndfile1', 'python3', 'python3-pip'],
           scripts: {
-            postinstall: path.join(__dirname, 'scripts', 'postinstall-linux.sh'),
+            postinst: path.join(__dirname, 'scripts', 'postinstall-linux.sh'),
           },
         },
       },
@@ -59,7 +59,7 @@ module.exports = {
         options: {
           requires: ['portaudio', 'libsndfile', 'python3', 'python3-pip'],
           scripts: {
-            postInstall: path.join(__dirname, 'scripts', 'postinstall-linux.sh'),
+            post: path.join(__dirname, 'scripts', 'postinstall-linux.sh'),
           },
         },
       },
