@@ -43,17 +43,17 @@ module.exports = {
   hooks: {
     preMake: async () => {
       const platform = process.platform;
+      const root     = path.resolve(__dirname);
 
       if (platform === 'win32') {
-        // Windows : Python Embeddable + audio_server.py (pas PyInstaller)
-        const pythonExe = 'resources/bin/win/python/python.exe';
+        const pythonExe = path.join(root, 'resources', 'bin', 'win', 'python', 'python.exe');
         if (fs.existsSync(pythonExe)) {
           console.log('✓ Python embeddable déjà présent, setup ignoré.');
         } else {
           console.log('▶ Installation Python Embeddable (Windows)...');
           execSync(
-            'powershell -ExecutionPolicy Bypass -File scripts\\setup-python-win.ps1',
-            { stdio: 'inherit' }
+            `powershell -ExecutionPolicy Bypass -File "${path.join(root, 'scripts', 'setup-python-win.ps1')}"`,
+            { stdio: 'inherit', cwd: root }
           );
         }
         return;
@@ -61,8 +61,8 @@ module.exports = {
 
       // Linux / macOS : binaire PyInstaller autonome
       const binMap = {
-        linux:  'resources/bin/linux/audio_server',
-        darwin: 'resources/bin/mac/audio_server',
+        linux:  path.join(root, 'resources', 'bin', 'linux', 'audio_server'),
+        darwin: path.join(root, 'resources', 'bin', 'mac',   'audio_server'),
       };
       const dest = binMap[platform];
       if (!dest) return;
@@ -71,9 +71,9 @@ module.exports = {
         return;
       }
       console.log('▶ Compilation audio_server via PyInstaller...');
-      execSync('python3 -m PyInstaller audio_server.spec', { stdio: 'inherit' });
+      execSync('python3 -m PyInstaller audio_server.spec', { stdio: 'inherit', cwd: root });
       fs.mkdirSync(path.dirname(dest), { recursive: true });
-      fs.copyFileSync('dist/audio_server', dest);
+      fs.copyFileSync(path.join(root, 'dist', 'audio_server'), dest);
       fs.chmodSync(dest, 0o755);
       console.log(`✅ audio_server compilé → ${dest}`);
     },

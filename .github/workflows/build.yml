@@ -32,9 +32,22 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Install dependencies (Linux)
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PortAudio (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y rpm
+        run: sudo apt-get install -y rpm libportaudio2 portaudio19-dev
+
+      - name: Install PortAudio (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install portaudio
+
+      - name: Install PyInstaller + dépendances audio (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: pip install pyinstaller sounddevice soundfile numpy pyrubberband websockets
 
       - name: Install npm dependencies
         run: npm ci
