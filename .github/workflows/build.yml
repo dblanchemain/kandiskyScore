@@ -12,6 +12,7 @@ jobs:
   build:
     timeout-minutes: 60
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
