@@ -44,11 +44,25 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        options: {
+          depends: ['libportaudio2', 'libsndfile1', 'python3', 'python3-pip'],
+          scripts: {
+            postinstall: path.join(__dirname, 'scripts', 'postinstall-linux.sh'),
+          },
+        },
+      },
     },
     {
       name: '@electron-forge/maker-rpm',
-      config: {},
+      config: {
+        options: {
+          requires: ['portaudio', 'libsndfile', 'python3', 'python3-pip'],
+          scripts: {
+            postInstall: path.join(__dirname, 'scripts', 'postinstall-linux.sh'),
+          },
+        },
+      },
     },
   ],
   hooks: {
