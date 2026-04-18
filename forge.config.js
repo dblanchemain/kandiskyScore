@@ -59,11 +59,15 @@ module.exports = {
       }
 
       console.log('▶ Compilation audio_server via PyInstaller...');
-      execSync(`${entry.py} -m PyInstaller audio_server.spec`, { stdio: 'inherit', cwd: root });
-      fs.mkdirSync(path.dirname(entry.dest), { recursive: true });
-      fs.copyFileSync(path.join(root, 'dist', `audio_server${entry.ext}`), entry.dest);
-      if (platform !== 'win32') fs.chmodSync(entry.dest, 0o755);
-      console.log(`✅ audio_server compilé → ${entry.dest}`);
+      try {
+        execSync(`${entry.py} -m PyInstaller audio_server.spec`, { stdio: 'inherit', cwd: root });
+        fs.mkdirSync(path.dirname(entry.dest), { recursive: true });
+        fs.copyFileSync(path.join(root, 'dist', `audio_server${entry.ext}`), entry.dest);
+        if (platform !== 'win32') fs.chmodSync(entry.dest, 0o755);
+        console.log(`✅ audio_server compilé → ${entry.dest}`);
+      } catch (err) {
+        console.warn(`⚠️  PyInstaller échoué, fallback audio_server.py : ${err.message}`);
+      }
     },
   },
   plugins: [
