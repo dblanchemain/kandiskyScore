@@ -51,6 +51,15 @@ jobs:
         if: matrix.os != 'ubuntu-latest'
         run: pip install pyinstaller sounddevice soundfile numpy pyrubberband websockets
 
+      - name: Cache Electron binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/electron
+            ~/.cache/electron
+            %APPDATA%\electron\Cache
+          key: electron-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install npm dependencies
         run: npm ci
 
