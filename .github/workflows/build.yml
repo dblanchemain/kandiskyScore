@@ -40,13 +40,14 @@ jobs:
 
       - name: Install PortAudio (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y rpm libportaudio2 portaudio19-dev libsndfile1 libsndfile1-dev
+        run: sudo apt-get install -y rpm
 
       - name: Install PortAudio (macOS)
         if: matrix.os == 'macos-latest'
         run: brew install portaudio
 
-      - name: Install PyInstaller + dépendances audio
+      - name: Install PyInstaller + dépendances audio (macOS / Windows)
+        if: matrix.os != 'ubuntu-latest'
         run: pip install pyinstaller sounddevice soundfile numpy pyrubberband websockets
 
       - name: Install npm dependencies

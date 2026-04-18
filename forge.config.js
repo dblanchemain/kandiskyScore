@@ -45,10 +45,17 @@ module.exports = {
       const platform = process.platform;
       const root     = path.resolve(__dirname);
 
+      // Linux : pas de PyInstaller — PortAudio charge libjack.so dynamiquement,
+      // incompatible avec un binaire one-file isolé. Le fallback audio_server.py
+      // (Python système) fonctionne parfaitement avec JACK/PulseAudio/PipeWire.
+      if (platform === 'linux') {
+        console.log('ℹ️  Linux : fallback audio_server.py (Python système), pas de PyInstaller.');
+        return;
+      }
+
       const binMap = {
-        linux:  { dest: path.join(root, 'resources', 'bin', 'linux', 'audio_server'),     ext: '',     py: 'python3' },
-        darwin: { dest: path.join(root, 'resources', 'bin', 'mac',   'audio_server'),     ext: '',     py: 'python3' },
-        win32:  { dest: path.join(root, 'resources', 'bin', 'win',   'audio_server.exe'), ext: '.exe', py: 'python'  },
+        darwin: { dest: path.join(root, 'resources', 'bin', 'mac', 'audio_server'),       ext: '',     py: 'python3' },
+        win32:  { dest: path.join(root, 'resources', 'bin', 'win', 'audio_server.exe'),   ext: '.exe', py: 'python'  },
       };
       const entry = binMap[platform];
       if (!entry) return;
