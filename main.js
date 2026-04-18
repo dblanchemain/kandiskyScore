@@ -774,7 +774,15 @@ app.whenReady().then(async () => {
   }
   // Démarrer le serveur audio Python en arrière-plan
   startAudioServer().catch(err => {
-    console.error('⚠️ audio_server.py non disponible :', err.message);
+    console.error('⚠️ audio_server non disponible :', err.message);
+    const audioBin = findAudioServerBin();
+    const detail = audioBin
+      ? `Binaire : ${audioBin}\n\nErreur : ${err.message}`
+      : `Erreur : ${err.message}\n\nVérifiez que Python 3 est installé avec les dépendances :\npip install sounddevice soundfile numpy pyrubberband websockets`;
+    dialog.showErrorBox(
+      'kandiskyScore — serveur audio indisponible',
+      `La lecture audio ne fonctionnera pas.\n\n${detail}`
+    );
   });
   // Charger dynamiquement Rubber Band
  	//await initializeRubberBand();
