@@ -41,7 +41,7 @@ module.exports = {
     },
   ],
   hooks: {
-    preMake: async () => {
+    prePackage: async () => {
       const platform = process.platform;
       const root     = path.resolve(__dirname);
 
