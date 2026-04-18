@@ -45,37 +45,25 @@ module.exports = {
       const platform = process.platform;
       const root     = path.resolve(__dirname);
 
-      if (platform === 'win32') {
-        const pythonExe = path.join(root, 'resources', 'bin', 'win', 'python', 'python.exe');
-        if (fs.existsSync(pythonExe)) {
-          console.log('✓ Python embeddable déjà présent, setup ignoré.');
-        } else {
-          console.log('▶ Installation Python Embeddable (Windows)...');
-          execSync(
-            `powershell -ExecutionPolicy Bypass -File "${path.join(root, 'scripts', 'setup-python-win.ps1')}"`,
-            { stdio: 'inherit', cwd: root }
-          );
-        }
-        return;
-      }
-
-      // Linux / macOS : binaire PyInstaller autonome
       const binMap = {
-        linux:  path.join(root, 'resources', 'bin', 'linux', 'audio_server'),
-        darwin: path.join(root, 'resources', 'bin', 'mac',   'audio_server'),
+        linux:  { dest: path.join(root, 'resources', 'bin', 'linux', 'audio_server'),     ext: '',     py: 'python3' },
+        darwin: { dest: path.join(root, 'resources', 'bin', 'mac',   'audio_server'),     ext: '',     py: 'python3' },
+        win32:  { dest: path.join(root, 'resources', 'bin', 'win',   'audio_server.exe'), ext: '.exe', py: 'python'  },
       };
-      const dest = binMap[platform];
-      if (!dest) return;
-      if (fs.existsSync(dest)) {
+      const entry = binMap[platform];
+      if (!entry) return;
+
+      if (fs.existsSync(entry.dest)) {
         console.log('✓ audio_server déjà compilé, build ignoré.');
         return;
       }
+
       console.log('▶ Compilation audio_server via PyInstaller...');
-      execSync('python3 -m PyInstaller audio_server.spec', { stdio: 'inherit', cwd: root });
-      fs.mkdirSync(path.dirname(dest), { recursive: true });
-      fs.copyFileSync(path.join(root, 'dist', 'audio_server'), dest);
-      fs.chmodSync(dest, 0o755);
-      console.log(`✅ audio_server compilé → ${dest}`);
+      execSync(`${entry.py} -m PyInstaller audio_server.spec`, { stdio: 'inherit', cwd: root });
+      fs.mkdirSync(path.dirname(entry.dest), { recursive: true });
+      fs.copyFileSync(path.join(root, 'dist', `audio_server${entry.ext}`), entry.dest);
+      if (platform !== 'win32') fs.chmodSync(entry.dest, 0o755);
+      console.log(`✅ audio_server compilé → ${entry.dest}`);
     },
   },
   plugins: [
