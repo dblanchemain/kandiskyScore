@@ -78,6 +78,12 @@ a = Analysis(
         'tkinter', 'matplotlib', 'PIL', 'cv2',
         'IPython', 'jupyter', 'notebook',
         'PyQt5', 'PyQt6', 'wx', 'gi',
+        # Exclure tous les tests numpy (très lourds, inutiles en runtime)
+        'numpy.core.tests', 'numpy.distutils.tests', 'numpy.f2py.tests',
+        'numpy.fft.tests', 'numpy.lib.tests', 'numpy.linalg.tests',
+        'numpy.ma.tests', 'numpy.matrixlib.tests', 'numpy.polynomial.tests',
+        'numpy.random.tests', 'numpy.testing.tests', 'numpy.tests',
+        'numpy.typing.tests', 'numpy.distutils',
     ],
     noarchive=False,
 )
