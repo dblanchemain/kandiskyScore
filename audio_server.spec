@@ -14,15 +14,40 @@
 #   resources/bin/win/audio_server.exe
 
 import sys
-from PyInstaller.utils.hooks import collect_all, collect_dynamic_libs
+import os
+from PyInstaller.utils.hooks import collect_all, collect_dynamic_libs, collect_data_files
 
 datas      = []
 binaries   = []
 hiddenimports = []
 
-# Collecter tous les fichiers (données + bibliothèques natives + imports cachés)
-# pour chaque dépendance majeure
-for pkg in ['sounddevice', 'soundfile', 'numpy', 'pyrubberband', 'websockets']:
+# sounddevice et soundfile sont des modules simples (pas des packages),
+# collect_all ne fonctionne pas — collecter leurs données compagnes explicitement.
+# _sounddevice_data contient les binaires PortAudio.
+# _soundfile_data contient libsndfile.
+for companion in ['_sounddevice_data', '_soundfile_data']:
+    try:
+        d, b, h = collect_all(companion)
+        datas      += d
+        binaries   += b
+        hiddenimports += h
+    except Exception:
+        pass
+
+# Collecter sounddevice/soundfile en tant que modules simples
+import sounddevice, soundfile
+for mod, obj in [('sounddevice', sounddevice), ('soundfile', soundfile)]:
+    mod_file = obj.__file__
+    datas.append((mod_file, '.'))
+    # Collecter les libs dynamiques dans le répertoire du module
+    mod_dir = os.path.dirname(mod_file)
+    for lib_dir in [mod_dir, os.path.join(mod_dir, '_sounddevice_data'),
+                    os.path.join(mod_dir, '_soundfile_data')]:
+        if os.path.isdir(lib_dir):
+            datas.append((lib_dir, os.path.basename(lib_dir)))
+
+# numpy, pyrubberband, websockets : packages normaux
+for pkg in ['numpy', 'pyrubberband', 'websockets']:
     d, b, h = collect_all(pkg)
     datas      += d
     binaries   += b
@@ -30,6 +55,8 @@ for pkg in ['sounddevice', 'soundfile', 'numpy', 'pyrubberband', 'websockets']:
 
 # Imports cachés supplémentaires
 hiddenimports += [
+    'sounddevice',
+    'soundfile',
     'asyncio',
     'websockets.server',
     'websockets.legacy',
