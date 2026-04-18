@@ -226,19 +226,7 @@ function startAudioServer() {
       // ── Fallback : Python + script .py ──────────────────────────────────────
       const python = findPythonPath();
 
-      // Sous Windows, si Python embeddable absent, afficher un message clair
-      if (platform === 'win32') {
-        const embedded = path.join(baseDir, 'win', 'python', 'python.exe');
-        if (!existsSync(embedded) && python === 'python') {
-          const msg =
-            'Python introuvable.\n\n' +
-            'Exécutez une fois avant de lancer l\'application :\n' +
-            'powershell -ExecutionPolicy Bypass -File scripts\\setup-python-win.ps1';
-          dialog.showErrorBox('kandiskyScore — dépendance manquante', msg);
-        }
-      }
-
-      const script = app.isPackaged
+const script = app.isPackaged
         ? path.join(process.resourcesPath, 'audio_server.py')
         : path.join(__dirname, 'audio_server.py');
 
