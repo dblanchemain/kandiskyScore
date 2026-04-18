@@ -12,7 +12,10 @@
 
 // main.js
 
-// Modules de controle du cycle de vie de l'application et de création 
+// Gestion des événements Squirrel (installeur Windows) — doit être en tout premier
+if (require('electron-squirrel-startup')) app.quit();
+
+// Modules de controle du cycle de vie de l'application et de création
 // de fenêtre native de navigateur
 const { app, dialog, BrowserWindow, Menu, MenuItem, ipcMain, ipcRenderer, shell } = require('electron');
 const url = require('url');

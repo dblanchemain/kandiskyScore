@@ -25,7 +25,11 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        name: 'kandiskyScore',
+        authors: 'D.Blanchemain',
+        description: 'kandiskyScore — compositeur de partitions spatiales',
+      },
     },
     {
       name: '@electron-forge/maker-zip',
