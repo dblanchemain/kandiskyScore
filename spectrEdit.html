@@ -438,12 +438,10 @@ async function restartWithVol() {
 	if (!isPlaying) return;
 	const trimStart = Math.max(0, playheadSample / sampleRate);
 	const volParam = getVolParam();
-	const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
 	await window.api.killAudio();
-	// Recaler playStartTime pour que la tête de lecture continue sans saut
 	playStartTime = performance.now() - trimStart * 1000;
 	const soxParams = `${volParam} trim ${trimStart.toFixed(4)} 0`;
-	await window.api.playDirectFile(0, playPath, soxParams);
+	await window.api.playFromBuffer({ sampleRate, channels: gainBuffers, soxParams });
 }
 function getVolParam() {
 	const dB = parseFloat(document.getElementById("tgain").value) || 0;
@@ -480,9 +478,7 @@ async function defGain(){
 }
 async function playBuffers() {
     await window.api.killAudio();
-    const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
-    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
-    await window.api.playDirectFile(0, playPath, getVolParam());
+    await window.api.playFromBuffer({ sampleRate, channels: gainBuffers, soxParams: getVolParam() });
     playStartTime = performance.now();
     isPlaying = true;
     updatePlayhead();

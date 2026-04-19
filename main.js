@@ -4991,6 +4991,16 @@ ipcMain.handle('load-wasm', async (event, dspName) => {
 
   return { wasmBytes, json };
 });
+ipcMain.handle("play-from-buffer", async (event, { sampleRate, channels, soxParams }) => {
+	const floatChannels = channels.map(ch => new Float32Array(ch));
+	const wavAB = await WavEncoder.encode({ sampleRate, channelData: floatChannels });
+	const tmpPath = path.join(os.tmpdir(), `renduplay_${Date.now()}.wav`);
+	await fs.promises.writeFile(tmpPath, Buffer.from(wavAB));
+	const dsp = parseSoxParams(soxParams);
+	sendAudio({ cmd: 'play', id: `direct_${Date.now()}`, file: tmpPath, notify_end: true, ...dsp });
+	return { ok: true };
+});
+
 ipcMain.handle("send-to-wam", async (event, { sampleRate, canal, mode, channels }) => {
 	const floatChannels = channels.map(ch => new Float32Array(ch));
 	const wavArrayBuffer = await WavEncoder.encode({ sampleRate, channelData: floatChannels });
