@@ -2656,8 +2656,8 @@ function openSpectWasm(id,file,rate,mode) {
 	}); 
 	
 	}else{
-		// Fenêtre déjà ouverte — recharger avec le nouveau fichier
-		const reloadFileUrl = url.pathToFileURL(file).href;
+		// Fenêtre déjà ouverte — recharger avec le nouveau fichier (cache-bust pour éviter l'ancien renduout.wav)
+		const reloadFileUrl = url.pathToFileURL(file).href + '?t=' + Date.now();
 		winSpectWam.webContents.send("fromMain", `reloadPlayer;${reloadFileUrl}`);
 	}
 }

@@ -328,16 +328,13 @@ async function rtWasmHost(canal, buffer) {
 
 	objSelect.tableFx = ["0","0","0","0","0","0","0"];
 	objSelect.tableFxParam = [];
+	// Synchroniser currentChannels depuis gainBuffers sans round-trip WAV
+	currentChannels = gainBuffers.map(c => new Float32Array(c));
+	numSamples = gainBuffers[0].length;
+	Duree = numSamples / sampleRate;
+
 	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
 	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
-
-	// Recharger le lecteur de spectrEdit depuis le fichier mis à jour
-	// (garantit que gainBuffers et currentChannels reflètent exactement le fichier sur disque)
-	const rt = await window.api.loadBuffers(outPath);
-	if (rt && Array.isArray(rt.channels) && rt.channels.length > 0) {
-		currentChannels = rt.channels.map(ch => new Float32Array(ch));
-		gainBuffers = currentChannels.map(c => new Float32Array(c));
-	}
 
 	// Notifier WAM2 de recharger son lecteur
 	window.api.send("toMain", `reloadWamPlayer;${outPath}`);
