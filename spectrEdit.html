@@ -389,6 +389,8 @@ async function undo(){
 
     const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+    const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 
     updateSpectro();
 }
@@ -409,6 +411,8 @@ async function redo(){
 
     const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+    const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 
     updateSpectro();
 }
@@ -470,16 +474,17 @@ async function defGain(){
             buf[i] *= gain;
         }
     }
-    var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+    var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
     await window.api.saveAudioBuffer({
         filePath: outPath,
         buffer: { sampleRate, channels: gainBuffers }
     });
+    const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 }
 async function playBuffers() {
     await window.api.killAudio();
     const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
-    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
     await window.api.playDirectFile(0, playPath, getVolParam());
     playStartTime = performance.now();
     isPlaying = true;
@@ -1001,19 +1006,23 @@ async function defSpectro() {
     // Clone des buffers pour traitement
     currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
     gainBuffers = currentChannels.map(c => new Float32Array(c));
-    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
 	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  gainBuffers  } });
+	 const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+	 await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 	 resizeLayout();
 	 updateSpectro();
 	 drawWaveform();
 }
 async function restaureBuffers() {
 	gainBuffers = currentChannels.map(c => new Float32Array(c));
-	var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
+	var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
     await window.api.saveAudioBuffer({
         filePath: outPath,
         buffer: { sampleRate, channels: gainBuffers }
     });
+	const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+	await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 	await updateSpectro();
 
 }
@@ -1071,6 +1080,8 @@ async function fxValidAddPlugin(filtre){
 	updateSpectro();
 	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
 	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+	const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+	await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 }
 function fxParam(id) {
 	idFxParam=id
@@ -1677,6 +1688,8 @@ async function eraseSelection(){
        
     var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
 	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });
+	 const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+	 await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 	 updateSpectro();
 }
 async function filtreSelection(){
@@ -1685,6 +1698,8 @@ async function filtreSelection(){
     var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
     gainBuffers=currentChannels.map(c => new Float32Array(c));
 	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels} });
+	 const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+	 await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 	 updateSpectro();
 }
 async function moveSelection(){
@@ -1693,6 +1708,8 @@ async function moveSelection(){
     var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
     gainBuffers=currentChannels.map(c => new Float32Array(c));
 	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels} });
+	 const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+	 await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
 	 updateSpectro();
 }
 
