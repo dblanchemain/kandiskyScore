@@ -341,6 +341,17 @@ async function rtWasmHost(canal, buffer) {
 
 	// Notifier WAM2 de recharger son lecteur
 	window.api.send("toMain", `reloadWamPlayer;${outPath}`);
+
+	// Synchroniser renduplay.wav — le player doit correspondre au spectro
+	const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+	await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
+	if (isPlaying) {
+		await window.api.killAudio();
+		isPlaying = false;
+	}
+
+	numSamples = gainBuffers[0].length;
+	Duree = numSamples / sampleRate;
 	updateSpectro();
 	drawWaveform();
 }
