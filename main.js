@@ -4994,7 +4994,30 @@ ipcMain.handle('load-wasm', async (event, dspName) => {
 ipcMain.handle("send-to-wam", async (event, { sampleRate, canal, mode, channels }) => {
 	const floatChannels = channels.map(ch => new Float32Array(ch));
 	const wavArrayBuffer = await WavEncoder.encode({ sampleRate, channelData: floatChannels });
-	await openSpectWamWithBuffer(wavArrayBuffer, sampleRate, canal, mode);
+	const payload = { type: "setSourceBuffer", buffer: wavArrayBuffer, canal, mode, sampleRate };
+	if (winSpectWamEtat === 0) {
+		winSpectWam = new BrowserWindow({ width: 680, height: 530, alwaysOnTop: true,
+			webPreferences: {
+				nodeIntegration: true, contextIsolation: true,
+				enableRemoteModule: false,
+				preload: path.join(__dirname, 'preload.js')
+			}
+		});
+		winSpectWam.loadFile(getWam2File('wam-examples-master', 'packages', 'hostModules', 'host.html'));
+		winSpectWam.removeMenu();
+		if (!app.isPackaged) winSpectWam.webContents.openDevTools();
+		winSpectWamEtat = 1;
+		winSpectWam.webContents.on('did-finish-load', () => {
+			winSpectWam.webContents.send("fromMain", payload);
+		});
+		winSpectWam.on('close', e => {
+			e.preventDefault();
+			winSpectWam.destroy();
+			winSpectWamEtat = 0;
+		});
+	} else {
+		winSpectWam.webContents.send("fromMain", payload);
+	}
 	return { ok: true };
 });
 
