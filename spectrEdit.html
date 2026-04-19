@@ -1048,6 +1048,8 @@ function selectElement(id, valueToSelect) {
 async function fxValidAddPlugin(filtre){
 	pushUndoState(gainBuffers);
 	document.getElementById("listNewFx").style.display="none"
+	if (!selectBuffers || selectBuffers.length === 0)
+		selectBuffers = copySegment(gainBuffers, objSelect.debut, objSelect.fin);
 	fxBuffers= await applyFxBuffers(objSelect,numChannels,selectBuffers,selectBuffers[0].length,sampleRate);
 	selectBuffers=fxBuffers.map(c => new Float32Array(c));
 	gainBuffers= await pasteFx();
