@@ -481,6 +481,7 @@ async function defGain(){
 async function playBuffers() {
     await window.api.killAudio();
     const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
     await window.api.playDirectFile(0, playPath, getVolParam());
     playStartTime = performance.now();
     isPlaying = true;
