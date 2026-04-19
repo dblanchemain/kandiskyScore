@@ -486,11 +486,9 @@ async function playSelection() {
 		 obj.tableFxParam[0]="0.00?"+Math.floor(objSelect.Fl)+"/0.00?"+Math.floor(objSelect.Fh);
 		 selectBuffers = await applyFxBuffers(obj,numChannels, selectBuffers,selectBuffers[0].length,sampleRate);
 
-		 const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav"); 
-	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  selectBuffers } });
-	 
-	 //await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:fxBuffers} }); 
-	 window.api.playDirectFile(0, outPath, getVolParam());
+		 const selectPath = window.api.joinPath(`${baseDatatPath}`, "renduselect.wav");
+	    await window.api.saveAudioBuffer({ filePath: selectPath, buffer: { sampleRate, channels:  selectBuffers } });
+	 window.api.playDirectFile(0, selectPath, getVolParam());
 }
 let playheadSample = 0;
 function drawPlayhead() {
@@ -1026,8 +1024,8 @@ async function defObjSelect() {
 		 obj.tableFx[0]="BandePass";
 		 obj.tableFxParam[0]="0.00?"+Math.floor(objSelect.Fl)+"/0.00?"+Math.floor(objSelect.Fh);
 		 selectBuffers = await applyFxBuffers(obj,numChannels, selectBuffers ,selectBuffers[0].length,sampleRate);
-	    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");    
-	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels:  selectBuffers } });
+	    var selectPath=window.api.joinPath(`${baseDatatPath}`,"renduselect.wav");
+	    await window.api.saveAudioBuffer({ filePath: selectPath, buffer: { sampleRate, channels:  selectBuffers } });
     }
 }
 
