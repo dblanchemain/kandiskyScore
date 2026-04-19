@@ -2656,19 +2656,9 @@ function openSpectWasm(id,file,rate,mode) {
 	}); 
 	
 	}else{
-		/*
-		dialog.showMessageBox({
-	    type: 'info',
-	    buttons: [Qok],
-	    cancelId: 1,
-	    defaultId: 0,
-	    title: Qwarning,
-	    detail: AlertWinOpen
-	  })
-	  */
-	  //winSpectWam.destroy()
-	  winSpectWamEtat=0;
-		console.log('');
+		// Fenêtre déjà ouverte — recharger avec le nouveau fichier
+		const reloadFileUrl = url.pathToFileURL(file).href;
+		winSpectWam.webContents.send("fromMain", `reloadPlayer;${reloadFileUrl}`);
 	}
 }
 const menu2 = Menu.buildFromTemplate(template2);
