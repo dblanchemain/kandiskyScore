@@ -59,6 +59,7 @@ contextBridge.exposeInMainWorld(
     showSaveDialog: (defaultPath) => ipcRenderer.invoke("showSaveDialog", defaultPath),
     loadFile: (filePath) =>ipcRenderer.invoke("loadFile", filePath),
   	 saveAudioBuffer: (...args) => ipcRenderer.invoke("save-audio-buffer", ...args),
+    sendToWam: (data) => ipcRenderer.invoke("send-to-wam", data),
     mergeWithSox: (output, inputs) =>
         ipcRenderer.invoke("runSoxMerge", output, inputs),
         // Audio load

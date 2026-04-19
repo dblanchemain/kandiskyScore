@@ -353,11 +353,7 @@ async function rtWasmHost(canal, buffer) {
 	drawWaveform();
 }
 async function wasm() {
-	// Sauvegarder l'état courant avant d'ouvrir WAM2
-	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
-	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
-	// Envoyer le fichier courant (baseDatatPath) au WAM2, pas userData
-	window.api.send("toMain", `openSpectWasm;${0};${outPath};${sampleRate};${mode}`);
+	await window.api.sendToWam({ sampleRate, canal: 0, mode, channels: gainBuffers });
 }
 
 function pushUndoState(channels) {
