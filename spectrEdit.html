@@ -1061,12 +1061,19 @@ async function fxValidAddPlugin(filtre){
 	document.getElementById("listNewFx").style.display="none"
 	if (!selectBuffers || selectBuffers.length === 0)
 		selectBuffers = copySegment(gainBuffers, objSelect.debut, objSelect.fin);
-	fxBuffers= await applyFxBuffers(objSelect,numChannels,selectBuffers,selectBuffers[0].length,sampleRate);
-	selectBuffers=fxBuffers.map(c => new Float32Array(c));
-	gainBuffers= await pasteFx();
-     updateSpectro();
-    var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
-	    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });
+	fxBuffers = await applyFxBuffers(objSelect, numChannels, selectBuffers, selectBuffers[0].length, sampleRate);
+
+	// Coller fxBuffers à la position de la sélection (pas à mouseX)
+	const startSample = Math.floor(objSelect.debut * sampleRate);
+	for (let ch = 0; ch < gainBuffers.length; ch++) {
+		const src = fxBuffers[Math.min(ch, fxBuffers.length - 1)];
+		const len = Math.min(src.length, gainBuffers[ch].length - startSample);
+		if (len > 0) gainBuffers[ch].set(src.subarray(0, len), startSample);
+	}
+
+	updateSpectro();
+	var outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+	await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
 }
 function fxParam(id) {
 	idFxParam=id
