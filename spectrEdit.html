@@ -1059,9 +1059,9 @@ function selectElement(id, valueToSelect) {
 async function fxValidAddPlugin(filtre){
 	pushUndoState(gainBuffers);
 	document.getElementById("listNewFx").style.display="none"
-	if (!selectBuffers || selectBuffers.length === 0)
-		selectBuffers = copySegment(gainBuffers, objSelect.debut, objSelect.fin);
-	fxBuffers = await applyFxBuffers(objSelect, numChannels, selectBuffers, selectBuffers[0].length, sampleRate);
+	// Toujours extraire depuis gainBuffers — selectBuffers peut être filtrée par defObjSelect
+	const rawSegment = copySegment(gainBuffers, objSelect.debut, objSelect.fin);
+	fxBuffers = await applyFxBuffers(objSelect, numChannels, rawSegment, rawSegment[0].length, sampleRate);
 
 	// Coller fxBuffers à la position de la sélection (pas à mouseX)
 	const startSample = Math.floor(objSelect.debut * sampleRate);
