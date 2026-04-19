@@ -1063,6 +1063,7 @@ function selectElement(id, valueToSelect) {
     element.value = valueToSelect;
 }
 async function fxValidAddPlugin(filtre){
+	if (!objSelect || objSelect.debut >= objSelect.fin) return;
 	pushUndoState(gainBuffers);
 	document.getElementById("listNewFx").style.display="none"
 	// Toujours extraire depuis gainBuffers — selectBuffers peut être filtrée par defObjSelect
