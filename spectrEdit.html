@@ -1008,16 +1008,23 @@ async function defSpectro() {
 	 drawWaveform();
 }
 async function restaureBuffers() {
-	gainBuffers = currentChannels.map(c => new Float32Array(c));
-	var outPath = window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
-    await window.api.saveAudioBuffer({
-        filePath: outPath,
-        buffer: { sampleRate, channels: gainBuffers }
-    });
-	const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
-	await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
-	await updateSpectro();
+    const filePath = window.api.joinPath(`${audioPath}`, obj.file);
+    const rt = await window.api.loadBuffers(filePath);
+    if (!rt || !Array.isArray(rt.channels) || rt.channels.length === 0) return;
 
+    numChannels = rt.numChannels;
+    numSamples  = rt.numSamples;
+    sampleRate  = rt.sampleRate;
+    Duree       = numSamples / sampleRate;
+
+    currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
+    gainBuffers     = currentChannels.map(c => new Float32Array(c));
+
+    const outPath = window.api.joinPath(`${baseDatatPath}`, "renduout.wav");
+    await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers } });
+    const playPath = window.api.joinPath(`${baseDatatPath}`, "renduplay.wav");
+    await window.api.saveAudioBuffer({ filePath: playPath, buffer: { sampleRate, channels: gainBuffers } });
+    await updateSpectro();
 }
 async function updateSpectro() {
 	var nbuffer=await mixToMono(gainBuffers);
