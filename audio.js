@@ -166,27 +166,29 @@ function foo() {
 		 
 		 for(i=0;i<tableListSource.length;i++){
 			if(tableListSource[i].etat==0 && tableListSource[i].start<=parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
-				try {
-				var obj=tableObjet[tableListSource[i].obj];
-				var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
-				 tableListSource[i].etat=1;
-				const options = {
-			    pitchSemitones: obj.detune,
-			    speedFactor: obj.transposition,
-			    gain: obj.gain,
-			    startSec: obj.debut,
-			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
-				 };
-				 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
-				 const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
-				 const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
-				 const fadeIn  = obj.fadeIn  || 'l';
-				 const fadeOut = obj.fadeOut || fadeIn;
-				 const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" fade "+fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
-				 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
-		 		window.api.playDirectFile(1, outPath, soxParams);
-		 		console.log("obj",obj.id,options);
-				} catch(e) { console.error("playback trigger error",e); }
+				tableListSource[i].etat=1;
+				if(tableListSource[i].triggerAudio !== false){
+					try {
+					var obj=tableObjet[tableListSource[i].obj];
+					var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
+					const options = {
+				    pitchSemitones: obj.detune,
+				    speedFactor: obj.transposition,
+				    gain: obj.gain,
+				    startSec: obj.debut,
+				    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
+					 };
+					 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
+					 const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
+					 const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
+					 const fadeIn  = obj.fadeIn  || 'l';
+					 const fadeOut = obj.fadeOut || fadeIn;
+					 const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" fade "+fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
+					 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
+			 		window.api.playDirectFile(1, outPath, soxParams);
+			 		console.log("obj",obj.id,options);
+					} catch(e) { console.error("playback trigger error",e); }
+				}
 		 	}
 		 }
 		 
@@ -271,6 +273,7 @@ function defStudioSrc(lsgrp) {
 		for(let j=0;j<obj.spT.length;j++){
 			var npoint={};
 			var npz=(1.4-obj.spZ[j])/2;
+			npoint.triggerAudio = (j === 0);
 			npoint.start=ntime+(obj.spT[j]*rduree);
 			if(obj.spT[j+1]){
 				npoint.end=ntime+(obj.spT[j+1]*rduree);
