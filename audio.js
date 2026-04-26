@@ -16,7 +16,7 @@ let sourceStat=0;
 let playerStat=0;
 let tableSrc=[];
 let vueStudio=0;
-let vueStudio3D=0;
+window.vueStudio3D=0;
 var points=0;
 var compteur=0;
 var tempoFoo=[];
@@ -191,11 +191,11 @@ function foo() {
 	//}
 	// console.log('time',document.getElementById("renduWav").currentTime)
 
-	 if (vueStudio3D == 1) {
+	 if (window.vueStudio3D == 1) {
 		 for (const objId in tableObjet) {
 			 const obj = tableObjet[objId];
 			 if (!obj.spX || !obj.spT || obj.spT.length < 1) continue;
-			 const startSec = obj.posX / (18 * zoomScale);
+			 const startSec = obj.posX / 18;
 			 const durSec   = (obj.duree * (obj.fin - obj.debut)) / (obj.transposition || 1);
 			 if (barverticTime < startSec || barverticTime > startSec + durSec) continue;
 			 const relT  = Math.max(0, Math.min(1, (barverticTime - startSec) / durSec));
