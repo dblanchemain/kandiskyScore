@@ -51,6 +51,11 @@ function readPart(){
 		playerStat=1;
 		buildPlaylist(lsgrp);
 		maxDuree = tableListSource.reduce((m, src) => Math.max(m, src.end), 0);
+		// Si la barre est déjà après la fin du score, revenir au début
+		const _barNow = parseFloat(document.getElementById("barVerticale").style.left) / (18 * zoomScale);
+		if (_barNow >= maxDuree) {
+			document.getElementById("barVerticale").style.left = "0px";
+		}
 		curTempo=0;
 
 		try {
