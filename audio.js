@@ -172,15 +172,18 @@ function foo() {
 		 if(vueStudio==1 ){
 		 	
 		 	for(i=0;i<tableListSource.length;i++){
-			 	if(tableListSource[i].etat==1 && tableListSource[i].start<parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
-			 		tableListSource[i].etat=2;
-			 		cmd="obj"+i+";"+tableListSource[i].x+";"+tableListSource[i].y+";"+tableListSource[i].z+";"+tableListSource[i].w+";"+tableListSource[i].index+";"+tableListSource[i].img;
-					console.log("createEvtAudio",cmd);					
-					window.api.send("toMain", "createEvtAudio;"+cmd);
+			 	if(tableListSource[i].etat==1 && tableListSource[i].start<barverticTime){
+			 		if(tableListSource[i].end >= barverticTime){
+				 		tableListSource[i].etat=2;
+				 		cmd="obj"+i+";"+tableListSource[i].x+";"+tableListSource[i].y+";"+tableListSource[i].z+";"+tableListSource[i].w+";"+tableListSource[i].index+";"+tableListSource[i].img;
+						window.api.send("toMain", "createEvtAudio;"+cmd);
+					} else {
+						tableListSource[i].etat=3; // déjà terminé, pas d'icône
+					}
 			 	}
 		 	}
 		 	for(i=0;i<tableListSource.length;i++){
-			 	if(tableListSource[i].etat==2 && tableListSource[i].end<parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
+			 	if(tableListSource[i].etat==2 && tableListSource[i].end<barverticTime){
 			 		tableListSource[i].etat=3;
 			 		window.api.send("toMain", "delEvtAudio;obj"+i);
 			 	}
