@@ -182,7 +182,6 @@ function foo() {
 		 	for(i=0;i<tableListSource.length;i++){
 			 	if(tableListSource[i].etat==2 && tableListSource[i].end<parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
 			 		tableListSource[i].etat=3;
-			 		console.log(`delEvtAudio obj${i} end=${tableListSource[i].end.toFixed(3)} barTime=${( parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)).toFixed(3)}`);
 			 		window.api.send("toMain", "delEvtAudio;obj"+i);
 			 	}
 		 	}
@@ -248,7 +247,6 @@ function buildPlaylist(lsgrp) {
 		const ntime  = obj.posX / 18;
 		const spZ0   = (obj.spZ && obj.spZ[0] !== undefined) ? obj.spZ[0] : 0;
 		const npz    = (1.4 - spZ0) / 2;
-		console.log(`buildPlaylist [${i}] id=${lsgrp[i]} posX=${obj.posX} duree=${obj.duree} debut=${obj.debut} fin=${obj.fin} transp=${obj.transposition} → ntime=${ntime.toFixed(3)} durSec=${durSec.toFixed(3)} end=${(ntime+durSec).toFixed(3)}`);
 		tableListSource.push({
 			obj:   lsgrp[i],
 			start: ntime,
