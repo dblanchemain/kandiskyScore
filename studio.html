@@ -19,13 +19,6 @@ body {
 }
 </style>
 	<script type="text/javascript" src="./logger.js"></script>
-<script>
-
-
-
-
-
-</script>
 
 </head>
 <body >
@@ -103,7 +96,7 @@ function defSpatial(tx,ty,tz,g) {
 	}
 	var tby=ty.split(",")
 	for(let i=0;i<tby.length;i++){
-		spY[i]=parseFloat(tby[i])/2
+		spY[i]=parseFloat(tby[i])
 	}
 	var tbz=tz.split(",")
 	for(let i=0;i<tbz.length;i++){
@@ -115,43 +108,30 @@ function defSpatial(tx,ty,tz,g) {
 function createEvtAudio(id,posX,posY,lscale,width,zindex,image) {
 	posX=parseFloat(posX)
 	posY=parseFloat(posY)
+	lscale=parseFloat(lscale)
 	width=parseFloat(width)
 	zindex=parseFloat(zindex)
-	
+
 	var cX=studioCx+(studioCxl*posX*lscale)+(studioCxr*posX);
 	var cY=studioCy+(posY*studioCyl*lscale)+(studioCyr*posY);
-	
-	console.log("studio coord",posX,posY,cX,cY,lscale)
+
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",id);
-	dupnode.setAttribute("style","position:absolute;top:"+(cY-(width/2))+"px;left:"+(cX-(width/2))+"px;width:"+width+"px;height:"+width+"px;z-index:"+zindex+";)");
+	dupnode.setAttribute("style","position:absolute;top:"+(cY-(width/2))+"px;left:"+(cX-(width/2))+"px;width:"+width+"px;height:"+width+"px;z-index:"+zindex+";");
 	var dupnode2=document.createElement('img');
 	dupnode2.setAttribute("src",image);
 	dupnode2.setAttribute("style","width:100%;height:100%;");
 	dupnode.appendChild(dupnode2);
 	document.getElementById("studioDivb").appendChild(dupnode);
 }
-function createEvt(compteur) {
-	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id",ngrp[compteur].id);
-	dupnode.setAttribute("style","position:absolute;top:"+(ngrp[compteur].posY-(ngrp[compteur].width/2))+"px;left:"+(ngrp[compteur].posX-(ngrp[compteur].width/2))+"px;width:"+ngrp[compteur].width+"px;height:"+ngrp[compteur].width+"px;z-index:"+ngrp[compteur].zindex+";)");
-	var dupnode2=document.createElement('img');
-	dupnode2.setAttribute("src",ngrp[compteur].image);
-	dupnode2.setAttribute("style","width:100%;height:100%;");
-	dupnode.appendChild(dupnode2);
-	document.getElementById("studioDivb").appendChild(dupnode);
-}
 function removeEvt(id) {
-console.log("id",id,document.getElementById("studioDivb"))
 	let obj=document.getElementById(id);
-	console.log("id",id,obj)
 	if(obj!=null){
-		document.getElementById(id).style.display='none';
-		document.getElementById(id).parentNode.removeChild(obj);
+		obj.style.display='none';
+		obj.parentNode.removeChild(obj);
 	}
 }
 function endEvt() {
-console.log("endEvt")
 	document.getElementById("studioDivb").innerHTML=""
 }
 function upDateStudio(){
@@ -168,42 +148,27 @@ function upDateStudio(){
 	console.log("width",studioWidth,studioHeight,"cx",studioCx,"cl",studioCxl,"cr",studioCxr,"cyl",studioCyl,"cyr",studioCyr);
 
 }
+function _studioPos(sx, sy, sz) {
+	var lscale = (1.4 - sz) / 2;
+	var pX = studioCx + (studioCxl * sx * lscale) + (studioCxr * sx);
+	var pY = studioCy + (sy * studioCyl * lscale) + (studioCyr * sy);
+	return { pX, pY, lscale };
+}
+function _studioWs(lscale) {
+	if (gain < 0.30)        return { ws: 30 * lscale, im: "./images/png/path4484.png" };
+	if (gain < 0.60)        return { ws: 35 * lscale, im: "./images/png/path4488.png" };
+	if (gain < 0.90)        return { ws: 40 * lscale, im: "./images/png/path4487.png" };
+	if (gain < 1.10)        return { ws: 50 * lscale, im: "./images/png/path4486.png" };
+	if (gain < 1.50)        return { ws: 60 * lscale, im: "./images/png/path4489.png" };
+	if (gain < 2.00)        return { ws: 70 * lscale, im: "./images/png/path4490.png" };
+	                        return { ws: 80 * lscale, im: "./images/png/path4485.png" };
+}
+
 function drawObjActif(){
 	document.getElementById("studioDivb").innerHTML="";
 	for(let i=0;i<spX.length;i++){
-		var lscale=(1-spZ[i])/2;
-		var pX=studioCx+((studioCxl*spX[i]*lscale)+(studioCxr*spX[i]))+50;
-		var pY=studioCy+((spY[i]*studioCyl*lscale)+(studioCyr*spY[i]))+50;
-		lscale=lscale+0.8;
-		if (gain<0.30){
-			var ws=30*lscale;
-			var im="./images/png/path4484.png";
-		}
-		if (gain>=0.30 && gain<0.60){
-			var ws=35*lscale;
-			var im="./images/png/path4488.png";
-		} 
-		if (gain>=0.60 && gain<0.90){
-			var ws=40*lscale;
-			var im="./images/png/path4487.png";
-		}
-		if (gain>=0.90 && gain<1.10){
-			var ws=50*lscale;
-			var im="./images/png/path4486.png";
-		}
-		if (gain>=1.10 && gain<1.5){
-			var ws=60*lscale;
-			var im="./images/png/path4489.png";
-		}
-		if (gain>=1.5 && gain<2.0){
-			var ws=70*lscale;
-			var im="./images/png/path4490.png";
-		}
-		if (gain>=2.0){
-			var ws=80*lscale;
-			var im="./images/png/path4485.png";
-		}
-		
+		var { pX, pY, lscale } = _studioPos(spX[i], spY[i], spZ[i]);
+		var { ws, im } = _studioWs(lscale);
 		var dupnode=document.createElement('div');
 		dupnode.setAttribute("id","Pt"+i);
 		dupnode.setAttribute("title","Pt"+i);
@@ -214,49 +179,21 @@ function drawObjActif(){
 		dupnode.appendChild(dupnode2);
 		document.getElementById("studioDivb").appendChild(dupnode);
 	}
-	
-	
 }
 
 function moveObjActif(){
-
 	for(let i=0;i<spX.length;i++){
-		var lscale=(1-spZ[i])/2;
-		var pX=studioCx+((studioCxl*spX[i]*lscale)+(studioCxr*spX[i]))+50;
-		var pY=studioCy+((spY[i]*studioCyl*lscale)+(studioCyr*spY[i]))+50;
-		lscale=lscale+0.8;
-		if (gain<0.30){
-			var ws=30*lscale;
-		}
-		if (gain>=0.30 && gain<0.60){
-			var ws=35*lscale;
-		} 
-		if (gain>=0.60 && gain<0.90){
-			var ws=40*lscale;
-		}
-		if (gain>=0.90 && gain<1.10){
-			var ws=50*lscale;
-		}
-		if (gain>=1.10 && gain<1.5){
-			var ws=60*lscale;
-		}
-		if (gain>=1.5 && gain<2.0){
-			var ws=70*lscale;
-		}
-		if (gain>=2.0){
-			var ws=80*lscale;
-		}
-		document.getElementById("Pt"+i).style.left=(pX-(ws/2))+"px";
-		document.getElementById("Pt"+i).style.top=(pY-(ws/2))+"px";
-		document.getElementById("Pt"+i).style.width=ws+"px";
-		document.getElementById("Pt"+i).style.height=ws+"px";
-		document.getElementById("Pt"+i).style.zIndex=Math.round((lscale+1)*100);
+		var el=document.getElementById("Pt"+i);
+		if(!el) continue;
+		var { pX, pY, lscale } = _studioPos(spX[i], spY[i], spZ[i]);
+		var { ws } = _studioWs(lscale);
+		el.style.left=(pX-(ws/2))+"px";
+		el.style.top=(pY-(ws/2))+"px";
+		el.style.width=ws+"px";
+		el.style.height=ws+"px";
+		el.style.zIndex=Math.round((lscale+1)*100);
 	}
-	
 }
-window.addEventListener('unload', function (e) { 
-        window.opener.studioClose();
-    });
 </script>
 </body>
 </html>
