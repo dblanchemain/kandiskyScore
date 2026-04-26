@@ -193,6 +193,7 @@ function foo() {
 	 if (window.vueStudio3D == 1) {
 		 for (const objId in tableObjet) {
 			 const obj = tableObjet[objId];
+			 if (obj.class !== 1 || !obj.file) continue;
 			 if (!obj.spX || !obj.spT || obj.spT.length < 1) continue;
 			 const startSec = obj.posX / 18;
 			 const durSec   = (obj.duree * (obj.fin - obj.debut)) / (obj.transposition || 1);
