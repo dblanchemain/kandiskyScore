@@ -108,12 +108,13 @@ nsgrp=nsgrp.sort((s1, s2) => {
 document.getElementById("barVerticale").style.left=nsgrp[nsgrp.length-1].posX+"px";
 defTime("barVerticale");
 }
+var _fooDbgTick=0;
 function foo() {
 	var ht;
 	var st;
 	var mt;
-	
-	
+	if(++_fooDbgTick % 20 === 0) console.log('[foo] playerStat=', playerStat, 'vueStudio3D=', window.vueStudio3D);
+
 	var gtempo=60/parseFloat(document.getElementById("tempo").value);
 	var delay=55*gtempo;
 	

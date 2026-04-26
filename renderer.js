@@ -713,6 +713,8 @@ window.api.receive("fromMain", (data) => {
 				break;
 			case 'openStudio3D':
 				vueStudio3D=1;
+				window.vueStudio3D=1;
+				console.log('[renderer] openStudio3D reçu → window.vueStudio3D=', window.vueStudio3D);
 				break;
 			case 'closeStudio3D':
 				vueStudio3D=0;
