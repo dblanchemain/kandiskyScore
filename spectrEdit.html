@@ -919,7 +919,7 @@ function drawWaveform() {
     const channel = gainBuffers[0];
 
     const drawWidth = width - offsetX;
-    const step = Math.ceil(channel.length / drawWidth);
+    const samplesPerPixel = channel.length / drawWidth;
 
     ctx.beginPath();
     ctx.strokeStyle = "#fa1b30";
@@ -927,17 +927,19 @@ function drawWaveform() {
 
     for (let x = 0; x < drawWidth; x++) {
 
-        const start = x * step;
-        const end = Math.min(start + step, channel.length);
+        const start = Math.floor(x * samplesPerPixel);
+        const end   = Math.min(Math.ceil((x + 1) * samplesPerPixel), channel.length);
 
-        let min = 1;
-        let max = -1;
+        let min =  Infinity;
+        let max = -Infinity;
 
         for (let i = start; i < end; i++) {
             const val = channel[i];
             if (val < min) min = val;
             if (val > max) max = val;
         }
+
+        if (min === Infinity) { min = 0; max = 0; }
 
         const y1 = (1 - max) * height * 0.5;
         const y2 = (1 - min) * height * 0.5;
