@@ -4262,6 +4262,7 @@ ipcMain.on ("toMain", (event, args) => {
 			}
 			break;
 		case 'traj3dCursor':
+			console.log('[main traj3dCursor] winStudio3DEtat=', winStudio3DEtat, cmd[1], cmd[2], cmd[3]);
 			if(winStudio3DEtat==1){
 				winStudio3D.webContents.send("fromMain", "cursorTraj;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			}
