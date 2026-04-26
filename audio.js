@@ -199,10 +199,13 @@ function foo() {
 			 const durSec   = (obj.duree * (obj.fin - obj.debut)) / (obj.transposition || 1);
 			 if (barverticTime < startSec || barverticTime > startSec + durSec) continue;
 			 const relT  = Math.max(0, Math.min(1, (barverticTime - startSec) / durSec));
-			 const spTArr = Array.from(obj.spT);
-			 const cx = interpolate(spTArr, obj.spX, relT);
-			 const cy = interpolate(spTArr, obj.spY, relT);
-			 const cz = interpolate(spTArr, obj.spZ || [], relT);
+			 const spTArr = obj.spT.map(Number);
+			 const spXArr = obj.spX.map(Number);
+			 const spYArr = obj.spY ? obj.spY.map(Number) : [0];
+			 const spZArr = obj.spZ ? obj.spZ.map(Number) : [0];
+			 const cx = interpolate(spTArr, spXArr, relT);
+			 const cy = interpolate(spTArr, spYArr, relT);
+			 const cz = interpolate(spTArr, spZArr, relT);
 			 window.api.send("toMain", `traj3dCursor;${cx.toFixed(3)};${cy.toFixed(3)};${cz.toFixed(3)};${(obj.gain||1).toFixed(3)}`);
 		 }
 	 }
