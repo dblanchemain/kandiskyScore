@@ -33,26 +33,40 @@ function resolveH5WasmPath() {
 }
 const H5WASM_ESM = resolveH5WasmPath();
 
-// Chemin SOFA par défaut selon le système
+// Chemin SOFA par défaut selon le système — retourne null si aucun trouvé
 function findDefaultSofa() {
     const fname = 'MIT_KEMAR_normal_pinna.sofa';
+    let candidates = [];
     if (process.platform === 'win32') {
-        return path.join(
-            process.env['ProgramFiles(x86)'] || process.env['ProgramFiles'] || 'C:\\Program Files',
-            'libmysofa', fname);
-    }
-    if (process.platform === 'darwin') {
-        // Homebrew ARM (M1/M2/M3) puis Intel puis fallback
-        const candidates = [
+        candidates = [
+            path.join(process.env['ProgramFiles(x86)'] || '', 'libmysofa', fname),
+            path.join(process.env['ProgramFiles'] || 'C:\\Program Files', 'libmysofa', fname),
+        ];
+    } else if (process.platform === 'darwin') {
+        candidates = [
             `/opt/homebrew/share/libmysofa/${fname}`,
             `/usr/local/share/libmysofa/${fname}`,
         ];
-        return candidates.find(p => fs.existsSync(p)) || candidates[0];
+    } else {
+        candidates = [
+            `/usr/share/libmysofa/${fname}`,
+            `/usr/local/share/libmysofa/${fname}`,
+        ];
     }
-    // Linux
-    return `/usr/share/libmysofa/${fname}`;
+    return candidates.find(p => fs.existsSync(p)) || null;
 }
 const DEFAULT_SOFA = findDefaultSofa();
+
+const SOFA_INSTALL_HINT =
+    process.platform === 'linux'  ? 'sudo apt install libmysofa-data' :
+    process.platform === 'darwin' ? 'brew install libmysofa' :
+                                    'Installer libmysofa depuis https://github.com/hoene/libmysofa/releases';
+
+// Fallback sans SOFA : extrait le canal W (omnidirectionnel) et le duplique en stéréo
+function sofaFallbackSync(soxPath, ambiXPath, outPath) {
+    const { execSync } = require('child_process');
+    execSync(`"${soxPath}" "${ambiXPath}" "${outPath}" remix 1 1`);
+}
 
 // ─── Utilitaires mathématiques ────────────────────────────────────────────────
 
@@ -378,7 +392,13 @@ async function renderHoaBinaural(ambiXPath, outPath, opts = {}) {
     const sofaPath = opts.sofaPath || DEFAULT_SOFA;
 
     if (!fs.existsSync(ambiXPath)) throw new Error(`Fichier AmbiX introuvable : ${ambiXPath}`);
-    if (!fs.existsSync(sofaPath))  throw new Error(`Fichier SOFA introuvable : ${sofaPath}\nPour Linux : apt install libmysofa-data`);
+
+    if (!sofaPath || !fs.existsSync(sofaPath)) {
+        console.warn(`[binaural-js] SOFA introuvable — fallback canal W stéréo (pas de spatialisation HRTF)`);
+        console.warn(`[binaural-js] Pour activer le rendu binaural complet : ${SOFA_INSTALL_HINT}`);
+        sofaFallbackSync(soxPath, ambiXPath, outPath);
+        return;
+    }
 
     // ── 1. Informations sur le fichier AmbiX ──────────────────────────────────
     console.log(`[binaural-js] analyse : ${path.basename(ambiXPath)}`);
