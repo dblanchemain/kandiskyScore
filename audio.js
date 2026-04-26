@@ -108,12 +108,10 @@ nsgrp=nsgrp.sort((s1, s2) => {
 document.getElementById("barVerticale").style.left=nsgrp[nsgrp.length-1].posX+"px";
 defTime("barVerticale");
 }
-var _fooDbgTick=0;
 function foo() {
 	var ht;
 	var st;
 	var mt;
-	if(++_fooDbgTick % 20 === 0) console.log('[foo] playerStat=', playerStat, 'vueStudio3D=', window.vueStudio3D);
 
 	var gtempo=60/parseFloat(document.getElementById("tempo").value);
 	var delay=55*gtempo;
@@ -193,13 +191,11 @@ function foo() {
 	// console.log('time',document.getElementById("renduWav").currentTime)
 
 	 if (window.vueStudio3D == 1) {
-		 let _sentAny = false;
 		 for (const objId in tableObjet) {
 			 const obj = tableObjet[objId];
 			 if (!obj.spX || !obj.spT || obj.spT.length < 1) continue;
 			 const startSec = obj.posX / 18;
 			 const durSec   = (obj.duree * (obj.fin - obj.debut)) / (obj.transposition || 1);
-			 console.log('[3D cursor] obj', objId, 'bar=', barverticTime.toFixed(2), 'start=', startSec.toFixed(2), 'end=', (startSec+durSec).toFixed(2));
 			 if (barverticTime < startSec || barverticTime > startSec + durSec) continue;
 			 const relT  = Math.max(0, Math.min(1, (barverticTime - startSec) / durSec));
 			 const spTArr = obj.spT.map(Number);
@@ -209,11 +205,8 @@ function foo() {
 			 const cx = interpolate(spTArr, spXArr, relT);
 			 const cy = interpolate(spTArr, spYArr, relT);
 			 const cz = interpolate(spTArr, spZArr, relT);
-			 console.log('[3D cursor] SEND', objId, 'relT=', relT.toFixed(3), cx.toFixed(3), cy.toFixed(3), cz.toFixed(3));
-			 window.api.send("toMain", `traj3dCursor;${cx.toFixed(3)};${cy.toFixed(3)};${cz.toFixed(3)};${(obj.gain||1).toFixed(3)}`);
-			 _sentAny = true;
+			 window.api.send("toMain", `traj3dCursor;${objId};${cx.toFixed(3)};${cy.toFixed(3)};${cz.toFixed(3)};${(obj.gain||1).toFixed(3)}`);
 		 }
-		 if (!_sentAny) console.log('[3D cursor] vueStudio3D=1 mais aucun objet dans la plage');
 	 }
 
 	 if(curTempo < tempoFoo.length && parseFloat(document.getElementById("barVerticale").style.left)>tempoFoo[curTempo].X){

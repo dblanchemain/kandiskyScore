@@ -105,19 +105,33 @@ function draw3dObj(){
 }
 
 
-// Sphère curseur — position en temps réel pendant la lecture
-const cursorGeo = new THREE.SphereGeometry(0.22, 16, 16);
-const cursorMat = new THREE.MeshBasicMaterial({ color: 0xff3300 });
-const cursorSphere = new THREE.Mesh(cursorGeo, cursorMat);
-cursorSphere.visible = false;
-scene.add(cursorSphere);
+// Sphères curseurs — une par objet actif pendant la lecture
+const _cursorSpheres = {};
+function _getCursorSphere(id) {
+	if (!_cursorSpheres[id]) {
+		const geo = new THREE.SphereGeometry(0.22, 16, 16);
+		const mat = new THREE.MeshBasicMaterial({ color: 0xff3300 });
+		const s = new THREE.Mesh(geo, mat);
+		s.visible = false;
+		scene.add(s);
+		_cursorSpheres[id] = s;
+	}
+	return _cursorSpheres[id];
+}
 
 function moveCursor() {
-	const cp = window.cursorPos;
-	if (cp && cp.dirty) {
-		cursorSphere.position.set(cp.x * 3, -cp.y * 2, -cp.z * 3);
-		cursorSphere.visible = true;
-		cp.dirty = false;
+	const map = window.cursorPosMap;
+	if (!map) return;
+	const now = Date.now();
+	for (const id in map) {
+		const cp = map[id];
+		const sphere = _getCursorSphere(id);
+		if (cp.dirty) {
+			sphere.position.set(cp.x * 3, -cp.y * 2, -cp.z * 3);
+			sphere.visible = true;
+			cp.dirty = false;
+		}
+		if (now - cp.t > 300) sphere.visible = false;
 	}
 }
 

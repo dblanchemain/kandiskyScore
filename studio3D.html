@@ -31,11 +31,14 @@ console.log(`objParam : `,data);
 				defSpatial(cmd[1],cmd[2],cmd[3],cmd[4])
 				break
 			case 'cursorTraj':
-				cursorPos.x = parseFloat(cmd[1]);
-				cursorPos.y = parseFloat(cmd[2]);
-				cursorPos.z = parseFloat(cmd[3]);
-				cursorPos.g = parseFloat(cmd[4]);
-				cursorPos.dirty = true;
+				var _oid = cmd[1];
+				if(!cursorPosMap[_oid]) cursorPosMap[_oid]={x:0,y:0,z:0,g:1,dirty:false,t:0};
+				cursorPosMap[_oid].x = parseFloat(cmd[2]);
+				cursorPosMap[_oid].y = parseFloat(cmd[3]);
+				cursorPosMap[_oid].z = parseFloat(cmd[4]);
+				cursorPosMap[_oid].g = parseFloat(cmd[5]);
+				cursorPosMap[_oid].dirty = true;
+				cursorPosMap[_oid].t = Date.now();
 				break
 	}
 	 //console.log(`objParam :`,cmd[0]);      
@@ -45,7 +48,7 @@ let spX=[]
 let spY=[]
 let spZ=[]
 let gain=1
-window.cursorPos={x:0, y:0, z:0, g:1, dirty:false}
+window.cursorPosMap={}
 function defSpatial(tx,ty,tz,g) {
 	
 	for(let i=0;i<spX.length;i++){
