@@ -711,6 +711,12 @@ window.api.receive("fromMain", (data) => {
 			case 'studioEnd':
 				vueStudio=0;
 				break;
+			case 'openStudio3D':
+				vueStudio3D=1;
+				break;
+			case 'closeStudio3D':
+				vueStudio3D=0;
+				break;
 			case 'defSelectImg':
 				defSelectImg(cmd[1]);
 				break;

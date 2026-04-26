@@ -105,6 +105,21 @@ function draw3dObj(){
 }
 
 
+// Sphère curseur — position en temps réel pendant la lecture
+const cursorGeo = new THREE.SphereGeometry(0.22, 16, 16);
+const cursorMat = new THREE.MeshBasicMaterial({ color: 0xff3300 });
+const cursorSphere = new THREE.Mesh(cursorGeo, cursorMat);
+cursorSphere.visible = false;
+scene.add(cursorSphere);
+
+function moveCursor() {
+	if (typeof cursorPos !== 'undefined' && cursorPos.dirty) {
+		cursorSphere.position.set(cursorPos.x * 3, -cursorPos.y * 2, -cursorPos.z * 3);
+		cursorSphere.visible = true;
+		cursorPos.dirty = false;
+	}
+}
+
 const box = new THREE.Box3();
 box.setFromCenterAndSize( new THREE.Vector3( 0,0,0 ), new THREE.Vector3( 6, 4, 6 ) );
 const helper = new THREE.Box3Helper(box, material);
@@ -158,8 +173,8 @@ var timer="";
 function foo() {
 	var delay=50;
 	moveDObjActif();
+	moveCursor();
    timer=setTimeout(foo, delay);
-   
 }
 
 foo();

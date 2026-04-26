@@ -30,7 +30,14 @@ console.log(`objParam : `,data);
 			case 'draw3dObj':
 				defSpatial(cmd[1],cmd[2],cmd[3],cmd[4])
 				break
-	}  
+			case 'cursorTraj':
+				cursorPos.x = parseFloat(cmd[1]);
+				cursorPos.y = parseFloat(cmd[2]);
+				cursorPos.z = parseFloat(cmd[3]);
+				cursorPos.g = parseFloat(cmd[4]);
+				cursorPos.dirty = true;
+				break
+	}
 	 //console.log(`objParam :`,cmd[0]);      
 });
 
@@ -38,6 +45,7 @@ let spX=[]
 let spY=[]
 let spZ=[]
 let gain=1
+let cursorPos={x:0, y:0, z:0, g:1, dirty:false}
 function defSpatial(tx,ty,tz,g) {
 	
 	for(let i=0;i<spX.length;i++){

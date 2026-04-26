@@ -2927,13 +2927,15 @@ function open3dStudio(X,Y,Z,gain) {
 		winStudio3D.removeMenu();
 		if (!app.isPackaged) winStudio3D.webContents.openDevTools()
 		winStudio3DEtat=1;
-		winStudio3D.webContents.on('did-finish-load', function() { //					On attend que la fenêtre soit totalement chargée
+		winStudio3D.webContents.on('did-finish-load', function() {
     		winStudio3D.webContents.send("fromMain", "draw3dObj;"+X+";"+Y+"+;"+Z+";"+gain);
+    		mainWindow.webContents.send("fromMain", "openStudio3D");
   		});
-  		winStudio3D.on('close', e => { 		//													Contrôle à la fermeture de la fenêtre
+  		winStudio3D.on('close', e => {
 		   e.preventDefault();
 		   winStudio3D.destroy();
 		   winStudio3DEtat=0;
+		   mainWindow.webContents.send("fromMain", "closeStudio3D");
 	   });
 	}else{
 		dialog.showMessageBox({
@@ -4257,6 +4259,11 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'move3dObj':
 			if(winStudio3DEtat==1){
 				winStudio3D.webContents.send("fromMain", "moveObjActif;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
+			}
+			break;
+		case 'traj3dCursor':
+			if(winStudio3DEtat==1){
+				winStudio3D.webContents.send("fromMain", "cursorTraj;"+cmd[1]+";"+cmd[2]+";"+cmd[3]+";"+cmd[4]);
 			}
 			break;
 		case 'selectImg':

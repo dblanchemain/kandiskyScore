@@ -16,6 +16,7 @@ let sourceStat=0;
 let playerStat=0;
 let tableSrc=[];
 let vueStudio=0;
+let vueStudio3D=0;
 var points=0;
 var compteur=0;
 var tempoFoo=[];
@@ -210,7 +211,22 @@ function foo() {
 	//}
 	// console.log('time',document.getElementById("renduWav").currentTime)
 
-	 
+	 if (vueStudio3D == 1) {
+		 for (const objId in tableObjet) {
+			 const obj = tableObjet[objId];
+			 if (!obj.spX || !obj.spT || obj.spT.length < 2) continue;
+			 const startSec = obj.posX / (18 * zoomScale);
+			 const durSec   = (obj.duree * (obj.fin - obj.debut)) / (obj.transposition || 1);
+			 if (barverticTime < startSec || barverticTime > startSec + durSec) continue;
+			 const relT  = Math.max(0, Math.min(1, (barverticTime - startSec) / durSec));
+			 const spTArr = Array.from(obj.spT);
+			 const cx = interpolate(spTArr, obj.spX, relT);
+			 const cy = interpolate(spTArr, obj.spY, relT);
+			 const cz = interpolate(spTArr, obj.spZ || [], relT);
+			 window.api.send("toMain", `traj3dCursor;${cx.toFixed(3)};${cy.toFixed(3)};${cz.toFixed(3)};${(obj.gain||1).toFixed(3)}`);
+		 }
+	 }
+
 	 if(curTempo < tempoFoo.length && parseFloat(document.getElementById("barVerticale").style.left)>tempoFoo[curTempo].X){
 	 	//document.getElementById("renduWav").playbackRate =tempoFoo[curTempo].Y/60;
 	 	document.getElementById("tempo").value=tempoFoo[curTempo].Y.toFixed(2);
