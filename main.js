@@ -1492,7 +1492,7 @@ function extractStereoChannels(fd, dataOffset, dataSize, channelCount, bytesPerS
 }
 
 ipcMain.handle('playDirectFile', async (event, mode, filePath, soxParams) => {
-    if (winStudioEtat == 1) {
+    if (winStudioEtat == 1 && mode === 0) {
         winStudio.webContents.send("fromMain", "endEvtAudio");
     }
     const dsp = parseSoxParams(soxParams);
