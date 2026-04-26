@@ -114,7 +114,7 @@ function foo() {
 	var mt;
 
 	var gtempo=60/parseFloat(document.getElementById("tempo").value);
-	var delay=55*gtempo;
+	var delay=(1000/18)*gtempo;
 	
 	var nbp2;
 	var nbp=-1;
