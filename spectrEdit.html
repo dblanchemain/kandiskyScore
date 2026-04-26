@@ -1678,7 +1678,6 @@ function drawSoxClone(ctx, frames, sampleRate, fftSize) {
 async function eraseSelection(){
 	 pushUndoState(gainBuffers);
     gainBuffers = await window.api.eraseSelection(gainBuffers,sampleRate,objSelect);
-    cutSelection(objSelect.fin-0.05, objSelect.fin);
        
     var outPath=window.api.joinPath(`${baseDatatPath}`,"renduout.wav");
 	 await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: gainBuffers} });

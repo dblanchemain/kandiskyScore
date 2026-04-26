@@ -6399,27 +6399,29 @@ ipcMain.handle('eraseSelection', async (event, buffers, sampleRate, objSelect) =
     const fftSize = 2048;
     const hop     = fftSize / 4;
     const bins    = fftSize / 2;
+    const taper   = 6; // bins de tapering spectral aux bords Fl/Fh
 
-    const window = new Float32Array(fftSize);
+    const win = new Float32Array(fftSize);
     for (let i = 0; i < fftSize; i++)
-        window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+        win[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
 
     const binStart    = Math.floor(objSelect.Fl * fftSize / sampleRate);
     const binEnd      = Math.ceil(objSelect.Fh * fftSize / sampleRate);
     const startSample = Math.floor(objSelect.debut * sampleRate);
     const endSample   = Math.floor(objSelect.fin * sampleRate);
+    const xfadeSamples = Math.min(Math.floor(0.02 * sampleRate), Math.floor((endSample - startSample) / 2));
 
     const fft = new FFTModule(fftSize);
 
     const outBuffers = buffers.map((channelSignal) => {
         const length = channelSignal.length;
 
-        // 1️⃣ Zone sélectionnée avec padding avant
+        // 1️⃣ Zone avec padding début ET fin
         const pad = fftSize;
-        const selStart = Math.max(0, startSample - pad);
-        const selEnd   = endSample;
+        const selStart  = Math.max(0, startSample - pad);
+        const selEnd    = Math.min(length, endSample + pad);
         const selLength = selEnd - selStart;
-        const signal = channelSignal.subarray(selStart, selEnd);
+        const signal    = channelSignal.subarray(selStart, selEnd);
 
         // 2️⃣ STFT
         const frames = Math.floor((signal.length - fftSize) / hop) + 1;
@@ -6428,12 +6430,12 @@ ipcMain.handle('eraseSelection', async (event, buffers, sampleRate, objSelect) =
 
         for (let f = 0; f < frames; f++) {
             const pos = f * hop;
-            const input = fft.createComplexArray();
+            const input    = fft.createComplexArray();
             const spectrum = fft.createComplexArray();
             input.fill(0);
 
             for (let i = 0; i < fftSize; i++) {
-                input[2*i]   = (pos + i < signal.length) ? signal[pos + i] * window[i] : 0;
+                input[2*i]   = (pos + i < signal.length) ? signal[pos + i] * win[i] : 0;
                 input[2*i+1] = 0;
             }
 
@@ -6451,16 +6453,28 @@ ipcMain.handle('eraseSelection', async (event, buffers, sampleRate, objSelect) =
             imag.push(frameImag);
         }
 
-        // 3️⃣ Masque spectral
+        // 3️⃣ Masque spectral avec tapering cosinus aux bords Fl/Fh
         for (let f = 0; f < frames; f++) {
             const frameStart = f * hop + selStart;
             const frameEnd   = frameStart + fftSize;
 
             if (frameEnd <= startSample || frameStart >= endSample) continue;
 
-            for (let k = binStart; k <= binEnd && k < bins; k++) {
-                real[f][k] = 0;
-                imag[f][k] = 0;
+            for (let k = 0; k < bins; k++) {
+                let erase = 0;
+                if (k >= binStart + taper && k <= binEnd - taper) {
+                    erase = 1;
+                } else if (k >= binStart - taper && k < binStart + taper) {
+                    const t = (k - (binStart - taper)) / (2 * taper);
+                    erase = 0.5 * (1 - Math.cos(Math.PI * t));
+                } else if (k > binEnd - taper && k <= binEnd + taper) {
+                    const t = ((binEnd + taper) - k) / (2 * taper);
+                    erase = 0.5 * (1 - Math.cos(Math.PI * t));
+                }
+                if (erase > 0) {
+                    real[f][k] *= (1 - erase);
+                    imag[f][k] *= (1 - erase);
+                }
             }
         }
 
@@ -6484,9 +6498,8 @@ ipcMain.handle('eraseSelection', async (event, buffers, sampleRate, objSelect) =
             for (let i = 0; i < fftSize; i++) {
                 const idx = pos + i;
                 if (idx >= selLength) break;
-
-                accum[idx] += frame[2*i] * window[i];
-                norm[idx]  += window[i] * window[i];
+                accum[idx] += frame[2*i] * win[i];
+                norm[idx]  += win[i] * win[i];
             }
         }
 
@@ -6494,28 +6507,24 @@ ipcMain.handle('eraseSelection', async (event, buffers, sampleRate, objSelect) =
             if (norm[i] > 0) accum[i] /= norm[i];
         }
 
-        // 5️⃣ Fade-out cosinus fixe 30 ms (ANTI-ARTEFACT FIN)
-        const fadeDuration = 0.03; // 30 ms
-        const fadeSamples = Math.floor(fadeDuration * sampleRate);
-
-        for (let i = 0; i < selLength; i++) {
-            const globalIdx = selStart + i;
-
-            if (globalIdx >= endSample - fadeSamples && globalIdx < endSample) {
-                const x = (endSample - globalIdx) / fadeSamples;
-                const gain = 0.5 * (1 - Math.cos(Math.PI * x));
-                accum[i] *= Math.max(0, Math.min(1, gain));
-            }
-        }
-
-        // 6️⃣ Recoller dans le buffer original
+        // 5️⃣ Crossfade 20ms avec l'original aux bords temporels (début ET fin)
         const out = new Float32Array(length);
         out.set(channelSignal);
 
         for (let i = startSample; i < endSample; i++) {
             const idxInSel = i - selStart;
-            if (idxInSel >= 0 && idxInSel < accum.length)
-                out[i] = accum[idxInSel];
+            if (idxInSel < 0 || idxInSel >= accum.length) continue;
+
+            let blend = 1;
+            if (i < startSample + xfadeSamples) {
+                const t = (i - startSample) / xfadeSamples;
+                blend = 0.5 * (1 - Math.cos(Math.PI * t));
+            } else if (i >= endSample - xfadeSamples) {
+                const t = (endSample - i) / xfadeSamples;
+                blend = 0.5 * (1 - Math.cos(Math.PI * t));
+            }
+
+            out[i] = blend * accum[idxInSel] + (1 - blend) * channelSignal[i];
         }
 
         return out;
