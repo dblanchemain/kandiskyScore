@@ -113,10 +113,11 @@ cursorSphere.visible = false;
 scene.add(cursorSphere);
 
 function moveCursor() {
-	if (typeof cursorPos !== 'undefined' && cursorPos.dirty) {
-		cursorSphere.position.set(cursorPos.x * 3, -cursorPos.y * 2, -cursorPos.z * 3);
+	const cp = window.cursorPos;
+	if (cp && cp.dirty) {
+		cursorSphere.position.set(cp.x * 3, -cp.y * 2, -cp.z * 3);
 		cursorSphere.visible = true;
-		cursorPos.dirty = false;
+		cp.dirty = false;
 	}
 }
 

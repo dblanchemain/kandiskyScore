@@ -216,7 +216,7 @@ function foo() {
 	 if (vueStudio3D == 1) {
 		 for (const objId in tableObjet) {
 			 const obj = tableObjet[objId];
-			 if (!obj.spX || !obj.spT || obj.spT.length < 2) continue;
+			 if (!obj.spX || !obj.spT || obj.spT.length < 1) continue;
 			 const startSec = obj.posX / (18 * zoomScale);
 			 const durSec   = (obj.duree * (obj.fin - obj.debut)) / (obj.transposition || 1);
 			 if (barverticTime < startSec || barverticTime > startSec + durSec) continue;
@@ -270,19 +270,21 @@ function defStudioSrc(lsgrp) {
 		const renderedLength = Math.floor(trimmedLength /obj.transposition);
 		const rduree=renderedLength/contextAudio.sampleRate;
 		var ntime=obj.posX/18;
-		for(let j=0;j<obj.spT.length;j++){
+		const spT = (obj.spT && obj.spT.length > 0) ? obj.spT : [0];
+		const spX = obj.spX || [0];
+		const spY = obj.spY || [0];
+		const spZ = obj.spZ || [0];
+		for(let j=0;j<spT.length;j++){
 			var npoint={};
-			var npz=(1.4-obj.spZ[j])/2;
+			var npz=(1.4-(spZ[j]||0))/2;
 			npoint.triggerAudio = (j === 0);
-			npoint.start=ntime+(obj.spT[j]*rduree);
-			if(obj.spT[j+1]){
-				npoint.end=ntime+(obj.spT[j+1]*rduree);
-			}else{
-				npoint.end=ntime+(renderedLength/contextAudio.sampleRate) ;
-			}
+			npoint.start=ntime+(spT[j]*rduree);
+			npoint.end = spT[j+1] !== undefined
+				? ntime+(spT[j+1]*rduree)
+				: ntime+(renderedLength/contextAudio.sampleRate);
 			npoint.obj=lsgrp[i];
-			npoint.x=obj.spX[j];
-			npoint.y=obj.spY[j];
+			npoint.x=spX[j]||0;
+			npoint.y=spY[j]||0;
 			npoint.etat=0;
 			npoint.z=npz;
 			npoint.w=graph.wd*npz;
