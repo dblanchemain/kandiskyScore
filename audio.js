@@ -49,25 +49,13 @@ function readPart(){
 	
 	if(playerStat==0){
 		playerStat=1;
-		defStudioSrc(lsgrp);
-	   console.log("table",lsgrp,tableListSource,tableListSource[0].etat,tableListSource[0].start);
-		 maxDuree=0;
-		 for(i=0;i<tableListSource.length;i++){
-			 var obj=tableObjet[tableListSource[i].obj];
-			 var m=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
-			 m=m+(obj.posX/18);
-			 if(m>maxDuree){
-			 	maxDuree=m;
-			 }
-		 }
-		console.log("maxduree",maxDuree);
+		buildPlaylist(lsgrp);
+		maxDuree = tableListSource.reduce((m, src) => Math.max(m, src.end), 0);
 		curTempo=0;
 
-		// Pré-charger tous les fichiers audio du score puis démarrer la lecture.
-		// On attend la fin du pré-chargement pour garantir le cache chaud au premier son.
 		try {
-			const filesToPreload = tableListSource.map(src => {
-				const obj = tableObjet[src.obj];
+			const filesToPreload = lsgrp.map(id => {
+				const obj = tableObjet[id];
 				return window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-fx.wav`);
 			});
 			window.api.preloadAudio(filesToPreload)
@@ -167,28 +155,18 @@ function foo() {
 		 for(i=0;i<tableListSource.length;i++){
 			if(tableListSource[i].etat==0 && tableListSource[i].start<=parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
 				tableListSource[i].etat=1;
-				if(tableListSource[i].triggerAudio !== false){
-					try {
+				try {
 					var obj=tableObjet[tableListSource[i].obj];
 					var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
-					const options = {
-				    pitchSemitones: obj.detune,
-				    speedFactor: obj.transposition,
-				    gain: obj.gain,
-				    startSec: obj.debut,
-				    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
-					 };
-					 const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
-					 const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
-					 const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
-					 const fadeIn  = obj.fadeIn  || 'l';
-					 const fadeOut = obj.fadeOut || fadeIn;
-					 const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" fade "+fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
-					 var soxParams="pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+defFade;
-			 		window.api.playDirectFile(1, outPath, soxParams);
-			 		console.log("obj",obj.id,options);
-					} catch(e) { console.error("playback trigger error",e); }
-				}
+					const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
+					const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
+					const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
+					const fadeIn  = obj.fadeIn  || 'l';
+					const fadeOut = obj.fadeOut || fadeIn;
+					const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" fade "+fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
+					const soxParams="pitch "+obj.detune+" speed "+obj.transposition+" vol "+(obj.gain*soxVolume)+" trim "+obj.debut+" "+durationAfterSpeed+" fade "+defFade;
+					window.api.playDirectFile(1, outPath, soxParams);
+				} catch(e) { console.error("playback trigger error",e); }
 		 	}
 		 }
 		 
@@ -256,6 +234,32 @@ function foo2() {
 		window.api.send("toMain", 'killPlay');
 	}
 }
+// buildPlaylist : UN déclencheur audio par objet — utilisé par readPart()
+function buildPlaylist(lsgrp) {
+	tableListSource = [];
+	for (let i = 0; i < lsgrp.length; i++) {
+		const obj  = tableObjet[lsgrp[i]];
+		const graph = defTypeDb(obj.rmsdb);
+		const durSec = ((obj.duree * obj.fin) - (obj.duree * obj.debut)) / obj.transposition;
+		const ntime  = obj.posX / 18;
+		const spZ0   = (obj.spZ && obj.spZ[0] !== undefined) ? obj.spZ[0] : 0;
+		const npz    = (1.4 - spZ0) / 2;
+		tableListSource.push({
+			obj:   lsgrp[i],
+			start: ntime,
+			end:   ntime + durSec,
+			etat:  0,
+			x: (obj.spX && obj.spX[0]) || 0,
+			y: (obj.spY && obj.spY[0]) || 0,
+			z: npz,
+			w: graph.wd * npz,
+			img:   graph.img,
+			index: Math.round(npz * 100 + 1)
+		});
+	}
+}
+
+// defStudioSrc : UN déclencheur par keyframe — pour les événements visuels du studio 2D
 function defStudioSrc(lsgrp) {
 	tableListSource=[];
 	for (let i=0;i<lsgrp.length;i++){
