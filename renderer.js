@@ -1404,15 +1404,15 @@ async function createPdf() {
 	var txt="";
 	document.getElementById('svgTime').innerHTML="";
 	document.getElementById('vueSign').innerHTML="";
-	txt="<rect x='0' y='0' width='12960' height='24' fill='"+vueSvgBackground+"' />";
+	txt="<rect x='0' y='0' width='12960' height='24' fill='"+regleBackground+"' />";
 	document.getElementById('svgTime').innerHTML=txt;
-	txt="<rect x='0' y='24' width='12960' height='30' fill='"+vueSvgBackground+"' />";
+	txt="<rect x='0' y='24' width='12960' height='30' fill='"+regleBackground+"' />";
 	document.getElementById('vueSign').innerHTML=txt;
 	if(vueSvgRegle==1){
-		createReglette(1,"svgTime",vueSvgBackground,vueSvgFontSize,vueSvgFontColor);
+		createReglette(1,"svgTime",regleBackground,regleFontSize,regleFontColor);
 	}
 	if(vueSvgMesure==1){
-		regSolfege(1,"vueSign",vueSvgFontSize,vueSvgFontColor,vueSvgFontColor,1);
+		regSolfege(1,"vueSign",regleFontSize,regleFontColor,regleFontColor,1);
 	}
 	await vuePartitionA(1,2,tableObjet);
 
