@@ -869,7 +869,7 @@ function vuePartSvg(){
 	document.getElementById('svgTime').innerHTML="";
 	document.getElementById('vueSign').innerHTML="";
 	if(vueSvgRegle==true){
-		createReglette(1,"svgTime",regleBackground,regleFontSize,regleFontColor);
+		createReglette(1,"svgTime",regleBackground,vueSvgFontSize,vueSvgFontColor);
 		var br=document.createElementNS("http://www.w3.org/2000/svg","rect");
 		br.setAttribute("x","0"); br.setAttribute("y","0");
 		br.setAttribute("width","12960"); br.setAttribute("height","24");
@@ -878,7 +878,7 @@ function vuePartSvg(){
 	}
 	if(vueSvgMesure==true){
 		document.getElementById('vueSign').innerHTML="<rect x='0' y='24' width='12960' height='30' fill='"+regleBackground+"' />";
-		regSolfege(1,"vueSign",regleFontSize,regleFontColor,regleFontColor,1);
+		regSolfege(1,"vueSign",vueSvgFontSize,vueSvgFontColor,vueSvgFontColor,1);
 	}
 	vuePartitionA(0,0,tableObjet);
 	
