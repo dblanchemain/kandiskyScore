@@ -870,13 +870,13 @@ function vuePartSvg(){
 	document.getElementById('vueSign').innerHTML="";
 	txt="<rect x='0' y='0' width='12960' height='30' fill='"+regleBackground+"' />";
 	document.getElementById('svgTime').innerHTML=txt;
-	txt="<rect x='0' y='24' width='12960' height='30' fill='"+regleBackground+"' />";
+	txt="<rect x='0' y='24' width='12960' height='30' fill='"+intervalBackground+"' />";
 	document.getElementById('vueSign').innerHTML=txt;
 	if(vueSvgRegle==true){
 		createReglette(1,"svgTime",regleBackground,regleFontSize,regleFontColor);
 	}
 	if(vueSvgMesure==true){
-		regSolfege(1,"vueSign",regleFontSize,regleFontColor,regleFontColor,1);
+		regSolfege(1,"vueSign",intervalFontSize,fontIntervalColor,fontIntervalColor,1);
 	}
 	vuePartitionA(0,0,tableObjet);
 	
