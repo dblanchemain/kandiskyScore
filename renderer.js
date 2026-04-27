@@ -1412,8 +1412,8 @@ async function createPdf() {
 		document.getElementById("svgTime").prepend(br);
 	}
 	if(vueSvgMesure==1){
-		document.getElementById('vueSign').innerHTML="<rect x='0' y='24' width='12960' height='30' fill='"+intervalBackground+"' />";
-		regSolfege(1,"vueSign",intervalFontSize,fontIntervalColor,fontIntervalColor,1);
+		document.getElementById('vueSign').innerHTML="<rect x='0' y='24' width='12960' height='30' fill='"+regleBackground+"' />";
+		regSolfege(1,"vueSign",regleFontSize,regleFontColor,regleFontColor,1);
 	}
 	await vuePartitionA(1,2,tableObjet);
 
