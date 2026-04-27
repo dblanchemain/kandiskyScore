@@ -559,6 +559,9 @@ function dragElement(elmnt) {
     e = e || window.event;
     e.preventDefault();
     e.stopPropagation();
+    if(e.button==0 && (elmnt.id.substring(0,5)=="objet" || (elmnt.id.substring(0,3)=="grp" && elmnt.id!="grpSelect"))){
+        pushUndo();
+    }
     if(elmnt.id.substring(0,3)=="tmp"){
     	if(e.button==2 && parseInt(elmnt.id.substring(3))>0){
     		console.log("gain",elmnt,elmnt.id);

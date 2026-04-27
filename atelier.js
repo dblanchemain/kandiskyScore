@@ -102,6 +102,7 @@ function annulAugm() {
 	document.getElementById("augmDim").style.display="none";
 }
 function validAugmDim() {
+	pushUndo();
 	let copyX=0;
 	let copyY=0;
 	let baseX=0;
@@ -172,6 +173,7 @@ function validAugmDim() {
 	}
 }
 function permutLineaire() {
+	pushUndo();
 	lsgrp=[];
 	var nls=[];
 	var resObj=nbObjets;
@@ -210,6 +212,7 @@ function permutLineaire() {
 	}
 }
 function palindrome() {
+	pushUndo();
 	lsgrp=[];
 	var nls=[];
 	var resObj=nbObjets;
@@ -276,6 +279,7 @@ function inclusionRet() {
 	}
 }
 function validInclusion() {
+	pushUndo();
 	if(tableObjet[objActif]==1 || grpSelect==1){
 		alert("Vous devez grouper vos objets!");
 	}else{
@@ -317,6 +321,7 @@ function validInclusion() {
 	}
 }
 function renversement() {
+	pushUndo();
 	preservSelect=[];
 	preservSelect=[].concat(lsgrp);
 	preservSelect.sort(function (a, b) {
@@ -350,6 +355,7 @@ function renversement() {
 	}
 }
 function retrograde() {
+	pushUndo();
 	preservSelect=[];
 	preservSelect=[].concat(lsgrp);
 	preservSelect.reverse();
@@ -386,6 +392,7 @@ function retrograde() {
 	}
 }
 function renvRetro() {
+	pushUndo();
 	preservSelect=[];
 	preservSelect=[].concat(lsgrp);
 	preservSelect.reverse();

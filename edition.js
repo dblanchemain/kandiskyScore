@@ -45,6 +45,7 @@ function copier(){
    }
 }
 function coller(){
+	pushUndo();
 	collerA(coordClientX,coordClientY);
 }
 function collerA(clientX,clientY){
@@ -104,6 +105,7 @@ let refObjet=nbObjets;
 	}
 }
 function couper(){
+	pushUndo();
 	if(grpSelect==1){
     	if(preservSelect.length>0){
     		for(i=0;i<preservSelect.length;i++){
@@ -137,9 +139,11 @@ function couper(){
    }
 }
 function grouper() {
+	pushUndo();
 	selectGrp();
 }
 function deGrouper(){
+	pushUndo();
 	if(tableObjet[objActif].etat==1 && tableObjet[objActif].class==2){
 		document.getElementById("space").removeChild(document.getElementById(tableObjet[objActif].id));
 		tableObjet[objActif].etat=0;
@@ -149,6 +153,7 @@ function deGrouper(){
    }
 }
 function reGrouper(e){
+	pushUndo();
 	if(tableObjet[objActif].groupe!=16777216){
 		if(tableObjet[objActif].class==1 || tableObjet[objActif].class==2 ||tableObjet[tableObjet[objActif].groupe].class==4 ){
 			let sgrp=[];
@@ -214,6 +219,7 @@ function reGrouper(e){
 	}
 }
 function toutDegrouper(){
+	pushUndo();
 	if(tableObjet[objActif].class==4){
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			if(tableObjet[tableObjet[objActif].liste[i]].etat==1 && tableObjet[tableObjet[objActif].liste[i]].class==2 ){
@@ -557,6 +563,7 @@ function retObjetPalette(f) {
 }
 
 function topAlign(){
+	pushUndo();
 	if(grpSelect==1){
 		for(let i=0;i<lsgrp.length;i++){
 			tableObjet[lsgrp[i]].posY=parseInt(document.getElementById("grpSelect").style.top);
@@ -575,6 +582,7 @@ function topAlign(){
 	lsgrp=[];
 }
 function leftAlign(){
+	pushUndo();
 	if(grpSelect==1){
 		for(let i=0;i<lsgrp.length;i++){
 			tableObjet[lsgrp[i]].posX=parseInt(document.getElementById("grpSelect").style.left);
@@ -595,6 +603,7 @@ function leftAlign(){
 	lsgrp=[];
 }
 function bottomAlign(){
+	pushUndo();
 	var ydiff=0;
 	if(grpSelect==1){
 		for(let i=0;i<lsgrp.length;i++){
@@ -624,6 +633,7 @@ function bottomAlign(){
 	lsgrp=[];
 }
 function rightAlign(){
+	pushUndo();
 	var ydiff=0;
 	if(grpSelect==1){
 		for(let i=0;i<lsgrp.length;i++){
@@ -653,6 +663,7 @@ function rightAlign(){
 	lsgrp=[];
 }
 function zDescendre(){
+	pushUndo();
 	if(tableObjet[objActif].class==1){
 		if(document.getElementById(tableObjet[objActif].id).style.zIndex>0){
 			document.getElementById(tableObjet[objActif].id).style.zIndex=document.getElementById(tableObjet[objActif].id).style.zIndex-1;
@@ -664,6 +675,7 @@ function zDescendre(){
 	}
 }
 function zToutBas(){
+	pushUndo();
 	if(tableObjet[objActif].class==1){
 		if(document.getElementById(tableObjet[objActif].id).style.zIndex>0){
 			document.getElementById(tableObjet[objActif].id).style.zIndex=0;
@@ -675,6 +687,7 @@ function zToutBas(){
 	}
 }
 function zMonter(){
+	pushUndo();
 	if(tableObjet[objActif].class==1){
 		document.getElementById(tableObjet[objActif].id).style.zIndex=document.getElementById(tableObjet[objActif].id).style.zIndex+1;
 	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
@@ -684,6 +697,7 @@ function zMonter(){
 	}
 }
 function zToutHaut(){
+	pushUndo();
 	if(tableObjet[objActif].class==1){
 		document.getElementById(tableObjet[objActif].id).style.zIndex=5;
 	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
@@ -696,6 +710,7 @@ function defScaleGrp() {
 	document.getElementById("popupScaleGrpObjets").style.display="block";
 }
 function scaleGrpValid(){
+	pushUndo();
 	document.getElementById("popupScaleGrpObjets").style.display="none";
 	lsgrp=[];
 	if(grpSelect==1){

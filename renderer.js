@@ -34,6 +34,82 @@ function setSoxVolume(db) {
     document.getElementById("soxVolumeVal").textContent = (parseFloat(db) >= 0 ? "+" : "") + db + " dB";
 }
 
+// ── Undo / Redo ──────────────────────────────────────────────────────────────
+const undoStack = [];
+const redoStack = [];
+const UNDO_MAX = 50;
+
+function pushUndo() {
+    undoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
+    if (undoStack.length > UNDO_MAX) undoStack.shift();
+    redoStack.length = 0;
+    updateUndoButtons();
+}
+
+function undo() {
+    if (!undoStack.length) return;
+    redoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
+    restoreSnapshot(undoStack.pop());
+    updateUndoButtons();
+}
+
+function redo() {
+    if (!redoStack.length) return;
+    undoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
+    restoreSnapshot(redoStack.pop());
+    updateUndoButtons();
+}
+
+function restoreSnapshot(snap) {
+    tableObjet = snap.t;
+    nbObjets = snap.n;
+    objActif = 1048576;
+    selectObj = '';
+    selectObjet = '';
+    lsgrp = [];
+    grpSelect = 0;
+    nselector = 0;
+    preservSelect = [];
+    document.getElementById("space").innerHTML =
+        "<div id='selector' style='position:absolute;top:0px;left:0px;width:10px;height:10px;border: 1px dashed #000000;display:none;z-index:10;'></div>" +
+        "<div id='vueLength' style='position:absolute; top:30px;left:0px;padding:0px;margin:0px;width:20px;height:4px;background-color:red;z-index:6;display:none'></div>";
+    const savedNb = nbObjets;
+    for (let id = 0; id < tableObjet.length; id++) {
+        if (tableObjet[id].etat != 1) continue;
+        switch (tableObjet[id].class) {
+            case 1:
+            case 2:
+                drawObj(id);
+                break;
+            case 3:
+                objActif = id;
+                nbObjets = id;
+                createSymbole2(tableObjet[id].type);
+                if (document.getElementById(tableObjet[id].id)) {
+                    dragElement(document.getElementById(tableObjet[id].id));
+                    document.getElementById(tableObjet[id].id).addEventListener('mouseup', selectBkgObj);
+                }
+                break;
+            case 4:
+                graphGrp(id);
+                if (document.getElementById(tableObjet[id].id)) {
+                    dragElement(document.getElementById(tableObjet[id].id));
+                    document.getElementById(tableObjet[id].id).addEventListener('mouseup', selectBkgObj);
+                }
+                break;
+        }
+    }
+    nbObjets = savedNb;
+    objActif = 1048576;
+}
+
+function updateUndoButtons() {
+    const bUndo = document.getElementById("btnUndo");
+    const bRedo = document.getElementById("btnRedo");
+    if (bUndo) bUndo.style.opacity = undoStack.length ? "1" : "0.3";
+    if (bRedo) bRedo.style.opacity = redoStack.length ? "1" : "0.3";
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function importUconfig() {
    var name=window.api.joinPath(baseDatatPath,'config.js');
@@ -531,9 +607,11 @@ window.api.receive("fromMain", (data) => {
 				deGrouper();
 				break;
 			case 'newProject':
+				undoStack.length = 0; redoStack.length = 0; updateUndoButtons();
 				newProject();
 				break;
 			case 'loadProjet':
+				undoStack.length = 0; redoStack.length = 0; updateUndoButtons();
 				loadProjet(cmd[1]);
 				break;
 			case 'loadGrp':
@@ -940,6 +1018,14 @@ window.addEventListener(
 	  	if(event.key=="Delete"){
 	  		couper();
 	  	}
+	  	if(event.ctrlKey && !event.shiftKey && event.key=="z"){
+	  		event.preventDefault();
+	  		undo();
+	  	}
+	  	if(event.ctrlKey && (event.key=="y" || (event.shiftKey && event.key=="z"))){
+	  		event.preventDefault();
+	  		redo();
+	  	}
   	},
   true,
 );
@@ -986,10 +1072,11 @@ function selectBkgObj(e){
    			}
      	   }
      	   let id=e.target.id.substring(5);
+     	 	pushUndo();
      	 	objetSaveParams(id);
      	 	nselector=0;
       	grpSelect=0;
-      	
+
       	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
      	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
      	 	}else{
@@ -1011,6 +1098,7 @@ function selectBkgObj(e){
 	     	   }
 	     	   */
 	     	   let id=e.target.parentNode.id.substring(5);
+	     	 	pushUndo();
 	     	 	objetSaveParams(id);
 	     	 	nselector=0;
 	      	grpSelect=0;
@@ -1045,6 +1133,7 @@ function selectBkgObj(e){
      	   let id=parseInt(e.target.parentNode.parentNode.id.substring(5));
      	   selectObj="objet"+id;
      	   if(id==objActif){
+	     	 	pushUndo();
 	     	 	objetSaveParams(id);
 	     	 	nselector=0;
 	      	grpSelect=0;
@@ -1060,6 +1149,7 @@ function selectBkgObj(e){
 	      }else{
 	      	window.api.send("toMain", 'objParamChange');
 	      	objActif=id;
+	      	pushUndo();
 	      	objetSaveParams(id);
 	     	 	nselector=0;
 	      	grpSelect=0;
@@ -1082,6 +1172,7 @@ function selectBkgObj(e){
    			}
      	   }
      	   let id=e.target.parentNode.parentNode.parentNode.id.substring(5);
+     	 	pushUndo();
      	 	objetSaveParams(id);
      	 	nselector=0;
       	grpSelect=0;
@@ -1102,6 +1193,7 @@ function selectBkgObj(e){
      		selectObj=e.target.id;
    		objActif=parseInt(selectObj.substring(3));
    		if(tableObjet[objActif].class==4){
+   			pushUndo();
    			objetSaveParams(objActif);
    			var ntxt="openGrpParam;"+objActif+";"+lang+";"+grpGrapĥToString(objActif);				
 		      window.api.send("toMain", ntxt );

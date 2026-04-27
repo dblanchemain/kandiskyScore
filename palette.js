@@ -611,6 +611,7 @@ function selectobjet(objType,bkgc){
 	if(objType==23){
 		window.api.send("toMain", "selectImg");
 	}else{
+		pushUndo();
 		objActif=nbObjets;
 		selectObj="objet"+nbObjets;
 		var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
