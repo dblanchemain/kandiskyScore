@@ -666,41 +666,17 @@ function configProjet(){
 	document.getElementById("selectHoaOrder").value=paramProjet.hoaOrder||3
 	document.getElementById("chkExportAmbiX").checked=paramProjet.exportAmbiX===true||paramProjet.exportAmbiX==="true"
 	toggleHoaOptions()
-	document.getElementById("spaceRegle").checked=false
-	if(paramProjet.regle=="true"){
-		document.getElementById("spaceRegle").checked=true
-	}
-	document.getElementById("spaceMesure").checked=false
-	if(paramProjet.mesure=="true"){
-		document.getElementById("spaceMesure").checked=true
-	}
-	document.getElementById("spaceGrille").checked=false
-	if(paramProjet.grille=="true"){
-		document.getElementById("spaceGrille").checked=true
-	}
+	document.getElementById("spaceRegle").checked=paramProjet.regle===true||paramProjet.regle==="true"
+	document.getElementById("spaceMesure").checked=paramProjet.mesure===true||paramProjet.mesure==="true"
+	document.getElementById("spaceGrille").checked=paramProjet.grille===true||paramProjet.grille==="true"
 	document.getElementById("spaceWidth").value=paramProjet.width
 	document.getElementById("spaceHeight").value=paramProjet.height
 	document.getElementById("spaceScale").value=paramProjet.zoom
-	document.getElementById("svgRegle").checked=false
-	if(paramProjet.svgRegle=="true"){
-		document.getElementById("svgRegle").checked=true
-	}
-	document.getElementById("svgMesure").checked=false
-	if(paramProjet.svgMesure=="true"){
-		document.getElementById("svgMesure").checked=true
-	}
-	document.getElementById("svgGrille").checked=false
-	if(paramProjet.svgGrille=="true"){
-		document.getElementById("svgGrille").checked=true
-	}
-	document.getElementById("spaceSeconde").checked=false
-	if(paramProjet.spaceSeconde=="true"){
-		document.getElementById("spaceSeconde").checked=true
-	}
-	document.getElementById("svgSeconde").checked=false
-	if(paramProjet.svgSeconde=="true"){
-		document.getElementById("svgSeconde").checked=true
-	}
+	document.getElementById("svgRegle").checked=paramProjet.svgRegle===true||paramProjet.svgRegle==="true"
+	document.getElementById("svgMesure").checked=paramProjet.svgMesure===true||paramProjet.svgMesure==="true"
+	document.getElementById("svgGrille").checked=paramProjet.svgGrille===true||paramProjet.svgGrille==="true"
+	document.getElementById("spaceSeconde").checked=paramProjet.spaceSeconde===true||paramProjet.spaceSeconde==="true"
+	document.getElementById("svgSeconde").checked=paramProjet.svgSeconde===true||paramProjet.svgSeconde==="true"
 }
 function defProjet() {
 	paramProjet.name=document.getElementById("projetNom").value
