@@ -872,7 +872,7 @@ function vuePartSvg(){
 		createReglette(1,"svgTime",regleBackground,vueSvgFontSize,vueSvgFontColor);
 		var br=document.createElementNS("http://www.w3.org/2000/svg","rect");
 		br.setAttribute("x","0"); br.setAttribute("y","0");
-		br.setAttribute("width","12960"); br.setAttribute("height","24");
+		br.setAttribute("width","12960"); br.setAttribute("height","28");
 		br.setAttribute("fill",regleBackground);
 		document.getElementById("svgTime").prepend(br);
 	}
