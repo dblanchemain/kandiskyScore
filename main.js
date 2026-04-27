@@ -3642,6 +3642,11 @@ ipcMain.on ("toMain", (event, args) => {
 			console.log(`openGrpParam ${args} from param`);
 			createWinGrp(cmd[1],cmd[2],cmd[3]);
 			break;
+		case 'undoRefreshObjParam':
+			if (winConfigEtat == 1) {
+				winConfig.webContents.send("fromMain", "defObjet;" + args.substring("undoRefreshObjParam;".length));
+			}
+			break;
 		case 'objParamAnnul':
 			//console.log(`Restore ${args} from param`);
 			mainWindow.webContents.send("fromMain", "annulModifObj;"+cmd[1]);

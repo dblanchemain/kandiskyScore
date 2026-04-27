@@ -48,19 +48,21 @@ function pushUndo() {
 
 function undo() {
     if (!undoStack.length) return;
+    const prevObjActif = objActif;
     redoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
-    restoreSnapshot(undoStack.pop());
+    restoreSnapshot(undoStack.pop(), prevObjActif);
     updateUndoButtons();
 }
 
 function redo() {
     if (!redoStack.length) return;
+    const prevObjActif = objActif;
     undoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
-    restoreSnapshot(redoStack.pop());
+    restoreSnapshot(redoStack.pop(), prevObjActif);
     updateUndoButtons();
 }
 
-function restoreSnapshot(snap) {
+function restoreSnapshot(snap, prevObjActif = 1048576) {
     tableObjet = snap.t;
     nbObjets = snap.n;
     objActif = 1048576;
@@ -101,6 +103,12 @@ function restoreSnapshot(snap) {
     }
     nbObjets = savedNb;
     objActif = 1048576;
+    if (prevObjActif !== 1048576 && tableObjet[prevObjActif] && tableObjet[prevObjActif].etat == 1) {
+        const _id = prevObjActif;
+        const _c = (tableObjet[_id].file && tableObjet[_id].file !== "") ? getCanauxObjet(_id) : 0;
+        const _t = parseFloat(document.getElementById("tempo").value);
+        window.api.send("toMain", "undoRefreshObjParam;" + _id + ";" + lang + ";" + objetParamsToString(_id) + ";" + _c + ";" + _t);
+    }
 }
 
 function updateUndoButtons() {
