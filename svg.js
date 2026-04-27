@@ -868,12 +868,12 @@ function vuePartSvg(){
 
 	document.getElementById('svgTime').innerHTML="";
 	document.getElementById('vueSign').innerHTML="";
-	txt="<rect x='0' y='0' width='12960' height='30' fill='"+vueSvgBackground+"' />";
+	txt="<rect x='0' y='0' width='12960' height='30' fill='"+regleBackground+"' />";
 	document.getElementById('svgTime').innerHTML=txt;
-	txt="<rect x='0' y='24' width='12960' height='30' fill='"+vueSvgBackground+"' />";
+	txt="<rect x='0' y='24' width='12960' height='30' fill='"+regleBackground+"' />";
 	document.getElementById('vueSign').innerHTML=txt;
 	if(vueSvgRegle==true){
-		createReglette(1,"svgTime",vueSvgBackground,vueSvgFontSize,vueSvgFontColor);
+		createReglette(1,"svgTime",regleBackground,vueSvgFontSize,vueSvgFontColor);
 	}
 	if(vueSvgMesure==true){
 		regSolfege(1,"vueSign",vueSvgFontSize,vueSvgFontColor,vueSvgFontColor,1);
