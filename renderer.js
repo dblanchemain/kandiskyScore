@@ -1401,17 +1401,14 @@ scrollDemo.addEventListener("scroll", event => {
                                 scrollLeft: ${Math.floor(scrollDemo2.scrollLeft)} `;
         }, { passive: true });
 async function createPdf() {
-	var txt="";
 	document.getElementById('svgTime').innerHTML="";
 	document.getElementById('vueSign').innerHTML="";
-	txt="<rect x='0' y='0' width='12960' height='24' fill='"+regleBackground+"' />";
-	document.getElementById('svgTime').innerHTML=txt;
-	txt="<rect x='0' y='24' width='12960' height='30' fill='"+intervalBackground+"' />";
-	document.getElementById('vueSign').innerHTML=txt;
 	if(vueSvgRegle==1){
 		createReglette(1,"svgTime",regleBackground,regleFontSize,regleFontColor);
 	}
 	if(vueSvgMesure==1){
+		var txt="<rect x='0' y='0' width='12960' height='30' fill='"+intervalBackground+"' />";
+		document.getElementById('vueSign').innerHTML=txt;
 		regSolfege(1,"vueSign",intervalFontSize,fontIntervalColor,fontIntervalColor,1);
 	}
 	await vuePartitionA(1,2,tableObjet);

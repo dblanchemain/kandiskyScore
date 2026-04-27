@@ -166,6 +166,13 @@ function upDateWorkSpace(type){
 function createReglette(scale,dest,bkg,fontSize,fontColor){
 	var nbmax=12960*scale;
 	document.querySelector("#"+dest).innerHTML="";
+	if(bkg){
+		var bkgRect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+		bkgRect.setAttribute("x","0"); bkgRect.setAttribute("y","0");
+		bkgRect.setAttribute("width",nbmax); bkgRect.setAttribute("height","50");
+		bkgRect.setAttribute("fill",bkg);
+		document.querySelector("#"+dest).appendChild(bkgRect);
+	}
 	// Retourne le BPM local à une position pixel donnée
 	function getBPMat(px){
 		if(tempoFoo.length<=1) return 60;
