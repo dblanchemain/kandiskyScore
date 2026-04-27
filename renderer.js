@@ -1405,10 +1405,14 @@ async function createPdf() {
 	document.getElementById('vueSign').innerHTML="";
 	if(vueSvgRegle==1){
 		createReglette(1,"svgTime",regleBackground,regleFontSize,regleFontColor);
+		var br=document.createElementNS("http://www.w3.org/2000/svg","rect");
+		br.setAttribute("x","0"); br.setAttribute("y","0");
+		br.setAttribute("width","12960"); br.setAttribute("height","50");
+		br.setAttribute("fill",regleBackground);
+		document.getElementById("svgTime").prepend(br);
 	}
 	if(vueSvgMesure==1){
-		var txt="<rect x='0' y='0' width='12960' height='30' fill='"+intervalBackground+"' />";
-		document.getElementById('vueSign').innerHTML=txt;
+		document.getElementById('vueSign').innerHTML="<rect x='0' y='0' width='12960' height='30' fill='"+intervalBackground+"' />";
 		regSolfege(1,"vueSign",intervalFontSize,fontIntervalColor,fontIntervalColor,1);
 	}
 	await vuePartitionA(1,2,tableObjet);
