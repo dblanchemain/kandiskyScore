@@ -1412,6 +1412,7 @@ async function createPdf() {
 		document.getElementById("svgTime").prepend(br);
 	}
 	if(vueSvgMesure==1){
+		document.getElementById('vueSign').setAttribute("transform","translate(0,4)");
 		document.getElementById('vueSign').innerHTML="<rect x='0' y='24' width='12960' height='30' fill='"+regleBackground+"' />";
 		regSolfege(1,"vueSign",vueSvgFontSize,vueSvgFontColor,vueSvgFontColor,1);
 	}
