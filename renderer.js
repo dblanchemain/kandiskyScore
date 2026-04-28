@@ -103,6 +103,7 @@ function restoreSnapshot(snap, prevObjActif = 1048576) {
     }
     nbObjets = savedNb;
     objActif = 1048576;
+    window.api.send("toMain", "nettoyerFxTmp");
     if (prevObjActif !== 1048576 && tableObjet[prevObjActif] && tableObjet[prevObjActif].etat == 1) {
         const _id = prevObjActif;
         const _c = (tableObjet[_id].file && tableObjet[_id].file !== "") ? getCanauxObjet(_id) : 0;
@@ -2870,6 +2871,7 @@ function defSelectListeFx(){
 	document.getElementById("formSelecFx").innerHTML=txt;
 }
 function fxOnChange(id,filtre) {
+	pushUndo();
 	idFxParam=id;
 	tableObjet[objActif].tableFx[id]=listeFx[filtre].name;
 	tableObjet[objActif].tableFxParam[idFxParam]=listeFx[filtre].defaut;
