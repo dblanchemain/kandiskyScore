@@ -928,7 +928,8 @@ window.api.receive("fromMain", (data) => {
 				defSelectImg(cmd[1]);
 				break;
 			case 'objValid':
-				readSimpleAudioA(cmd[1],0);
+				objActif = parseInt(cmd[1]);
+				renderObjAudio();
 				break;
 			case 'playStop':
 				console.log("playStop");
