@@ -805,10 +805,34 @@ console.log("duree",duree,file);
   a.style.textDecoration = 'none';
 }
 
+async function prepareFxWavOnly(id) {
+	const obj = tableObjet[id];
+	if (!obj || !obj.file) return;
+	document.getElementById("loading").style.display = "block";
+	try {
+		const filePath = window.api.joinPath(toAbsPath(paramProjet.audioPath), obj.file);
+		const rt = await window.api.loadBuffers(filePath);
+		if (!rt || !rt.channels || !rt.channels.length) return;
+		const { numChannels, numSamples, sampleRate } = rt;
+		let currentChannels = rt.channels.map(ch => new Float32Array(ch));
+		// Appliquer les FX Faust sans modifier la vitesse (SoX s'en charge)
+		currentChannels = await applyFxBuffers(obj, numChannels, currentChannels, numSamples, sampleRate);
+		const outPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-fx.wav`);
+		await spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate, currentChannels, "linear");
+	} finally {
+		document.getElementById("loading").style.display = "none";
+	}
+}
+
 async function renderObjAudio(){
 	if (window.wamSpat?.mode === 'hoa') {
 		await renderHoaBinaural([objActif]);
 		return;
+	}
+	const obj = tableObjet[objActif];
+	if (obj && obj.file) {
+		const hasActiveFx = (obj.tableFx || []).some(k => k && k !== 0 && k !== '0' && k !== '');
+		if (hasActiveFx) await prepareFxWavOnly(objActif);
 	}
 	var lsgrp=[];
 	lsgrp.push(objActif);
