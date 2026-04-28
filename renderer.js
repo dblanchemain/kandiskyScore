@@ -63,6 +63,13 @@ function redo() {
 }
 
 function restoreSnapshot(snap, prevObjActif = 1048576) {
+    // Capturer l'état tableFx avant restauration pour détection des changements
+    const oldFxByObjId = {};
+    for (let id = 0; id < tableObjet.length; id++) {
+        const o = tableObjet[id];
+        if (o && o.id) oldFxByObjId[o.id] = JSON.stringify(o.tableFx) + '|' + JSON.stringify(o.tableFxParam);
+    }
+
     tableObjet = snap.t;
     nbObjets = snap.n;
     objActif = 1048576;
@@ -103,7 +110,24 @@ function restoreSnapshot(snap, prevObjActif = 1048576) {
     }
     nbObjets = savedNb;
     objActif = 1048576;
-    window.api.send("toMain", "nettoyerFxTmp");
+
+    // Invalider les fichiers tmp uniquement des objets dont tableFx a changé
+    const changedIds = new Set();
+    const seen = new Set();
+    for (let id = 0; id < tableObjet.length; id++) {
+        const o = tableObjet[id];
+        if (!o || !o.id) continue;
+        seen.add(o.id);
+        const newFx = JSON.stringify(o.tableFx) + '|' + JSON.stringify(o.tableFxParam);
+        if (oldFxByObjId[o.id] !== newFx) changedIds.add(o.id);
+    }
+    for (const objId of Object.keys(oldFxByObjId)) {
+        if (!seen.has(objId)) changedIds.add(objId); // objet supprimé
+    }
+    if (changedIds.size > 0) {
+        window.api.send("toMain", "nettoyerFxTmpIds;" + [...changedIds].join(','));
+    }
+
     if (prevObjActif !== 1048576 && tableObjet[prevObjActif] && tableObjet[prevObjActif].etat == 1) {
         const _id = prevObjActif;
         const _c = (tableObjet[_id].file && tableObjet[_id].file !== "") ? getCanauxObjet(_id) : 0;

@@ -1931,18 +1931,15 @@ function interleave(leftChannel, rightChannel) {
        view.setUint8(offset + i, string.charCodeAt(i));
    }
  }
-function nettoyerFxTmp() {
-    if (!audioPath) return;
+function nettoyerFxTmpIds(objIds) {
+    if (!audioPath || !objIds || !objIds.length) return;
     const tmpDir = path.join(audioPath, "tmp");
     if (!fs.existsSync(tmpDir)) return;
-    try {
-        const files = fs.readdirSync(tmpDir);
-        for (const f of files) {
-            if (f.endsWith('-fx.wav') || f.endsWith('-premix.wav')) {
-                try { fs.unlinkSync(path.join(tmpDir, f)); } catch(e) {}
-            }
-        }
-    } catch(e) {}
+    for (const objId of objIds) {
+        if (!objId) continue;
+        try { const f = path.join(tmpDir, `${objId}-fx.wav`);    if (fs.existsSync(f)) fs.unlinkSync(f); } catch(e) {}
+        try { const f = path.join(tmpDir, `${objId}-premix.wav`); if (fs.existsSync(f)) fs.unlinkSync(f); } catch(e) {}
+    }
 }
 
 function saveAudioObjet(dest,buf) {
@@ -4311,8 +4308,8 @@ ipcMain.on ("toMain", (event, args) => {
 		case 'saveAudioObjet':
 			saveAudioObjet(cmd[1],cmd[2]);
 			break;
-		case 'nettoyerFxTmp':
-			nettoyerFxTmp();
+		case 'nettoyerFxTmpIds':
+			nettoyerFxTmpIds(cmd[1] ? cmd[1].split(',') : []);
 			break;
 		case 'substituerFx':
 			mainWindow.webContents.send("fromMain", "substituerFx");
