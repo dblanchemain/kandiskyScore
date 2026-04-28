@@ -831,8 +831,7 @@ async function renderObjAudio(){
 	}
 	const obj = tableObjet[objActif];
 	if (obj && obj.file) {
-		const hasActiveFx = (obj.tableFx || []).some(k => k && k !== 0 && k !== '0' && k !== '');
-		if (hasActiveFx) await prepareFxWavOnly(objActif);
+		await prepareFxWavOnly(objActif);
 	}
 	var lsgrp=[];
 	lsgrp.push(objActif);
