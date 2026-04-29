@@ -542,8 +542,7 @@ function objAnnul() {
 	window.api.send("toMain", "objParamAnnul;"+selectId)
 }
 function objValid() {
-	var cmd="objParamValid;"+selectId+";"+JSON.stringify(selectObj)
-	window.api.send("toMain",cmd)
+	window.api.send("toMain","objParamValid;"+selectId)
 }
 
 /* ******************************************************** param audio *********************************** */
