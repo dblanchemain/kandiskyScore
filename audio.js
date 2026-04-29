@@ -1871,6 +1871,7 @@ async function postRubberband(id,mode,file) {
         await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: currentChannels } });
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
         console.log("[pipeline] saved ->spatialised", outPath);
+        window.api.preloadAudio([outPath]).catch(() => {});
 
     } else if (mode == 2) {
         // ===== MODE HOA AmbiX : encodage HOA -> B-format, 1 fichier par objet =====
