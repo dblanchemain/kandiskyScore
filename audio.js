@@ -1303,6 +1303,7 @@ async function readSimpleAudioA(id,mode,forcePreload=false) {
 	      length: numSamples,
 	      duration: numSamples*sampleRate,
 	      tempoMap,
+	      forcePreload,
 	    };
 	  console.log("[pipeline] saved →rubber");
     window.api.send("toMain", "processAudio;" + JSON.stringify(info));

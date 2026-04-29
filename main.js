@@ -422,7 +422,7 @@ function waitForFile(file, timeout = 4000) {
     check();
   });
 }
-async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null) {
+async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null, forcePreload = false) {
 
   const args = [
     '-t', String(timeRatio),
@@ -457,7 +457,7 @@ async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio,
   });
   await waitForFile(outputPath);
 
-  mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath);
+  mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath+";"+(forcePreload?1:0));
 }
 async function autoRubberbandCLI(rb,inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null,obj) {
   let cmd = rb+` -t ${timeRatio} -p ${pitchSemitones}  --window-long --no-transients --smoothing --threads "${inputPath}" "${outputPath}"`;
@@ -4521,7 +4521,7 @@ ipcMain.on ("toMain", (event, args) => {
 	  		break;
 	   case "processAudio":
 	   	//console.log(`openObjetParam ${args} from param`);
-	   	var { id, mode, sampleRate, channels,length, duration, tempoMap } = JSON.parse(cmd[1]);
+	   	var { id, mode, sampleRate, channels,length, duration, tempoMap, forcePreload } = JSON.parse(cmd[1]);
 	   	
 	   	var totalFrames = length;//4298112 ton WAV
 	   	var durationSec = totalFrames / sampleRate; 
@@ -4542,7 +4542,7 @@ ipcMain.on ("toMain", (event, args) => {
 			} else { 
 			  
 			  try {
-				 await callRubberbandCLI(rubberbandPath,id,mode,inputPath, outputPath, 1.0, 0, timeMapPath);
+				 await callRubberbandCLI(rubberbandPath,id,mode,inputPath, outputPath, 1.0, 0, timeMapPath, forcePreload);
 				} catch (err) {
 				  console.error("Rubberband failed:", err);
 				  mainWindow.webContents.send(
