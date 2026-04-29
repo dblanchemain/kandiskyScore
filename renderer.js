@@ -38,6 +38,8 @@ function setSoxVolume(db) {
 const undoStack = [];
 const redoStack = [];
 const UNDO_MAX = 50;
+let savedObjParamSnap = null;
+let objParamIsOpen = false;
 
 function pushUndo() {
     undoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
@@ -69,6 +71,8 @@ function restoreSnapshot(snap, prevObjActif = 1048576) {
         const o = tableObjet[id];
         if (o && o.id) oldFxByObjId[o.id] = JSON.stringify(o.tableFx) + '|' + JSON.stringify(o.tableFxParam);
     }
+    const prevAudioParams = (prevObjActif !== 1048576 && tableObjet[prevObjActif])
+        ? JSON.stringify(tableObjet[prevObjActif]) : null;
 
     tableObjet = snap.t;
     nbObjets = snap.n;
@@ -133,6 +137,9 @@ function restoreSnapshot(snap, prevObjActif = 1048576) {
         const _c = (tableObjet[_id].file && tableObjet[_id].file !== "") ? getCanauxObjet(_id) : 0;
         const _t = parseFloat(document.getElementById("tempo").value);
         window.api.send("toMain", "undoRefreshObjParam;" + _id + ";" + lang + ";" + objetParamsToString(_id) + ";" + _c + ";" + _t);
+    }
+    if (prevAudioParams && prevObjActif !== 1048576 && tableObjet[prevObjActif] && tableObjet[prevObjActif].etat == 1 && tableObjet[prevObjActif].file && tableObjet[prevObjActif].file !== "" && JSON.stringify(tableObjet[prevObjActif]) !== prevAudioParams) {
+        readSimpleAudioA(prevObjActif, 0);
     }
 }
 
@@ -723,8 +730,12 @@ window.api.receive("fromMain", (data) => {
 				winResize(cmd[1]);
 				break;
 			case 'annulModifObj':
-				//Object.assign(tableObjet[cmd[1]],saveObjet)
-				//tableObjet[cmd[1]]=structuredClone(saveObjet)
+				if (saveObjet) {
+					tableObjet[cmd[1]] = structuredClone(saveObjet);
+				}
+				objParamIsOpen = false;
+				savedObjParamSnap = null;
+				readSimpleAudioA(cmd[1], 0);
 				break;
 			case 'validModifObj':
 				//objetStringDefParams(cmd[1],cmd[2])
@@ -928,6 +939,14 @@ window.api.receive("fromMain", (data) => {
 				defSelectImg(cmd[1]);
 				break;
 			case 'objValid':
+				if (savedObjParamSnap) {
+					undoStack.push(savedObjParamSnap);
+					if (undoStack.length > UNDO_MAX) undoStack.shift();
+					redoStack.length = 0;
+					updateUndoButtons();
+					savedObjParamSnap = null;
+				}
+				objParamIsOpen = false;
 				readSimpleAudioA(cmd[1], 0);
 				break;
 			case 'playStop':
@@ -1105,7 +1124,8 @@ function selectBkgObj(e){
    			}
      	   }
      	   let id=e.target.id.substring(5);
-     	 	pushUndo();
+     	 	savedObjParamSnap = { t: structuredClone(tableObjet), n: nbObjets };
+     	 	objParamIsOpen = true;
      	 	objetSaveParams(id);
      	 	nselector=0;
       	grpSelect=0;
@@ -1131,13 +1151,14 @@ function selectBkgObj(e){
 	     	   }
 	     	   */
 	     	   let id=e.target.parentNode.id.substring(5);
-	     	 	pushUndo();
 	     	 	objetSaveParams(id);
 	     	 	nselector=0;
 	      	grpSelect=0;
 	      	objActif=e.target.parentNode.id.substring(5);
-	      	
+
 	      	if(tableObjet[e.target.parentNode.id.substring(5)].class==1){
+	      		savedObjParamSnap = { t: structuredClone(tableObjet), n: nbObjets };
+	      		objParamIsOpen = true;
 		      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";0;"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 		     	 	}else{
@@ -1146,6 +1167,7 @@ function selectBkgObj(e){
 		     	 	console.log("ntxt",ntxt);
 	     	 	}
 	     	 	if(tableObjet[objActif].class==3){
+	     	 		pushUndo();
 		     	 	var ntxt="openSymbParam;"+id+";"+lang+";"+objetGrapĥToString(objActif)+";"+tableObjet[objActif].type;
 	     	 	}
 		      window.api.send("toMain", ntxt );
@@ -1166,7 +1188,8 @@ function selectBkgObj(e){
      	   let id=parseInt(e.target.parentNode.parentNode.id.substring(5));
      	   selectObj="objet"+id;
      	   if(id==objActif){
-	     	 	pushUndo();
+	     	 	savedObjParamSnap = { t: structuredClone(tableObjet), n: nbObjets };
+	     	 	objParamIsOpen = true;
 	     	 	objetSaveParams(id);
 	     	 	nselector=0;
 	      	grpSelect=0;
@@ -1182,7 +1205,8 @@ function selectBkgObj(e){
 	      }else{
 	      	window.api.send("toMain", 'objParamChange');
 	      	objActif=id;
-	      	pushUndo();
+	      	savedObjParamSnap = { t: structuredClone(tableObjet), n: nbObjets };
+	      	objParamIsOpen = true;
 	      	objetSaveParams(id);
 	     	 	nselector=0;
 	      	grpSelect=0;
@@ -1205,11 +1229,12 @@ function selectBkgObj(e){
    			}
      	   }
      	   let id=e.target.parentNode.parentNode.parentNode.id.substring(5);
-     	 	pushUndo();
      	 	objetSaveParams(id);
      	 	nselector=0;
       	grpSelect=0;
       	if(tableObjet[objActif].class==1){
+      		savedObjParamSnap = { t: structuredClone(tableObjet), n: nbObjets };
+      		objParamIsOpen = true;
 	      	if(tableObjet[objActif].file=="" || tableObjet[objActif].file==undefined){
 	     	 		var ntxt="openObjetParam;"+id+";"+JSON.stringify(tableObjet[objActif])+";"+tableObjet[objActif].type+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 	     	 	}else{
@@ -1217,8 +1242,9 @@ function selectBkgObj(e){
 	     	 	}
 	     	 }
      	 	if(tableObjet[objActif].class==3){
+     	 		pushUndo();
 		     	 	var ntxt="openSymbParam;"+id+";"+lang+";"+objetGrapĥToString(objActif)+";"+tableObjet[objActif].type;
-	     	}					
+	     	}
 	      window.api.send("toMain",ntxt );
      	}
      	
@@ -2895,7 +2921,6 @@ function defSelectListeFx(){
 	document.getElementById("formSelecFx").innerHTML=txt;
 }
 function fxOnChange(id,filtre) {
-	pushUndo();
 	idFxParam=id;
 	tableObjet[objActif].tableFx[id]=listeFx[filtre].name;
 	tableObjet[objActif].tableFxParam[idFxParam]=listeFx[filtre].defaut;
