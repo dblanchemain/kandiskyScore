@@ -730,12 +730,8 @@ window.api.receive("fromMain", (data) => {
 				winResize(cmd[1]);
 				break;
 			case 'annulModifObj':
-				if (saveObjet) {
-					tableObjet[cmd[1]] = structuredClone(saveObjet);
-				}
 				objParamIsOpen = false;
 				savedObjParamSnap = null;
-				readSimpleAudioA(cmd[1], 0);
 				break;
 			case 'validModifObj':
 				//objetStringDefParams(cmd[1],cmd[2])
