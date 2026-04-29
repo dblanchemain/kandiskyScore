@@ -119,6 +119,8 @@ contextBridge.exposeInMainWorld(
     killAudio: () => ipcRenderer.invoke('killAudio'),
     preloadAudio: (filePaths) =>
         ipcRenderer.invoke('preloadAudio', filePaths),
+    forcePreloadAudio: (filePaths) =>
+        ipcRenderer.invoke('forcePreloadAudio', filePaths),
     setAudioChannels: (channels) =>
         ipcRenderer.invoke('setAudioChannels', channels),
     listAudioDevices: () =>

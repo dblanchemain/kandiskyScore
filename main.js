@@ -4841,6 +4841,17 @@ ipcMain.handle("preloadAudio", async (event, filePaths) => {
   return { ok, error };
 });
 
+ipcMain.handle("forcePreloadAudio", async (event, filePaths) => {
+  if (!audioWsReady) return { skipped: true };
+  const results = await Promise.allSettled(
+    filePaths.map(fp => sendAudioRequest({ cmd: 'preload', file: fp, force: true }, 8000))
+  );
+  const ok    = results.filter(r => r.status === 'fulfilled').length;
+  const error = results.filter(r => r.status === 'rejected').length;
+  console.log(`forcePreloadAudio : ${ok} ok, ${error} erreurs sur ${filePaths.length} fichiers`);
+  return { ok, error };
+});
+
 ipcMain.handle("infoFile", async (event, filePath) => {
   if (audioWsReady) {
     try {

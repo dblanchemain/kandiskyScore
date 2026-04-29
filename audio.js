@@ -1874,7 +1874,7 @@ async function postRubberband(id,mode,file,forcePreload=false) {
         console.log("[pipeline] saved ->spatialised", outPath);
         if (forcePreload) {
             document.getElementById("loading").style.display = "block";
-            await window.api.preloadAudio([outPath]);
+            await window.api.forcePreloadAudio([outPath]);
             document.getElementById("loading").style.display = "none";
         }
 
