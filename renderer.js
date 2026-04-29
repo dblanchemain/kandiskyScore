@@ -141,7 +141,7 @@ function restoreSnapshot(snap, prevObjActif = 1048576) {
     if (snap.objParamId !== undefined) {
         const _oid = snap.objParamId;
         if (tableObjet[_oid] && tableObjet[_oid].etat == 1 && tableObjet[_oid].file && tableObjet[_oid].file !== "") {
-            readSimpleAudioA(_oid, 0);
+            readSimpleAudioA(_oid, 0, true);
         }
     }
 }
@@ -947,7 +947,7 @@ window.api.receive("fromMain", (data) => {
 					savedObjParamSnap = null;
 				}
 				objParamIsOpen = false;
-				readSimpleAudioA(cmd[1], 0);
+				readSimpleAudioA(cmd[1], 0, true);
 				break;
 			case 'playStop':
 				console.log("playStop");
