@@ -3704,7 +3704,7 @@ ipcMain.on ("toMain", (event, args) => {
 			}
 			winConfig.destroy();
 			winConfigEtat=0;
-			mainWindow.webContents.send("fromMain", "objValid;"+cmd[1]);
+			mainWindow.webContents.send("fromMain", "objValid;"+args.substring("objParamValid;".length));
 			break;
 		case 'objGraphValid':
 			if(winGraphObjEtat==1){

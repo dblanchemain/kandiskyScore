@@ -927,10 +927,15 @@ window.api.receive("fromMain", (data) => {
 			case 'insertImgSelect':
 				defSelectImg(cmd[1]);
 				break;
-			case 'objValid':
-				objActif = parseInt(cmd[1]);
-				renderObjAudio();
+			case 'objValid': {
+				const _ovId = parseInt(cmd[1]);
+				const _ovOffset = "objValid;".length + cmd[1].length + 1;
+				if (_ovOffset < data.length) {
+					try { Object.assign(tableObjet[_ovId], JSON.parse(data.substring(_ovOffset))); } catch(e) {}
+				}
+				readSimpleAudioA(cmd[1], 0);
 				break;
+			}
 			case 'playStop':
 				console.log("playStop");
 				if(tempoPlayerStat===1){ tempoPlayerStat=0; document.getElementById("tempoPlay").src="./images/png/lecture.png"; }

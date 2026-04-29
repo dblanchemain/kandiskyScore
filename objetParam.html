@@ -542,9 +542,8 @@ function objAnnul() {
 	window.api.send("toMain", "objParamAnnul;"+selectId)
 }
 function objValid() {
-	var cmd="objParamValid;"+selectId
-	window.api.send("toMain",cmd )
-	
+	var cmd="objParamValid;"+selectId+";"+JSON.stringify(selectObj)
+	window.api.send("toMain",cmd)
 }
 
 /* ******************************************************** param audio *********************************** */
@@ -849,6 +848,7 @@ function invTransposition(y){
 }
 function transpoToPosY(){
 	var transpo=parseFloat(document.getElementById("transposition").value)
+	selectObj.transposition=transpo
 	var nduree=selectObj.duree/transpo
 	var relative=nduree*(parseFloat(document.getElementById("limFond").style.width)/261.8)
 	document.getElementById("inprelatif").value=relative.toFixed(3)
