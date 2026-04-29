@@ -51,16 +51,18 @@ function pushUndo() {
 function undo() {
     if (!undoStack.length) return;
     const prevObjActif = objActif;
-    redoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
-    restoreSnapshot(undoStack.pop(), prevObjActif);
+    const snap = undoStack.pop();
+    redoStack.push({ t: structuredClone(tableObjet), n: nbObjets, objParamId: snap.objParamId });
+    restoreSnapshot(snap, prevObjActif);
     updateUndoButtons();
 }
 
 function redo() {
     if (!redoStack.length) return;
     const prevObjActif = objActif;
-    undoStack.push({ t: structuredClone(tableObjet), n: nbObjets });
-    restoreSnapshot(redoStack.pop(), prevObjActif);
+    const snap = redoStack.pop();
+    undoStack.push({ t: structuredClone(tableObjet), n: nbObjets, objParamId: snap.objParamId });
+    restoreSnapshot(snap, prevObjActif);
     updateUndoButtons();
 }
 
@@ -71,8 +73,6 @@ function restoreSnapshot(snap, prevObjActif = 1048576) {
         const o = tableObjet[id];
         if (o && o.id) oldFxByObjId[o.id] = JSON.stringify(o.tableFx) + '|' + JSON.stringify(o.tableFxParam);
     }
-    const prevAudioParams = (prevObjActif !== 1048576 && tableObjet[prevObjActif])
-        ? JSON.stringify(tableObjet[prevObjActif]) : null;
 
     tableObjet = snap.t;
     nbObjets = snap.n;
@@ -138,8 +138,11 @@ function restoreSnapshot(snap, prevObjActif = 1048576) {
         const _t = parseFloat(document.getElementById("tempo").value);
         window.api.send("toMain", "undoRefreshObjParam;" + _id + ";" + lang + ";" + objetParamsToString(_id) + ";" + _c + ";" + _t);
     }
-    if (prevAudioParams && prevObjActif !== 1048576 && tableObjet[prevObjActif] && tableObjet[prevObjActif].etat == 1 && tableObjet[prevObjActif].file && tableObjet[prevObjActif].file !== "" && JSON.stringify(tableObjet[prevObjActif]) !== prevAudioParams) {
-        readSimpleAudioA(prevObjActif, 0);
+    if (snap.objParamId !== undefined) {
+        const _oid = snap.objParamId;
+        if (tableObjet[_oid] && tableObjet[_oid].etat == 1 && tableObjet[_oid].file && tableObjet[_oid].file !== "") {
+            readSimpleAudioA(_oid, 0);
+        }
     }
 }
 
@@ -936,6 +939,7 @@ window.api.receive("fromMain", (data) => {
 				break;
 			case 'objValid':
 				if (savedObjParamSnap) {
+					savedObjParamSnap.objParamId = parseInt(cmd[1]);
 					undoStack.push(savedObjParamSnap);
 					if (undoStack.length > UNDO_MAX) undoStack.shift();
 					redoStack.length = 0;
