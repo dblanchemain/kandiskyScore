@@ -4811,6 +4811,12 @@ ipcMain.handle('setAudioDevice', async (event, deviceIndex) => {
 
 // Pré-charge une liste de fichiers audio dans le cache du serveur Python.
 // Appeler avant le démarrage de la lecture pour éviter les délais au premier son.
+ipcMain.handle("invalidateAudioCache", async (event, filePaths) => {
+  if (!audioWsReady) return { skipped: true };
+  await sendAudioRequest({ cmd: 'invalidate', files: filePaths }, 3000).catch(() => {});
+  return { ok: true };
+});
+
 ipcMain.handle("preloadAudio", async (event, filePaths) => {
   if (!audioWsReady) return { skipped: true };
   const results = await Promise.allSettled(

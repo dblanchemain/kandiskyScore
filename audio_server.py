@@ -864,6 +864,13 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
     elif cmd == "preload":
         await cmd_preload(ws, msg, reply)
 
+    elif cmd == "invalidate":
+        paths = msg.get("files", [])
+        with _raw_cache_lock:
+            for p in paths:
+                _raw_cache.pop(p, None)
+        await reply({"type": "invalidated", "count": len(paths)})
+
     elif cmd == "stop":
         mixer.stop_all()
         await reply({"type": "stopped"})

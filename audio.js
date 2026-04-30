@@ -1848,6 +1848,7 @@ async function postRubberband(id,mode,file) {
         const premixPath = window.api.joinPath(audioBase,"tmp",`${obj.id}-premix.wav`);
         await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: currentChannels } });
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
+        await window.api.invalidateAudioCache([outPath]);
         console.log("[pipeline] saved ->spatialised", outPath);
 
     } else if (mode == 2) {
