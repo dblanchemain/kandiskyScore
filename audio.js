@@ -1315,7 +1315,6 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
 	console.log("listeFx",obj,obj.tableFx);
     // ----- WAM / GREFFONS -----
     const fxSlots = obj.tableFx || [];
-    const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
 
     const blockSize = 1024;
 
@@ -1329,8 +1328,9 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
     const libFaust = new LibFaust(faustModule);
     const compiler = new FaustCompiler(libFaust);
 
-    for (let slotIndex = 0; slotIndex < validSlots.length; slotIndex++) {
-        const fxKey = validSlots[slotIndex];
+    for (let slotIndex = 0; slotIndex < fxSlots.length; slotIndex++) {
+        const fxKey = fxSlots[slotIndex];
+        if (!fxKey || !listeFx || !listeFx[fxKey]) continue;
         const fxDesc = listeFx[fxKey];
         const dspName = fxDesc.greffon;
 
@@ -1841,10 +1841,11 @@ async function postRubberband(id,mode,file) {
     const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName = baseName.split(".")[0];
-    let outPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-fx.wav`);
+    const audioBase = toAbsPath(paramProjet.audioPath);
+    let outPath = window.api.joinPath(audioBase,"tmp",`${obj.id}-fx.wav`);
     if (mode == 0) {
         // ===== MODE LECTURE : spatialisation VBAP ou HOA décodé =====
-        const premixPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-premix.wav`);
+        const premixPath = window.api.joinPath(audioBase,"tmp",`${obj.id}-premix.wav`);
         await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: currentChannels } });
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
         console.log("[pipeline] saved ->spatialised", outPath);
