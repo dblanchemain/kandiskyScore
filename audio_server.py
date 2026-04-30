@@ -800,20 +800,23 @@ _raw_cache_lock = threading.Lock()
 def _cached_sf_read(file_path: str) -> tuple[np.ndarray, int]:
     """sf.read() avec cache en mémoire, invalidé automatiquement si le fichier change."""
     try:
-        mtime = os.path.getmtime(file_path)
+        st = os.stat(file_path)
+        mtime = st.st_mtime
+        fsize = st.st_size
     except OSError:
         mtime = 0.0
+        fsize = 0
 
     with _raw_cache_lock:
         if file_path in _raw_cache:
-            data, sr, cached_mtime = _raw_cache[file_path]
-            if mtime == cached_mtime:
+            data, sr, cached_mtime, cached_size = _raw_cache[file_path]
+            if mtime == cached_mtime and fsize == cached_size:
                 return data.copy(), sr   # copie pour ne pas altérer le cache
             log.debug("Cache : invalidé %s (fichier modifié)", file_path)
 
     data, sr = sf.read(file_path, dtype="float32", always_2d=True)
     with _raw_cache_lock:
-        _raw_cache[file_path] = (data, sr, mtime)
+        _raw_cache[file_path] = (data, sr, mtime, fsize)
     log.debug("Cache : ajout %s (%.1f s, %d Hz)", file_path, len(data)/sr, sr)
     return data.copy(), sr
 
