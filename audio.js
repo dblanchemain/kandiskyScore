@@ -1316,6 +1316,7 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
 	console.log("listeFx",obj,obj.tableFx);
     // ----- WAM / GREFFONS -----
     const fxSlots = obj.tableFx || [];
+    const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
 
     const blockSize = 1024;
 
@@ -1329,9 +1330,8 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
     const libFaust = new LibFaust(faustModule);
     const compiler = new FaustCompiler(libFaust);
 
-    for (let slotIndex = 0; slotIndex < fxSlots.length; slotIndex++) {
-        const fxKey = fxSlots[slotIndex];
-        if (!fxKey || !listeFx || !listeFx[fxKey]) continue;
+    for (let slotIndex = 0; slotIndex < validSlots.length; slotIndex++) {
+        const fxKey = validSlots[slotIndex];
         const fxDesc = listeFx[fxKey];
         const dspName = fxDesc.greffon;
 
@@ -1851,7 +1851,7 @@ async function postRubberband(id,mode,file,forcePreload=false) {
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
         if (forcePreload) {
             document.getElementById("loading").style.display = "block";
-            await window.api.forcePreloadAudio([outPath]);
+            await window.api.forcePreloadAudio([outPath]).catch(() => {});
             document.getElementById("loading").style.display = "none";
         }
         console.log("[pipeline] saved ->spatialised", outPath);
