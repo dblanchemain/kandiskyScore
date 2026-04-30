@@ -4822,6 +4822,12 @@ ipcMain.handle("preloadAudio", async (event, filePaths) => {
   return { ok, error };
 });
 
+ipcMain.handle("invalidateAudioCache", async (event, filePaths) => {
+  if (!audioWsReady) return { skipped: true };
+  await sendAudioRequest({ cmd: 'invalidate', files: filePaths }, 3000).catch(() => {});
+  return { ok: true };
+});
+
 ipcMain.handle("infoFile", async (event, filePath) => {
   if (audioWsReady) {
     try {
