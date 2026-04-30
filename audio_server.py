@@ -798,25 +798,27 @@ _raw_cache_lock = threading.Lock()
 
 
 def _cached_sf_read(file_path: str) -> tuple[np.ndarray, int]:
-    """sf.read() avec cache en mémoire, invalidé automatiquement si le fichier change."""
+    """sf.read() avec cache en mémoire, invalidé automatiquement si le fichier change.
+    Les fichiers *-fx.wav sont toujours relus depuis le disque (changent à chaque objValid)."""
+    if file_path.endswith('-fx.wav'):
+        data, sr = sf.read(file_path, dtype="float32", always_2d=True)
+        return data, sr
+
     try:
-        st = os.stat(file_path)
-        mtime = st.st_mtime
-        fsize = st.st_size
+        mtime = os.path.getmtime(file_path)
     except OSError:
         mtime = 0.0
-        fsize = 0
 
     with _raw_cache_lock:
         if file_path in _raw_cache:
-            data, sr, cached_mtime, cached_size = _raw_cache[file_path]
-            if mtime == cached_mtime and fsize == cached_size:
+            data, sr, cached_mtime = _raw_cache[file_path]
+            if mtime == cached_mtime:
                 return data.copy(), sr   # copie pour ne pas altérer le cache
             log.debug("Cache : invalidé %s (fichier modifié)", file_path)
 
     data, sr = sf.read(file_path, dtype="float32", always_2d=True)
     with _raw_cache_lock:
-        _raw_cache[file_path] = (data, sr, mtime, fsize)
+        _raw_cache[file_path] = (data, sr, mtime)
     log.debug("Cache : ajout %s (%.1f s, %d Hz)", file_path, len(data)/sr, sr)
     return data.copy(), sr
 
