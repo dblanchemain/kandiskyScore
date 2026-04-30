@@ -1196,7 +1196,7 @@ function applyEnvelopeToGainNode(gainNode, localEnv) {
 }
 
 
-async function readSimpleAudioA(id,mode) {
+async function readSimpleAudioA(id,mode,forcePreload=false) {
     const obj = tableObjet[id];
     console.time();
     if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
@@ -1280,6 +1280,7 @@ async function readSimpleAudioA(id,mode) {
 	      length: numSamples,
 	      duration: numSamples*sampleRate,
 	      tempoMap,
+	      forcePreload,
 	    };
 	  console.log("[pipeline] saved →rubber");
     window.api.send("toMain", "processAudio;" + JSON.stringify(info));
@@ -1288,7 +1289,7 @@ async function readSimpleAudioA(id,mode) {
         filePath: window.api.joinPath(`${baseDatatPath}`,"renduout.wav"),
         buffer: { sampleRate, channels: [monoBuffer] }
    	 });
-   	 await postRubberband(id,mode,window.api.joinPath(`${baseDatatPath}`,"renduout.wav"));
+   	 await postRubberband(id,mode,window.api.joinPath(`${baseDatatPath}`,"renduout.wav"),forcePreload);
    	 console.log("[pipeline] saved → no rubber");
 	 }
     
@@ -1799,7 +1800,7 @@ async function spatialise(id,filePath,interpType="linear") {
     return outPath;
 }
 
-async function postRubberband(id,mode,file) {
+async function postRubberband(id,mode,file,forcePreload=false) {
 	const buffer = await window.api.readFile(file);
   	// Décode les données en AudioBuffer via Web Audio API
   	const audioBuffer = await contextAudio.decodeAudioData(buffer);				
@@ -1848,7 +1849,11 @@ async function postRubberband(id,mode,file) {
         const premixPath = window.api.joinPath(audioBase,"tmp",`${obj.id}-premix.wav`);
         await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: currentChannels } });
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
-        await window.api.invalidateAudioCache([outPath]);
+        if (forcePreload) {
+            document.getElementById("loading").style.display = "block";
+            await window.api.forcePreloadAudio([outPath]);
+            document.getElementById("loading").style.display = "none";
+        }
         console.log("[pipeline] saved ->spatialised", outPath);
 
     } else if (mode == 2) {

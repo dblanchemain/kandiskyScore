@@ -1004,11 +1004,17 @@ async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
 async def cmd_preload(ws: "WebSocketServerProtocol", msg: dict, reply):
     """Pré-charge un fichier audio en mémoire sans le lire."""
     file_path = msg.get("file", "")
+    force     = msg.get("force", False)
     try:
+        already = file_path in _raw_cache
+        if force and already:
+            with _raw_cache_lock:
+                _raw_cache.pop(file_path, None)
+            already = False
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, _cached_sf_read, file_path)
         await reply({"type": "preloaded", "file": file_path})
-        log.info("Pré-chargé : %s", file_path)
+        log.info("Pré-chargé : %s%s", file_path, " (force-rechargé)" if force else "")
     except Exception as exc:
         await reply({"type": "error", "message": str(exc)})
 
