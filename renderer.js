@@ -634,6 +634,7 @@ window.api.receive("fromMain", (data) => {
 				console.log(`openObjetParam ${data} from param`);
 				importProjet(cmd[1]);
 				importConfigProjet();
+				upDateWorkSpace(1);
 				break;
 			case 'renameProjet':
 				renameProjet(cmd[1]);
@@ -1400,17 +1401,19 @@ scrollDemo.addEventListener("scroll", event => {
                                 scrollLeft: ${Math.floor(scrollDemo2.scrollLeft)} `;
         }, { passive: true });
 async function createPdf() {
-	var txt="";
 	document.getElementById('svgTime').innerHTML="";
 	document.getElementById('vueSign').innerHTML="";
-	txt="<rect x='0' y='0' width='12960' height='24' fill='"+vueSvgBackground+"' />";
-	document.getElementById('svgTime').innerHTML=txt;
-	txt="<rect x='0' y='24' width='12960' height='30' fill='"+vueSvgBackground+"' />";
-	document.getElementById('vueSign').innerHTML=txt;
 	if(vueSvgRegle==1){
-		createReglette(1,"svgTime",vueSvgBackground,vueSvgFontSize,vueSvgFontColor);
+		createReglette(1,"svgTime",regleBackground,vueSvgFontSize,vueSvgFontColor);
+		var br=document.createElementNS("http://www.w3.org/2000/svg","rect");
+		br.setAttribute("x","0"); br.setAttribute("y","0");
+		br.setAttribute("width","12960"); br.setAttribute("height","28");
+		br.setAttribute("fill",regleBackground);
+		document.getElementById("svgTime").prepend(br);
 	}
 	if(vueSvgMesure==1){
+		document.getElementById('vueSign').setAttribute("transform","translate(0,4)");
+		document.getElementById('vueSign').innerHTML="<rect x='0' y='24' width='12960' height='30' fill='"+regleBackground+"' />";
 		regSolfege(1,"vueSign",vueSvgFontSize,vueSvgFontColor,vueSvgFontColor,1);
 	}
 	await vuePartitionA(1,2,tableObjet);
@@ -2446,7 +2449,6 @@ var tableProjet=txt.split(',');
 	exportAmbiX: tableProjet[22] === "1",
 	};
 	zoomInit(100);
-	upDateWorkSpace(1);
 	var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
 	window.api.send("toMain", 'defExterne;'+txt);
 }
@@ -2468,49 +2470,17 @@ function importConfigProjet(){
 	spatMode=paramProjet.spatMode||"vbap3d";
 	hoaOrder=parseInt(paramProjet.hoaOrder)||3;
 	exportAmbiX=paramProjet.exportAmbiX===true||paramProjet.exportAmbiX===1;
-	if(paramProjet.regle==true){
-		setTimeRegle=true;
-	}else{
-		setTimeRegle=false;
-	}
-	if(paramProjet.mesure==true){
-		setSignRegle=true;
-	}else{
-		setSignRegle=false;
-	}
-	if(paramProjet.grille==true){
-		setgrille=true;
-	}else{
-		setgrille=false;
-	}
+	setTimeRegle=paramProjet.regle===true||paramProjet.regle==="true";
+	setSignRegle=paramProjet.mesure===true||paramProjet.mesure==="true";
+	setgrille=paramProjet.grille===true||paramProjet.grille==="true";
 	winWidth=parseFloat(paramProjet.width);
 	winHeight=parseFloat(paramProjet.height);
 	zoomScale=parseFloat(paramProjet.zoom);
-	if(paramProjet.svgRegle==true){
-		vueSvgRegle=true;
-	}else{
-		vueSvgRegle=false;
-	}
-	if(paramProjet.svgMesure==true){
-		vueSvgMesure=true;
-	}else{
-		vueSvgMesure=false;
-	}
-	if(paramProjet.svgGrille==true){
-		vueSvgGrille=true;
-	}else{
-		vueSvgGrille=false;
-	}
-	if(paramProjet.spaceSeconde==true){
-		spaceSeconde=true;
-	}else{
-		spaceSeconde=false;
-	}
-	if(paramProjet.svgSeconde==true){
-		svgSeconde=true;
-	}else{
-		svgSeconde=false;
-	}
+	vueSvgRegle=paramProjet.svgRegle===true||paramProjet.svgRegle==="true";
+	vueSvgMesure=paramProjet.svgMesure===true||paramProjet.svgMesure==="true";
+	vueSvgGrille=paramProjet.svgGrille===true||paramProjet.svgGrille==="true";
+	spaceSeconde=paramProjet.spaceSeconde===true||paramProjet.spaceSeconde==="true";
+	svgSeconde=paramProjet.svgSeconde===true||paramProjet.svgSeconde==="true";
 	console.log('paramProjet',paramProjet);
 	
 	console.warn("TYPE console.log =", typeof console.log);
