@@ -422,7 +422,7 @@ function waitForFile(file, timeout = 4000) {
     check();
   });
 }
-async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null) {
+async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null, forcePreload = false) {
 
   const args = [
     '-t', String(timeRatio),
@@ -457,7 +457,7 @@ async function callRubberbandCLI(rb, id, mode, inputPath, outputPath, timeRatio,
   });
   await waitForFile(outputPath);
 
-  mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath);
+  mainWindow.webContents.send("fromMain", "processRubberband;"+id+";"+mode+";"+outputPath+";"+(forcePreload?1:0));
 }
 async function autoRubberbandCLI(rb,inputPath, outputPath, timeRatio, pitchSemitones, timeMapPath = null,obj) {
   let cmd = rb+` -t ${timeRatio} -p ${pitchSemitones}  --window-long --no-transients --smoothing --threads "${inputPath}" "${outputPath}"`;
@@ -4502,7 +4502,7 @@ ipcMain.on ("toMain", (event, args) => {
 	  		break;
 	   case "processAudio":
 	   	//console.log(`openObjetParam ${args} from param`);
-	   	var { id, mode, sampleRate, channels,length, duration, tempoMap } = JSON.parse(cmd[1]);
+	   	var { id, mode, sampleRate, channels,length, duration, tempoMap, forcePreload } = JSON.parse(cmd[1]);
 	   	
 	   	var totalFrames = length;//4298112 ton WAV
 	   	var durationSec = totalFrames / sampleRate; 
@@ -4523,7 +4523,7 @@ ipcMain.on ("toMain", (event, args) => {
 			} else { 
 			  
 			  try {
-				 await callRubberbandCLI(rubberbandPath,id,mode,inputPath, outputPath, 1.0, 0, timeMapPath);
+				 await callRubberbandCLI(rubberbandPath,id,mode,inputPath, outputPath, 1.0, 0, timeMapPath, forcePreload);
 				} catch (err) {
 				  console.error("Rubberband failed:", err);
 				  mainWindow.webContents.send(
@@ -4819,6 +4819,23 @@ ipcMain.handle("preloadAudio", async (event, filePaths) => {
   const ok    = results.filter(r => r.status === 'fulfilled').length;
   const error = results.filter(r => r.status === 'rejected').length;
   console.log(`preloadAudio : ${ok} ok, ${error} erreurs sur ${filePaths.length} fichiers`);
+  return { ok, error };
+});
+
+ipcMain.handle("invalidateAudioCache", async (event, filePaths) => {
+  if (!audioWsReady) return { skipped: true };
+  await sendAudioRequest({ cmd: 'invalidate', files: filePaths }, 3000).catch(() => {});
+  return { ok: true };
+});
+
+ipcMain.handle("forcePreloadAudio", async (event, filePaths) => {
+  if (!audioWsReady) return { skipped: true };
+  const results = await Promise.allSettled(
+    filePaths.map(fp => sendAudioRequest({ cmd: 'preload', file: fp, force: true }, 8000))
+  );
+  const ok    = results.filter(r => r.status === 'fulfilled').length;
+  const error = results.filter(r => r.status === 'rejected').length;
+  console.log(`forcePreloadAudio : ${ok} ok, ${error} erreurs sur ${filePaths.length} fichiers`);
   return { ok, error };
 });
 
