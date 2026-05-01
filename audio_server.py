@@ -1152,6 +1152,12 @@ async def async_main():
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--port', type=int, default=9876)
+    args, _ = parser.parse_known_args()
+    global PORT
+    PORT = args.port
     try:
         asyncio.run(async_main())
     except KeyboardInterrupt:
