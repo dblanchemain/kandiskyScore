@@ -41,6 +41,7 @@ const FFTModule = require('fft.js');
 var AudioBuffer = require('audiobuffer');
 const { exec, execSync, spawn , spawnSync} = require("child_process");
 const WebSocket = require('ws');
+const net = require('net');
 const { PDFDocument } = require("pdf-lib");
 const util = require("util");
 const execAsync = util.promisify(exec);
@@ -52,10 +53,25 @@ let playProcess=new Set();
 
 // ─── Serveur audio Python ────────────────────────────────────────────────────
 let audioServerProc   = null;   // processus audio_server.py
+let audioServerPort   = 9876;   // port effectif (libre trouvé au démarrage)
 let audioWs           = null;   // client WebSocket vers le serveur
 let audioWsReady      = false;
 const audioWsPending  = [];     // messages mis en file avant que le WS soit prêt
 const audioWsCbs      = new Map(); // reqId → {resolve, reject, timer} pour req/resp
+
+function findFreePort(startPort) {
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer();
+    srv.listen(startPort, '127.0.0.1', () => {
+      const p = srv.address().port;
+      srv.close(() => resolve(p));
+    });
+    srv.on('error', () => {
+      if (startPort >= 9999) reject(new Error('Aucun port libre entre 9876 et 9999'));
+      else findFreePort(startPort + 1).then(resolve).catch(reject);
+    });
+  });
+}
 
 function getBinBaseDir() {
   return app.isPackaged
@@ -214,6 +230,14 @@ function findPythonPath() {
 
 function startAudioServer() {
   return new Promise((resolve, reject) => {
+    findFreePort(9876).then(port => {
+      audioServerPort = port;
+      _launchAudioServer(port, resolve, reject);
+    }).catch(reject);
+  });
+}
+
+function _launchAudioServer(port, resolve, reject) {
     const audioBin = findAudioServerBin();
     let cmd, args;
 
@@ -221,7 +245,7 @@ function startAudioServer() {
       // ── Binaire PyInstaller autonome (Linux/macOS/Windows packagé) ──────────
       console.log('🎵 Lancement audio_server (binaire autonome) :', audioBin);
       cmd  = audioBin;
-      args = [];
+      args = ['--port', String(port)];
     } else {
       // ── Fallback : Python + script .py ──────────────────────────────────────
       const python = findPythonPath();
@@ -230,9 +254,9 @@ const script = app.isPackaged
         ? path.join(process.resourcesPath, 'audio_server.py')
         : path.join(__dirname, 'audio_server.py');
 
-      console.log('🎵 Lancement audio_server.py :', python, script);
+      console.log('🎵 Lancement audio_server.py :', python, script, '--port', port);
       cmd  = python;
-      args = [script];
+      args = [script, '--port', String(port)];
     }
 
     audioServerProc = spawn(cmd, args, {
@@ -263,12 +287,11 @@ const script = app.isPackaged
       audioWsReady = false;
       audioWs = null;
     });
-  });
 }
 
 function connectAudioWs() {
   return new Promise((resolve, reject) => {
-    const ws = new WebSocket('ws://127.0.0.1:9876');
+    const ws = new WebSocket(`ws://127.0.0.1:${audioServerPort}`);
 
     ws.on('open', () => {
       audioWs = ws;
