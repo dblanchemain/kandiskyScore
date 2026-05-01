@@ -871,12 +871,14 @@ function defObjets(i,liste,dx,dy){
 			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
 			window.api.send("toMain", 'defExterne;'+txt);
 			actualiseObjets();
-			// Régénérer les -fx.wav au chargement du projet
-			for(let k=0;k<nbObjets;k++){
-				if(tableObjet[k] && tableObjet[k].class===1 && tableObjet[k].file && tableObjet[k].file!==""){
-					readSimpleAudioA(k,0);
+			// Régénérer les -fx.wav au chargement du projet (séquentiel — renduout.wav partagé)
+			(async()=>{
+				for(let k=0;k<nbObjets;k++){
+					if(tableObjet[k] && tableObjet[k].class===1 && tableObjet[k].file && tableObjet[k].file!==""){
+						await readSimpleAudioA(k,0);
+					}
 				}
-			}
+			})();
 }
 function initTableBuffer(i,liste,dx,dy) {
 	var request = new XMLHttpRequest();
