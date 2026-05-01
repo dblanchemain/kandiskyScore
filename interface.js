@@ -710,9 +710,9 @@ function dragElement(elmnt) {
     pos4 = e.clientY/zoomScale;
 
     // set the element's new position:
-    if(e.target.id=="selector"){
-    	document.getElementById("selector").style.height=(parseInt(elmnt.style.height) - pos2)  + "px";
-    	document.getElementById("selector").style.width =(parseInt(elmnt.style.width) - pos1) + "px";
+    if(elmnt.id=="selector"){
+    	document.getElementById("selector").style.height=(parseFloat(elmnt.style.height||0) - pos2)  + "px";
+    	document.getElementById("selector").style.width =(parseFloat(elmnt.style.width||0) - pos1) + "px";
     }else {
 
     	if(elmnt.id.substring(0,3)=="grp"){
