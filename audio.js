@@ -1196,7 +1196,7 @@ function applyEnvelopeToGainNode(gainNode, localEnv) {
 }
 
 
-async function readSimpleAudioA(id,mode,forcePreload=false) {
+async function readSimpleAudioA(id,mode) {
     const obj = tableObjet[id];
     console.time();
     if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
@@ -1280,7 +1280,6 @@ async function readSimpleAudioA(id,mode,forcePreload=false) {
 	      length: numSamples,
 	      duration: numSamples*sampleRate,
 	      tempoMap,
-	      forcePreload,
 	    };
 	  console.log("[pipeline] saved →rubber");
     window.api.send("toMain", "processAudio;" + JSON.stringify(info));
@@ -1289,7 +1288,7 @@ async function readSimpleAudioA(id,mode,forcePreload=false) {
         filePath: window.api.joinPath(`${baseDatatPath}`,"renduout.wav"),
         buffer: { sampleRate, channels: [monoBuffer] }
    	 });
-   	 await postRubberband(id,mode,window.api.joinPath(`${baseDatatPath}`,"renduout.wav"),forcePreload);
+   	 await postRubberband(id,mode,window.api.joinPath(`${baseDatatPath}`,"renduout.wav"));
    	 console.log("[pipeline] saved → no rubber");
 	 }
     
@@ -1800,7 +1799,7 @@ async function spatialise(id,filePath,interpType="linear") {
     return outPath;
 }
 
-async function postRubberband(id,mode,file,forcePreload=false) {
+async function postRubberband(id,mode,file) {
 	const buffer = await window.api.readFile(file);
   	// Décode les données en AudioBuffer via Web Audio API
   	const audioBuffer = await contextAudio.decodeAudioData(buffer);				
@@ -1842,18 +1841,12 @@ async function postRubberband(id,mode,file,forcePreload=false) {
     const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName = baseName.split(".")[0];
-    const audioBase = toAbsPath(paramProjet.audioPath);
-    let outPath = window.api.joinPath(audioBase,"tmp",`${obj.id}-fx.wav`);
+    let outPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-fx.wav`);
     if (mode == 0) {
         // ===== MODE LECTURE : spatialisation VBAP ou HOA décodé =====
-        const premixPath = window.api.joinPath(audioBase,"tmp",`${obj.id}-premix.wav`);
+        const premixPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-premix.wav`);
         await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: currentChannels } });
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
-        if (forcePreload) {
-            document.getElementById("loading").style.display = "block";
-            await window.api.forcePreloadAudio([outPath]).catch(() => {});
-            document.getElementById("loading").style.display = "none";
-        }
         console.log("[pipeline] saved ->spatialised", outPath);
 
     } else if (mode == 2) {

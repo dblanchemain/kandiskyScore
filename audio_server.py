@@ -798,12 +798,7 @@ _raw_cache_lock = threading.Lock()
 
 
 def _cached_sf_read(file_path: str) -> tuple[np.ndarray, int]:
-    """sf.read() avec cache en mémoire, invalidé automatiquement si le fichier change.
-    Les fichiers *-fx.wav sont toujours relus depuis le disque (changent à chaque objValid)."""
-    if file_path.endswith('-fx.wav'):
-        data, sr = sf.read(file_path, dtype="float32", always_2d=True)
-        return data, sr
-
+    """sf.read() avec cache en mémoire, invalidé automatiquement si le fichier change."""
     try:
         mtime = os.path.getmtime(file_path)
     except OSError:
@@ -865,13 +860,6 @@ async def dispatch(ws: "WebSocketServerProtocol", msg: dict):
 
     elif cmd == "preload":
         await cmd_preload(ws, msg, reply)
-
-    elif cmd == "invalidate":
-        paths = msg.get("files", [])
-        with _raw_cache_lock:
-            for p in paths:
-                _raw_cache.pop(p, None)
-        await reply({"type": "invalidated", "count": len(paths)})
 
     elif cmd == "stop":
         mixer.stop_all()
@@ -1004,17 +992,13 @@ async def cmd_play(ws: "WebSocketServerProtocol", params: dict, reply):
 async def cmd_preload(ws: "WebSocketServerProtocol", msg: dict, reply):
     """Pré-charge un fichier audio en mémoire sans le lire."""
     file_path = msg.get("file", "")
-    force     = msg.get("force", False)
     try:
         already = file_path in _raw_cache
-        if force and already:
-            with _raw_cache_lock:
-                _raw_cache.pop(file_path, None)
-            already = False
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, _cached_sf_read, file_path)
-        await reply({"type": "preloaded", "file": file_path})
-        log.info("Pré-chargé : %s%s", file_path, " (force-rechargé)" if force else "")
+        if not already:
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, _cached_sf_read, file_path)
+        await reply({"type": "preloaded", "file": file_path, "already_cached": already})
+        log.info("Pré-chargé : %s%s", file_path, " (déjà en cache)" if already else "")
     except Exception as exc:
         await reply({"type": "error", "message": str(exc)})
 

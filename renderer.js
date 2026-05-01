@@ -817,7 +817,7 @@ window.api.receive("fromMain", (data) => {
 				defSelectImg(cmd[1]);
 				break;
 			case 'objValid':
-				readSimpleAudioA(cmd[1],0,true);
+				readSimpleAudioA(cmd[1],0);
 				break;
 			case 'playStop':
 				console.log("playStop");
@@ -847,7 +847,7 @@ window.api.receive("fromMain", (data) => {
 					if (cmd[2] === 'tempo' || cmd[2] === 'stretching') {
 						document.getElementById("loading").style.display = "none";
 					} else {
-						await postRubberband(cmd[1],cmd[2],cmd[3],cmd[4]==='1');
+						await postRubberband(cmd[1],cmd[2],cmd[3]);
 					}
 				})();
 				
@@ -1465,7 +1465,7 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 		req.send();
 	}
 	window.api.send("toMain","fileAudioParam;"+id+";"+base+";"+d+";"+c);
-	readSimpleAudioA(id, 0, true);
+	readSimpleAudioA(id, 0);
 }
 function loadPreDefSound(id,url) {
     var request = new XMLHttpRequest();
