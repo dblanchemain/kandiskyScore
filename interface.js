@@ -716,8 +716,8 @@ function dragElement(elmnt) {
     }else {
 
     	if(elmnt.id.substring(0,3)=="grp"){
-    		var px=(elmnt.offsetLeft - pos1);
-    		var py=(elmnt.offsetTop - pos2);
+    		var px=(parseFloat(elmnt.style.left||0) - pos1);
+    		var py=(parseFloat(elmnt.style.top||0) - pos2);
     		if(py<1){
     			py = 0;
     		}
@@ -748,12 +748,12 @@ function dragElement(elmnt) {
 	    			
 					if (elmnt2.id.substring(0,5)=="objet") {
 	
-						px=(elmnt2.offsetLeft - pos1);
-		    		   py=(elmnt2.offsetTop - pos2);
+						px=(parseFloat(elmnt2.style.left||0) - pos1);
+		    		   py=(parseFloat(elmnt2.style.top||0) - pos2);
 		    		   elmnt2.style.top = py + "px";
 		    			elmnt2.style.left = px + "px";
 		    			if(tableObjet[lsgrp[i]].type<24){
-		    				transposition(elmnt2.id.substring(5),elmnt2.offsetTop - pos2);
+		    				transposition(elmnt2.id.substring(5),parseFloat(elmnt2.style.top||0) - pos2);
 		    			}
 			    		//var dt=px*(1/zoomScale);
 			    		position(px);
@@ -762,8 +762,8 @@ function dragElement(elmnt) {
 			    		tableObjet[lsgrp[i]].basePosY=py*(1/ratioSpaceHeight);
 			    	}
 	    			if (elmnt2.id.substring(0,3)=="grp") {
-	    				px=(elmnt2.offsetLeft - pos1);
-		    		   py=(elmnt2.offsetTop - pos2);
+	    				px=(parseFloat(elmnt2.style.left||0) - pos1);
+		    		   py=(parseFloat(elmnt2.style.top||0) - pos2);
 	    				elmnt2.style.top = py + "px";
 	    				elmnt2.style.left = px + "px";
 	    				tableObjet[lsgrp[i]].posX=px;
@@ -775,8 +775,8 @@ function dragElement(elmnt) {
     	}else if (elmnt.id.substring(0,5)=="objet"){
 
 				objActif=elmnt.id.substring(5);
-	    		var px=(elmnt.offsetLeft - pos1);
-	    		var py=(elmnt.offsetTop - pos2);
+	    		var px=(parseFloat(elmnt.style.left||0) - pos1);
+	    		var py=(parseFloat(elmnt.style.top||0) - pos2);
 	    		if(py<1){
 	    			py = 0;
 	    		}
@@ -830,8 +830,8 @@ function dragElement(elmnt) {
 	    		tableObjet[objActif].basePosY=py*(1/ratioSpaceHeight);
 	    		}
 	    	}else if (elmnt.id.substring(0,2)=="fx"){
-				var px=elmnt.offsetLeft - pos1;
-				var py=elmnt.offsetTop - pos2;	
+				var px=parseFloat(elmnt.style.left||0) - pos1;
+				var py=parseFloat(elmnt.style.top||0) - pos2;	
 	
 				if(px<0){
 					px=0;
@@ -943,19 +943,20 @@ function dragElement(elmnt) {
 	    		elmnt.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute("y",r+14);
 	    		elmnt.firstChild.firstChild.nextSibling.nextSibling.nextSibling.setAttribute("height",100-r);
 	    	}else if(elmnt.id=="barVerticale"){
-	    			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-	    			barverticTime=defTempoAtPos(elmnt.offsetLeft - pos1)-1;
+	    			var px=(parseFloat(elmnt.style.left||0) - pos1);
+	    			elmnt.style.left = px + "px";
+	    			barverticTime=defTempoAtPos(px)-1;
 	    		}else if(elmnt.id=="barDebut"){
-	    			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	    			elmnt.style.left = (parseFloat(elmnt.style.left||0) - pos1) + "px";
 	    			barDebutTime=defMoveLecture(2);
 	    				
 	    		}else if(elmnt.id=="barFin"){
-	    			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+	    			elmnt.style.left = (parseFloat(elmnt.style.left||0) - pos1) + "px";
 	    			barFinTime=defMoveLecture(3);
 	    			
 	    			}else if(elmnt.id.substring(0,5)=="gliss"){
-		    			var px=(elmnt.offsetLeft - pos1);
-			    		var py=(elmnt.offsetTop - pos2);
+		    			var px=(parseFloat(elmnt.style.left||0) - pos1);
+			    		var py=(parseFloat(elmnt.style.top||0) - pos2);
 			    		if(py<1){
 		    			py = 0;
 			    		}
@@ -1014,8 +1015,8 @@ function dragElement(elmnt) {
 				    		tableObjet[actif].bkgWidth=parseFloat(orig.style.width);
 				    		tableObjet[actif].bkgHeight=parseFloat(orig.style.height);
 			    		}else if(elmnt.id.substring(0,2)=="p2"){
-				var px=(elmnt.offsetLeft - pos1);
-				var py=(elmnt.offsetTop - pos2);
+				var px=(parseFloat(elmnt.style.left||0) - pos1);
+				var py=(parseFloat(elmnt.style.top||0) - pos2);
 				if(py<1){ py=0; }
 				if(py>714){ py=714; }
 				if(px<1){ px=0; }
@@ -1023,8 +1024,8 @@ function dragElement(elmnt) {
 				elmnt.style.left = px + "px";
 				smarpegeP2(elmnt,px,py);
 			}else if(elmnt.id.substring(0,2)=="p3"){
-				var px=(elmnt.offsetLeft - pos1);
-				var py=(elmnt.offsetTop - pos2);
+				var px=(parseFloat(elmnt.style.left||0) - pos1);
+				var py=(parseFloat(elmnt.style.top||0) - pos2);
 				if(py<1){ py=0; }
 				if(py>714){ py=714; }
 				if(px<1){ px=0; }
@@ -1032,8 +1033,8 @@ function dragElement(elmnt) {
 				elmnt.style.left = px + "px";
 				smarpegeP3(elmnt,px,py);
 			}else if(elmnt.id.substring(0,2)=="p1"){
-			var px=(elmnt.offsetLeft - pos1);
-			var py=(elmnt.offsetTop - pos2);
+			var px=(parseFloat(elmnt.style.left||0) - pos1);
+			var py=(parseFloat(elmnt.style.top||0) - pos2);
 			if(py<1){ py=0; }
 			if(py>714){ py=714; }
 			if(px<1){ px=0; }
@@ -1065,8 +1066,8 @@ function dragElement(elmnt) {
 				smarpegeP1(elmnt,px,py);
 			}
 		}else if(elmnt.id.substring(0,5)=="sglis"){
-		    			var px=(elmnt.offsetLeft - pos1);
-			    		var py=(elmnt.offsetTop - pos2);
+		    			var px=(parseFloat(elmnt.style.left||0) - pos1);
+			    		var py=(parseFloat(elmnt.style.top||0) - pos2);
 			    		if(py<1){
 				 		py = 0;
 				 		}
@@ -1170,8 +1171,8 @@ function dragElement(elmnt) {
 					if(_cc2){_cc2.style.left=(_ct.posX+_ct.cp2x*_ct.scaleX-4)+"px"; _cc2.style.top=(_ct.posY+_ct.cp2y*_ct.scaleY-4)+"px";}
 				}
 												}else if(elmnt.id.substring(0,3)=="tmp"){
-				    			var px=(elmnt.offsetLeft - pos1);
-					    		var py=(elmnt.offsetTop - pos2);
+				    			var px=(parseFloat(elmnt.style.left||0) - pos1);
+					    		var py=(parseFloat(elmnt.style.top||0) - pos2);
 					    		console.log("move elmnt",elmnt.id,px,py);
 					    		if(py<0){
 						 		py = 0;
@@ -1196,8 +1197,8 @@ console.log('resultat',tempoPoints,resultat);
 						 		
 						 			drawTempo();
 						}else if(elmnt.id.substring(0,3)=="gna"){
-				    			var px=(elmnt.offsetLeft - pos1);
-					    		var py=(elmnt.offsetTop - pos2);
+				    			var px=(parseFloat(elmnt.style.left||0) - pos1);
+					    		var py=(parseFloat(elmnt.style.top||0) - pos2);
 					    		console.log("move elmnt",elmnt.id,px,py);
 					    		if(py<0){
 						 		py = 0;
@@ -1250,8 +1251,8 @@ console.log('resultat',gainPoints,resultat);
 			    		}else{
 			    			if(elmnt.id!="space"){
 
-				    			elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-				    			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+				    			elmnt.style.top = (parseFloat(elmnt.style.top||0) - pos2) + "px";
+				    			elmnt.style.left = (parseFloat(elmnt.style.left||0) - pos1) + "px";
 			    			}
 			    		}
 
