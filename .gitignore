@@ -34,6 +34,12 @@ public/emsdk/
 # Python embeddable Windows (généré par scripts/setup-python-win.ps1)
 resources/bin/win/python/
 
+# Binaires PyInstaller audio_server (distribution uniquement — utiliser audio_server.py en dev)
+resources/bin/linux/audio_server
+resources/bin/mac/audio_server
+resources/bin/win/audio_server.exe
+build/
+
 # Sources C/C++ et headers (compilés en wasm)
 public/*.cpp
 public/*.cpp~
