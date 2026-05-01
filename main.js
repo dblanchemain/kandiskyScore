@@ -4951,10 +4951,11 @@ ipcMain.handle('soxProcessTo', async (event, inputPath, outputPath, soxParams) =
 
 ipcMain.handle("saveAudioBuffer", async (event, payload) => {
     const { filePath, buffer } = payload;
-console.log("payload",payload);
     if (!buffer || !buffer.channels || buffer.channels.length === 0) {
         throw new Error("buffer.channels vide !");
     }
+
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
 
     const floatChannels = buffer.channels.map(ch => new Float32Array(ch));
 
