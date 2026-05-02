@@ -34,7 +34,6 @@
  MtoutSelect='Seleccionar todo'
  Mgrouper='Agrupar'
  Mdegrouper='Desagrupar'
- Mregrouper='Recolectar'
  MtoutDegrouper='Desagrupar todo'
  McouleurGrp='Color del grupo'
  MformeGrp='forma del Grupo'
