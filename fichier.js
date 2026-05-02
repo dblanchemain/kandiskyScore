@@ -492,7 +492,15 @@ function loadGrp(path){
 			}
 			// Copier les fichiers audio manquants depuis dirorg si nécessaire
 			if(dirorg && tmpbuffer.length>0){
-				await window.api.copyGrpAudio(tmpbuffer, dirorg, toAbsPath(paramProjet.audioPath));
+				var copyResults=await window.api.copyGrpAudio(tmpbuffer, dirorg, toAbsPath(paramProjet.audioPath));
+				copyResults.forEach(function(r){
+					if(r.error) console.warn('copyGrpAudio: impossible de copier '+r.file+' — '+r.error);
+				});
+				// Exclure les fichiers qui n'ont pas pu être copiés ET n'existent pas déjà
+				tmpbuffer=tmpbuffer.filter(function(f){
+					var r=copyResults.find(function(r){ return r.file===f; });
+					return !r || !r.error;
+				});
 			}
 			initTableGrp(0,tmpbuffer,coordClientX,coordClientY);
 		}
@@ -881,25 +889,31 @@ function defObjets(i,liste,dx,dy){
 			})();
 }
 function initTableBuffer(i,liste,dx,dy) {
-	var request = new XMLHttpRequest();
 	var _absPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),liste[i]);
+	function next() {
+		i++;
+		if(i<liste.length){ initTableBuffer(i,liste,dx,dy); }
+		else { defObjets(i,liste,dx,dy); }
+	}
+	var request = new XMLHttpRequest();
     request.open('GET', window.api.toFileUrl(_absPath), true);
     request.responseType = 'arraybuffer';
-
+    request.onerror = function() {
+    	console.warn('initTableBuffer: fichier introuvable '+liste[i]);
+    	next();
+    };
     request.onload = function() {
-    contextAudio.decodeAudioData(request.response, function(buffer) {
-    	var file=window.api.baseName(_absPath);
-    	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
-    		tableBuffer.push({name:file,buffer:buffer});
-    	}
-    	i++;
-    	if(i<liste.length){
-    		initTableBuffer(i,liste,dx,dy);
-    	}else{
-			defObjets(i,liste,dx,dy);
-		}
-    });
- 	};
+    	contextAudio.decodeAudioData(request.response, function(buffer) {
+    		var file=window.api.baseName(_absPath);
+    		if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
+    			tableBuffer.push({name:file,buffer:buffer});
+    		}
+    		next();
+    	}, function() {
+    		console.warn('initTableBuffer: décodage échoué '+liste[i]);
+    		next();
+    	});
+    };
     request.send();
 }
 function importGrpObjets(obj,nb,offset,dx,dy) {
@@ -1000,25 +1014,32 @@ function initTableGrp(i,liste,dx,dy) {
 		return;
 	}
 
-	var request = new XMLHttpRequest();
 	var _absPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),liste[i]);
+	function next() {
+		i++;
+		if(i<liste.length){ initTableGrp(i,liste,dx,dy); }
+		else { importGrpObjets(obj,nb,offset,dx,dy); }
+	}
+	var request = new XMLHttpRequest();
     request.open('GET', window.api.toFileUrl(_absPath), true);
     request.responseType = 'arraybuffer';
-    request.onload = function() {
-    contextAudio.decodeAudioData(request.response, function(buffer) {
-    	var file=window.api.baseName(_absPath);
-    	if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
-    		tableBuffer.push({name:file,buffer:buffer});
-    	}
-    	i++;
-    	if(i<liste.length){
-    		initTableGrp(i,liste,dx,dy);
-    	}else{
-			importGrpObjets(obj,nb,offset,dx,dy);
-		}
-	});
+    request.onerror = function() {
+    	console.warn('initTableGrp: fichier introuvable '+liste[i]);
+    	next();
     };
-	 request.send();
+    request.onload = function() {
+    	contextAudio.decodeAudioData(request.response, function(buffer) {
+    		var file=window.api.baseName(_absPath);
+    		if(tableBuffer.findIndex(elem=>elem.name===file)===-1){
+    			tableBuffer.push({name:file,buffer:buffer});
+    		}
+    		next();
+    	}, function() {
+    		console.warn('initTableGrp: décodage échoué '+liste[i]);
+    		next();
+    	});
+    };
+	request.send();
 }
 function fileXmlToScore(offset,dx,dy) {
 	nbObjets=offset;
