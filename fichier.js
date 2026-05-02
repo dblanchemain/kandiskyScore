@@ -502,7 +502,9 @@ function loadGrp(path){
 					return !r || !r.error;
 				});
 			}
-			initTableGrp(0,tmpbuffer,coordClientX,coordClientY);
+			var dx=(typeof coordClientX!=='undefined') ? coordClientX : (scrollDemo.scrollLeft+Math.round(scrollDemo.clientWidth/2)-204);
+			var dy=(typeof coordClientY!=='undefined') ? coordClientY : (scrollDemo2.scrollTop+Math.round(scrollDemo2.clientHeight/2)-94);
+			initTableGrp(0,tmpbuffer,dx,dy);
 		}
 	};
 	xhttp.open("GET", window.api.toFileUrl(path), true);
