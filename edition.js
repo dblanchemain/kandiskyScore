@@ -265,8 +265,6 @@ function defColorMenu(e) {
 		var dc=document.getElementById("grpSelect");
 		document.getElementById("space").removeChild(dc);
 		grpSelect=0;
-	}else if(tableObjet[objActif].class==1){
-		defColorM(document.getElementById("menuColorGrp").value);
 	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
 			lsgrp=[];
 			lsgrp=[].concat(tableObjet[objActif].liste);
