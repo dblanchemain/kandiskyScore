@@ -2262,7 +2262,7 @@ function saveDefProjetAs() {
 
 
 function grpColor(){
-   mainWindow.webContents.send("fromMain", 'grpColor');
+   mainWindow.webContents.executeJavaScript('defGrpColor()', true);
 }
 function grpForme(){
    mainWindow.webContents.send("fromMain", 'grpForme');
