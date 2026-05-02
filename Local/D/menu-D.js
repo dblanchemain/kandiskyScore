@@ -35,7 +35,6 @@
  MtoutSelect='Alles auswählen'
  Mgrouper='Gruppieren'
  Mdegrouper='Gruppierung aufheben'
- Mregrouper='Regruppieren'
  MtoutDegrouper='Alle Gruppierungen aufheben'
  McouleurGrp='Gruppenfarb'
  MformeGrp='Gruppenform'

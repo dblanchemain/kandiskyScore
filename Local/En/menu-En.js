@@ -34,7 +34,6 @@
  MtoutSelect='Select all'
  Mgrouper='Group'
  Mdegrouper='Ungroup'
- Mregrouper='Regroup'
  MtoutDegrouper='Ungroup all'
  McouleurGrp='Group Colour'
  MformeGrp='Form Groupe'

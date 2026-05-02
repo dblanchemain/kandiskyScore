@@ -898,7 +898,6 @@ const template = [
       { type: 'separator' },
       { label: Mgrouper, click: () => menuPopupGrouper() },
       { label: Mdegrouper, click: () => menuPopupDegrouper() },
-      { label: Mregrouper, click: () => menuPopupRegrouper() },
       { label: MtoutDegrouper, click: () => menuPopupToutDegrouper() },
       { type: 'separator' },
       { label: 'Media Explorer',
@@ -1154,9 +1153,6 @@ function menuPopupGrouper() {
 }
 function menuPopupDegrouper() {
    mainWindow.webContents.send("fromMain", 'deGrouper');
-}
-function menuPopupRegrouper() {
-   mainWindow.webContents.send("fromMain", 'reGrouper');
 }
 function menuPopupToutDegrouper() {
    mainWindow.webContents.send("fromMain", 'toutDeGrouper');
