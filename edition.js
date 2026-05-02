@@ -403,7 +403,7 @@ function defColorM(color) {
 			tableObjet[objActif].objColor=color;
 			break;
 	}
-	}else{
+	}else if(tableObjet[objActif].class!=3){
 		document.getElementById(selectObj).firstChild.firstChild.setAttribute("fill",color);
 		document.getElementById(selectObj).firstChild.firstChild.setAttribute("stroke",color);
 		tableObjet[objActif].objColor=color;
