@@ -403,6 +403,9 @@ function defColorM(color) {
 			tableObjet[objActif].objColor=color;
 			break;
 	}
+	}else if(tableObjet[objActif].class==3){
+		tableObjet[objActif].objColor=color;
+		redrawArpege(objActif);
 	}else{
 		document.getElementById(selectObj).firstChild.firstChild.setAttribute("fill",color);
 		document.getElementById(selectObj).firstChild.firstChild.setAttribute("stroke",color);
@@ -524,6 +527,9 @@ function retObjetPaletteA(id,f) {
 			}
 			dragElement(document.getElementById(tableObjet[id].id));
 			document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
+	}else if(tableObjet[id].class==3){
+		tableObjet[id].type=f;
+		redrawArpege(id);
 	}
 }
 function retObjetPalette(f) {
@@ -535,6 +541,8 @@ function retObjetPalette(f) {
 		}	
 	}else{
 		if(tableObjet[objActif].class==1) {
+			retObjetPaletteA(objActif,f);
+		}else if(tableObjet[objActif].class==3){
 			retObjetPaletteA(objActif,f);
 		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
 				let lsgrp=[];
