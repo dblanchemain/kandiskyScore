@@ -721,6 +721,20 @@ function scaleGrpValid(){
 				}else{
 					cl=tableObjet[tableObjet[id].groupe].class;
 				}
+				if(tableObjet[id].class==3 && cl!=2){
+						var scale=parseFloat(document.getElementById("scaleGrpValue").value);
+						tableObjet[id].x2=parseFloat(tableObjet[id].x2)*scale;
+						tableObjet[id].y2=parseFloat(tableObjet[id].y2)*scale;
+						if(tableObjet[id].x3!==undefined && tableObjet[id].x3!==""){
+							tableObjet[id].x3=parseFloat(tableObjet[id].x3)*scale;
+							tableObjet[id].y3=parseFloat(tableObjet[id].y3)*scale;
+						}
+						if(document.getElementById('scaleGrpPreserve').checked==false){
+							tableObjet[lsgrp[i]].posX=((tableObjet[lsgrp[i]].posX-posX)*scale)+posX;
+							tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*scale)+posY;
+						}
+						redrawArpege(id);
+					}
 				if(tableObjet[id].class==1 && cl!=2){
 					switch(parseInt(tableObjet[id].type)) {
 						case 1:
