@@ -2008,17 +2008,20 @@ function symbColor(id,color) {
 	if(!g) return;
 	g.setAttribute("stroke",color);
 	g.setAttribute("fill",color);
+	var updateStyle=function(e){
+		var s=e.getAttribute('style');
+		if(!s) return;
+		var ns=s.replace(/\bstroke:[^;,)]+/g,'stroke:'+color)
+		        .replace(/\bfill:(?!none)[^;,)]+/g,'fill:'+color);
+		if(ns!==s) e.setAttribute('style',ns);
+	};
+	updateStyle(g);
 	g.querySelectorAll('[stroke]').forEach(function(e){ e.setAttribute('stroke',color); });
 	g.querySelectorAll('[fill]').forEach(function(e){
 		var f=e.getAttribute('fill');
 		if(f!=='none'&&f!=='#ffffff') e.setAttribute('fill',color);
 	});
-	g.querySelectorAll('[style]').forEach(function(e){
-		var s=e.getAttribute('style');
-		var ns=s.replace(/\bstroke:[^;,)]+/g,'stroke:'+color)
-		        .replace(/\bfill:(?!none)[^;,)]+/g,'fill:'+color);
-		if(ns!==s) e.setAttribute('style',ns);
-	});
+	g.querySelectorAll('[style]').forEach(updateStyle);
 }
 function grpBkgColor(id,color) {  
 	tableObjet[id].bkgColor=color; 
