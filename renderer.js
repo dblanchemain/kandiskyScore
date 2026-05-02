@@ -2000,20 +2000,25 @@ function symbRotate(id,rotate) {
 	document.getElementById("objet"+id).firstChild.firstChild.setAttribute("transform",transf);
 	//symbBkgWidth(id,tableObjet[id].width*tableObjet[id].scaleX)
 }
-function symbColor(id,color) {  
-	tableObjet[id].objColor=color; 
-	if(tableObjet[id].type==55){
-		var st='fill:none;stroke-width:0.965223;stroke:'+color+';stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1';
-		document.getElementById("objet"+id).firstChild.firstChild.firstChild.setAttribute("style",st);
-	}
-	if(tableObjet[id].type>77 && tableObjet[id].type<84){
-		var st=style='fill:'+color+';fill-opacity:1;stroke:'+color+';stroke-width:1';
-		document.getElementById("objet"+id).firstChild.firstChild.firstChild.setAttribute("style",st);
-	}else{
-		document.getElementById("objet"+id).firstChild.firstChild.setAttribute("stroke",color);
-		document.getElementById("objet"+id).firstChild.firstChild.setAttribute("fill",color);
-	}
-	
+function symbColor(id,color) {
+	tableObjet[id].objColor=color;
+	var el=document.getElementById("objet"+id);
+	if(!el||!el.firstChild) return;
+	var g=el.firstChild.firstChild;
+	if(!g) return;
+	g.setAttribute("stroke",color);
+	g.setAttribute("fill",color);
+	g.querySelectorAll('[stroke]').forEach(function(e){ e.setAttribute('stroke',color); });
+	g.querySelectorAll('[fill]').forEach(function(e){
+		var f=e.getAttribute('fill');
+		if(f!=='none'&&f!=='#ffffff') e.setAttribute('fill',color);
+	});
+	g.querySelectorAll('[style]').forEach(function(e){
+		var s=e.getAttribute('style');
+		var ns=s.replace(/\bstroke:[^;,)]+/g,'stroke:'+color)
+		        .replace(/\bfill:(?!none)[^;,)]+/g,'fill:'+color);
+		if(ns!==s) e.setAttribute('style',ns);
+	});
 }
 function grpBkgColor(id,color) {  
 	tableObjet[id].bkgColor=color; 
