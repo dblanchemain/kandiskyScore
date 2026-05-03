@@ -864,14 +864,20 @@ const template = [
 							submenu: [
 								{ label: "Ardour",
 									submenu: [
-										{ label: "IEM BinauralDecoder", click: () => exportHoaToArdourBinaural() },
-										{ label: "IEM AllRADecoder",    click: () => exportHoaToArdourAllRA() }
+										{ label: "IEM BinauralDecoder",    click: () => exportHoaToArdourBinaural() },
+										{ label: "IEM AllRADecoder",       click: () => exportHoaToArdourAllRA() },
+										{ type: "separator" },
+										{ label: "Sparta ambiBIN",         click: () => exportHoaToArdourSpartaBinaural() },
+										{ label: "Sparta ambiDEC",         click: () => exportHoaToArdourSpartaAllRA() }
 									]
 								},
 								{ label: "Reaper",
 									submenu: [
-										{ label: "IEM BinauralDecoder", click: () => exportHoaToReaper() },
-										{ label: "IEM AllRADecoder",    click: () => exportHoaToReaperAllRA() }
+										{ label: "IEM BinauralDecoder",    click: () => exportHoaToReaper() },
+										{ label: "IEM AllRADecoder",       click: () => exportHoaToReaperAllRA() },
+										{ type: "separator" },
+										{ label: "Sparta ambiBIN",         click: () => exportHoaToReaperSpartaBinaural() },
+										{ label: "Sparta ambiDEC",         click: () => exportHoaToReaperSpartaAllRA() }
 									]
 								}
 							]
@@ -3348,6 +3354,18 @@ function exportHoaToArdourBinaural(){
 function exportHoaToArdourAllRA(){
 	mainWindow.webContents.send("fromMain", "exportHoaToArdourAllRA");
 }
+function exportHoaToReaperSpartaBinaural(){
+	mainWindow.webContents.send("fromMain", "exportHoaToReaperSpartaBinaural");
+}
+function exportHoaToReaperSpartaAllRA(){
+	mainWindow.webContents.send("fromMain", "exportHoaToReaperSpartaAllRA");
+}
+function exportHoaToArdourSpartaBinaural(){
+	mainWindow.webContents.send("fromMain", "exportHoaToArdourSpartaBinaural");
+}
+function exportHoaToArdourSpartaAllRA(){
+	mainWindow.webContents.send("fromMain", "exportHoaToArdourSpartaAllRA");
+}
 function pdfSettings() {
     var option = {
         printSelectionOnly: false,
@@ -5812,6 +5830,156 @@ ipcMain.handle('launchArdourHoaAllRA', async (event, ambiXPath, hoaOrder, sample
     const ardourCmd = process.platform === 'win32' ? 'ardour.exe' : 'ardour';
     exec(ardourCmd, (error) => {
         if (error) console.error('Ardour HOA AllRA:', error.message);
+    });
+
+    return { configFile, jsonPath, ardourScriptsDir, nSpeakers: speakers.length };
+});
+
+ipcMain.handle('launchReaperHoaSpartaBinaural', async (event, ambiXPath, hoaOrder, sampleRate) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    const reaperResourcePath = getOsConfigPath('REAPER');
+    if (!fs.existsSync(reaperResourcePath)) fs.mkdirSync(reaperResourcePath, { recursive: true });
+    const configFile = path.join(reaperResourcePath, 'kandiskyscore_hoa.txt');
+    fs.writeFileSync(configFile, [ambiXPath, hoaOrder, sampleRate].join('\n'), 'utf8');
+
+    const luaScript = path.join(scriptsPath, 'Reaper', 'Sparta', 'importHoaBinaural.lua');
+    const tmpRpp    = path.join(scriptsPath, 'Reaper', 'tmp.rpp');
+    const cmd = `"${cmdDaw}" "${tmpRpp}" "${luaScript}"`;
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error) => {
+            if (error) console.error('Reaper Sparta ambiBIN:', error.message);
+            resolve({ configFile, luaScript });
+        });
+    });
+});
+
+ipcMain.handle('launchReaperHoaSpartaAllRA', async (event, ambiXPath, hoaOrder, sampleRate, layoutName) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    const layoutPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Dsp', layoutName + '.json')
+        : path.join(__dirname, 'resources', 'Dsp', layoutName + '.json');
+    if (!fs.existsSync(layoutPath)) throw new Error('Layout introuvable : ' + layoutPath);
+    const layoutJSON = JSON.parse(fs.readFileSync(layoutPath, 'utf8'));
+    const speakers = layoutJSON.speakers;
+
+    const spkSph = speakers.map((sp) => {
+        const r  = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
+        const nx = sp.x/r, ny = sp.y/r, nz = sp.z/r;
+        return {
+            az: Math.atan2(-nx, nz) * 180 / Math.PI,
+            el: Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI,
+            r
+        };
+    });
+
+    const reaperResourcePath = getOsConfigPath('REAPER');
+    if (!fs.existsSync(reaperResourcePath)) fs.mkdirSync(reaperResourcePath, { recursive: true });
+    const configFile = path.join(reaperResourcePath, 'kandiskyscore_allra.txt');
+    const spkLines = spkSph.map(sp => `${sp.az.toFixed(4)},${sp.el.toFixed(4)},${sp.r.toFixed(4)}`);
+    const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
+    fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
+
+    // JSON format Sparta ambiDEC
+    const spartaJSON = {
+        num_ls: speakers.length,
+        ls_dirs_deg: spkSph.map(sp => [
+            parseFloat(sp.az.toFixed(4)),
+            parseFloat(sp.el.toFixed(4))
+        ])
+    };
+    const jsonPath = path.join(path.dirname(ambiXPath), 'sparta_ambiDEC_layout.json');
+    fs.writeFileSync(jsonPath, JSON.stringify(spartaJSON, null, 2), 'utf8');
+
+    const luaScript = path.join(scriptsPath, 'Reaper', 'Sparta', 'importHoaAllRA.lua');
+    const tmpRpp    = path.join(scriptsPath, 'Reaper', 'tmp.rpp');
+    const cmd = `"${cmdDaw}" "${tmpRpp}" "${luaScript}"`;
+    return new Promise((resolve) => {
+        exec(cmd, (error) => {
+            if (error) console.error('Reaper Sparta ambiDEC:', error.message);
+            resolve({ configFile, jsonPath, luaScript, nSpeakers: speakers.length });
+        });
+    });
+});
+
+ipcMain.handle('launchArdourHoaSpartaBinaural', async (event, ambiXPath, hoaOrder, sampleRate) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    const ksConfigDir = getOsConfigPath('kandiskyscore');
+    if (!fs.existsSync(ksConfigDir)) fs.mkdirSync(ksConfigDir, { recursive: true });
+    const configFile = path.join(ksConfigDir, 'kandiskyscore_hoa.txt');
+    fs.writeFileSync(configFile, [ambiXPath, hoaOrder, sampleRate].join('\n'), 'utf8');
+
+    const luaScript = path.join(scriptsPath, 'Ardour', 'Sparta', 'importHoaBinaural.lua');
+    const ardourScriptsDir = findArdourScriptsDir(app.getPath('home'));
+    if (ardourScriptsDir) {
+        fs.copyFileSync(luaScript, path.join(ardourScriptsDir, 'importHoaBinaural_Sparta.lua'));
+    }
+
+    const ardourCmd = process.platform === 'win32' ? 'ardour.exe' : 'ardour';
+    exec(ardourCmd, (error) => {
+        if (error) console.error('Ardour Sparta ambiBIN:', error.message);
+    });
+
+    return { configFile, ardourScriptsDir };
+});
+
+ipcMain.handle('launchArdourHoaSpartaAllRA', async (event, ambiXPath, hoaOrder, sampleRate, layoutName) => {
+    const scriptsPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Scripts')
+        : path.join(__dirname, 'resources', 'Scripts');
+
+    const layoutPath = app.isPackaged
+        ? path.join(process.resourcesPath, 'Dsp', layoutName + '.json')
+        : path.join(__dirname, 'resources', 'Dsp', layoutName + '.json');
+    if (!fs.existsSync(layoutPath)) throw new Error('Layout introuvable : ' + layoutPath);
+    const layoutJSON = JSON.parse(fs.readFileSync(layoutPath, 'utf8'));
+    const speakers = layoutJSON.speakers;
+
+    const spkSph = speakers.map((sp) => {
+        const r  = Math.sqrt(sp.x*sp.x + sp.y*sp.y + sp.z*sp.z) || 1;
+        const nx = sp.x/r, ny = sp.y/r, nz = sp.z/r;
+        return {
+            az: Math.atan2(-nx, nz) * 180 / Math.PI,
+            el: Math.asin(Math.max(-1, Math.min(1, ny))) * 180 / Math.PI,
+            r
+        };
+    });
+
+    const ksConfigDir = getOsConfigPath('kandiskyscore');
+    if (!fs.existsSync(ksConfigDir)) fs.mkdirSync(ksConfigDir, { recursive: true });
+    const configFile = path.join(ksConfigDir, 'kandiskyscore_allra.txt');
+    const spkLines = spkSph.map(sp => `${sp.az.toFixed(4)},${sp.el.toFixed(4)},${sp.r.toFixed(4)}`);
+    const lines = [ambiXPath, String(hoaOrder), String(sampleRate), layoutName, String(speakers.length), ...spkLines];
+    fs.writeFileSync(configFile, lines.join('\n'), 'utf8');
+
+    // JSON format Sparta ambiDEC
+    const spartaJSON = {
+        num_ls: speakers.length,
+        ls_dirs_deg: spkSph.map(sp => [
+            parseFloat(sp.az.toFixed(4)),
+            parseFloat(sp.el.toFixed(4))
+        ])
+    };
+    const jsonPath = path.join(path.dirname(ambiXPath), 'sparta_ambiDEC_layout.json');
+    fs.writeFileSync(jsonPath, JSON.stringify(spartaJSON, null, 2), 'utf8');
+
+    const luaScript = path.join(scriptsPath, 'Ardour', 'Sparta', 'importHoaAllRA.lua');
+    const ardourScriptsDir = findArdourScriptsDir(app.getPath('home'));
+    if (ardourScriptsDir) {
+        fs.copyFileSync(luaScript, path.join(ardourScriptsDir, 'importHoaAllRA_Sparta.lua'));
+    }
+
+    const ardourCmd = process.platform === 'win32' ? 'ardour.exe' : 'ardour';
+    exec(ardourCmd, (error) => {
+        if (error) console.error('Ardour Sparta ambiDEC:', error.message);
     });
 
     return { configFile, jsonPath, ardourScriptsDir, nSpeakers: speakers.length };

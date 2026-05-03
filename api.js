@@ -1801,6 +1801,108 @@ async function exportHoaToArdourAllRA() {
     }
 }
 
+async function exportHoaToReaperSpartaBinaural() {
+    const audioPath  = toAbsPath(paramProjet.audioPath);
+    const exportDir  = window.api.joinPath(audioPath, 'exports');
+    const ambiXPath  = window.api.joinPath(exportDir, 'partition_ambiX.wav');
+    const order      = parseInt(paramProjet.hoaOrder) || (typeof hoaOrder !== 'undefined' ? parseInt(hoaOrder) : 7) || 7;
+    const nHoaCh     = (order + 1) * (order + 1);
+    const sampleRate = 48000;
+
+    document.getElementById("popupLoader").style.display = "block";
+    try {
+        const result = await window.api.launchReaperHoaSpartaBinaural(ambiXPath, order, sampleRate);
+        alert(
+            "Reaper lancé avec Sparta ambiBIN.\n\n" +
+            "Fichier AmbiX : " + ambiXPath + "\n" +
+            "Ordre HOA : " + order + " (" + nHoaCh + " canaux)"
+        );
+    } catch(e) {
+        alert("Erreur : " + e.message);
+    } finally {
+        document.getElementById("popupLoader").style.display = "none";
+    }
+}
+
+async function exportHoaToReaperSpartaAllRA() {
+    const audioPath  = toAbsPath(paramProjet.audioPath);
+    const exportDir  = window.api.joinPath(audioPath, 'exports');
+    const ambiXPath  = window.api.joinPath(exportDir, 'partition_ambiX.wav');
+    const order      = parseInt(paramProjet.hoaOrder) || (typeof hoaOrder !== 'undefined' ? parseInt(hoaOrder) : 7) || 7;
+    const layoutName = paramProjet.greffon3D || spat3D || 'anneau8';
+    const sampleRate = 48000;
+
+    document.getElementById("popupLoader").style.display = "block";
+    try {
+        const result = await window.api.launchReaperHoaSpartaAllRA(ambiXPath, order, sampleRate, layoutName);
+        alert(
+            "Reaper lancé avec Sparta ambiDEC.\n\n" +
+            "Layout : " + layoutName + " (" + result.nSpeakers + " HP)\n" +
+            "Ordre HOA : " + order + "\n\n" +
+            "Layout JSON : " + result.jsonPath + "\n" +
+            "→ Dans ambiDEC : bouton Load → sélectionner ce fichier."
+        );
+    } catch(e) {
+        alert("Erreur : " + e.message);
+    } finally {
+        document.getElementById("popupLoader").style.display = "none";
+    }
+}
+
+async function exportHoaToArdourSpartaBinaural() {
+    const audioPath  = toAbsPath(paramProjet.audioPath);
+    const exportDir  = window.api.joinPath(audioPath, 'exports');
+    const ambiXPath  = window.api.joinPath(exportDir, 'partition_ambiX.wav');
+    const order      = parseInt(paramProjet.hoaOrder) || 7;
+    const nHoaCh     = (order + 1) * (order + 1);
+    const sampleRate = 48000;
+
+    document.getElementById("popupLoader").style.display = "block";
+    try {
+        const result = await window.api.launchArdourHoaSpartaBinaural(ambiXPath, order, sampleRate);
+        let msg = "Ardour lancé avec Sparta ambiBIN.\n\n" +
+            "Fichier AmbiX : " + ambiXPath + "\n" +
+            "Ordre HOA : " + order + " (" + nHoaCh + " canaux)\n\n";
+        if (result.ardourScriptsDir) {
+            msg += "Script installé dans :\n" + result.ardourScriptsDir + "\n\n";
+        }
+        msg += "Dans Ardour : Window > Scripting\n→ Exécuter « HOA AmbiX – Sparta ambiBIN »";
+        alert(msg);
+    } catch(e) {
+        alert("Erreur : " + e.message);
+    } finally {
+        document.getElementById("popupLoader").style.display = "none";
+    }
+}
+
+async function exportHoaToArdourSpartaAllRA() {
+    const audioPath  = toAbsPath(paramProjet.audioPath);
+    const exportDir  = window.api.joinPath(audioPath, 'exports');
+    const ambiXPath  = window.api.joinPath(exportDir, 'partition_ambiX.wav');
+    const order      = parseInt(paramProjet.hoaOrder) || 7;
+    const layoutName = paramProjet.greffon3D || spat3D || 'anneau8';
+    const sampleRate = 48000;
+
+    document.getElementById("popupLoader").style.display = "block";
+    try {
+        const result = await window.api.launchArdourHoaSpartaAllRA(ambiXPath, order, sampleRate, layoutName);
+        let msg = "Ardour lancé avec Sparta ambiDEC.\n\n" +
+            "Layout : " + layoutName + " (" + result.nSpeakers + " HP)\n" +
+            "Ordre HOA : " + order + "\n\n";
+        if (result.ardourScriptsDir) {
+            msg += "Script installé dans :\n" + result.ardourScriptsDir + "\n\n";
+        }
+        msg += "Dans Ardour : Window > Scripting\n→ Exécuter « HOA AmbiX – Sparta ambiDEC »\n\n" +
+            "Layout JSON : " + result.jsonPath + "\n" +
+            "→ Dans ambiDEC : bouton Load → sélectionner ce fichier.";
+        alert(msg);
+    } catch(e) {
+        alert("Erreur : " + e.message);
+    } finally {
+        document.getElementById("popupLoader").style.display = "none";
+    }
+}
+
 async function exportHoaToReaper() {
     const audioPath  = toAbsPath(paramProjet.audioPath);
     const exportDir  = window.api.joinPath(audioPath, 'exports');

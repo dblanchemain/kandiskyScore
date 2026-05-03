@@ -761,6 +761,18 @@ window.api.receive("fromMain", (data) => {
 			case 'exportHoaToArdourAllRA':
 				exportHoaToArdourAllRA();
 				break;
+			case 'exportHoaToReaperSpartaBinaural':
+				exportHoaToReaperSpartaBinaural();
+				break;
+			case 'exportHoaToReaperSpartaAllRA':
+				exportHoaToReaperSpartaAllRA();
+				break;
+			case 'exportHoaToArdourSpartaBinaural':
+				exportHoaToArdourSpartaBinaural();
+				break;
+			case 'exportHoaToArdourSpartaAllRA':
+				exportHoaToArdourSpartaAllRA();
+				break;
 			case 'mixHoaAmbiXFinal':
 				mixAmbiXFinal(exportTable && exportTable.length ? exportTable : (() => {
 					const lsgrp = [];

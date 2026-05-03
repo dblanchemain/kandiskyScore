@@ -91,6 +91,14 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("launchArdourHoaBinaural", ambiXPath, hoaOrder, sampleRate),
     launchArdourHoaAllRA: (ambiXPath, hoaOrder, sampleRate, layoutName) =>
         ipcRenderer.invoke("launchArdourHoaAllRA", ambiXPath, hoaOrder, sampleRate, layoutName),
+    launchReaperHoaSpartaBinaural: (ambiXPath, hoaOrder, sampleRate) =>
+        ipcRenderer.invoke("launchReaperHoaSpartaBinaural", ambiXPath, hoaOrder, sampleRate),
+    launchReaperHoaSpartaAllRA: (ambiXPath, hoaOrder, sampleRate, layoutName) =>
+        ipcRenderer.invoke("launchReaperHoaSpartaAllRA", ambiXPath, hoaOrder, sampleRate, layoutName),
+    launchArdourHoaSpartaBinaural: (ambiXPath, hoaOrder, sampleRate) =>
+        ipcRenderer.invoke("launchArdourHoaSpartaBinaural", ambiXPath, hoaOrder, sampleRate),
+    launchArdourHoaSpartaAllRA: (ambiXPath, hoaOrder, sampleRate, layoutName) =>
+        ipcRenderer.invoke("launchArdourHoaSpartaAllRA", ambiXPath, hoaOrder, sampleRate, layoutName),
     // Audio save
     saveAudioTempo: (filePath, arrayBuffer) =>
         ipcRenderer.invoke("saveAudioTempo", { filePath, arrayBuffer }),
