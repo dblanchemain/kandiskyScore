@@ -41,11 +41,14 @@ const clockManager = {
 
     if (s === 0xF8) { // Clock pulse — 24 PPQN
       if (!this._midiRunning) return;
-      // Avancement de la barre : 1 pulse = 18*zoomScale/24 px (indépendant du BPM)
-      this._midiBarLeft += 18 * zoomScale / 24;
-      // Calcul et affichage du BPM (moyenne glissante sur 8 intervalles)
       const now = performance.now();
       if (this._lastPulseAt > 0) {
+        // Avancement basé sur le temps réel écoulé (dt), pas sur le BPM.
+        // Donne 18*zoomScale px/sec quelle que soit la vitesse Reaper,
+        // et slave précisément sur son horloge audio.
+        const dt = (now - this._lastPulseAt) / 1000;
+        this._midiBarLeft += 18 * zoomScale * dt;
+        // Calcul et affichage du BPM (moyenne glissante sur 8 intervalles)
         this._bpmHistory.push(now - this._lastPulseAt);
         if (this._bpmHistory.length > 8) this._bpmHistory.shift();
         const avgMs = this._bpmHistory.reduce((a, b) => a + b) / this._bpmHistory.length;
