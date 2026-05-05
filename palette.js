@@ -264,16 +264,16 @@ function graphGlissando(objActif){
 	document.getElementById(t.id).innerHTML=txt;
 	// Poignée p1 : début de la ligne (bleu)
 	var h1=document.createElement('div');
-	h1.setAttribute("id","p1"+nbObjets);
+	h1.setAttribute("id","p1"+objActif);
 	h1.setAttribute("style","position:absolute;top:"+(t.posY+parseFloat(t.y1)-4)+"px;left:"+(t.posX+parseFloat(t.x1)-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h1);
 	// Poignée sglis : fin de la ligne (rouge)
 	var h2=document.createElement('div');
-	h2.setAttribute("id","sglis"+nbObjets);
+	h2.setAttribute("id","sglis"+objActif);
 	h2.setAttribute("style","position:absolute;top:"+(t.posY+parseFloat(t.y2)-4)+"px;left:"+(t.posX+parseFloat(t.x2)-4)+"px;width:8px;height:8px;z-index:6;border:none;cursor:move;");
 	document.getElementById("space").appendChild(h2);
 	// Hover : affiche/cache les poignées
-	var _actif=nbObjets;
+	var _actif=objActif;
 	dupnode.onmouseenter=function(){showArpegeHandles(_actif);};
 	dupnode.onmouseleave=function(){startHideArpegeHandles(_actif);};
 	h1.onmouseenter=function(){showArpegeHandles(_actif);};
@@ -283,7 +283,7 @@ function graphGlissando(objActif){
 }
 function graphBlock(objActif) {
 	var dupnode=document.createElement('div');
-	dupnode.setAttribute("id","objet"+nbObjets);
+	dupnode.setAttribute("id","objet"+objActif);
 	dupnode.setAttribute("title",tableObjet[objActif].nom);
 	var st=defCadre(objActif);
 	dupnode.setAttribute("style",st);

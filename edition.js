@@ -63,7 +63,12 @@ function _redrawObj(id) {
     case 6:  graphTriangleLong(id); break;
     case 7:  graphRondLong(id);     break;
     case 8:  graphCarreLong(id);    break;
+    case 9:  graphCrescr(id);        break;
     case 10: graphLigne(id);        break;
+    case 11: graphGlissando(id);
+      { const p1 = document.getElementById('p1'+id); if(p1) dragElement(p1); }
+      { const sg = document.getElementById('sglis'+id); if(sg) dragElement(sg); }
+      break;
     case 12: graphBlock(id);        break;
     case 13: graphDecresc(id);
       dragElement(document.getElementById('pcrv1'+id));
