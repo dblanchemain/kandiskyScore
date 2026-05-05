@@ -663,6 +663,7 @@ function topAlign(){
 		grpSelect=0;
 	}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 			lsgrp=[].concat(tableObjet[objActif].liste);
+			pushUndo(lsgrp, 'align');
 			for(let i=0;i<lsgrp.length;i++){
 				tableObjet[lsgrp[i]].posY=parseInt(document.getElementById(selectObj).style.top);
 				document.getElementById(tableObjet[lsgrp[i]].id).style.top=document.getElementById(selectObj).style.top;
@@ -682,8 +683,9 @@ function leftAlign(){
 		grpSelect=0;
 		}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 			lsgrp=[].concat(tableObjet[objActif].liste);
+			pushUndo(lsgrp, 'align');
 			for(let i=0;i<lsgrp.length;i++){
-				if(tableObjet[i].class==1){
+				if(tableObjet[lsgrp[i]].class==1){
 					tableObjet[lsgrp[i]].posX=parseInt(document.getElementById(selectObj).style.left);
 					document.getElementById(tableObjet[lsgrp[i]].id).style.left=document.getElementById(selectObj).style.left;
 				}
@@ -708,6 +710,7 @@ function bottomAlign(){
 		grpSelect=0;
 	}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 			lsgrp=[].concat(tableObjet[objActif].liste);
+			pushUndo(lsgrp, 'align');
 			for(let i=0;i<lsgrp.length;i++){
 				if(tableObjet[lsgrp[i]].class==1){
 					var id=tableObjet[lsgrp[i]].id;
@@ -738,6 +741,7 @@ function rightAlign(){
 		grpSelect=0;
 	}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 		lsgrp=[].concat(tableObjet[objActif].liste);
+		pushUndo(lsgrp, 'align');
 		for(let i=0;i<lsgrp.length;i++){
 			if(tableObjet[lsgrp[i]].class==1){
 				var id=tableObjet[lsgrp[i]].id;
