@@ -65,10 +65,16 @@ function readPart(){
 				const obj = tableObjet[id];
 				return window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-fx.wav`);
 			});
+			const _barStart = parseFloat(document.getElementById("barVerticale").style.left);
+			const _startPlay = () => { clockManager.start(_barStart); foo(); };
 			window.api.preloadAudio(filesToPreload)
-				.then(() => foo())
-				.catch(e => { console.warn("preloadAudio:", e); foo(); });
-		} catch(e) { console.warn("preloadAudio init:", e); foo(); }
+				.then(_startPlay)
+				.catch(e => { console.warn("preloadAudio:", e); _startPlay(); });
+		} catch(e) {
+			console.warn("preloadAudio init:", e);
+			clockManager.start(parseFloat(document.getElementById("barVerticale").style.left));
+			foo();
+		}
 		 
 
 		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M5,40 L5,0 M25,0 L25,40');
@@ -78,6 +84,7 @@ function readPart(){
 		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
 		playerStat=0;
 		clockWorker.postMessage({ type: 'stop' });
+		clockManager.stop();
 		//multiStop();
 		window.api.send("toMain", 'killPlay');
 		if(vueStudio==1 ){
@@ -120,14 +127,10 @@ function foo() {
 	var st;
 	var mt;
 
-	var gtempo=60/parseFloat(document.getElementById("tempo").value);
-	var delay=(1000/18)*gtempo;
-	
 	var nbp2;
 	var nbp=-1;
-    // your function code here
 	if(playerStat==1){
-    var lleft=parseFloat(document.getElementById("barVerticale").style.left)+(1*zoomScale);
+    var lleft=clockManager.barLeft();
     document.getElementById("barVerticale").style.left=lleft+"px";
     nbp2=Math.floor(parseInt(document.getElementById("barVerticale").style.left)/1200); 
     /*
@@ -227,10 +230,11 @@ function foo() {
 	 }
 	 
 		 if(parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)<maxDuree){
-	    	clockWorker.postMessage({ type: 'next', delay });
+	    	clockWorker.postMessage({ type: 'next', delay: 25 });
 	    } else {
 	    	// Fin du score : arrêter toutes les voix audio
 	    	playerStat=0;
+	    	clockManager.stop();
 	    	window.api.send("toMain", "killPlay");
 	    	document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
 	    }
@@ -468,6 +472,7 @@ async function readSimpleAudio() {
 				 defStudioSrc(lsgrp);
 				 maxDuree=durationAfterSpeed+(obj.posX/18);
 				 console.log("maxDuree",maxDuree);
+				 clockManager.start(parseFloat(document.getElementById("barVerticale").style.left));
 	  			 foo();
 			 const soxParamsSpeaker = "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade;
 			 const soxProcPath    = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-spk-proc.wav`);
@@ -762,11 +767,13 @@ function readGrpAudio(){
 			  			console.log("source end");
 			  				clearTimeout(timer);
 			  				clockWorker.postMessage({ type: 'stop' });
+			  				clockManager.stop();
 	  						playerStat=0;
 
 					};
   		playerStat=1;
   		defTime("barVerticale");
+  		clockManager.start(parseFloat(document.getElementById("barVerticale").style.left));
   		foo();
   		console.log("nbsources",tableSrc.length);	
 		for(let i=0;i<tableSrc.length;i++){
