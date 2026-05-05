@@ -390,25 +390,27 @@ function renvRetro() {
 	lsgrp=[];
 	let copyX=0;
 	let copyY=0;
-	let refId=objActif;
 	copySelect=[];
 	copySelect=[].concat(preservSelect);
+	if(copySelect.length===0 || tableObjet[copySelect[0]]===undefined) return;
 	var clientX=tableObjet[copySelect[0]].posX+218;
-	var clientY=tableObjet[copySelect[0]].posX+144;
-	lsgrp.push(nbObjets);																																																	
-	for(i=0;i<copySelect.length;i++){
-	if(i==0){
-		copyX=0;
-		copyY=0;
-	}else{
-		copyX=tableObjet[copySelect[i]].posX-tableObjet[copySelect[0]].posX;
-		copyY=(tableObjet[copySelect[i]].posY-tableObjet[copySelect[0]].posY);
-	}
-
+	var clientY=tableObjet[copySelect[0]].posY+144;
+	lsgrp.push(nbObjets);
+	for(let i=0;i<copySelect.length;i++){
+		if(tableObjet[copySelect[i]]===undefined) continue;
+		if(i==0){
+			copyX=0;
+			copyY=0;
+		}else{
+			copyX=tableObjet[copySelect[i]].posX-tableObjet[copySelect[0]].posX;
+			copyY=tableObjet[copySelect[i]].posY-tableObjet[copySelect[0]].posY;
+		}
 		if(tableObjet[copySelect[i]].class==1){
 			var x=clientX-copyX;
 			var y=clientY-copyY;
 			pasteObjet(copySelect[i],x,y);
+			tableObjet[nbObjets].posX=x;
+			tableObjet[nbObjets].posY=y;
 			nbObjets++;
 			lsgrp.push(nbObjets);
 		}
