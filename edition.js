@@ -19,8 +19,10 @@ const _UNDO_MAX  = 20;
 
 const _SNAP_PROPS = {
   color: ['objColor'],
-  forme: ['type', 'bkgWidth', 'bkgHeight', 'width', 'height', 'cx', 'cy', 'r', 'rx', 'ry', 'scaleY2', 'bkgTrp'],
-  scale: ['posX', 'posY', 'scaleX', 'scaleY', 'bkgWidth', 'bkgHeight', 'x2', 'y2', 'x3', 'y3'],
+  forme: ['type', 'bkgWidth', 'bkgHeight', 'width', 'height', 'cx', 'cy', 'r', 'rx', 'ry', 'scaleY2', 'bkgTrp',
+          'cp1x', 'cp1y', 'cp2x', 'cp2y', 'crvBaseW', 'crvBaseH'],
+  scale: ['posX', 'posY', 'scaleX', 'scaleY', 'bkgWidth', 'bkgHeight', 'x2', 'y2', 'x3', 'y3',
+          'cp1x', 'cp1y', 'cp2x', 'cp2y', 'crvBaseW', 'crvBaseH'],
   align: ['posX', 'posY']
 };
 
