@@ -13,6 +13,11 @@
 
 
 const KANDISKYSCORE_VERSION = "2.1.1";
+
+function _tagVal(el, tag, def) {
+  var t = el.getElementsByTagName(tag)[0];
+  return t ? t.getAttribute("value") : (def !== undefined ? def : null);
+}
 var versionProjet = "";
 
 /* ******************************************* Fichiers ****************************************************************** */
@@ -525,70 +530,70 @@ async function objXmlToScore(id,i) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 	var org=obj.getElementsByTagName("objet")[i];
 	tableObjet[id]={
-		basePosY:parseFloat(org.getElementsByTagName("baseposy")[0].getAttribute("value")),
-		bkgColor:org.getElementsByTagName("bkgcolor")[0].getAttribute("value"),
-		bkgHeight:parseFloat(org.getElementsByTagName("bkgheight")[0].getAttribute("value")),
-		bkgImg:org.getElementsByTagName("bkgimg")[0].getAttribute("value"),
-		bkgWidth:parseFloat(org.getElementsByTagName("bkgwidth")[0].getAttribute("value")),
-		bkgOpacity:parseFloat(org.getElementsByTagName("bkgopacity")[0].getAttribute("value")),
-		borderBc:org.getElementsByTagName("borderbc")[0].getAttribute("value"),
-		borderBr:org.getElementsByTagName("borderbr")[0].getAttribute("value"),
-		borderBs:org.getElementsByTagName("borderbs")[0].getAttribute("value"),
-		borderBw:parseFloat(org.getElementsByTagName("borderbw")[0].getAttribute("value")),
-		borderDc:org.getElementsByTagName("borderdc")[0].getAttribute("value"),
-		borderDr:org.getElementsByTagName("borderdr")[0].getAttribute("value"),
-		borderDs:org.getElementsByTagName("borderds")[0].getAttribute("value"),
-		borderDw:parseFloat(org.getElementsByTagName("borderdw")[0].getAttribute("value")),
-		borderGc:org.getElementsByTagName("bordergc")[0].getAttribute("value"),
-		borderGr:org.getElementsByTagName("bordergr")[0].getAttribute("value"),
-		borderGs:org.getElementsByTagName("bordergs")[0].getAttribute("value"),
-		borderGw:parseFloat(org.getElementsByTagName("bordergw")[0].getAttribute("value")),
-		borderHc:org.getElementsByTagName("borderhc")[0].getAttribute("value"),
-		borderHr:org.getElementsByTagName("borderhr")[0].getAttribute("value"),
-		borderHs:org.getElementsByTagName("borderhs")[0].getAttribute("value"),
-		borderHw:parseFloat(org.getElementsByTagName("borderhw")[0].getAttribute("value")),
-		canaux:parseFloat(org.getElementsByTagName("canaux")[0].getAttribute("value")),
-		class:parseInt(org.getElementsByTagName("class")[0].getAttribute("value")),
-		convolver:org.getElementsByTagName("convolver")[0].getAttribute("value"),
-		cx:parseFloat(org.getElementsByTagName("cx")[0].getAttribute("value")),
-		cy:parseFloat(org.getElementsByTagName("cy")[0].getAttribute("value")),
-		debut:parseFloat(org.getElementsByTagName("debut")[0].getAttribute("value")),
-		detune:parseFloat(org.getElementsByTagName("detune")[0].getAttribute("value")),
-		duree:parseFloat(org.getElementsByTagName("duree")[0].getAttribute("value")),
-		fadeIn:org.getElementsByTagName("fadein")[0].getAttribute("value"),
-		fadeOut:(org.getElementsByTagName("fadeout")[0] ? org.getElementsByTagName("fadeout")[0].getAttribute("value") : null) || 'l',
-		envX:org.getElementsByTagName("envx")[0].getAttribute("value").split(','),
-		etat:parseInt(org.getElementsByTagName("etat")[0].getAttribute("value")),
-		file:org.getElementsByTagName("file")[0].getAttribute("value"),
-		fin:parseFloat(org.getElementsByTagName("fin")[0].getAttribute("value")),
-		flagTranspo:parseInt(org.getElementsByTagName("flagtranspo")[0].getAttribute("value")),
-		gain:parseFloat(org.getElementsByTagName("gain")[0].getAttribute("value")),
-		groupe:parseInt(org.getElementsByTagName("groupe")[0].getAttribute("value")),
-		height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
+		basePosY:parseFloat(_tagVal(org, "baseposy")),
+		bkgColor:_tagVal(org, "bkgcolor"),
+		bkgHeight:parseFloat(_tagVal(org, "bkgheight")),
+		bkgImg:_tagVal(org, "bkgimg"),
+		bkgWidth:parseFloat(_tagVal(org, "bkgwidth")),
+		bkgOpacity:parseFloat(_tagVal(org, "bkgopacity")),
+		borderBc:_tagVal(org, "borderbc"),
+		borderBr:_tagVal(org, "borderbr"),
+		borderBs:_tagVal(org, "borderbs"),
+		borderBw:parseFloat(_tagVal(org, "borderbw")),
+		borderDc:_tagVal(org, "borderdc"),
+		borderDr:_tagVal(org, "borderdr"),
+		borderDs:_tagVal(org, "borderds"),
+		borderDw:parseFloat(_tagVal(org, "borderdw")),
+		borderGc:_tagVal(org, "bordergc"),
+		borderGr:_tagVal(org, "bordergr"),
+		borderGs:_tagVal(org, "bordergs"),
+		borderGw:parseFloat(_tagVal(org, "bordergw")),
+		borderHc:_tagVal(org, "borderhc"),
+		borderHr:_tagVal(org, "borderhr"),
+		borderHs:_tagVal(org, "borderhs"),
+		borderHw:parseFloat(_tagVal(org, "borderhw")),
+		canaux:parseFloat(_tagVal(org, "canaux")),
+		class:parseInt(_tagVal(org, "class")),
+		convolver:_tagVal(org, "convolver"),
+		cx:parseFloat(_tagVal(org, "cx")),
+		cy:parseFloat(_tagVal(org, "cy")),
+		debut:parseFloat(_tagVal(org, "debut")),
+		detune:parseFloat(_tagVal(org, "detune")),
+		duree:parseFloat(_tagVal(org, "duree")),
+		fadeIn:_tagVal(org, "fadein"),
+		fadeOut:(org.getElementsByTagName("fadeout")[0] ? _tagVal(org, "fadeout") : null) || 'l',
+		envX:_tagVal(org, "envx", "").split(','),
+		etat:parseInt(_tagVal(org, "etat")),
+		file:_tagVal(org, "file"),
+		fin:parseFloat(_tagVal(org, "fin")),
+		flagTranspo:parseInt(_tagVal(org, "flagtranspo")),
+		gain:parseFloat(_tagVal(org, "gain")),
+		groupe:parseInt(_tagVal(org, "groupe")),
+		height:parseFloat(_tagVal(org, "height")),
 		id:"objet"+nbObjets,
-		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
-		margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
-		mute:org.getElementsByTagName("mute")[0].getAttribute("value"),
-		nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
-		objBorderC:org.getElementsByTagName("objborderc")[0].getAttribute("value"),
-		objBorderW:parseFloat(org.getElementsByTagName("objborderw")[0].getAttribute("value")),
-		objColor:org.getElementsByTagName("objcolor")[0].getAttribute("value"),
-		objOpacity:parseInt(org.getElementsByTagName("objopacity")[0].getAttribute("value")),
-		piste:parseInt(org.getElementsByTagName("piste")[0].getAttribute("value")),
-		rmsdb:parseInt(org.getElementsByTagName("rmsdb")[0].getAttribute("value")),
-		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
-		posY:parseFloat(org.getElementsByTagName("posY")[0].getAttribute("value")),
-		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value")),
-		scaleY:parseFloat(org.getElementsByTagName("scaleY")[0].getAttribute("value")),
-		spD:org.getElementsByTagName("spd")[0].getAttribute("value").split(','),
-		spT:org.getElementsByTagName("spt")[0].getAttribute("value").split(','),
-		spX:org.getElementsByTagName("spx")[0].getAttribute("value").split(','),
-		spY:org.getElementsByTagName("spy")[0].getAttribute("value").split(','),
-		spZ:org.getElementsByTagName("spz")[0].getAttribute("value").split(','),
-		tableFx:org.getElementsByTagName("tableFx")[0].getAttribute("value").split(','),
-		tableFxParam:org.getElementsByTagName("tableFxParam")[0].getAttribute("value").split(','),
-		type:parseInt(org.getElementsByTagName("type")[0].getAttribute("value")),
-		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
+		margeG:parseFloat(_tagVal(org, "margeg")),
+		margeH:parseFloat(_tagVal(org, "margeh")),
+		mute:_tagVal(org, "mute"),
+		nom:_tagVal(org, "nom"),
+		objBorderC:_tagVal(org, "objborderc"),
+		objBorderW:parseFloat(_tagVal(org, "objborderw")),
+		objColor:_tagVal(org, "objcolor"),
+		objOpacity:parseInt(_tagVal(org, "objopacity")),
+		piste:parseInt(_tagVal(org, "piste")),
+		rmsdb:parseInt(_tagVal(org, "rmsdb")),
+		posX:parseFloat(_tagVal(org, "posx")),
+		posY:parseFloat(_tagVal(org, "posY")),
+		scaleX:parseFloat(_tagVal(org, "scalex")),
+		scaleY:parseFloat(_tagVal(org, "scaleY")),
+		spD:_tagVal(org, "spd", "").split(','),
+		spT:_tagVal(org, "spt", "").split(','),
+		spX:_tagVal(org, "spx", "").split(','),
+		spY:_tagVal(org, "spy", "").split(','),
+		spZ:_tagVal(org, "spz", "").split(','),
+		tableFx:_tagVal(org, "tableFx", "").split(','),
+		tableFxParam:_tagVal(org, "tableFxParam", "").split(','),
+		type:parseInt(_tagVal(org, "type")),
+		width:parseFloat(_tagVal(org, "width"))
 		};
 		
 		console.log(tableObjet[id]);
@@ -619,56 +624,56 @@ async function objXmlToScore(id,i) {
 		for(let i=0;i<2;i++){
 			tableObjet[id].envX[i]=parseFloat(tableObjet[id].envX[i]);
 		}
-		var trp=org.getElementsByTagName("bkgTrp")[0].getAttribute("value");
+		var trp=_tagVal(org, "bkgTrp");
 		if(trp=="true"){
 			tableObjet[id].bkgTrp=true;
 		}else{
 			tableObjet[id].bkgTrp=false;
 		}
-		var rv=org.getElementsByTagName("reverse")[0].getAttribute("value");
+		var rv=_tagVal(org, "reverse");
 		if(rv=="true"){
 			tableObjet[id].reverse=true;
 		}else{
 			tableObjet[id].reverse=false;
 		}
 		if(tableObjet[id].type==23){
-			tableObjet[id].img=org.getElementsByTagName("imag")[0].getAttribute("value");
-			tableObjet[id].rotate=org.getElementsByTagName("rotation")[0].getAttribute("value");
+			tableObjet[id].img=_tagVal(org, "imag");
+			tableObjet[id].rotate=_tagVal(org, "rotation");
 		}
 		if(tableObjet[id].type==3){
 			if(org.getElementsByTagName("rotation")[0]){
-				tableObjet[id].rotate=org.getElementsByTagName("rotation")[0].getAttribute("value");
+				tableObjet[id].rotate=_tagVal(org, "rotation");
 			}else{
 				tableObjet[id].rotate=0;
 			}
 		}
-		if(org.getElementsByTagName("type")[0].getAttribute("value")==1){
-			tableObjet[id].r=parseFloat(org.getElementsByTagName("r")[0].getAttribute("value"));
+		if(_tagVal(org, "type")==1){
+			tableObjet[id].r=parseFloat(_tagVal(org, "r"));
 		}
-		if(parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("type")[0].getAttribute("value"))==4){
-			tableObjet[id].rx=org.getElementsByTagName("rx")[0].getAttribute("value");
-			tableObjet[id].ry=org.getElementsByTagName("ry")[0].getAttribute("value");
+		if(parseInt(_tagVal(obj.getElementsByTagName("objet")[i], "type"))==4){
+			tableObjet[id].rx=_tagVal(org, "rx");
+			tableObjet[id].ry=_tagVal(org, "ry");
 		}
 		if(false){
-			var ln=org.getElementsByTagName("liste")[0].getAttribute("value");
+			var ln=_tagVal(org, "liste");
 			var nl=ln.split(',');
 			tableObjet[id].liste=[];
 			for(let i=0;i<nl.length;i++){
 				tableObjet[id].liste[i]=parseInt(nl[i]);
 			}
 		}
-		if(org.getElementsByTagName("type")[0].getAttribute("value")==7 || org.getElementsByTagName("type")[0].getAttribute("value")==8){
+		if(_tagVal(org, "type")==7 || _tagVal(org, "type")==8){
 			if(org.getElementsByTagName("scaleY2")[0]){
-				tableObjet[id].scaleY2=parseFloat(org.getElementsByTagName("scaleY2")[0].getAttribute("value"));
+				tableObjet[id].scaleY2=parseFloat(_tagVal(org, "scaleY2"));
 			}
 		}
-		if(org.getElementsByTagName("type")[0].getAttribute("value")==11){
-			tableObjet[id].x1=parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value"));
-			tableObjet[id].y1=parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value"));
-			tableObjet[id].x2=parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value"));
-			tableObjet[id].y2=parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value"));
+		if(_tagVal(org, "type")==11){
+			tableObjet[id].x1=parseFloat(_tagVal(org, "x1"));
+			tableObjet[id].y1=parseFloat(_tagVal(org, "y1"));
+			tableObjet[id].x2=parseFloat(_tagVal(org, "x2"));
+			tableObjet[id].y2=parseFloat(_tagVal(org, "y2"));
 		}
-	var _tp=org.getElementsByTagName("type")[0].getAttribute("value");
+	var _tp=_tagVal(org, "type");
 	if(_tp==13||_tp==14||_tp==15||_tp==16){
 		var _cp1x=org.getElementsByTagName("cp1x")[0]; if(_cp1x)tableObjet[id].cp1x=parseFloat(_cp1x.getAttribute("value"));
 		var _cp1y=org.getElementsByTagName("cp1y")[0]; if(_cp1y)tableObjet[id].cp1y=parseFloat(_cp1y.getAttribute("value"));
@@ -682,66 +687,66 @@ function symbXmlToScore(id,i) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 	var org=obj.getElementsByTagName("objet")[i];
 	tableObjet[id]={
-		basePosY:parseFloat(org.getElementsByTagName("baseposy")[0].getAttribute("value")),
-		bkgColor:org.getElementsByTagName("bkgcolor")[0].getAttribute("value"),
-		bkgHeight:parseFloat(org.getElementsByTagName("bkgheight")[0].getAttribute("value")),
-		bkgImg:org.getElementsByTagName("bkgimg")[0].getAttribute("value"),
-		bkgOpacity:parseFloat(org.getElementsByTagName("bkgopacity")[0].getAttribute("value")),
-		bkgWidth:parseFloat(org.getElementsByTagName("bkgwidth")[0].getAttribute("value")),
-		borderBc:org.getElementsByTagName("borderbc")[0].getAttribute("value"),
-		borderBr:org.getElementsByTagName("borderbr")[0].getAttribute("value"),
-		borderBs:org.getElementsByTagName("borderbs")[0].getAttribute("value"),
-		borderBw:parseFloat(org.getElementsByTagName("borderbw")[0].getAttribute("value")),
-		borderDc:org.getElementsByTagName("borderdc")[0].getAttribute("value"),
-		borderDr:org.getElementsByTagName("borderdr")[0].getAttribute("value"),
-		borderDs:org.getElementsByTagName("borderds")[0].getAttribute("value"),
-		borderDw:parseFloat(org.getElementsByTagName("borderdw")[0].getAttribute("value")),
-		borderGc:org.getElementsByTagName("bordergc")[0].getAttribute("value"),
-		borderGr:org.getElementsByTagName("bordergr")[0].getAttribute("value"),
-		borderGs:org.getElementsByTagName("bordergs")[0].getAttribute("value"),
-		borderGw:parseFloat(org.getElementsByTagName("bordergw")[0].getAttribute("value")),
-		borderHc:org.getElementsByTagName("borderhc")[0].getAttribute("value"),
-		borderHr:org.getElementsByTagName("borderhr")[0].getAttribute("value"),
-		borderHs:org.getElementsByTagName("borderhs")[0].getAttribute("value"),
-		borderHw:parseFloat(org.getElementsByTagName("borderhw")[0].getAttribute("value")),
-		class:parseInt(org.getElementsByTagName("class")[0].getAttribute("value")),
-		etat:org.getElementsByTagName("etat")[0].getAttribute("value"),
-		groupe:parseInt(org.getElementsByTagName("groupe")[0].getAttribute("value")),
-		height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
+		basePosY:parseFloat(_tagVal(org, "baseposy")),
+		bkgColor:_tagVal(org, "bkgcolor"),
+		bkgHeight:parseFloat(_tagVal(org, "bkgheight")),
+		bkgImg:_tagVal(org, "bkgimg"),
+		bkgOpacity:parseFloat(_tagVal(org, "bkgopacity")),
+		bkgWidth:parseFloat(_tagVal(org, "bkgwidth")),
+		borderBc:_tagVal(org, "borderbc"),
+		borderBr:_tagVal(org, "borderbr"),
+		borderBs:_tagVal(org, "borderbs"),
+		borderBw:parseFloat(_tagVal(org, "borderbw")),
+		borderDc:_tagVal(org, "borderdc"),
+		borderDr:_tagVal(org, "borderdr"),
+		borderDs:_tagVal(org, "borderds"),
+		borderDw:parseFloat(_tagVal(org, "borderdw")),
+		borderGc:_tagVal(org, "bordergc"),
+		borderGr:_tagVal(org, "bordergr"),
+		borderGs:_tagVal(org, "bordergs"),
+		borderGw:parseFloat(_tagVal(org, "bordergw")),
+		borderHc:_tagVal(org, "borderhc"),
+		borderHr:_tagVal(org, "borderhr"),
+		borderHs:_tagVal(org, "borderhs"),
+		borderHw:parseFloat(_tagVal(org, "borderhw")),
+		class:parseInt(_tagVal(org, "class")),
+		etat:_tagVal(org, "etat"),
+		groupe:parseInt(_tagVal(org, "groupe")),
+		height:parseFloat(_tagVal(org, "height")),
 		id:"objet"+nbObjets,
-		margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
-		margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
-		nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
-		objBorderC:org.getElementsByTagName("objborderc")[0].getAttribute("value"),
-		objBorderW:parseFloat(org.getElementsByTagName("objborderw")[0].getAttribute("value")),
-		objColor:org.getElementsByTagName("objcolor")[0].getAttribute("value"),
-		objOpacity:parseFloat(org.getElementsByTagName("objopacity")[0].getAttribute("value")),
-		posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value"))||0,
-		posY:parseFloat(org.getElementsByTagName("posY")[0].getAttribute("value"))||0,
-		rotate:parseFloat(org.getElementsByTagName("rotate")[0].getAttribute("value"))||0,
-		scaleX:parseFloat(org.getElementsByTagName("scalex")[0].getAttribute("value"))||1,
-		scaleY:parseFloat(org.getElementsByTagName("scaley")[0].getAttribute("value"))||1,
-		type:parseInt(org.getElementsByTagName("type")[0].getAttribute("value")),
-		x1:parseFloat(org.getElementsByTagName("x1")[0].getAttribute("value"))||0,
-		y1:parseFloat(org.getElementsByTagName("y1")[0].getAttribute("value"))||0,
-		x2:parseFloat(org.getElementsByTagName("x2")[0].getAttribute("value"))||0,
-		y2:parseFloat(org.getElementsByTagName("y2")[0].getAttribute("value"))||0,
-		width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))||20
+		margeG:parseFloat(_tagVal(org, "margeg")),
+		margeH:parseFloat(_tagVal(org, "margeh")),
+		nom:_tagVal(org, "nom"),
+		objBorderC:_tagVal(org, "objborderc"),
+		objBorderW:parseFloat(_tagVal(org, "objborderw")),
+		objColor:_tagVal(org, "objcolor"),
+		objOpacity:parseFloat(_tagVal(org, "objopacity")),
+		posX:parseFloat(_tagVal(org, "posx"))||0,
+		posY:parseFloat(_tagVal(org, "posY"))||0,
+		rotate:parseFloat(_tagVal(org, "rotate"))||0,
+		scaleX:parseFloat(_tagVal(org, "scalex"))||1,
+		scaleY:parseFloat(_tagVal(org, "scaley"))||1,
+		type:parseInt(_tagVal(org, "type")),
+		x1:parseFloat(_tagVal(org, "x1"))||0,
+		y1:parseFloat(_tagVal(org, "y1"))||0,
+		x2:parseFloat(_tagVal(org, "x2"))||0,
+		y2:parseFloat(_tagVal(org, "y2"))||0,
+		width:parseFloat(_tagVal(org, "width"))||20
 		};
 		var _scaley2=org.getElementsByTagName("scaley2")[0];
 		tableObjet[id].scaleY2=_scaley2?parseFloat(_scaley2.getAttribute("value")):tableObjet[id].scaleY;
 		if(tableObjet[id].type==69||tableObjet[id].type==70){
-			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(org.getElementsByTagName("x3")[0].getAttribute("value")):undefined;
-			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(org.getElementsByTagName("y3")[0].getAttribute("value")):undefined;
-			tableObjet[id].x4=org.getElementsByTagName("x4")[0]?parseFloat(org.getElementsByTagName("x4")[0].getAttribute("value")):undefined;
-			tableObjet[id].y4=org.getElementsByTagName("y4")[0]?parseFloat(org.getElementsByTagName("y4")[0].getAttribute("value")):undefined;
+			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(_tagVal(org, "x3")):undefined;
+			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(_tagVal(org, "y3")):undefined;
+			tableObjet[id].x4=org.getElementsByTagName("x4")[0]?parseFloat(_tagVal(org, "x4")):undefined;
+			tableObjet[id].y4=org.getElementsByTagName("y4")[0]?parseFloat(_tagVal(org, "y4")):undefined;
 		}
 		if(tableObjet[id].type==19||tableObjet[id].type==20||tableObjet[id].type==71||tableObjet[id].type==72){
-			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(org.getElementsByTagName("x3")[0].getAttribute("value")):undefined;
-			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(org.getElementsByTagName("y3")[0].getAttribute("value")):undefined;
+			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(_tagVal(org, "x3")):undefined;
+			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(_tagVal(org, "y3")):undefined;
 		}
 
-		var trp=org.getElementsByTagName("bkgTrp")[0].getAttribute("value");
+		var trp=_tagVal(org, "bkgTrp");
 		if(trp=="true"){
 			tableObjet[id].bkgTrp=true;
 		}else{
@@ -752,49 +757,49 @@ function grpXmlToScore(id,i,offset) {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 	var org=obj.getElementsByTagName("objet")[i];
 	tableObjet[id]={
-	basePosY:parseFloat(org.getElementsByTagName("baseposy")[0].getAttribute("value")),
-	bkgColor:org.getElementsByTagName("bkgcolor")[0].getAttribute("value"),
-	bkgHeight:parseFloat(org.getElementsByTagName("bkgheight")[0].getAttribute("value")),
-	bkgImg:org.getElementsByTagName("bkgimg")[0].getAttribute("value"),
-	bkgOpacity:parseFloat(org.getElementsByTagName("bkgopacity")[0].getAttribute("value")),
-	bkgTrp:org.getElementsByTagName("bkgtrp")[0].getAttribute("value"),
-	bkgWidth:parseFloat(org.getElementsByTagName("bkgwidth")[0].getAttribute("value")),
-	borderBc:org.getElementsByTagName("borderbc")[0].getAttribute("value"),
-	borderBr:org.getElementsByTagName("borderbr")[0].getAttribute("value"),
-	borderBs:org.getElementsByTagName("borderbs")[0].getAttribute("value"),
-	borderBw:parseFloat(org.getElementsByTagName("borderbw")[0].getAttribute("value")),
-	borderDc:org.getElementsByTagName("borderdc")[0].getAttribute("value"),
-	borderDr:org.getElementsByTagName("borderdr")[0].getAttribute("value"),
-	borderDs:org.getElementsByTagName("borderds")[0].getAttribute("value"),
-	borderDw:parseFloat(org.getElementsByTagName("borderdw")[0].getAttribute("value")),
-	borderGc:org.getElementsByTagName("bordergc")[0].getAttribute("value"),
-	borderGr:org.getElementsByTagName("bordergr")[0].getAttribute("value"),
-	borderGs:org.getElementsByTagName("bordergs")[0].getAttribute("value"),
-	borderGw:parseFloat(org.getElementsByTagName("bordergw")[0].getAttribute("value")),
-	borderHc:org.getElementsByTagName("borderhc")[0].getAttribute("value"),
-	borderHr:org.getElementsByTagName("borderhr")[0].getAttribute("value"),
-	borderHs:org.getElementsByTagName("borderhs")[0].getAttribute("value"),
-	borderHw:parseFloat(org.getElementsByTagName("borderhw")[0].getAttribute("value")),
-	class:parseInt(org.getElementsByTagName("class")[0].getAttribute("value")),
-	etat:org.getElementsByTagName("etat")[0].getAttribute("value"),
-	groupe:org.getElementsByTagName("groupe")[0].getAttribute("value"),
-	height:parseFloat(org.getElementsByTagName("height")[0].getAttribute("value")),
+	basePosY:parseFloat(_tagVal(org, "baseposy")),
+	bkgColor:_tagVal(org, "bkgcolor"),
+	bkgHeight:parseFloat(_tagVal(org, "bkgheight")),
+	bkgImg:_tagVal(org, "bkgimg"),
+	bkgOpacity:parseFloat(_tagVal(org, "bkgopacity")),
+	bkgTrp:_tagVal(org, "bkgtrp"),
+	bkgWidth:parseFloat(_tagVal(org, "bkgwidth")),
+	borderBc:_tagVal(org, "borderbc"),
+	borderBr:_tagVal(org, "borderbr"),
+	borderBs:_tagVal(org, "borderbs"),
+	borderBw:parseFloat(_tagVal(org, "borderbw")),
+	borderDc:_tagVal(org, "borderdc"),
+	borderDr:_tagVal(org, "borderdr"),
+	borderDs:_tagVal(org, "borderds"),
+	borderDw:parseFloat(_tagVal(org, "borderdw")),
+	borderGc:_tagVal(org, "bordergc"),
+	borderGr:_tagVal(org, "bordergr"),
+	borderGs:_tagVal(org, "bordergs"),
+	borderGw:parseFloat(_tagVal(org, "bordergw")),
+	borderHc:_tagVal(org, "borderhc"),
+	borderHr:_tagVal(org, "borderhr"),
+	borderHs:_tagVal(org, "borderhs"),
+	borderHw:parseFloat(_tagVal(org, "borderhw")),
+	class:parseInt(_tagVal(org, "class")),
+	etat:_tagVal(org, "etat"),
+	groupe:_tagVal(org, "groupe"),
+	height:parseFloat(_tagVal(org, "height")),
 	id:"grp"+nbObjets,
-	margeG:parseFloat(org.getElementsByTagName("margeg")[0].getAttribute("value")),
-	margeH:parseFloat(org.getElementsByTagName("margeh")[0].getAttribute("value")),
-	nom:org.getElementsByTagName("nom")[0].getAttribute("value"),
-	piste:parseInt(org.getElementsByTagName("piste")[0].getAttribute("value")),
-	posX:parseFloat(org.getElementsByTagName("posx")[0].getAttribute("value")),
-	posY:parseFloat(org.getElementsByTagName("posy")[0].getAttribute("value")),
-	width:parseFloat(org.getElementsByTagName("width")[0].getAttribute("value"))
+	margeG:parseFloat(_tagVal(org, "margeg")),
+	margeH:parseFloat(_tagVal(org, "margeh")),
+	nom:_tagVal(org, "nom"),
+	piste:parseInt(_tagVal(org, "piste")),
+	posX:parseFloat(_tagVal(org, "posx")),
+	posY:parseFloat(_tagVal(org, "posy")),
+	width:parseFloat(_tagVal(org, "width"))
 	};
-	var trp=org.getElementsByTagName("bkgTrp")[0].getAttribute("value");
+	var trp=_tagVal(org, "bkgTrp");
 		if(trp=="true"){
 			tableObjet[id].bkgTrp=true;
 		}else{
 			tableObjet[id].bkgTrp=false;
 		}
-	var ln=org.getElementsByTagName("liste")[0].getAttribute("value");
+	var ln=_tagVal(org, "liste");
 	var nl=ln.split(',');
 
 	tableObjet[id].liste=[];
@@ -813,7 +818,7 @@ function defObjets(i,liste,dx,dy){
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 			var nb=obj.getElementsByTagName("objet").length;
 			for(let i=0;i<nb;i++){
-				var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"));
+				var cl=parseInt(_tagVal(obj.getElementsByTagName("objet")[i], "class"));
 				
 				switch(cl){
 					case 1:
@@ -911,7 +916,7 @@ function importGrpObjets(obj,nb,offset,dx,dy) {
 	var offsetX=0;
 	var offsetY=0;
 	for(let i=0;i<nb;i++){
-		var cl=parseInt(obj.getElementsByTagName("objet")[i].getElementsByTagName("class")[0].getAttribute("value"));
+		var cl=parseInt(_tagVal(obj.getElementsByTagName("objet")[i], "class"));
 		switch(cl){
 			case 1:
 				objXmlToScore(nbObjets,i);
@@ -1162,110 +1167,110 @@ function defProjetConfig() {
 	versionProjet=_ks.getAttribute("version")||"";
 	var obj=_ks.getElementsByTagName("general")[0];
 	paramProjet={
-		name:obj.getElementsByTagName("name")[0].getAttribute("value"),
-		start:obj.getElementsByTagName("start")[0].getAttribute("value"),
-		end:obj.getElementsByTagName("end")[0].getAttribute("value"),
-		comment:obj.getElementsByTagName("comment")[0].getAttribute("value"),
-		path:obj.getElementsByTagName("path")[0].getAttribute("value"),
-		audioPath:obj.getElementsByTagName("audiopath")[0].getAttribute("value"),
-		imgPath:obj.getElementsByTagName("imgpath")[0].getAttribute("value"),
-		greffon3D:obj.getElementsByTagName("greffon3d")[0].getAttribute("value"),
-		greffonC:obj.getElementsByTagName("channels")[0].getAttribute("value"),
-		regle:JSON.parse(obj.getElementsByTagName("regle")[0].getAttribute("value")),
-		mesure:JSON.parse(obj.getElementsByTagName("mesure")[0].getAttribute("value")),
-		grille:JSON.parse(obj.getElementsByTagName("grille")[0].getAttribute("value")),
-		spaceSeconde:JSON.parse(obj.getElementsByTagName("spaceseconde")[0].getAttribute("value")),
-		width:obj.getElementsByTagName("winwidth")[0].getAttribute("value"),
-		height:obj.getElementsByTagName("winheight")[0].getAttribute("value"),
-		zoom:obj.getElementsByTagName("zoom")[0].getAttribute("value"),
-		svgRegle:JSON.parse(obj.getElementsByTagName("svgregle")[0].getAttribute("value")),
-		svgMesure:JSON.parse(obj.getElementsByTagName("svgmesure")[0].getAttribute("value")),
-		svgGrille:JSON.parse(obj.getElementsByTagName("svggrille")[0].getAttribute("value")),
-		svgSeconde:JSON.parse(obj.getElementsByTagName("svgseconde")[0].getAttribute("value")),
-		spatMode: (obj.getElementsByTagName("spatmode")[0] ? obj.getElementsByTagName("spatmode")[0].getAttribute("value") : null) || "vbap3d",
-		hoaOrder: parseInt(obj.getElementsByTagName("hoadorder")[0] ? obj.getElementsByTagName("hoadorder")[0].getAttribute("value") : 3) || 3,
-		exportAmbiX: (obj.getElementsByTagName("exportambix")[0] ? obj.getElementsByTagName("exportambix")[0].getAttribute("value") : "0") === "1"
+		name:_tagVal(obj, "name"),
+		start:_tagVal(obj, "start"),
+		end:_tagVal(obj, "end"),
+		comment:_tagVal(obj, "comment"),
+		path:_tagVal(obj, "path"),
+		audioPath:_tagVal(obj, "audiopath"),
+		imgPath:_tagVal(obj, "imgpath"),
+		greffon3D:_tagVal(obj, "greffon3d"),
+		greffonC:_tagVal(obj, "channels"),
+		regle:JSON.parse(_tagVal(obj, "regle")),
+		mesure:JSON.parse(_tagVal(obj, "mesure")),
+		grille:JSON.parse(_tagVal(obj, "grille")),
+		spaceSeconde:JSON.parse(_tagVal(obj, "spaceseconde")),
+		width:_tagVal(obj, "winwidth"),
+		height:_tagVal(obj, "winheight"),
+		zoom:_tagVal(obj, "zoom"),
+		svgRegle:JSON.parse(_tagVal(obj, "svgregle")),
+		svgMesure:JSON.parse(_tagVal(obj, "svgmesure")),
+		svgGrille:JSON.parse(_tagVal(obj, "svggrille")),
+		svgSeconde:JSON.parse(_tagVal(obj, "svgseconde")),
+		spatMode: (obj.getElementsByTagName("spatmode")[0] ? _tagVal(obj, "spatmode") : null) || "vbap3d",
+		hoaOrder: parseInt(obj.getElementsByTagName("hoadorder")[0] ? _tagVal(obj, "hoadorder") : 3) || 3,
+		exportAmbiX: (obj.getElementsByTagName("exportambix")[0] ? _tagVal(obj, "exportambix") : "0") === "1"
 	};
 	importConfigProjet();
 }
 
 function defInterfaceConfig() {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("interface")[0];
-	paletteBkg = obj.getElementsByTagName("palettebkg")[0].getAttribute("value");
-	fontPalette = obj.getElementsByTagName("fontpalette")[0].getAttribute("value");
-	fontPaletteSize = obj.getElementsByTagName("fontpalettesize")[0].getAttribute("value");
-	separateurPalette = obj.getElementsByTagName("separateurpalette")[0].getAttribute("value");
-	bkgInfo = obj.getElementsByTagName("bkginfo")[0].getAttribute("value");
-	fontInfoSize = obj.getElementsByTagName("fontinfosize")[0].getAttribute("value");
-	fontInfoColor = obj.getElementsByTagName("fontinfocolor")[0].getAttribute("value");
-	regleBackground = obj.getElementsByTagName("reglebackground")[0].getAttribute("value");
-	regleFontSize = obj.getElementsByTagName("reglefontsize")[0].getAttribute("value");
-	regleFontColor = obj.getElementsByTagName("reglefontcolor")[0].getAttribute("value");
-	intervalBackground = obj.getElementsByTagName("intervalbackground")[0].getAttribute("value");
-	intervalFontSize = obj.getElementsByTagName("intervalfontsize")[0].getAttribute("value");
-	fontintervalcolor = obj.getElementsByTagName("separateurpalette")[0].getAttribute("value");
-	workSpaceBkg = obj.getElementsByTagName("workspacebkg")[0].getAttribute("value");
-	spaceGrilleOpacity = obj.getElementsByTagName("spacegrilleopacity")[0].getAttribute("value");
-	colorgrille = obj.getElementsByTagName("colorgrille")[0].getAttribute("value");
-	suiveurBkg = obj.getElementsByTagName("suiveurbkg")[0].getAttribute("value");
-	popupTitreBkg = obj.getElementsByTagName("popuptitrebkg")[0].getAttribute("value");
-	popupHeaderFontSize = obj.getElementsByTagName("popupheaderfontsize")[0].getAttribute("value");
-	popupFontTitreColor = obj.getElementsByTagName("popupfonttitrecolor")[0].getAttribute("value");
-	popupFontColor = obj.getElementsByTagName("popupfontcolor")[0].getAttribute("value");
-	popupBkgColor = obj.getElementsByTagName("popupbkgcolor")[0].getAttribute("value");
-	popupFontSize = obj.getElementsByTagName("popupfontsize")[0].getAttribute("value");
-	popupOngletFontColor = obj.getElementsByTagName("popupongletfontcolor")[0].getAttribute("value");
-	popupFontOngletSize = obj.getElementsByTagName("popupfontongletsize")[0].getAttribute("value");
-	popupOngletBkg = obj.getElementsByTagName("popupongletbkg")[0].getAttribute("value");
-	popupOngletActifBkg = obj.getElementsByTagName("popupongletactifbkg")[0].getAttribute("value");
-	lang = obj.getElementsByTagName("lang")[0].getAttribute("value");
+	paletteBkg = _tagVal(obj, "palettebkg");
+	fontPalette = _tagVal(obj, "fontpalette");
+	fontPaletteSize = _tagVal(obj, "fontpalettesize");
+	separateurPalette = _tagVal(obj, "separateurpalette");
+	bkgInfo = _tagVal(obj, "bkginfo");
+	fontInfoSize = _tagVal(obj, "fontinfosize");
+	fontInfoColor = _tagVal(obj, "fontinfocolor");
+	regleBackground = _tagVal(obj, "reglebackground");
+	regleFontSize = _tagVal(obj, "reglefontsize");
+	regleFontColor = _tagVal(obj, "reglefontcolor");
+	intervalBackground = _tagVal(obj, "intervalbackground");
+	intervalFontSize = _tagVal(obj, "intervalfontsize");
+	fontintervalcolor = _tagVal(obj, "separateurpalette");
+	workSpaceBkg = _tagVal(obj, "workspacebkg");
+	spaceGrilleOpacity = _tagVal(obj, "spacegrilleopacity");
+	colorgrille = _tagVal(obj, "colorgrille");
+	suiveurBkg = _tagVal(obj, "suiveurbkg");
+	popupTitreBkg = _tagVal(obj, "popuptitrebkg");
+	popupHeaderFontSize = _tagVal(obj, "popupheaderfontsize");
+	popupFontTitreColor = _tagVal(obj, "popupfonttitrecolor");
+	popupFontColor = _tagVal(obj, "popupfontcolor");
+	popupBkgColor = _tagVal(obj, "popupbkgcolor");
+	popupFontSize = _tagVal(obj, "popupfontsize");
+	popupOngletFontColor = _tagVal(obj, "popupongletfontcolor");
+	popupFontOngletSize = _tagVal(obj, "popupfontongletsize");
+	popupOngletBkg = _tagVal(obj, "popupongletbkg");
+	popupOngletActifBkg = _tagVal(obj, "popupongletactifbkg");
+	lang = _tagVal(obj, "lang");
 	defInterface();
 }
 function defPaletteConfig() {
 	var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("palette")[0];
-	paletteDisque = obj.getElementsByTagName("palettedisque")[0].getAttribute("value");
-	paletteCarre = obj.getElementsByTagName("palettecarre")[0].getAttribute("value");
-	paletteTriangle = obj.getElementsByTagName("palettetriangle")[0].getAttribute("value");
-	paletteEllipse = obj.getElementsByTagName("paletteellipse")[0].getAttribute("value");
-	paletteRectangle = obj.getElementsByTagName("paletterectangle")[0].getAttribute("value");
-	paletteTrianglelong = obj.getElementsByTagName("palettetrianglelong")[0].getAttribute("value");
-	paletteRondlong = obj.getElementsByTagName("paletterondlong")[0].getAttribute("value");
-	paletteCarrelong = obj.getElementsByTagName("palettecarrelong")[0].getAttribute("value");
-	paletteCrescendo = obj.getElementsByTagName("palettecrescendo")[0].getAttribute("value");
-	paletteLigne = obj.getElementsByTagName("paletteligne")[0].getAttribute("value");
-	paletteGlissando = obj.getElementsByTagName("paletteglissando")[0].getAttribute("value");
-	paletteBlock = obj.getElementsByTagName("paletteblock")[0].getAttribute("value");
-	paletteDecresc = obj.getElementsByTagName("palettedecresc")[0].getAttribute("value");
-	paletteDecrescb = obj.getElementsByTagName("palettedecrescb")[0].getAttribute("value");
-	paletteCresc = obj.getElementsByTagName("palettecresc")[0].getAttribute("value");
-	paletteCrescb = obj.getElementsByTagName("palettecrescb")[0].getAttribute("value");
-	paletteAgregat = obj.getElementsByTagName("paletteagregat")[0].getAttribute("value");
-	paletteArpege = obj.getElementsByTagName("palettearpege")[0].getAttribute("value");
-	paletteMultilignes = obj.getElementsByTagName("palettemultilignes")[0].getAttribute("value");
-	paletteNuage = obj.getElementsByTagName("palettenuage")[0].getAttribute("value");
-	paletteTexture = obj.getElementsByTagName("palettetexture")[0].getAttribute("value");
-	paletteImage = obj.getElementsByTagName("paletteimage")[0].getAttribute("value");
-	paletteSymb = obj.getElementsByTagName("palettesymb")[0].getAttribute("value");
-	paletteFleche = obj.getElementsByTagName("palettefleche")[0].getAttribute("value");
-	paletteMarque1 = obj.getElementsByTagName("palettemarque1")[0].getAttribute("value");
-	paletteMarque2 = obj.getElementsByTagName("palettemarque2")[0].getAttribute("value");
-	paletteLecteur = obj.getElementsByTagName("palettelecteur")[0].getAttribute("value");
+	paletteDisque = _tagVal(obj, "palettedisque");
+	paletteCarre = _tagVal(obj, "palettecarre");
+	paletteTriangle = _tagVal(obj, "palettetriangle");
+	paletteEllipse = _tagVal(obj, "paletteellipse");
+	paletteRectangle = _tagVal(obj, "paletterectangle");
+	paletteTrianglelong = _tagVal(obj, "palettetrianglelong");
+	paletteRondlong = _tagVal(obj, "paletterondlong");
+	paletteCarrelong = _tagVal(obj, "palettecarrelong");
+	paletteCrescendo = _tagVal(obj, "palettecrescendo");
+	paletteLigne = _tagVal(obj, "paletteligne");
+	paletteGlissando = _tagVal(obj, "paletteglissando");
+	paletteBlock = _tagVal(obj, "paletteblock");
+	paletteDecresc = _tagVal(obj, "palettedecresc");
+	paletteDecrescb = _tagVal(obj, "palettedecrescb");
+	paletteCresc = _tagVal(obj, "palettecresc");
+	paletteCrescb = _tagVal(obj, "palettecrescb");
+	paletteAgregat = _tagVal(obj, "paletteagregat");
+	paletteArpege = _tagVal(obj, "palettearpege");
+	paletteMultilignes = _tagVal(obj, "palettemultilignes");
+	paletteNuage = _tagVal(obj, "palettenuage");
+	paletteTexture = _tagVal(obj, "palettetexture");
+	paletteImage = _tagVal(obj, "paletteimage");
+	paletteSymb = _tagVal(obj, "palettesymb");
+	paletteFleche = _tagVal(obj, "palettefleche");
+	paletteMarque1 = _tagVal(obj, "palettemarque1");
+	paletteMarque2 = _tagVal(obj, "palettemarque2");
+	paletteLecteur = _tagVal(obj, "palettelecteur");
 }
 function defExterneConfig() {
 	if(document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("externe")[0]){
 		var obj=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0].getElementsByTagName("externe")[0];
-		editor = obj.getElementsByTagName("externeeditor")[0].getAttribute("value");
-		daw = obj.getElementsByTagName("externedaw")[0].getAttribute("value");
-		cmdDaw = obj.getElementsByTagName("externecmddaw")[0].getAttribute("value");
-		pdfPage = obj.getElementsByTagName("externepdfpage")[0].getAttribute("value");
-		pdfLandscape = obj.getElementsByTagName("externepdflandscape")[0].getAttribute("value");
-		pdfScale = parseFloat(obj.getElementsByTagName("externepdfscale")[0].getAttribute("value"));
-		pdfMgTop = parseFloat(obj.getElementsByTagName("externepdftop")[0].getAttribute("value"));
-		pdfMgBot = parseFloat(obj.getElementsByTagName("externepdfbot")[0].getAttribute("value"));
-		pdfMgLeft = parseFloat(obj.getElementsByTagName("externepdfleft")[0].getAttribute("value"));
-		pdfMgRight = parseFloat(obj.getElementsByTagName("externepdfright")[0].getAttribute("value"));
-		pdfBkg = obj.getElementsByTagName("externepdfbkg")[0].getAttribute("value");
-		editAudioCmd = obj.getElementsByTagName("externeaudioedit")[0].getAttribute("value");
+		editor = _tagVal(obj, "externeeditor");
+		daw = _tagVal(obj, "externedaw");
+		cmdDaw = _tagVal(obj, "externecmddaw");
+		pdfPage = _tagVal(obj, "externepdfpage");
+		pdfLandscape = _tagVal(obj, "externepdflandscape");
+		pdfScale = parseFloat(_tagVal(obj, "externepdfscale"));
+		pdfMgTop = parseFloat(_tagVal(obj, "externepdftop"));
+		pdfMgBot = parseFloat(_tagVal(obj, "externepdfbot"));
+		pdfMgLeft = parseFloat(_tagVal(obj, "externepdfleft"));
+		pdfMgRight = parseFloat(_tagVal(obj, "externepdfright"));
+		pdfBkg = _tagVal(obj, "externepdfbkg");
+		editAudioCmd = _tagVal(obj, "externeaudioedit");
 		if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png";
 		}else{
