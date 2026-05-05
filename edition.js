@@ -244,17 +244,13 @@ function grouper() {
 	selectGrp();
 }
 function deGrouper(){
-	if(tableObjet[objActif].etat==1 && false){
-		document.getElementById("space").removeChild(document.getElementById(tableObjet[objActif].id));
-		tableObjet[objActif].etat=0;
-	   grpSelect=0;
-   }else if(tableObjet[objActif].etat==1 && tableObjet[objActif].class==4 ){
-   	toutDegrouper();
-   }
+	if(tableObjet[objActif].etat==1 && tableObjet[objActif].class==4){
+		toutDegrouper();
+	}
 }
 function reGrouper(e){
 	if(tableObjet[objActif].groupe!=16777216){
-		if(tableObjet[objActif].class==1 || false ||tableObjet[tableObjet[objActif].groupe].class==4 ){
+		if(tableObjet[objActif].class==1 || tableObjet[tableObjet[objActif].groupe].class==4){
 			let sgrp=[];
 			objActif=tableObjet[objActif].groupe;
 	console.log(tableObjet[objActif]);
@@ -319,15 +315,6 @@ function reGrouper(e){
 }
 function toutDegrouper(){
 	if(tableObjet[objActif].class==4){
-		for(let i=0;i<tableObjet[objActif].liste.length;i++){
-			if(false ){
-				var orig=tableObjet[tableObjet[objActif].liste[i]].id.substring(3);
-				for(let j=0;j<tableObjet[orig].liste.length;j++){
-					tableObjet[tableObjet[orig].liste[j]].groupe=orig;
-				}
-			}
-			
-		}
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			var _mid=tableObjet[objActif].liste[i];
 			var _mgrp=tableObjet[_mid].groupe;
