@@ -682,7 +682,7 @@ function readGrpAudio(){
 			}	
 		}
 		console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp);
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+	}else if(tableObjet[objActif].class==4){
 		var minx=tableObjet[tableObjet[objActif].liste[0]].posX;
 		
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
@@ -835,7 +835,7 @@ function renderGrpAudio3(ngrp){
 		if(grpSelect==1){
 			grp=[].concat(preservSelect);
 			document.getElementById("barVerticale").style.left=document.getElementById("grpSelect").style.left;
-		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
+		}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
 			grp=[].concat(tableObjet[objActif].liste);
 			document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
 			}
@@ -2029,7 +2029,7 @@ async function exportGrp(){
 	if(grpSelect==1){
 		grp=[].concat(preservSelect);
 		document.getElementById("barVerticale").style.left=document.getElementById("grpSelect").style.left;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
+	}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="groupe"){
 		grp=[].concat(tableObjet[objActif].liste);
 		document.getElementById("barVerticale").style.left=tableObjet[objActif].posX+"px";
 	}

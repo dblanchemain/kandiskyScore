@@ -859,44 +859,6 @@ function selectobjet(objType,bkgc){
 				tableObjet[objActif].bkgHeight=42;
 				graphNuage(objActif);
 				break;
-			case 22:
-				tableObjet[objActif].width=60;
-				tableObjet[objActif].height=60;
-				tableObjet[objActif].bkgWidth=60;
-				tableObjet[objActif].bkgHeight=60;
-				tableObjet[objActif].bkgOpacity=1;
-				tableObjet[objActif].class=2;
-				var grpActif=objActif;
-				tableObjet[grpActif].liste=[];
-				tableObjet[grpActif].id="grp"+grpActif;
-				tableObjet[grpActif].nom="grp"+grpActif;
-				graphGroupe(grpActif);
-				nbObjets++;
-				for(let i=0;i<12;i++){
-					selectobjet(1,tableObjet[grpActif].objColor);
-					tableObjet[grpActif].liste.push(objActif);
-					tableObjet[objActif].posX=100+getRandomArbitrary(0,46);
-					tableObjet[objActif].posY=100+getRandomArbitrary(0,46);
-					tableObjet[objActif].r=3;
-					tableObjet[objActif].type=1;
-					tableObjet[objActif].width=3;
-					tableObjet[objActif].height=3;
-					tableObjet[objActif].bkgWidth=6;
-					tableObjet[objActif].bkgHeight=6;
-					tableObjet[objActif].bkgColor="transparent";
-					bkgGrpTransparent(objActif);
-					tableObjet[objActif].bkgOpacity=1;
-					tableObjet[objActif].groupe=grpActif;
-					tableObjet[objActif].objColor=tableObjet[grpActif].objColor;
-					graphCircle(objActif);
-					document.getElementById(selectObj).style.top=tableObjet[objActif].posY+'px';
-					document.getElementById(selectObj).style.left=tableObjet[objActif].posX+'px';
-				}
-				
-				selectObj="grp"+grpActif;
-				document.getElementById(selectObj).style.border='1px solid #000000';
-				nbObjets--;
-				break;
 			case 23:
 				tableObjet[objActif].width=50;
 				tableObjet[objActif].height=50;

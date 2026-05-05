@@ -49,7 +49,7 @@ function defObjGrp(id,nbobjets,cla) {
 		}
 		txt=txt+"		<canaux value='"+id.canaux+"'></canaux>\n";
 		txt=txt+"		<class value='"+cla+"'></class>\n";
-		if(cla==1 || cla==2){
+		if(cla==1){
 			txt=txt+"		<convolver value='"+id.convolver+"'></convolver>\n";
 		}
 		txt=txt+"		<cx value='"+id.cx+"'></cx>\n\
@@ -69,9 +69,6 @@ function defObjGrp(id,nbobjets,cla) {
 		<height value='"+id.height+"'></height>\n";
 		if(parseInt(id.type)==23){
 			txt=txt+"		<imag value='"+id.img+"'></imag>\n";
-		}
-		if(cla==2){
-			txt=txt+"		<liste value='"+id.liste+"'></liste>\n";
 		}
 		txt=txt+"		<margeg value='"+id.margeG+"'></margeg>\n\
 		<margeh value='"+id.margeH+"'></margeh>\n\
@@ -395,7 +392,7 @@ function saveProjetA(t,offset,tabgrp){
 
 	for(let i=0;i<ntable.length;i++){
 
-		if(ntable[i].etat==1 && (ntable[i].class==2 || ntable[i].class==4)){
+		if(ntable[i].etat==1 && (ntable[i].class==4)){
 
 			var lst=[].concat(ntable[i].liste);
 			var k=[];
@@ -645,14 +642,6 @@ async function objXmlToScore(id,i) {
 				tableObjet[id].rotate=0;
 			}
 		}
-		if(parseInt(org.getElementsByTagName("class")[0].getAttribute("value"))==2){
-			sp=[];
-   		sp=obj.getElementsByTagName("objet")[i].getElementsByTagName("liste")[0].getAttribute("value").split(",");
-   		for(let j=0;j<sp.length;j++){
-   			sp[j]=parseInt(sp[j]);	
-			}
-			tableObjet[i].liste=[].concat(sp);
-		}
 		if(org.getElementsByTagName("type")[0].getAttribute("value")==1){
 			tableObjet[id].r=parseFloat(org.getElementsByTagName("r")[0].getAttribute("value"));
 		}
@@ -660,7 +649,7 @@ async function objXmlToScore(id,i) {
 			tableObjet[id].rx=org.getElementsByTagName("rx")[0].getAttribute("value");
 			tableObjet[id].ry=org.getElementsByTagName("ry")[0].getAttribute("value");
 		}
-		if(tableObjet[i].class==2){
+		if(false){
 			var ln=org.getElementsByTagName("liste")[0].getAttribute("value");
 			var nl=ln.split(',');
 			tableObjet[id].liste=[];

@@ -121,13 +121,6 @@ function copier(){
    		copySelect=[];
    		copySelect.push(objActif);
    	}
-   	if(tableObjet[objActif].class==2){
-   		copySelect=[];
-   		copySelect.push(parseInt(objActif));
-   		for(let i=0;i<tableObjet[objActif].liste.length;i++){
-   			copySelect.push(tableObjet[objActif].liste[i]);
-    		}
-   	}
    	if(tableObjet[objActif].class==4 ){
    		copySelect=[];
    		copySelect=[].concat(tableObjet[objActif].liste);
@@ -156,20 +149,6 @@ let refObjet=nbObjets;
 					pasteObjet(copySelect[i],x,y);
 					nbObjets++;
 					break;
-				case 2:
-					var x=clientX-copyX;
-					var y=clientY-copyY;
-					
-					pasteObjet(copySelect[i],x,y);
-					tableObjet[nbObjets].class=2;
-					tableObjet[nbObjets].liste=[];
-					for(let j=0;j<tableObjet[copySelect[i]].liste.length;j++){
-						var ob=nbObjets+j+1;
-						tableObjet[nbObjets].liste.push(ob);
-					}
-					
-					nbObjets++;
-					break;
 				case 3:
 					var x=clientX-copyX;
 					var y=clientY-copyY;
@@ -187,11 +166,6 @@ let refObjet=nbObjets;
 					nbObjets++;
 					break;
 			 }
-		}
-	}
-	if(tableObjet[copySelect[0]].class==2){
-		for(i=0;i<tableObjet[refObjet].liste.length;i++){
-			tableObjet[tableObjet[refObjet].liste[i]].groupe=refObjet;
 		}
 	}
 }
@@ -214,7 +188,7 @@ function couper(){
    		//copySelect=[];
    		//copySelect.push(objActif);
    	}
-   	if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+   	if(tableObjet[objActif].class==4){
    		for(i=0;i<tableObjet[objActif].liste.length;i++){
    			document.getElementById("space").removeChild(document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id));
    			tableObjet[tableObjet[objActif].liste[i]].etat=0;
@@ -232,7 +206,7 @@ function grouper() {
 	selectGrp();
 }
 function deGrouper(){
-	if(tableObjet[objActif].etat==1 && tableObjet[objActif].class==2){
+	if(tableObjet[objActif].etat==1 && false){
 		document.getElementById("space").removeChild(document.getElementById(tableObjet[objActif].id));
 		tableObjet[objActif].etat=0;
 	   grpSelect=0;
@@ -242,7 +216,7 @@ function deGrouper(){
 }
 function reGrouper(e){
 	if(tableObjet[objActif].groupe!=16777216){
-		if(tableObjet[objActif].class==1 || tableObjet[objActif].class==2 ||tableObjet[tableObjet[objActif].groupe].class==4 ){
+		if(tableObjet[objActif].class==1 || false ||tableObjet[tableObjet[objActif].groupe].class==4 ){
 			let sgrp=[];
 			objActif=tableObjet[objActif].groupe;
 	console.log(tableObjet[objActif]);
@@ -308,7 +282,7 @@ function reGrouper(e){
 function toutDegrouper(){
 	if(tableObjet[objActif].class==4){
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
-			if(tableObjet[tableObjet[objActif].liste[i]].etat==1 && tableObjet[tableObjet[objActif].liste[i]].class==2 ){
+			if(false ){
 				var orig=tableObjet[tableObjet[objActif].liste[i]].id.substring(3);
 				for(let j=0;j<tableObjet[orig].liste.length;j++){
 					tableObjet[tableObjet[orig].liste[j]].groupe=orig;
@@ -358,7 +332,7 @@ function defColorMenu(e) {
 		var dc=document.getElementById("grpSelect");
 		document.getElementById("space").removeChild(dc);
 		grpSelect=0;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+	}else if(tableObjet[objActif].class==4){
 			lsgrp=[];
 			lsgrp=[].concat(tableObjet[objActif].liste);
 			pushUndo(lsgrp, 'color');
@@ -507,7 +481,7 @@ function defGrpForme() {
 	document.getElementById("fenetreFlot").style.display="block";
 }
 function retObjetPaletteA(id,f) {
-	if(tableObjet[id].class==1 || tableObjet[id].class==2 || tableObjet[id].class==4){
+	if(tableObjet[id].class==1 || tableObjet[id].class==4){
 			//document.getElementById("space").removeChild(document.getElementById(tableObjet[id].id))
 			tableObjet[id].type=f;
 			switch(parseInt(f)) {
@@ -632,7 +606,7 @@ function retObjetPalette(f) {
 		if(tableObjet[objActif].class==1) {
 			pushUndo([objActif], 'forme');
 			retObjetPaletteA(objActif,f);
-		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+		}else if(tableObjet[objActif].class==4){
 				let lsgrp=[];
 				lsgrp=[].concat(tableObjet[objActif].liste);
 				pushUndo(lsgrp, 'forme');
@@ -663,7 +637,7 @@ function topAlign(){
 		var dc=document.getElementById("grpSelect");
 		document.getElementById("space").removeChild(dc);
 		grpSelect=0;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
+	}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 			lsgrp=[].concat(tableObjet[objActif].liste);
 			for(let i=0;i<lsgrp.length;i++){
 				tableObjet[lsgrp[i]].posY=parseInt(document.getElementById(selectObj).style.top);
@@ -682,7 +656,7 @@ function leftAlign(){
 		var dc=document.getElementById("grpSelect");
 		document.getElementById("space").removeChild(dc);
 		grpSelect=0;
-		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
+		}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 			lsgrp=[].concat(tableObjet[objActif].liste);
 			for(let i=0;i<lsgrp.length;i++){
 				if(tableObjet[i].class==1){
@@ -708,7 +682,7 @@ function bottomAlign(){
 		var dc=document.getElementById("grpSelect");
 		document.getElementById("space").removeChild(dc);
 		grpSelect=0;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
+	}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 			lsgrp=[].concat(tableObjet[objActif].liste);
 			for(let i=0;i<lsgrp.length;i++){
 				if(tableObjet[lsgrp[i]].class==1){
@@ -738,7 +712,7 @@ function rightAlign(){
 		var dc=document.getElementById("grpSelect");
 		document.getElementById("space").removeChild(dc);
 		grpSelect=0;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
+	}else if(tableObjet[objActif].class==4 || tableObjet[objActif].class=="route"){
 		lsgrp=[].concat(tableObjet[objActif].liste);
 		for(let i=0;i<lsgrp.length;i++){
 			if(tableObjet[lsgrp[i]].class==1){
@@ -758,7 +732,7 @@ function zDescendre(){
 		if(document.getElementById(tableObjet[objActif].id).style.zIndex>0){
 			document.getElementById(tableObjet[objActif].id).style.zIndex=document.getElementById(tableObjet[objActif].id).style.zIndex-1;
 		}
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+	}else if(tableObjet[objActif].class==4){
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id).style.zIndex=document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id).style.zIndex-1;
 		}
@@ -769,7 +743,7 @@ function zToutBas(){
 		if(document.getElementById(tableObjet[objActif].id).style.zIndex>0){
 			document.getElementById(tableObjet[objActif].id).style.zIndex=0;
 		}
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+	}else if(tableObjet[objActif].class==4){
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id).style.zIndex=0;
 		}
@@ -778,7 +752,7 @@ function zToutBas(){
 function zMonter(){
 	if(tableObjet[objActif].class==1){
 		document.getElementById(tableObjet[objActif].id).style.zIndex=document.getElementById(tableObjet[objActif].id).style.zIndex+1;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+	}else if(tableObjet[objActif].class==4){
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id).style.zIndex=document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id).style.zIndex+1;
 		}
@@ -787,7 +761,7 @@ function zMonter(){
 function zToutHaut(){
 	if(tableObjet[objActif].class==1){
 		document.getElementById(tableObjet[objActif].id).style.zIndex=5;
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+	}else if(tableObjet[objActif].class==4){
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			document.getElementById(tableObjet[tableObjet[objActif].liste[i]].id).style.zIndex=5;
 		}
@@ -808,7 +782,7 @@ function scaleGrpValid(){
 	if(lsgrp.length>1){
 		var cl=0;
 		for(let i=0;i<lsgrp.length;i++){
-			if(tableObjet[lsgrp[i]].class==2 ){
+			if(tableObjet[lsgrp[i]].false ){
 				cl=2;
 				break;
 			}

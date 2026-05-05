@@ -895,7 +895,7 @@ async function vueGrpSvg(mode){
 		}
 		var slblock=document.getElementById("grpSelect").style;
 
-	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
+	}else if(tableObjet[objActif].class==4){
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
 			lsgrp.push(tableObjet[tableObjet[objActif].liste[i]]);
 

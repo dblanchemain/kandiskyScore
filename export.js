@@ -75,7 +75,7 @@ async function exportGrp(){
 	if(grpSelect==1){
 		grp=[].concat(preservSelect);
 	}else{
-		if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4 ){
+		if(tableObjet[objActif].class==4 ){
 			grp=[].concat(tableObjet[objActif].liste);
 		}
 	}
