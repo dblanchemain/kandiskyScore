@@ -199,7 +199,7 @@ function permutLineaire() {
 	
 	lsgrp=[];
 	for(let i=0;i<copySelect.length;i++){
-		lsgrp.push(copySelect[i]+resObj);
+		lsgrp.push(i+resObj);
 	}
 	createGrp("Permutation",lsgrp);
 	if(grpSelect==1){
@@ -323,13 +323,13 @@ function renversement() {
 	lsgrp=[];
 	let copyX=0;
 	let copyY=0;
-	let refId=objActif;
 	copySelect=[].concat(preservSelect);
-	
+	if(copySelect.length===0 || tableObjet[copySelect[0]]===undefined) return;
 	var clientX=tableObjet[copySelect[0]].posX+218;
-	var clientY=tableObjet[copySelect[0]].posX+144;
-	lsgrp.push(nbObjets);																																												
-	for(i=0;i<copySelect.length;i++){
+	var clientY=tableObjet[copySelect[0]].posY+144;
+	lsgrp.push(nbObjets);
+	for(let i=0;i<copySelect.length;i++){
+		if(tableObjet[copySelect[i]]===undefined) continue;
 		copyX=tableObjet[copySelect[0]].posX-tableObjet[copySelect[i]].posX;
 		copyY=-(tableObjet[copySelect[0]].posY-tableObjet[copySelect[i]].posY);
 		if(tableObjet[copySelect[i]].class==1){
@@ -354,13 +354,13 @@ function retrograde() {
 	lsgrp=[];
 	let copyX=0;
 	let copyY=0;
-	let refId=objActif;
 	copySelect=[].concat(preservSelect);
+	if(copySelect.length===0 || tableObjet[copySelect[0]]===undefined) return;
 	var clientX=tableObjet[copySelect[0]].posX+218;
-	var clientY=tableObjet[copySelect[0]].posX+144;
+	var clientY=tableObjet[copySelect[0]].posY+144;
 	lsgrp.push(nbObjets);
-																																															
-	for(i=0;i<copySelect.length;i++){
+	for(let i=0;i<copySelect.length;i++){
+		if(tableObjet[copySelect[i]]===undefined) continue;
 		if(i==0){
 			copyX=0;
 			copyY=0;
@@ -379,8 +379,8 @@ function retrograde() {
 	lsgrp.pop();
 	createGrp("Rétrograde",lsgrp);
 	if(grpSelect==1){
- 		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
- 		grpSelect=0;
+		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
+		grpSelect=0;
 	}
 }
 function renvRetro() {
