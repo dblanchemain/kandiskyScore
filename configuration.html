@@ -158,6 +158,24 @@
 				</select>
 				<button onclick="refreshAudioDevices()" style="margin-left:6px;">↻</button>
 			</td></tr>
+			<tr><td colspan="4">  </td></tr>
+			<tr><td colspan="4"> <b>MIDI Clock</b> </td></tr>
+			<tr>
+				<td>Source horloge :</td>
+				<td colspan="3">
+					Interne&nbsp;<input type="radio" name="radioClock" value="internal" id="clockInternal" checked />
+					&nbsp;&nbsp;MIDI Clock&nbsp;<input type="radio" name="radioClock" value="midi" id="clockMidi" />
+				</td>
+			</tr>
+			<tr id="rowMidiPort" style="display:none">
+				<td>Port MIDI IN :</td>
+				<td colspan="3">
+					<select id="selectMidiPort" style="width:300px;">
+						<option value="">— tous les ports —</option>
+					</select>
+					<button onclick="refreshMidiPorts()" style="margin-left:6px;">↻</button>
+				</td>
+			</tr>
 			<tr ><td colspan="4"> <b>PDF</b> </td></tr>
 			<tr ><td >Page </td><td id="pagePdf"  ><div style="margin:20px;" ><select id="selectPage" size="1"  >
 			<option value="1" >A4</option>
@@ -409,6 +427,7 @@ function defongletExt(e) {
 	document.getElementById("panPalette").style.display="none";
 	document.getElementById("panExt").style.display="block";
 	refreshAudioDevices();
+	if (document.getElementById("clockMidi").checked) refreshMidiPorts();
 }
 
 async function refreshAudioDevices() {
@@ -446,6 +465,31 @@ function onAudioDeviceChange() {
 	paramExterne.audioDeviceIndex = val === "" ? null : parseInt(val);
 	window.api.setAudioDevice(paramExterne.audioDeviceIndex);
 }
+
+async function refreshMidiPorts() {
+	const sel = document.getElementById("selectMidiPort");
+	const prev = sel.value;
+	sel.innerHTML = "<option value=''>— tous les ports —</option>";
+	if (!navigator.requestMIDIAccess) return;
+	try {
+		const access = await navigator.requestMIDIAccess({ sysex: false });
+		for (const input of access.inputs.values()) {
+			const opt = document.createElement("option");
+			opt.value = input.name;
+			opt.textContent = input.name;
+			if (input.name === prev) opt.selected = true;
+			sel.appendChild(opt);
+		}
+	} catch(e) { console.warn("MIDI access:", e); }
+}
+
+document.getElementById("clockMidi").addEventListener('change', function() {
+	document.getElementById("rowMidiPort").style.display = '';
+	refreshMidiPorts();
+});
+document.getElementById("clockInternal").addEventListener('change', function() {
+	document.getElementById("rowMidiPort").style.display = 'none';
+});
 function closeConfigProjet() {
 	exportProjet()
 	window.api.send("toMain", 'configClose')
@@ -1071,6 +1115,8 @@ function externeRestore() {
 	pdfBkg:0,
 	editAudioCmd:'audacity',
 	audioDeviceIndex:null,
+	clockMode:'internal',
+	midiClockPort:'',
 	}
 }
 function importExterne(txt){
@@ -1102,6 +1148,15 @@ function configExterne(txt) {
 	}else{
 		document.getElementById("pdfBkg1").checked=true
 	}
+	const isMidi = (paramExterne.clockMode === 'midi');
+	document.getElementById("clockInternal").checked = !isMidi;
+	document.getElementById("clockMidi").checked = isMidi;
+	document.getElementById("rowMidiPort").style.display = isMidi ? '' : 'none';
+	if (isMidi) {
+		refreshMidiPorts().then(() => {
+			document.getElementById("selectMidiPort").value = paramExterne.midiClockPort || '';
+		});
+	}
 }
 function defExterne(txt) {
 	paramExterne.editor=document.getElementById("defEditor").value;
@@ -1131,6 +1186,8 @@ function defExterne(txt) {
 	paramExterne.editAudioCmd=document.getElementById("audioEditor").value;
 	const selDev = document.getElementById("selectAudioDevice").value;
 	paramExterne.audioDeviceIndex = selDev === "" ? null : parseInt(selDev);
+	paramExterne.clockMode = document.getElementById("clockMidi").checked ? 'midi' : 'internal';
+	paramExterne.midiClockPort = document.getElementById("selectMidiPort").value;
 }
 
 /* ************************************************* palette *************************************** */

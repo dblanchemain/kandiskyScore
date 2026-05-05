@@ -75,9 +75,10 @@ const clockManager = {
     }
   },
 
-  // Initialise l'accès MIDI, attache les handlers sur tous les ports IN.
+  // Initialise l'accès MIDI, attache les handlers sur les ports IN.
+  // portName : si fourni, n'écoute que ce port ; sinon écoute tous.
   // Résout en tableau de { id, name } — vide si MIDI indisponible.
-  async setupMIDI() {
+  async setupMIDI(portName) {
     if (!navigator.requestMIDIAccess) {
       console.warn('[clockManager] Web MIDI API non disponible dans cet environnement');
       return [];
@@ -86,6 +87,7 @@ const clockManager = {
       const access = await navigator.requestMIDIAccess({ sysex: false });
       const ports = [];
       for (const input of access.inputs.values()) {
+        if (portName && input.name !== portName) continue;
         input.onmidimessage = (msg) => this._onMidiMsg(msg);
         ports.push({ id: input.id, name: input.name });
       }

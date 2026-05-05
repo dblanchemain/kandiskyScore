@@ -2726,6 +2726,8 @@ function importExterne(txt){
 	}else{
 			document.getElementById("read3d").src="./images/png/Ardour-icon.png";
 	}
+	clockManager.mode = (defc.clockMode === 'midi') ? 'midi' : 'internal';
+	if (clockManager.mode === 'midi') clockManager.setupMIDI(defc.midiClockPort || '');
 }
 function spatialspXZ(id,pt,X,Z) {
 	tableObjet[id].spX[pt]=parseFloat(X);
