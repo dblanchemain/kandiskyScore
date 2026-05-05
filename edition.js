@@ -253,7 +253,6 @@ function reGrouper(e){
 		if(tableObjet[objActif].class==1 || tableObjet[tableObjet[objActif].groupe].class==4){
 			let sgrp=[];
 			objActif=tableObjet[objActif].groupe;
-	console.log(tableObjet[objActif]);
 			for(let i=0;i<tableObjet.length;i++){
 				if(tableObjet[i].etat==1 && tableObjet[i].groupe==objActif){
 					sgrp.push(i);
