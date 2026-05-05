@@ -812,7 +812,7 @@ function scaleGrpValid(){
 	if(lsgrp.length>1){
 		var cl=0;
 		for(let i=0;i<lsgrp.length;i++){
-			if(tableObjet[lsgrp[i]].false ){
+			if(tableObjet[lsgrp[i]].class==2){
 				cl=2;
 				break;
 			}

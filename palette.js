@@ -3670,8 +3670,8 @@ function pasteObjet(obj,copyX,copyY){
 			tableObjet[objActif].x2=tableObjet[obj].x2;
 			tableObjet[objActif].y2=tableObjet[obj].y2;
 			graphGlissando(objActif);
-			dragElement(document.getElementById('p1'+nbObjets));
-			dragElement(document.getElementById('sglis'+nbObjets));
+			dragElement(document.getElementById('p1'+objActif));
+			dragElement(document.getElementById('sglis'+objActif));
 			break;
 		case 12:
 			graphBlock(objActif);
@@ -4208,6 +4208,8 @@ function pasteGrp(obj,copyX,copyY){
 		nom:tableObjet[obj].nom,
 		objBorderC:tableObjet[obj].objBorderC,
 		objBorderW:tableObjet[obj].objBorderW,
+		objColor:tableObjet[obj].objColor,
+		objOpacity:tableObjet[obj].objOpacity,
 		posX:copyX,
 		posY:copyY,
 		scaleX:tableObjet[obj].scaleX,
