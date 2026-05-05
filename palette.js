@@ -3579,7 +3579,7 @@ function pasteObjet(obj,copyX,copyY){
 		class:tableObjet[obj].class,
 		convolver:tableObjet[obj].convolver,
 		debut:tableObjet[obj].debut,
-		detune:tableObjet[obj].fin,
+		detune:tableObjet[obj].detune,
 		duree:tableObjet[obj].duree,
 		fadeIn:tableObjet[obj].fadeIn,
 		fadeOut:tableObjet[obj].fadeOut,
