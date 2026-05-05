@@ -33,10 +33,18 @@ function _captureSnap(ids, type) {
   })};
 }
 
+function _updateUndoButtons() {
+  const u = document.getElementById('btnUndo');
+  const r = document.getElementById('btnRedo');
+  if (u) u.style.opacity = _undoStack.length > 0 ? '1' : '0.3';
+  if (r) r.style.opacity = _redoStack.length > 0 ? '1' : '0.3';
+}
+
 function pushUndo(ids, type) {
   _undoStack.push(_captureSnap(ids, type));
   if (_undoStack.length > _UNDO_MAX) _undoStack.shift();
   _redoStack.length = 0;
+  _updateUndoButtons();
 }
 
 function _redrawObj(id) {
@@ -85,6 +93,7 @@ function undo() {
   const snap = _undoStack.pop();
   _redoStack.push(_captureSnap(snap.objects.map(o => o.id), snap.type));
   _applySnap(snap);
+  _updateUndoButtons();
 }
 
 function redo() {
@@ -92,6 +101,7 @@ function redo() {
   const snap = _redoStack.pop();
   _undoStack.push(_captureSnap(snap.objects.map(o => o.id), snap.type));
   _applySnap(snap);
+  _updateUndoButtons();
 }
 
 /* ******************************************* Edition ****************************************************************** */
