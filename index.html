@@ -247,6 +247,10 @@
 		<div id="output" style="display:block;"></div>
 		<div id="output2" style="display:none;"></div>
 	<div style="text-align:center">
+		<img id="btnUndo" src="./images/png/undo.png" style="width:28px;cursor:pointer;opacity:0.8;" onclick="undo();" title="Annuler (Ctrl+Z)"/>
+		<img id="btnRedo" src="./images/png/redo.png" style="width:28px;cursor:pointer;opacity:0.8;" onclick="redo();" title="Rétablir (Ctrl+Y)"/>
+	</div>
+	<div style="text-align:center">
 		<span  id="pcouleur" onclick="defGrpColor();"><svg width='20' height='40'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ><circle id="circle" cx='10' cy='35' r='10' fill='green' transform='scale(0.8 0.8)'/></svg></span>
 		<span  id="toutEnBas" onclick="zToutBas();"><svg width='34' height='30' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'  ><g transform="translate(-8 0) scale(1 1)"><line x1=16 y1=6 x2=16 y2=24  stroke='#f26e07' stroke-width='6' /><polyline points='8,22 16,30 24,22 8,22' fill='#f26e07'   /><line x1='25' y1='10' x2='40' y2='10' stroke='#000000' stroke-width='1' /><line x1='25' y1='13' x2='40' y2='13' stroke='#000000' stroke-width='1' /><line x1='25' y1='16' x2='40' y2='16' stroke='#000000' stroke-width='1' /><line x1='25' y1='19' x2='40' y2='19' stroke='#000000' stroke-width='1' /><line x1='23' y1='24' x2='40' y2='24' stroke='#23a7f0' stroke-width='4' /></g></svg></span>
 		<span  id="descendre"  onclick="zToutBas();"><svg width='34' height='30'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ><g transform="translate(-8 0) scale(1 1)"><line x1=16 y1=6 x2=16 y2=24  stroke='#f26e07' stroke-width='6' /><polyline points='8,22 16,30 24,22 8,22' fill='#f26e07'   /><line x1='25' y1='10' x2='40' y2='10' stroke='#000000' stroke-width='1' /><line x1='25' y1='13' x2='40' y2='13' stroke='#000000' stroke-width='1' /><line x1='25' y1='17' x2='40' y2='17' stroke='#23a7f0' stroke-width='4' /><line x1='25' y1='21' x2='40' y2='21' stroke='#000000' stroke-width='1' /><line x1='23' y1='24' x2='40' y2='24' stroke='#000000' stroke-width='1' /></g></svg></span>
