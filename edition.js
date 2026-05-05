@@ -12,6 +12,88 @@
 
 
 
+/* ******************************************* Undo / Redo *********************************************************** */
+const _undoStack = [];
+const _redoStack = [];
+const _UNDO_MAX  = 20;
+
+const _SNAP_PROPS = {
+  color: ['objColor'],
+  forme: ['type', 'bkgWidth', 'bkgHeight', 'width', 'height', 'cx', 'cy', 'r', 'rx', 'ry', 'scaleY2', 'bkgTrp'],
+  scale: ['posX', 'posY', 'scaleX', 'scaleY', 'bkgWidth', 'bkgHeight', 'x2', 'y2', 'x3', 'y3'],
+  align: ['posX', 'posY']
+};
+
+function _captureSnap(ids, type) {
+  return { type, objects: ids.map(id => {
+    const props = {};
+    for (const p of _SNAP_PROPS[type])
+      if (tableObjet[id] !== undefined && tableObjet[id][p] !== undefined) props[p] = tableObjet[id][p];
+    return { id, props };
+  })};
+}
+
+function pushUndo(ids, type) {
+  _undoStack.push(_captureSnap(ids, type));
+  if (_undoStack.length > _UNDO_MAX) _undoStack.shift();
+  _redoStack.length = 0;
+}
+
+function _redrawObj(id) {
+  const o = tableObjet[id];
+  if (o.class === 3) { redrawArpege(id); return; }
+  const el = document.getElementById('objet' + id);
+  if (el) document.getElementById('space').removeChild(el);
+  switch (parseInt(o.type)) {
+    case 1:  graphCircle(id);       break;
+    case 2:  graphCarre(id);        break;
+    case 3:  graphTriangle(id);     break;
+    case 4:  graphEllipse(id);      break;
+    case 5:  graphRectangle(id);    break;
+    case 6:  graphTriangleLong(id); break;
+    case 7:  graphRondLong(id);     break;
+    case 8:  graphCarreLong(id);    break;
+    case 10: graphLigne(id);        break;
+  }
+  dragElement(document.getElementById(o.id));
+  document.getElementById(o.id).addEventListener('mouseup', selectBkgObj);
+  document.getElementById('objet' + id).style.top  = o.posY + 'px';
+  document.getElementById('objet' + id).style.left = o.posX + 'px';
+}
+
+function _applySnap(snap) {
+  const savedObj = objActif, savedSel = selectObj;
+  for (const { id, props } of snap.objects) {
+    Object.assign(tableObjet[id], props);
+    objActif  = id;
+    selectObj = tableObjet[id].id;
+    if (snap.type === 'color') {
+      defColorM(props.objColor);
+    } else if (snap.type === 'forme' || snap.type === 'scale') {
+      _redrawObj(id);
+    } else if (snap.type === 'align') {
+      document.getElementById(tableObjet[id].id).style.top  = props.posY + 'px';
+      document.getElementById(tableObjet[id].id).style.left = props.posX + 'px';
+    }
+  }
+  objActif  = savedObj;
+  selectObj = savedSel;
+}
+
+function undo() {
+  if (_undoStack.length === 0) return;
+  const snap = _undoStack.pop();
+  _redoStack.push(_captureSnap(snap.objects.map(o => o.id), snap.type));
+  _applySnap(snap);
+}
+
+function redo() {
+  if (_redoStack.length === 0) return;
+  const snap = _redoStack.pop();
+  _undoStack.push(_captureSnap(snap.objects.map(o => o.id), snap.type));
+  _applySnap(snap);
+}
+
 /* ******************************************* Edition ****************************************************************** */
 let copySelect=[];
 
@@ -257,6 +339,7 @@ function defColorMenu(e) {
 	if(grpSelect==1){
 		lsgrp=[];
 		lsgrp=[].concat(preservSelect);
+		pushUndo(lsgrp, 'color');
 		for(let i=0;i<lsgrp.length;i++){
 			objActif=lsgrp[i];
 			selectObj="objet"+objActif;
@@ -268,9 +351,10 @@ function defColorMenu(e) {
 	}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
 			lsgrp=[];
 			lsgrp=[].concat(tableObjet[objActif].liste);
+			pushUndo(lsgrp, 'color');
 			var svi=objActif;
 			var svo="grp"+svi;
-			
+
 			for(let i=0;i<lsgrp.length;i++){
 				objActif=lsgrp[i];
 				selectObj="objet"+objActif;
@@ -529,16 +613,19 @@ function retObjetPaletteA(id,f) {
 function retObjetPalette(f) {
 	document.getElementById("fenetreFlot").style.display="none";
 	if(grpSelect==1){
+		pushUndo(lsgrp, 'forme');
 		for(let i=0;i<lsgrp.length;i++){
 			tableObjet[lsgrp[i]].type=f;
 			retObjetPaletteA(lsgrp[i],f);
-		}	
+		}
 	}else{
 		if(tableObjet[objActif].class==1) {
+			pushUndo([objActif], 'forme');
 			retObjetPaletteA(objActif,f);
 		}else if(tableObjet[objActif].class==2 || tableObjet[objActif].class==4){
 				let lsgrp=[];
 				lsgrp=[].concat(tableObjet[objActif].liste);
+				pushUndo(lsgrp, 'forme');
 				var savobjActif=objActif;
 				var savselectObj=selectObj;
 				for(let i=0;i<lsgrp.length;i++){
@@ -558,6 +645,7 @@ function retObjetPalette(f) {
 
 function topAlign(){
 	if(grpSelect==1){
+		pushUndo(lsgrp, 'align');
 		for(let i=0;i<lsgrp.length;i++){
 			tableObjet[lsgrp[i]].posY=parseInt(document.getElementById("grpSelect").style.top);
 			document.getElementById(tableObjet[lsgrp[i]].id).style.top=document.getElementById("grpSelect").style.top;
@@ -576,6 +664,7 @@ function topAlign(){
 }
 function leftAlign(){
 	if(grpSelect==1){
+		pushUndo(lsgrp, 'align');
 		for(let i=0;i<lsgrp.length;i++){
 			tableObjet[lsgrp[i]].posX=parseInt(document.getElementById("grpSelect").style.left);
 			document.getElementById(tableObjet[lsgrp[i]].id).style.left=document.getElementById("grpSelect").style.left;
@@ -597,6 +686,7 @@ function leftAlign(){
 function bottomAlign(){
 	var ydiff=0;
 	if(grpSelect==1){
+		pushUndo(lsgrp, 'align');
 		for(let i=0;i<lsgrp.length;i++){
 			var id=tableObjet[lsgrp[i]].id;
 			var y1d=parseInt(document.getElementById("grpSelect").style.top)+parseInt(document.getElementById("grpSelect").style.height);
@@ -626,6 +716,7 @@ function bottomAlign(){
 function rightAlign(){
 	var ydiff=0;
 	if(grpSelect==1){
+		pushUndo(lsgrp, 'align');
 		for(let i=0;i<lsgrp.length;i++){
 			var id=tableObjet[lsgrp[i]].id;
 			var y1d=parseInt(document.getElementById("grpSelect").style.left)+parseInt(document.getElementById("grpSelect").style.width);
@@ -703,6 +794,7 @@ function scaleGrpValid(){
 	}else{
 		lsgrp=[].concat(tableObjet[objActif].liste);
 	}
+	pushUndo(lsgrp, 'scale');
 	if(lsgrp.length>1){
 		var cl=0;
 		for(let i=0;i<lsgrp.length;i++){

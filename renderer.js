@@ -952,6 +952,8 @@ window.addEventListener(
 	  	if(event.key=="Delete"){
 	  		couper();
 	  	}
+	  	if(event.ctrlKey && event.key==='z'){ undo(); event.preventDefault(); }
+	  	if(event.ctrlKey && event.key==='y'){ redo(); event.preventDefault(); }
   	},
   true,
 );
