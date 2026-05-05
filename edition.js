@@ -85,10 +85,16 @@ function _redrawObj(id) {
       break;
     case 21: graphNuage(id);        break;
   }
-  dragElement(document.getElementById(o.id));
-  document.getElementById(o.id).addEventListener('mouseup', selectBkgObj);
-  document.getElementById('objet' + id).style.top  = o.posY + 'px';
-  document.getElementById('objet' + id).style.left = o.posX + 'px';
+  const domEl = document.getElementById(o.id);
+  if (domEl) {
+    dragElement(domEl);
+    domEl.addEventListener('mouseup', selectBkgObj);
+  }
+  const domObjet = document.getElementById('objet' + id);
+  if (domObjet) {
+    domObjet.style.top  = o.posY + 'px';
+    domObjet.style.left = o.posX + 'px';
+  }
 }
 
 function _applySnap(snap) {
@@ -102,8 +108,11 @@ function _applySnap(snap) {
     } else if (snap.type === 'forme' || snap.type === 'scale') {
       _redrawObj(id);
     } else if (snap.type === 'align') {
-      document.getElementById(tableObjet[id].id).style.top  = props.posY + 'px';
-      document.getElementById(tableObjet[id].id).style.left = props.posX + 'px';
+      const domAlign = document.getElementById(tableObjet[id].id);
+      if (domAlign) {
+        domAlign.style.top  = props.posY + 'px';
+        domAlign.style.left = props.posX + 'px';
+      }
     }
   }
   objActif  = savedObj;
