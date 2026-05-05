@@ -25,6 +25,8 @@ let dureePlayer=0;
 let tableListSource=[];
 let timer;
 
+const clockWorker = new Worker('./clockWorker.js');
+clockWorker.onmessage = () => foo();
 
 document.getElementById("simpleSpeaker").addEventListener('click',readSimpleAudio);
 document.getElementById("actualiseObj").addEventListener('click',actualiseObjets);
@@ -75,7 +77,7 @@ function readPart(){
 	}else{
 		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
 		playerStat=0;
-		//clearTimeout(timer);
+		clockWorker.postMessage({ type: 'stop' });
 		//multiStop();
 		window.api.send("toMain", 'killPlay');
 		if(vueStudio==1 ){
@@ -225,7 +227,7 @@ function foo() {
 	 }
 	 
 		 if(parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)<maxDuree){
-	    	timer=setTimeout(foo, delay);
+	    	clockWorker.postMessage({ type: 'next', delay });
 	    } else {
 	    	// Fin du score : arrêter toutes les voix audio
 	    	playerStat=0;
@@ -759,6 +761,7 @@ function readGrpAudio(){
 			  			sourceStat=0;
 			  			console.log("source end");
 			  				clearTimeout(timer);
+			  				clockWorker.postMessage({ type: 'stop' });
 	  						playerStat=0;
 
 					};
