@@ -51,7 +51,7 @@ function _redrawObj(id) {
   const o = tableObjet[id];
   if (o.class === 3) { redrawArpege(id); return; }
   const el = document.getElementById('objet' + id);
-  if (el) document.getElementById('space').removeChild(el);
+  if (el && el.parentNode) el.parentNode.removeChild(el);
   switch (parseInt(o.type)) {
     case 1:  graphCircle(id);       break;
     case 2:  graphCarre(id);        break;
@@ -62,6 +62,28 @@ function _redrawObj(id) {
     case 7:  graphRondLong(id);     break;
     case 8:  graphCarreLong(id);    break;
     case 10: graphLigne(id);        break;
+    case 12: graphBlock(id);        break;
+    case 13: graphDecresc(id);
+      dragElement(document.getElementById('pcrv1'+id));
+      dragElement(document.getElementById('pcrv2'+id));
+      dragElement(document.getElementById('plen'+id));
+      break;
+    case 14: graphDecrescb(id);
+      dragElement(document.getElementById('pcrv1'+id));
+      dragElement(document.getElementById('pcrv2'+id));
+      dragElement(document.getElementById('plen'+id));
+      break;
+    case 15: graphCresc(id);
+      dragElement(document.getElementById('pcrv1'+id));
+      dragElement(document.getElementById('pcrv2'+id));
+      dragElement(document.getElementById('plen'+id));
+      break;
+    case 16: graphCrescb(id);
+      dragElement(document.getElementById('pcrv1'+id));
+      dragElement(document.getElementById('pcrv2'+id));
+      dragElement(document.getElementById('plen'+id));
+      break;
+    case 21: graphNuage(id);        break;
   }
   dragElement(document.getElementById(o.id));
   document.getElementById(o.id).addEventListener('mouseup', selectBkgObj);
@@ -495,7 +517,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].height=tableObjet[id].width;
 					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphCircle(id);
 					
 					break;
@@ -506,7 +528,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].height=tableObjet[id].width;
 					var obj=document.getElementById("objet"+id);
 					tableObjet[id].bkgTrp=false;
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphCarre(id);
 					break;
 				case 3:
@@ -516,7 +538,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].height=30;
 					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphTriangle(id);
 					break;
 				case 4:
@@ -528,7 +550,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].height=20;
 					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphEllipse(id);
 					break;
 				case 5:
@@ -539,7 +561,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].bkgTrp=false;
 					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphRectangle(id);
 					break;
 				case 6:
@@ -549,7 +571,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].height=10;
 					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphTriangleLong(id);
 					break;
 				case 7:
@@ -563,7 +585,7 @@ function retObjetPaletteA(id,f) {
 						tableObjet[id].scaleY2=1;
 					}
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphRondLong(id);
 					break;	
 				case 8:
@@ -576,7 +598,7 @@ function retObjetPaletteA(id,f) {
 						tableObjet[id].scaleY2=1;
 					}
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphCarreLong(id);	
 					break;
 				case 10:
@@ -586,7 +608,7 @@ function retObjetPaletteA(id,f) {
 					tableObjet[id].height=6;
 					tableObjet[id].bkgTrp=false;
 					var obj=document.getElementById("objet"+id);
-					document.getElementById("space").removeChild(obj);
+					if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 					graphLigne(id);
 					break;
 			}
@@ -824,7 +846,7 @@ function scaleGrpValid(){
 								
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphCircle(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -839,7 +861,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphCarre(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -854,7 +876,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphTriangle(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -869,7 +891,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphEllipse(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -884,7 +906,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphRectangle(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -899,7 +921,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphTriangleLong(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -914,7 +936,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphRondLong(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -929,7 +951,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphCarreLong(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -944,7 +966,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphCrescr(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);	
@@ -959,7 +981,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphLigne(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -974,7 +996,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphBlock(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
@@ -989,7 +1011,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphDecresc(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							dragElement(document.getElementById('pcrv1'+id));
@@ -1007,7 +1029,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphDecrescb(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							dragElement(document.getElementById('pcrv1'+id));
@@ -1025,7 +1047,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphCresc(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							dragElement(document.getElementById('pcrv1'+id));
@@ -1043,7 +1065,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphCrescb(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							dragElement(document.getElementById('pcrv1'+id));
@@ -1061,7 +1083,7 @@ function scaleGrpValid(){
 								tableObjet[lsgrp[i]].posY=((tableObjet[lsgrp[i]].posY-posY)*tableObjet[id].scaleY)+posY;
 							}
 							var obj=document.getElementById("objet"+id);
-							document.getElementById("space").removeChild(obj);
+							if(obj && obj.parentNode) obj.parentNode.removeChild(obj);
 							graphNuage(id);
 							dragElement(document.getElementById(tableObjet[id].id));
 							document.getElementById(tableObjet[id].id).addEventListener('mouseup',selectBkgObj);
