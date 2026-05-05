@@ -1,19 +1,103 @@
-// Horloge maître basée sur AudioContext.currentTime.
-// La position de la barre est calculée depuis le temps audio réel,
-// éliminant la dérive cumulée du comptage de ticks (±50ms → ~0.02ms).
-// Le Web Worker (clockWorker.js) assure la cadence ; clockManager fournit la position.
+// Horloge maître — deux modes : 'internal' (AudioContext) | 'midi' (MIDI Clock IN)
+//
+// Mode internal : position calculée depuis contextAudio.currentTime (drift-free).
+// Mode midi     : position avancée par les pulses MIDI Clock (24 PPQN).
+//                 Le transport Start/Continue/Stop MIDI pilote readPart().
+//                 Le BPM est affiché en temps réel, moyenné sur 8 pulses.
 const clockManager = {
+  mode: 'internal', // 'internal' | 'midi'
+
+  // --- Mode interne ---
   _startAudioTime: 0,
   _startBarLeft: 0,
+
+  // --- Mode MIDI ---
+  _midiBarLeft: 0,
+  _midiRunning: false,
+  _bpmHistory: [],   // intervalles inter-pulse (ms) — moyenne glissante
+  _lastPulseAt: 0,
 
   start(barLeft) {
     this._startAudioTime = contextAudio.currentTime;
     this._startBarLeft = barLeft;
+    if (this.mode === 'midi') {
+      this._midiBarLeft = barLeft;
+      this._midiRunning = true;
+    }
   },
 
-  stop() {},  // réservé pour l'intégration rAF (étape future)
+  stop() {
+    if (this.mode === 'midi') this._midiRunning = false;
+  },
 
   barLeft() {
+    if (this.mode === 'midi') return this._midiBarLeft;
     return this._startBarLeft + timeToPixel(contextAudio.currentTime - this._startAudioTime);
+  },
+
+  // --- Traitement des messages MIDI ---
+  _onMidiMsg(msg) {
+    const s = msg.data[0];
+
+    if (s === 0xF8) { // Clock pulse — 24 PPQN
+      if (!this._midiRunning) return;
+      // Avancement de la barre : 1 pulse = 18*zoomScale/24 px (indépendant du BPM)
+      this._midiBarLeft += 18 * zoomScale / 24;
+      // Calcul et affichage du BPM (moyenne glissante sur 8 intervalles)
+      const now = performance.now();
+      if (this._lastPulseAt > 0) {
+        this._bpmHistory.push(now - this._lastPulseAt);
+        if (this._bpmHistory.length > 8) this._bpmHistory.shift();
+        const avgMs = this._bpmHistory.reduce((a, b) => a + b) / this._bpmHistory.length;
+        document.getElementById("tempo").value = (60000 / (avgMs * 24)).toFixed(1);
+      }
+      this._lastPulseAt = now;
+
+    } else if (s === 0xFA) { // Start — retour au début
+      if (playerStat === 1) readPart();              // stop si lecture en cours
+      document.getElementById("barVerticale").style.left = "0px";
+      this._midiRunning = false;
+      this._bpmHistory = [];
+      this._lastPulseAt = 0;
+      readPart();                                    // démarre la lecture
+
+    } else if (s === 0xFB) { // Continue — reprend depuis la position courante
+      if (playerStat === 0) {
+        this._midiRunning = false;
+        this._bpmHistory = [];
+        this._lastPulseAt = 0;
+        readPart();
+      }
+
+    } else if (s === 0xFC) { // Stop
+      if (playerStat === 1) readPart();
+      this._midiRunning = false;
+    }
+  },
+
+  // Initialise l'accès MIDI, attache les handlers sur tous les ports IN.
+  // Résout en tableau de { id, name } — vide si MIDI indisponible.
+  async setupMIDI() {
+    if (!navigator.requestMIDIAccess) {
+      console.warn('[clockManager] Web MIDI API non disponible dans cet environnement');
+      return [];
+    }
+    try {
+      const access = await navigator.requestMIDIAccess({ sysex: false });
+      const ports = [];
+      for (const input of access.inputs.values()) {
+        input.onmidimessage = (msg) => this._onMidiMsg(msg);
+        ports.push({ id: input.id, name: input.name });
+      }
+      if (ports.length === 0) {
+        console.warn('[clockManager] Aucun port MIDI IN détecté');
+      } else {
+        console.log('[clockManager] Ports MIDI IN actifs :', ports.map(p => p.name).join(', '));
+      }
+      return ports;
+    } catch (e) {
+      console.warn('[clockManager] Accès MIDI refusé :', e.message);
+      return [];
+    }
   }
 };
