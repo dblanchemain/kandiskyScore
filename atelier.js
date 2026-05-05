@@ -89,7 +89,10 @@ function createGrp(nom,grp) {
 				scaleY:1.0,
 				width:nwidth,
 			};
-			dragElement(document.getElementById(selectObj));	
+			for(let i=0;i<lsgrp.length;i++){
+				tableObjet[lsgrp[i]].groupe=objActif;
+			}
+			dragElement(document.getElementById(selectObj));
 			document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
 			preservSelect=[].concat(lsgrp);
     	}

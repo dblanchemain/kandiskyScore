@@ -313,8 +313,10 @@ function toutDegrouper(){
 			
 		}
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
-			if(tableObjet[tableObjet[objActif].liste[i]].etat==1  && tableObjet[tableObjet[tableObjet[objActif].liste[i]].groupe].class!=2){
-				tableObjet[tableObjet[objActif].liste[i]].groupe=16777216;
+			var _mid=tableObjet[objActif].liste[i];
+			var _mgrp=tableObjet[_mid].groupe;
+			if(tableObjet[_mid].etat==1 && (_mgrp==16777216 || tableObjet[_mgrp].class!=2)){
+				tableObjet[_mid].groupe=16777216;
 			}
 		}
 		for(let i=0;i<tableObjet[objActif].liste.length;i++){
