@@ -593,7 +593,8 @@ async function objXmlToScore(id,i) {
 		tableFx:_tagVal(org, "tableFx", "").split(','),
 		tableFxParam:_tagVal(org, "tableFxParam", "").split(','),
 		type:parseInt(_tagVal(org, "type")),
-		width:parseFloat(_tagVal(org, "width"))
+		width:parseFloat(_tagVal(org, "width")),
+		flagRevalider:0
 		};
 		
 		console.log(tableObjet[id]);

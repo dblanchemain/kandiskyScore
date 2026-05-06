@@ -130,6 +130,7 @@ function defCadre(obj) {
 	txt=txt+"border-top-color:"+tableObjet[obj].borderHc+";border-top-style:"+tableObjet[obj].borderHs+";border-top-width:"+tableObjet[obj].borderHw+"px;border-top-right-radius:"+tableObjet[obj].borderHr+";";
 	txt=txt+"border-right-color:"+tableObjet[obj].borderDc+";border-right-style:"+tableObjet[obj].borderDs+";border-right-width:"+tableObjet[obj].borderDw+"px;border-bottom-right-radius:"+tableObjet[obj].borderDr+";";
 	txt=txt+"border-bottom-color:"+tableObjet[obj].borderBc+";border-bottom-style:"+tableObjet[obj].borderBs+";border-bottom-width:"+tableObjet[obj].borderBw+"px;border-bottom-left-radius:"+tableObjet[obj].borderBr+";";
+	if(tableObjet[obj].flagRevalider==1) txt=txt+"outline:2px dashed #ff8800;outline-offset:2px;";
 	return txt;
 }
 function graphCircle(objActif){
@@ -571,6 +572,7 @@ async function defSelectImg(rt){
 		type:23,
 		vueDuree:0,
 		width:50,
+		flagRevalider:0
 	};
 	nbObjets++;
 	var nfile=tableObjet[objActif].img.split("/");
@@ -685,6 +687,7 @@ function selectobjet(objType,bkgc){
 			type:objType,
 			vueDuree:0,
 			width:20,
+			flagRevalider:0
 		};
 		switch(objType){
 			case 1:
@@ -2287,6 +2290,7 @@ function selectSymboleb(objType,bkgc){
 		borderHw:0,
 		class:3,
 		etat:1,
+		flagRevalider:0,
 		height:20,
 		id:selectObj,
 		groupe:16777216,
@@ -3517,6 +3521,7 @@ function selectGrp(objType){
 		borderHw:1,
 		class:4,
 		etat:1,
+		flagRevalider:0,
 		height:(parseInt(dc.style.height)+8),
 		id:selectObj,
 		groupe:16777216,
@@ -3619,7 +3624,8 @@ function pasteObjet(obj,copyX,copyY){
 		type:tableObjet[obj].type,
 		vueDuree:tableObjet[obj].duree,
 		width:tableObjet[obj].width,
-		reverse:tableObjet[obj].reverse
+		reverse:tableObjet[obj].reverse,
+		flagRevalider:0
 	};
 	defCadre(obj);
 	

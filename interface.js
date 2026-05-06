@@ -1375,31 +1375,37 @@ console.log('resultat',gainPoints,resultat);
     */
   }
 }
+function flaguerTousRevalider() {
+	for(let i=0;i<tableObjet.length;i++){
+		const obj=tableObjet[i];
+		if(obj && obj.file){
+			obj.flagRevalider=1;
+			const el=document.getElementById(obj.id);
+			if(el) el.style.outline='2px dashed #ff8800';
+		}
+	}
+}
 function drawTempo() {
-	
+
 	var txt="";
 	for(i=0;i<tempoPoints.length;i++){
 		 txt=txt+tempoPoints[i].X+","+tempoPoints[i].Y+" ";
 	}
 	var newStr = txt.substring(0, txt.length - 1);
  	document.getElementById("lineTempo").setAttribute("points",newStr);
- 	
- 		//document.getElementById("wtempo").firstChild.appendChild(dupnode2)
- 		
- 		
+	flaguerTousRevalider();
+
 }
 function drawGain() {
-	
+
 	var txt="";
 	for(i=0;i<gainPoints.length;i++){
 		 txt=txt+gainPoints[i].X+","+gainPoints[i].Y+" ";
 	}
 	var newStr = txt.substring(0, txt.length - 1);
  	document.getElementById("lineGain").setAttribute("points",newStr);
- 	
- 		//document.getElementById("wtempo").firstChild.appendChild(dupnode2)
- 		
- 		
+	flaguerTousRevalider();
+
 }
 function buildLiaisonPath(h){
 	var nL=63.578052;

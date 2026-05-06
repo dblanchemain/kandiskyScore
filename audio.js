@@ -1301,7 +1301,11 @@ async function readSimpleAudioA(id,mode) {
    	 await postRubberband(id,mode,window.api.joinPath(`${baseDatatPath}`,"renduout.wav"));
    	 console.log("[pipeline] saved → no rubber");
 	 }
-    
+
+	tableObjet[id].flagRevalider=0;
+	const _elRev=document.getElementById(tableObjet[id].id);
+	if(_elRev) _elRev.style.outline='';
+
     return true;
 }
 async function endTrim(renderedBuffer, nsecondes) {
