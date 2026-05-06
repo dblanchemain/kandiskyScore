@@ -2481,8 +2481,6 @@ function importConfigProjet(){
 	vueSvgGrille=paramProjet.svgGrille===true||paramProjet.svgGrille==="true";
 	spaceSeconde=paramProjet.spaceSeconde===true||paramProjet.spaceSeconde==="true";
 	svgSeconde=paramProjet.svgSeconde===true||paramProjet.svgSeconde==="true";
-	
-	console.warn("TYPE console.log =", typeof console.log);
 
 	// Remet wamSpat à null pour forcer l'attente de la nouvelle compilation
 	// (ex: changement d'ordre HOA dans les préférences)
