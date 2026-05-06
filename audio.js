@@ -35,6 +35,8 @@ document.getElementById("sliderTempo").addEventListener('input',sliderTempo);
 document.getElementById("renderPlay").addEventListener('click',player);
 
 let maxDuree=0;
+let _playToFin=false;
+let _stopAtFinPx=-1;
 
 function readPart(){
 	let nbp=0;
@@ -51,6 +53,12 @@ function readPart(){
 	
 	if(playerStat==0){
 		playerStat=1;
+		if(_playToFin){
+			_stopAtFinPx=parseInt(document.getElementById("barFin").style.left);
+			_playToFin=false;
+		}else{
+			_stopAtFinPx=-1;
+		}
 		buildPlaylist(lsgrp);
 		maxDuree = tableListSource.reduce((m, src) => Math.max(m, src.end), 0);
 		// Si la barre est déjà après la fin du score, revenir au début
@@ -83,6 +91,8 @@ function readPart(){
 	}else{
 		document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
 		playerStat=0;
+		_stopAtFinPx=-1;
+		_playToFin=false;
 		clockWorker.postMessage({ type: 'stop' });
 		clockManager.stop();
 		//multiStop();
@@ -107,6 +117,7 @@ function playerPrec(){
 	document.getElementById("barVerticale").style.left=(parseInt(document.getElementById("barDebut").style.left)+35)+"px";
 	tmp=(parseInt(document.getElementById("barVerticale").style.left)*(720/12960));
 	defTime("barVerticale");
+	_playToFin=true;
 }
 function playerSuiv(){
 	document.getElementById("barVerticale").style.left=(parseInt(document.getElementById("barFin").style.left)-4)+"px";
@@ -229,11 +240,14 @@ function foo() {
 	 	 curTempo++;
 	 }
 	 
-		 if(parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)<maxDuree){
+		const _barPx=parseFloat(document.getElementById("barVerticale").style.left);
+		const _atFin=_stopAtFinPx>=0 && _barPx>=_stopAtFinPx;
+		if(!_atFin && _barPx/(18*zoomScale)<maxDuree){
 	    	clockWorker.postMessage({ type: 'next', delay: 25 });
 	    } else {
-	    	// Fin du score : arrêter toutes les voix audio
+	    	// Fin du score ou fin de région début→fin
 	    	playerStat=0;
+	    	_stopAtFinPx=-1;
 	    	clockManager.stop();
 	    	window.api.send("toMain", "killPlay");
 	    	document.getElementById("play3").firstChild.firstChild.setAttribute('d','M0,40 0,5 30,20 0,35');
