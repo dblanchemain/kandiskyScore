@@ -3146,6 +3146,7 @@ var wtxt3 = "createObjet(45,1,1,5,'red');\
 	cadreSymb(objActif,'solid',4,'0%','#ff0000');\
 	bkgSymb(objActif,'ibkg','true',1,60,60,'#eeaaaa');\
 	createGroupe('#0000ff','0,1');\
+	";
 
 
 function testInterpreteur(name){
