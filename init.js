@@ -16,6 +16,7 @@ let tempoPoints=[];
 let gainPoints=[];
 let exortTable=[];
 let selectObjet='';
+let selectObj='';
 let objActif=1048576;
 let nbObjets=0;
 let saveObjet={};
