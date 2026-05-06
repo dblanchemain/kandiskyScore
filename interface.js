@@ -1375,6 +1375,29 @@ console.log('resultat',gainPoints,resultat);
     */
   }
 }
+function restoreTempoPoints(str) {
+	var wt=document.getElementById("wtempo");
+	tempoPoints.forEach(p=>{ var el=document.getElementById(p.id); if(el) wt.removeChild(el); });
+	tempoPoints=[];
+	nbTempoPoints=0;
+	str.split(";").forEach(function(s){
+		var pt=s.split(":");
+		if(pt.length===3) tempoInitPoint(pt[0],parseFloat(pt[1]),parseFloat(pt[2]));
+	});
+	drawTempo();
+	defTempoFoo();
+}
+function restoreGainPoints(str) {
+	var wt=document.getElementById("wtempo");
+	gainPoints.forEach(p=>{ var el=document.getElementById(p.id); if(el) wt.removeChild(el); });
+	gainPoints=[];
+	nbGainPoints=0;
+	str.split(";").forEach(function(s){
+		var pt=s.split(":");
+		if(pt.length===3) gainInitPoint(pt[0],parseFloat(pt[1]),parseFloat(pt[2]));
+	});
+	drawGain();
+}
 function flaguerTousRevalider() {
 	for(let i=0;i<tableObjet.length;i++){
 		const obj=tableObjet[i];

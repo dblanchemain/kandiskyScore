@@ -285,6 +285,8 @@ function defProjetConf(txt) {
 	<spatmode value='"+(paramProjet.spatMode||"vbap3d")+"'></spatmode>\n\
 	<hoadorder value='"+(paramProjet.hoaOrder||3)+"'></hoadorder>\n\
 	<exportambix value='"+(paramProjet.exportAmbiX?1:0)+"'></exportambix>\n\
+	<tempopoints value='"+tempoPoints.map(p=>p.id+":"+p.X+":"+p.Y).join(";")+"'></tempopoints>\n\
+	<gainpoints value='"+gainPoints.map(p=>p.id+":"+p.X+":"+p.Y).join(";")+"'></gainpoints>\n\
 	</general>\n";
 	txt=txt+"<interface>\n\
 	<palettebkg value='"+paletteBkg+"'></palettebkg>\n\
@@ -1193,6 +1195,11 @@ function defProjetConfig() {
 		exportAmbiX: (obj.getElementsByTagName("exportambix")[0] ? _tagVal(obj, "exportambix") : "0") === "1"
 	};
 	importConfigProjet();
+	var _ks=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
+	var _tpEl=_ks.getElementsByTagName("tempopoints")[0];
+	if(_tpEl) restoreTempoPoints(_tpEl.getAttribute("value"));
+	var _gpEl=_ks.getElementsByTagName("gainpoints")[0];
+	if(_gpEl) restoreGainPoints(_gpEl.getAttribute("value"));
 }
 
 function defInterfaceConfig() {
