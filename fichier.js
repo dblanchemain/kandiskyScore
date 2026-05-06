@@ -1197,9 +1197,18 @@ function defProjetConfig() {
 	importConfigProjet();
 	var _ks=document.getElementById("fichierSave").getElementsByTagName("kandiskyscore")[0];
 	var _tpEl=_ks.getElementsByTagName("tempopoints")[0];
-	if(_tpEl) restoreTempoPoints(_tpEl.getAttribute("value"));
+	if(_tpEl){
+		restoreTempoPoints(_tpEl.getAttribute("value"));
+	}else{
+		var _ty=100-(0.4167*parseFloat(document.getElementById("tempo").value));
+		restoreTempoPoints("tmp0:0:"+_ty+";tmp1:12960:"+_ty);
+	}
 	var _gpEl=_ks.getElementsByTagName("gainpoints")[0];
-	if(_gpEl) restoreGainPoints(_gpEl.getAttribute("value"));
+	if(_gpEl){
+		restoreGainPoints(_gpEl.getAttribute("value"));
+	}else{
+		restoreGainPoints("gna0:0:81;gna1:12960:81");
+	}
 }
 
 function defInterfaceConfig() {
