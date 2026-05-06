@@ -1375,6 +1375,13 @@ console.log('resultat',gainPoints,resultat);
     */
   }
 }
+function resetTempoDefault() {
+	var _ty=100-(0.4167*parseFloat(document.getElementById("tempo").value));
+	restoreTempoPoints("tmp0:0:"+_ty+";tmp1:12960:"+_ty);
+}
+function resetGainDefault() {
+	restoreGainPoints("gna0:0:81;gna1:12960:81");
+}
 function restoreTempoPoints(str) {
 	var wt=document.getElementById("wtempo");
 	tempoPoints.forEach(p=>{ var el=document.getElementById(p.id); if(el) wt.removeChild(el); });
