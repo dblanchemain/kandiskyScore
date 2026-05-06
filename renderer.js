@@ -13,11 +13,9 @@ const AppContext = {
 };
 async function initApp() {
   AppContext.paths = await window.api.getPaths();
-  console.log("paths loaded", AppContext.paths);
 }
 (async () => {
 await initApp();
- console.log(AppContext);
 })();
 
 function toAbsPath(p) {
@@ -233,11 +231,9 @@ window.api.receive("fromMain", (data) => {
 				importUconfig();
 				break;
 			case 'audioImport':
-				console.log(`openObjetParam ${data} from param`);
 				window.api.send("toMain", "splitCanaux;"+cmd[4]);
 				break;
 			case 'loadSound':
-				console.log(`openObjetParam ${data} from param`);
 				loadSoundTableBufferB(cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[7]/cmd[6]);
 				break;
 			case 'audioPreDefImport':
@@ -631,7 +627,6 @@ window.api.receive("fromMain", (data) => {
 				renderPartAudio(1);
 				break;
 			case 'exportProjet':
-				console.log(`openObjetParam ${data} from param`);
 				importProjet(cmd[1]);
 				importConfigProjet();
 				upDateWorkSpace(1);
@@ -688,7 +683,6 @@ window.api.receive("fromMain", (data) => {
 				break;
 			case 'defTrajectory':
 				var id=cmd[1];
-				console.log(`obj spatial ${data}`);
 				var table=JSON.parse(cmd[2]);
 				
 				tableObjet[id].spX=table.spX;
@@ -698,7 +692,6 @@ window.api.receive("fromMain", (data) => {
 				for(let i=0;i<table.spX.length;i++){
 					tableObjet[id].spD[i]=1;
 				}
-				console.log("id",cmd[1],table,table.spX,tableObjet[id]);
 				break;
 			case 'createSpatialPoint':
 				createSpatialPoint(cmd[1],cmd[2],cmd[3]);
@@ -832,7 +825,6 @@ window.api.receive("fromMain", (data) => {
 				readSimpleAudioA(cmd[1],0);
 				break;
 			case 'playStop':
-				console.log("playStop");
 				if(tempoPlayerStat===1){ tempoPlayerStat=0; document.getElementById("tempoPlay").src="./images/png/lecture.png"; }
 				if(stretchingPlayerStat===1){ stretchingPlayerStat=0; document.getElementById("stretchingPlay").src="./images/png/lecture.png"; }
 				if(playerStat==1){
@@ -852,7 +844,6 @@ window.api.receive("fromMain", (data) => {
 			case 'processAudio':
 				const processedBufferData = JSON.parse(cmd[1]);
           const processedBuffer = base64ToBuffer(processedBufferData);
-          console.log("AudioBuffer traité reçu :", processedBuffer);
  				break;
  			case 'processRubberband':
 				(async () => {
@@ -886,12 +877,10 @@ window.api.receive("fromMain", (data) => {
 					
 					reader.onloadend = async () => {
 					  const wavArrayBuffer = reader.result;
-					  console.log("audio obj",(audioDirectory+"exports/objet"+cmd[1]+".wav"),exportTable.length);
 					  await window.api.saveAudio('saveAudio',(audioDirectory+"exports/objet"+cmd[1]+".wav"), reader.result); 
 					  if(parseInt(cmd[1])<exportTable.length-1){
 					  	
 					   var obj=parseInt(cmd[1])+1;
-					   console.log("obj",obj);
 					   exportAudioObjet(obj,0);
 					  }
 					}; 
@@ -899,8 +888,6 @@ window.api.receive("fromMain", (data) => {
 				//document.getElementById("renduWav").src=`file://${cmd[1]}?v=${Date.now()}`;
  				break;
  			case "infoFile":
- 				console.log('info',cmd[1],cmd[2],cmd[3]);
- 				console.log("duree",cmd[5]/cmd[4]);
  				
  				break;
 			default :			
@@ -1010,7 +997,6 @@ function selectBkgObj(e){
      	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+getCanauxObjet(objActif)+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
      	 	}
 	      window.api.send("toMain", ntxt );
-	      console.log("ntxt",ntxt);
      	}
      	if (e.target.parentNode.id.substring(0,5)=="objet"){
      		if(e.target.parentNode.id!="space"){
@@ -1036,7 +1022,6 @@ function selectBkgObj(e){
 		     	 	}else{
 		     	 		var ntxt="openObjetParam;"+id+";"+lang+";"+objetParamsToString(objActif)+";"+getCanauxObjet(objActif)+";"+tableObjet[objActif].class+";"+parseFloat(document.getElementById("tempo").value);
 		     	 	}
-		     	 	console.log("ntxt",ntxt);
 	     	 	}
 	     	 	if(tableObjet[objActif].class==3){
 		     	 	var ntxt="openSymbParam;"+id+";"+lang+";"+objetGrapĥToString(objActif)+";"+tableObjet[objActif].type;
@@ -1070,7 +1055,6 @@ function selectBkgObj(e){
 	     	 	window.api.send("toMain", 'objGraphValid');
 
 		      window.api.send("toMain", ntxt );
-		      console.log("ntxt",ntxt);
 	      }else{
 	      	window.api.send("toMain", 'objParamChange');
 	      	objActif=id;
@@ -1086,7 +1070,6 @@ function selectBkgObj(e){
 	      }
 	      
      	}
-     	console.log( tableObjet[objActif],ntxt);
      	if (e.target.parentNode.parentNode.parentNode.id.substring(0,5)=="objet"){
      		if(selectObj!=e.target.parentNode.parentNode.parentNode.id){
      			selectObj=e.target.parentNode.parentNode.parentNode.id;
@@ -1121,7 +1104,6 @@ function selectBkgObj(e){
 		      window.api.send("toMain", ntxt );
    		}
 	     		/*
-     		console.log("type",tableObjet[objActif].type)
      		let id=e.target.id.substring(3)
      		switch(tableObjet[objActif].type) {
      		case 18:	
@@ -1445,7 +1427,6 @@ async function importMulti(url,c,d){
 	var request = new XMLHttpRequest();
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
-    console.log("url",url);
     request.onload = function() {
     	var pathnom=url.split('/');
       contextAudio.decodeAudioData(request.response, function(buffer) {
@@ -1533,7 +1514,6 @@ function defTempo(){
 	if(setSignRegle==true){
 		regSolfege(zoomScale,"reglette",parseFloat(regleFontSize),regleFontColor,regleFontColor,1);
 	}
-	console.log(tempoPoints);
 }
 function audioMute(id,m) {
 	tableObjet[id].mute=m;
@@ -2235,7 +2215,6 @@ function objetPlGauche(id,ml) {
 	tableObjet[id].margeG=parseFloat(ml);
 	switch(tableObjet[id].type) {
 		case 3:
-			console.log('scaleX',tableObjet[id]);			
 			elem.setAttribute('transform',"scale("+tableObjet[id].scaleX+" "+tableObjet[id].scaleY+") translate("+ml+" "+tableObjet[id].margeH+") rotate("+tableObjet[id].rotate+")");
 			break;
 		case 7:
@@ -2260,7 +2239,6 @@ function objetPlHaut(id,mh) {
 	tableObjet[id].margeH=parseFloat(mh);
 	switch(tableObjet[id].type) {
 		case 3:
-			console.log('scaleX',tableObjet[id]);			
 			elem.setAttribute('transform',"scale("+tableObjet[id].scaleX+" "+tableObjet[id].scaleY+") translate("+tableObjet[id].margeG+" "+mh+") rotate("+tableObjet[id].rotate+")");
 			break;
 		case 7:
@@ -2503,7 +2481,6 @@ function importConfigProjet(){
 	vueSvgGrille=paramProjet.svgGrille===true||paramProjet.svgGrille==="true";
 	spaceSeconde=paramProjet.spaceSeconde===true||paramProjet.spaceSeconde==="true";
 	svgSeconde=paramProjet.svgSeconde===true||paramProjet.svgSeconde==="true";
-	console.log('paramProjet',paramProjet);
 	
 	console.warn("TYPE console.log =", typeof console.log);
 
@@ -2755,7 +2732,6 @@ function trajectSpatial(id,X,Y,Z,D,T) {
 	tableObjet[id].spZ=Z;
 	tableObjet[id].spT=T;
 	tableObjet[id].spD=D;
-	console.log(tableObjet[id]);
 }
 function createSpatialPoint(id,pt,t){
 	tableObjet[id].spX[pt]=0;
@@ -2806,7 +2782,6 @@ function fxParam(id) {
 	var wh=listeFx[tableObjet[objActif].tableFx[id]].height
 	openPopup(tableObjet[objActif].tableFx[id],400,200,wd,wh,0,content)
 	var nt=tableObjet[objActif].tableFx[id]
-	console.log('nt',nt)
 	document.getElementById('popup'+nt).style.backgroundColor='#a46345'
 	var doc=document.getElementById('popupContent'+nt).firstChild.getElementsByTagName('div')
 	document.getElementById('popupContent'+nt).firstChild.style.marginTop='10px'
@@ -3083,7 +3058,6 @@ async function waveSvgForm(pos,zoom) {
     const numChannels = rt.numChannels;
     let numSamples = rt.numSamples;
     const sampleRate = rt.sampleRate;
-	 console.log("length",numSamples);
     // Clone des buffers pour traitement
     let currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
     const monoBuffer = await mixToMono(currentChannels);
@@ -3133,7 +3107,6 @@ function host(){
 	}
 }
 function openRead3D() {
-	console.log("cmdDaw",cmdDaw);
 	if(grpSelect==1){
 		exportSelect();
 	}else{
@@ -3150,7 +3123,6 @@ detuneObjet(objActif,0);\
 nameObjet(objActif,'test');\
 reverseObjet(objActif,0);\
 trackObjet(objActif,2);\
-console.log(tableObjet[objActif].posX/(18*zoomScale));\
 timePosObjet(objActif,14);\
 convolObjet(objActif,0);\
 fadeInTypeObjet(objActif,0);\
@@ -3174,7 +3146,6 @@ var wtxt3 = "createObjet(45,1,1,5,'red');\
 	cadreSymb(objActif,'solid',4,'0%','#ff0000');\
 	bkgSymb(objActif,'ibkg','true',1,60,60,'#eeaaaa');\
 	createGroupe('#0000ff','0,1');\
-	console.log(tableObjet);";
 
 
 function testInterpreteur(name){

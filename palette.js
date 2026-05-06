@@ -457,14 +457,12 @@ function graphImage(src) {
 	_divEl.onmouseleave=function(){startHideRszHandle(_actifN);};
 	rszNode.onmouseenter=function(){showRszHandle(_actifN);};
 	rszNode.onmouseleave=function(){startHideRszHandle(_actifN);};
-	console.log(document.getElementById(selectObj));
 }
 function graphSvg() {
 	var dupnode=document.createElement('div');
 	var txt="";
 	/*
 	var box=document.getElementById("fichierSave").getElementsByTagName("svg").getAttribute('viewBox')
-	console.log('viewBox',box)
 	var tbox=box.split(' ');
 	tableObjet[objActif].bkgWidth=tbox[2]
 	tableObjet[objActif].bkgHeight=tbox[3]	
@@ -579,7 +577,6 @@ async function defSelectImg(rt){
 	var mime=nfile[nfile.length-1].split(".");
 	tableObjet[objActif].img=nfile[nfile.length-1];
 	var mimeExt=mime[mime.length-1].toLowerCase();
-	console.log('mime',mimeExt);
 	if(mimeExt=="svg"){
 		// Lire le texte brut du SVG pour extraire les dimensions via DOMParser (XML strict)
 		var _svgTxt=await(await fetch(rt)).text();
@@ -595,7 +592,6 @@ async function defSelectImg(rt){
 			var _svgDoc=new DOMParser().parseFromString(_svgTxt,'image/svg+xml');
 			var _svgEl=_svgDoc.documentElement;
 			var box=_svgEl.getAttribute('viewBox');
-			console.log('viewBox',box);
 			var tbox=box ? box.split(' ') : [];
 			var _sw=_parseSvgDim(_svgEl.getAttribute('width')||'');
 			var _sh=_parseSvgDim(_svgEl.getAttribute('height')||'');
@@ -2263,7 +2259,6 @@ function link(obj){
 function selectSymboleb(objType,bkgc){
 	objActif=nbObjets;
 	selectObj="objet"+nbObjets;
-	console.log("objType",objType);
 	var refViewBoxHeight=parseFloat(document.getElementById("space").style.height);
 	tableObjet[objActif] = {
 		bkgColor:"#ffffff",
@@ -2321,7 +2316,6 @@ function selectSymbole(e,objType,bkgc){
 	selectSymboleb(objType,bkgc);
 }
 function defSymbole(objType) {
-	console.log("symbtype",objType);
 	switch(objType){
 		case 1:
 			tableObjet[objActif].width=8;
@@ -3167,7 +3161,6 @@ function createSymbole2(objType) {
 			graphSymbole(objActif,glyphArtMarcatoStaccato);
 			break;
 		case 13:
-		console.log(objActif);
 			graphSymbole(objActif,glyphArtInaccentue);
 			break;
 		case 14:

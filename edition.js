@@ -650,7 +650,6 @@ function retObjetPalette(f) {
 				selectObj=savselectObj;
 				}
 		}
-		console.log(tableObjet);
 }
 
 function topAlign(){

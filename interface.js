@@ -210,7 +210,6 @@ function regSolfege(scale,dest,fontSize,fontColor,bkg,opac){
 	//var tempo=parseFloat(document.getElementById("tempo").value);
 	var tempo=60;
 	var delta=((1080/(tempo*nbdiv))*nbmes*scale)/nbmes;
-	console.log(nbdiv,nbmes,tempo,delta);
 	for(let i=0;i<nbmax;i+=delta){
 		var dupnode=document.createElementNS("http://www.w3.org/2000/svg",'line');
 		dupnode.setAttribute("x1",i);
@@ -388,7 +387,6 @@ function tempoInitPoint(id,x,y) {
      return 1;
   return 0;
 });
-	console.log("tmp",tempoPoints);
 	
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",id);
@@ -399,7 +397,6 @@ function tempoInitPoint(id,x,y) {
 	dupnode.setAttribute("style",st);
 	
 	document.getElementById("wtempo").appendChild(dupnode);
-	console.log(document.getElementById("wtempo"),tempoPoints);
 	dragElement(document.getElementById(id));
 }
 function gainInitPoint(id,x,y) {
@@ -417,7 +414,6 @@ function gainInitPoint(id,x,y) {
      return 1;
   return 0;
 });
-	console.log("tmp",gainPoints);
 	
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id",id);
@@ -428,7 +424,6 @@ function gainInitPoint(id,x,y) {
 	dupnode.setAttribute("style",st);
 	
 	document.getElementById("wtempo").appendChild(dupnode);
-	console.log(document.getElementById("wtempo"),gainPoints);
 	dragElement(document.getElementById(id));
 }
 function tempoInsetPoint(e) {
@@ -446,7 +441,6 @@ function tempoInsetPoint(e) {
      return 1;
   return 0;
 });
-	console.log("tmp"+nbTempoPoints,tempoPoints);
 	
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id","tmp"+nbTempoPoints);
@@ -457,7 +451,6 @@ function tempoInsetPoint(e) {
 	dupnode.setAttribute("style",st);
 	
 	document.getElementById("wtempo").appendChild(dupnode);
-	console.log(document.getElementById("wtempo"),tempoPoints);
 	dragElement(document.getElementById("tmp"+nbTempoPoints));
 	if(tempoPoints.length>1){
 		drawTempo();
@@ -480,7 +473,6 @@ function gainInsetPoint(e) {
      return 1;
   return 0;
 });
-	console.log("gna"+nbGainPoints,gainPoints);
 	
 	var dupnode=document.createElement('div');
 	dupnode.setAttribute("id","gna"+nbGainPoints);
@@ -491,7 +483,6 @@ function gainInsetPoint(e) {
 	dupnode.setAttribute("style",st);
 	
 	document.getElementById("wtempo").appendChild(dupnode);
-	console.log(document.getElementById("wtempo"),gainPoints);
 	dragElement(document.getElementById("gna"+nbGainPoints));
 	if(gainPoints.length>1){
 		drawGain();
@@ -561,29 +552,22 @@ function dragElement(elmnt) {
     e.stopPropagation();
     if(elmnt.id.substring(0,3)=="tmp"){
     	if(e.button==2 && parseInt(elmnt.id.substring(3))>0){
-    		console.log("gain",elmnt,elmnt.id);
-	    		console.log("tempo",elmnt,elmnt.id);
 			   elmnt.parentNode.removeChild(elmnt);
 				const pos =tempoPoints.map(e => e.id).indexOf(elmnt.id);
 				const x = tempoPoints.splice(pos, 1);
-				console.log("tempoPoints",pos,tempoPoints);
 			   drawTempo();
 			   defTempoFoo();
     	}else{
-    		console.log(elmnt.style.backgroundColor);
    		elmnt.style.backgroundColor='green';
    	}
     }
     if(elmnt.id.substring(0,3)=="gna"){
 	    if (e.button==2 && parseInt(elmnt.id.substring(3))>0) {
-			   	console.log("gain",elmnt,elmnt.id);
 				   elmnt.parentNode.removeChild(elmnt);
 					const pos =gainPoints.map(e => e.id).indexOf(elmnt.id);
 					const x = gainPoints.splice(pos, 1);
-					console.log("gainPoints",pos,gainPoints);
 				   drawGain();
 		 }else{
-    		console.log(elmnt.style.backgroundColor);
    		elmnt.style.backgroundColor='red';
    	}
    }
@@ -1173,7 +1157,6 @@ function dragElement(elmnt) {
 												}else if(elmnt.id.substring(0,3)=="tmp"){
 				    			var px=(parseFloat(elmnt.style.left||0) - pos1);
 					    		var py=(parseFloat(elmnt.style.top||0) - pos2);
-					    		console.log("move elmnt",elmnt.id,px,py);
 					    		if(py<0){
 						 		py = 0;
 						 		}
@@ -1189,7 +1172,6 @@ function dragElement(elmnt) {
 						 		elmnt.style.top = py + "px";
 						 		elmnt.style.left = px + "px";
 						 		const resultat = tempoPoints.find((obj) => obj.id === elmnt.id);
-console.log('resultat',tempoPoints,resultat);
 						 		
 						 		resultat.X=px;
 						 		resultat.Y=py;
@@ -1199,7 +1181,6 @@ console.log('resultat',tempoPoints,resultat);
 						}else if(elmnt.id.substring(0,3)=="gna"){
 				    			var px=(parseFloat(elmnt.style.left||0) - pos1);
 					    		var py=(parseFloat(elmnt.style.top||0) - pos2);
-					    		console.log("move elmnt",elmnt.id,px,py);
 					    		if(py<0){
 						 		py = 0;
 						 		}
@@ -1215,7 +1196,6 @@ console.log('resultat',tempoPoints,resultat);
 						 		elmnt.style.top = py + "px";
 						 		elmnt.style.left = px + "px";
 						 		const resultat = gainPoints.find((obj) => obj.id === elmnt.id);
-console.log('resultat',gainPoints,resultat);
 						 		
 						 		resultat.X=px;
 						 		resultat.Y=py;
@@ -1319,7 +1299,6 @@ console.log('resultat',gainPoints,resultat);
     	document.getElementById("selector").style.display="none";
     	elmnt=document.getElementById("space");
     	nselector=0;
-    	console.log("nbselect",lsgrp);
     }
    if(elmnt.id.substring(0,5)=="gliss"){
    	document.getElementById("gliss"+elmnt.id.substring(5)).style.border='0px solid red';
@@ -1362,11 +1341,9 @@ console.log('resultat',gainPoints,resultat);
     if(elmnt.id.substring(0,3)=="tmp"){
    	elmnt.style.backgroundColor='#f5f5f5';
 		defTempoFoo();
-   	console.log(elmnt.id,tempoPoints);
     }
     if(elmnt.id.substring(0,3)=="gna"){
    	elmnt.style.backgroundColor='#f5f5f5';
-   	console.log(elmnt.id,gainPoints);
     }
     /*
     if(selectObj.substring(0,5)=="objet"){
@@ -2085,7 +2062,6 @@ function drawFxAutomation(greffon) {
 			}
 		//console.log("id","fx"+j+i,"j",j,'y1',r0+2,"y2",r+2)
 		txt=txt+"<div id='fx"+j+i+"' style='position:absolute;top:"+r+"px;left:"+t+"px;width:5px;height:5px;background-color:#f100fa;' title='fx"+j+i+":"+cd[1]+"'></div>";
-		console.log("txt",txt);
 		document.getElementById(tableLabel[i]).innerHTML="";
 		document.getElementById(tableLabel[i]).innerHTML="<svg>"+txt1+"</svg>"+txt;
 		}
@@ -2224,7 +2200,6 @@ function defTempoAtPos(posX){
 	dsecondes=s;
 	dminutes=mn;
 	document.getElementById("tempo").value=indx.Y.toFixed(2);
-	console.log("tpx",tempoPoints,posX,indx,tmp);
 	return tmp;
 }
 function defMoveLecture(obj){

@@ -111,7 +111,6 @@ function playerDebut(){
 	document.getElementById("compteurM").innerHTML = " 00 : ";
 	document.getElementById("compteurS").innerHTML = "00";
 	document.getElementById("tempo").value=60;
-	console.log('debut bar',document.getElementById("barVerticale").style.left);
 }
 function playerPrec(){
 	document.getElementById("barVerticale").style.left=(parseInt(document.getElementById("barDebut").style.left)+35)+"px";
@@ -126,7 +125,6 @@ function playerSuiv(){
 function playerEnd(){
 var nsgrp=[];
 nsgrp=[].concat(tableObjet);
-console.log("nsgrp",nsgrp);
 nsgrp=nsgrp.sort((s1, s2) => {
  return s1.posX - s2.posX;
 });
@@ -327,7 +325,6 @@ function defStudioSrc(lsgrp) {
 			npoint.index=Math.round((npz*100)+1);
 			tableListSource.push(npoint);
 		}
-		console.log(obj,tableListSource);
 	}
 	
 }
@@ -445,7 +442,6 @@ function defTime(elem) {
 }
 
 async function readSimpleAudio() {
-	console.log("read speaker",tableObjet[objActif],objActif);
 	if(playerStat==0){
 		sourceStat=1;
 		if(grpSelect==1){
@@ -462,7 +458,6 @@ async function readSimpleAudio() {
 		    baseName=baseName.split(".")[0];
 		    let outPath ="";
 		    outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
-		    console.log('baseName',dir,baseName,outPath);
 		    const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
 		    const _fadeIn  = obj.fadeIn  || 'l';
 		    const _fadeOut = obj.fadeOut || _fadeIn;
@@ -475,7 +470,6 @@ async function readSimpleAudio() {
 			    fade:defFade,
 			    lengthSec: ((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition
 				 };
-				 console.log("read speaker opt",options);
 				 document.getElementById("barVerticale").style.left=((tableObjet[objActif].posX-4)*zoomScale)+"px";
 				 defTime("barVerticale");
 				 if(vueStudio==1 ){
@@ -485,7 +479,6 @@ async function readSimpleAudio() {
 				 lsgrp[0]=objActif;
 				 defStudioSrc(lsgrp);
 				 maxDuree=durationAfterSpeed+(obj.posX/18);
-				 console.log("maxDuree",maxDuree);
 				 clockManager.start(parseFloat(document.getElementById("barVerticale").style.left));
 	  			 foo();
 			 const soxParamsSpeaker = "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade;
@@ -508,7 +501,6 @@ async function readSimpleAudio() {
 		sourceStat=0;
 		playerStat=0;
 		if(tableObjet[objActif].class==1){
-			console.log("stop speaker",objActif);
 			window.api.send("toMain", 'killPlay');
 		}else{
 			multiStop();
@@ -527,7 +519,6 @@ function lastAudioInGrp(lgrp) {
 	for(let i=0;i<lgrp.length;i++){
 		var localDuree=tableObjet[lgrp[i]].duree/tableObjet[lgrp[i]].transposition;
 		lgi= localDuree/ratioT;
-		console.log("last",i,tableObjet[lgrp[i]].posX,tableObjet[lgrp[i]].posX+lgi,tableObjet[lgrp[i]].posX+lgi);
 		if(tableObjet[lgrp[i]].posX+lgi>maxPos){
 			lmax=tableObjet[lgrp[i]].posX;
 			iref=i;
@@ -551,7 +542,6 @@ function lastAudio() {
 	for(let i=0;i<tableObjet.length;i++){
 		var localDuree=(tableObjet[i].duree*(1/tableObjet[i].transposition));
 		lgi= localDuree/ratioT;
-		console.log("last",i,tableObjet[i].posX,tableObjet[i].posX+lgi,tableObjet[i].posX+lgi);
 		if(tableObjet[i].posX+lgi>maxPos){
 			lmax=tableObjet[i].posX;
 			iref=i;
@@ -580,7 +570,6 @@ function player() {
 	 startSec: startx,
 	 lengthSec:dureePlayer-startx
 	 };
-	 console.log("player",filePath,"duree",dureePlayer,parseFloat(document.getElementById("renderPos").value),options);
 	 document.getElementById("renderPlay").src="./images/png/pauseLect.png";
 	 foo2();
 	 window.api.playDirectFile(0, filePath, "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec);
@@ -600,7 +589,6 @@ function copySliceBuffer(source,len,offset) {
 
 	// Créez un AudioBuffer pour la destination (buffer2) avec une longueur plus grande
 	var length2= tableBufferIR[tableObjet[objActif].convolver].length;
-	console.log("length2",length2);
 	const buffer2 = contextAudio.createBuffer(
  	 	buffer1.numberOfChannels, // Nombre de canaux
  	 	length2,                   // Longueur souhaitée pour buffer2 (en échantillons)
@@ -695,7 +683,6 @@ function readGrpAudio(){
 				}
 			}	
 		}
-		console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp);
 	}else if(tableObjet[objActif].class==4){
 		var minx=tableObjet[tableObjet[objActif].liste[0]].posX;
 		
@@ -717,7 +704,6 @@ function readGrpAudio(){
 				}
 			}
 		}
-		console.log("minmax",tableObjet[preservSelect[0]].posX,minx,maxx,grp);
 	}
 	
 	var minpos=tableObjet[grp[0]].posX;
@@ -731,7 +717,6 @@ function readGrpAudio(){
 	var tablePosX=[];
   	var deflastObj=lastAudioInGrp(grp);
   	
-  	console.log("lastAudioInGrp",deflastObj.id);
   	var j=0;
 	if(grp.length>0){
 		document.getElementById("barVerticale").style.left=((tableObjet[grp[idpos]].posX-10)*zoomScale)+"px";
@@ -739,7 +724,6 @@ function readGrpAudio(){
 		bar=(posX*ratioT);
 		for(let i=0;i<grp.length;i++){
 			if(tableObjet[grp[i]].posX*zoomScale>posX){
-				console.log("id",i,tableObjet[grp[i]].bufferId);
 				
 				var source2=contextAudio.createBufferSource();
 				if(tableObjet[grp[i]].convolver!="" && tableBufferIR[tableObjet[grp[i]].convolver].duration>tableBuffer[tableObjet[grp[i]].bufferId].buffer.duration*tableObjet[grp[i]].fin){					
@@ -778,7 +762,6 @@ function readGrpAudio(){
 		}		
 		tableSrc[deflastObj.id].onended = () => {
 			  			sourceStat=0;
-			  			console.log("source end");
 			  				clearTimeout(timer);
 			  				clockWorker.postMessage({ type: 'stop' });
 			  				clockManager.stop();
@@ -789,11 +772,9 @@ function readGrpAudio(){
   		defTime("barVerticale");
   		clockManager.start(parseFloat(document.getElementById("barVerticale").style.left));
   		foo();
-  		console.log("nbsources",tableSrc.length);	
 		for(let i=0;i<tableSrc.length;i++){
 			if(tableSrc[i] && tablePosX[i]>posX){
 				startX=(tablePosX[i])*ratioT;
-				console.log("source",i);
 				tableSrc[i].start(contextAudio.currentTime+(startX-bar),ndeb[i],nfin[i]);
 				playerStat=1;
 			}
@@ -806,7 +787,6 @@ let peak=[];
 function saveRenduAudio(duree,file){
 dureePlayer = duree;
 playerStat=0;
-console.log("duree",duree,file);
 	var a;
 	document.getElementById("renderAudio").style.display="block";
 	if(document.getElementById("rubber")){
@@ -837,7 +817,6 @@ async function renderObjAudio(){
 	var lsgrp=[];
 	lsgrp.push(objActif);
 	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),tableObjet[objActif].posX);
-	console.log("retour",rt.duration,rt.output);
 	saveRenduAudio(rt.duration,rt.output);
 }
 
@@ -865,7 +844,6 @@ function renderGrpAudio3(ngrp){
 	let j=tempoPoints.findIndex((element) => element.X>=indDebut.X);
 	var i=0;
 	var base=tableObjet[lsgrp[0]].posX;
-	console.log("base",base);
 	document.getElementById("barVerticale").style.left=(tableObjet[lsgrp[0]].posX-8)+"px";
 	(async () => {
 		if (window.wamSpat?.mode === 'hoa') {
@@ -873,7 +851,6 @@ function renderGrpAudio3(ngrp){
 			return;
 		}
 		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
-		console.log("retour",rt);
 		saveRenduAudio(rt.duration,rt.output);
 	})();
 }
@@ -892,7 +869,6 @@ function renderIntervalleAudio(){
 	lsgrp.sort(function (a, b) {
   		return tableObjet[a].posX - tableObjet[b].posX;
 	});
-	console.log("debut",deb,"fin",fin,lsgrp);
 	// window.api.send("toMain", "renderGroupSoX;"+lsgrp+";"+JSON.stringify(tableObjet)+";"+tableObjet[0].posX);
 	(async () => {
 		if (window.wamSpat?.mode === 'hoa') {
@@ -901,7 +877,6 @@ function renderIntervalleAudio(){
 		}
 		const base = lsgrp.length > 0 ? tableObjet[lsgrp[0]].posX : deb;
 		const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),base);
-		console.log("retour",rt.duration,rt.output);
 		saveRenduAudio(rt.duration,rt.output);
 	})();
 }
@@ -919,16 +894,13 @@ async function renderPartAudio(mode){
 			}
 		}
 	}
-	console.log(lsgrp);
 	if (window.wamSpat?.mode === 'hoa') {
 		await renderHoaBinaural(lsgrp);
 		return;
 	}
 	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx);
-	console.log("retour",rt);
 	var start=startx/18;
 	var end=rt.duration-start;
-	console.log("read start",start,rt.duration,end,rt.output);
 	saveRenduAudio(rt.duration+start,rt.output);
 }
 
@@ -1001,7 +973,6 @@ async function convolveMultiBuffers(rt, irBuffer) {
     const numSamples  = rt.numSamples;
     const sampleRate  = rt.sampleRate;
 
-    console.log("convolveMultiBuffers →", { numChannels, numSamples, sampleRate });
 
     // Convertir IR en AudioBuffer mono si besoin
     let irAudioBuffer;
@@ -1065,10 +1036,8 @@ async function createTempoMap(id){
 	var i=0;
 
 	tempoMap[0]={x:0, y:indDebut.Y/60};
-	console.log("tempoMap",indDebut,indFin,nfin,j);
 	i++;
 	while(j<tempoPoints.length && tempoPoints[j].X<indFin.X){
-		console.log("tempoMap",j,indDebut.X,(tempoPoints[j].X-base)/18,(240-(parseFloat(tempoPoints[j].Y)/0.4167)));
 		if(tempoPoints[j].X>indDebut.X){
 			tempoMap[i]={
 				x:(parseFloat(tempoPoints[j].X)-base)/18,
@@ -1080,7 +1049,6 @@ async function createTempoMap(id){
 	}
 	tempoMap[i]={x:(parseFloat(indFin.X)-base)/18, y:indFin.Y/60};
 
-	console.log("tempoMap",tempoPoints,tempoMap,indDebut,indFin);
 	return tempoMap;
 }
 // ======================================================================
@@ -1112,11 +1080,9 @@ async function prepareAudio(id, currentChannels, sampleRate, options) {
     source.buffer = buffer;
 
     // Speed (change durée finale)
-    console.log("source",source.playbackRate.value,source.detune.value);
     source.playbackRate.value = speedFactor;
     
     source.detune.value = pitchSemitones;
-console.log("source",source.playbackRate.value,source.detune.value);
     // Gain
     const gainNode = offlineCtx.createGain();
     gainNode.gain.value = gain;
@@ -1229,11 +1195,9 @@ async function readSimpleAudioA(id,mode) {
     const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName=baseName.split(".")[0];
-    console.log('baseName',dir,baseName);
 
     const outPath = window.api.joinPath(toAbsPath(paramProjet.audioPath),"tmp",`${obj.id}-fx.wav`);
 
-    console.log("[pipeline] readSimpleAudioA start", { filePath, outPath });
 
     // ----- LOAD BUFFERS (via preload, déjà Float32Array) -----
     const rt = await window.api.loadBuffers(filePath);
@@ -1244,7 +1208,6 @@ async function readSimpleAudioA(id,mode) {
     let numSamples = rt.numSamples;
     const sampleRate = rt.sampleRate;
     tableObjet[id].canaux = numChannels;   // source de vérité : le fichier audio lui-même
-	 console.log("length",numSamples);
     // Clone des buffers pour traitement
     let currentChannels = rt.channels.map(chAb => new Float32Array(chAb));
     var nbrms=0;
@@ -1270,7 +1233,6 @@ async function readSimpleAudioA(id,mode) {
 	    startSec: obj.debut,
 	    lengthSec: (obj.duree*obj.fin)-(obj.duree*obj.debut)
 		 };
-		 console.log("options",options);
 		
     // ----- Sauvegarde finale ----- 
     //
@@ -1280,7 +1242,6 @@ async function readSimpleAudioA(id,mode) {
 
     // ----- NOUVELLE DURÉE APRÈS SPEED -----
     const renderedLength = Math.floor(trimmedLength / options.speedFactor);
-    console.log("nbsamples",renderedLength);
     numSamples =  renderedLength;
     
 	    
@@ -1305,7 +1266,6 @@ async function readSimpleAudioA(id,mode) {
 	      duration: numSamples*sampleRate,
 	      tempoMap,
 	    };
-	  console.log("[pipeline] saved →rubber");
     window.api.send("toMain", "processAudio;" + JSON.stringify(info));
 	 }else{
 	 	await window.api.saveAudioBuffer({
@@ -1313,7 +1273,6 @@ async function readSimpleAudioA(id,mode) {
         buffer: { sampleRate, channels: [monoBuffer] }
    	 });
    	 await postRubberband(id,mode,window.api.joinPath(`${baseDatatPath}`,"renduout.wav"));
-   	 console.log("[pipeline] saved → no rubber");
 	 }
 
 	tableObjet[id].flagRevalider=0;
@@ -1340,7 +1299,6 @@ async function endTrim(renderedBuffer, nsecondes) {
 }
 async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate) {
 	
-	console.log("listeFx",obj,obj.tableFx);
     // ----- WAM / GREFFONS -----
     const fxSlots = obj.tableFx || [];
     const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
@@ -1350,7 +1308,6 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
     // Import faustwasm once
     const appPaths = await window.api.getPaths();
     const faust=window.api.joinPath(window.api.resources,"@grame","faustwasm","dist","esm","index.js");
-    console.log("faust",appPaths.basedir,faust);
     const faustPkg = await import(`file://${faust}`);
     const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
     const faustModule = await instantiateFaustModuleFromFile(window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'libfaust-wasm', 'libfaust-wasm.js'));
@@ -1448,10 +1405,8 @@ async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleR
 }
 
 async function loadLayoutJSON(layoutName) {
-	console.log("layoutName",layoutName);
   const appPaths = await window.api.getPaths();
 		  const buf = await window.api.readFile(window.api.joinPath(window.api.resources, 'Dsp', layoutName + '.json'));
-		  console.log("layoutPath",`${appPaths}/resources/Dsp/${layoutName}.json`);
     	  const txt = new TextDecoder("utf-8").decode(buf);
     	  return JSON.parse(txt);  
 }
@@ -1520,7 +1475,6 @@ function mixToMono(channels) {
     return out;
 }
 async function createLayout(layout, numChannels, mode = "vbap3d", order = 3) {
-    console.log("[compile] START", layout, "mode:", mode);
     // ===== LOAD LAYOUT =====
     const layoutJSON = await loadLayoutJSON(layout, numChannels);
     const NP = layoutJSON.speakers.length;
@@ -1562,7 +1516,6 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
     if (window.wamSpat && window.wamSpat.mode === "hoa") {
         return spatialiseBufferHoa(id, outPath, numChannels, numSamples, sampleRate, currentChannels, interpType);
     }
-    console.log("[spatialiseObjet] START VBAP", id);
 
     // Si wamSpat absent, attend la compilation initiale (lancée dans importConfigProjet)
     // sans en démarrer une seconde, pour éviter la double compilation qui cause la coupure.
@@ -1651,7 +1604,6 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
     // ===== SAVE RESULT =====
      document.getElementById("loading").style.display="none";
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: processedChannels } });
-    console.log("[spatialiseObjet] Fichier spatialisé écrit:", outPath);
 
     return outPath;
 }
@@ -1661,7 +1613,6 @@ async function spatialiseBuffer(id, outPath, numChannels, numSamples, sampleRate
 //  (ou encodeur seul si exportAmbiX===true → B-format brut)
 // ══════════════════════════════════════════════════════════
 async function spatialiseBufferHoa(id, outPath, numChannels, numSamples, sampleRate, currentChannels, interpType = "linear") {
-    console.log("[spatialiseHOA] START", id);
     if (!window.wamSpat && window.wamSpatPromise) {
         window.wamSpat = await window.wamSpatPromise;
     }
@@ -1729,7 +1680,6 @@ async function spatialiseBufferHoa(id, outPath, numChannels, numSamples, sampleR
     // Si AmbiX : modifier le chemin pour indiquer le format
     const finalPath = isAmbiX ? outPath.replace(/\.wav$/i, '_ambiX.wav') : outPath;
     await window.api.saveAudioBuffer({ filePath: finalPath, buffer: { sampleRate, channels: outBuf } });
-    console.log("[spatialiseHOA] Fichier écrit:", finalPath, `(${isAmbiX ? "AmbiX "+nHoa+"ch" : "decoded "+P+"ch"})`);
     return finalPath;
 }
 
@@ -1822,7 +1772,6 @@ async function spatialise(id,filePath,interpType="linear") {
 
     // ===== SAVE RESULT =====
     await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: processedChannels } });
-    console.log("[spatialiseObjet] Fichier spatialisé écrit:", outPath);
 
     return outPath;
 }
@@ -1831,22 +1780,18 @@ async function postRubberband(id,mode,file) {
 	const buffer = await window.api.readFile(file);
   	// Décode les données en AudioBuffer via Web Audio API
   	const audioBuffer = await contextAudio.decodeAudioData(buffer);				
-	console.log("audioBuffer",file,audioBuffer.length);
 	const numChannels = audioBuffer.numberOfChannels;
    const numSamples = audioBuffer.length;
    const sampleRate =audioBuffer.sampleRate;
    
    const trimmed= await endTrim(audioBuffer,0);
 	const trimmedLength = trimmed.length; 
-   console.log("TRIMMED LENGTH =", trimmedLength);
-   console.log("rendu",numChannels,numSamples,sampleRate);
 	const offlineCtx = new OfflineAudioContext(1,trimmedLength,sampleRate );
 	const song = offlineCtx.createBufferSource();
 	const resultBuffer = offlineCtx.createBuffer(1, trimmedLength, sampleRate);
 	resultBuffer.copyToChannel(trimmed, 0);  // copie dans le canal 0
 	song.buffer = resultBuffer; 
 	const gainNode = offlineCtx.createGain();
-	console.log("gain",gainPoints);
 	const extracted = extractEnvelopeForObject(
     gainPoints,
     tableObjet[id].posX,        // position de l'objet dans le X global
@@ -1862,7 +1807,6 @@ async function postRubberband(id,mode,file) {
 	song.start(0);	
 	const renderedBuffer = await offlineCtx.startRendering();
 	
-   console.log("renderedBuffer",id,renderedBuffer.length,renderedBuffer.numberOfChannels);
 	const currentChannels = [new Float32Array(renderedBuffer.getChannelData(0))];
 	const obj = tableObjet[id];
 	const filePath=window.api.joinPath(toAbsPath(paramProjet.audioPath),obj.file);
@@ -1875,7 +1819,6 @@ async function postRubberband(id,mode,file) {
         const premixPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-premix.wav`);
         await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: currentChannels } });
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
-        console.log("[pipeline] saved ->spatialised", outPath);
 
     } else if (mode == 2) {
         // ===== MODE HOA AmbiX : encodage HOA -> B-format, 1 fichier par objet =====
@@ -1890,7 +1833,6 @@ async function postRubberband(id,mode,file) {
         const exportFade    = `${exportFadeIn} ${durationAfterSpeed * envX0} fade ${exportFadeOut} 0 ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
         const exportLengthSec = durationAfterSpeed;
         const exportSoxParams = `pitch ${obj.detune} speed ${obj.transposition} vol ${obj.gain} trim ${obj.debut} ${exportLengthSec} fade ${exportFade}`;
-        console.log("[HOA export SoX]", exportSoxParams);
 
         const tmpSoxPath = window.api.joinPath(`${dir}`, 'tmp', `${obj.id}-hoa-sox.wav`);
         await window.api.saveAudioBuffer({ filePath: tmpSoxPath, buffer: { sampleRate, channels: currentChannels } });
@@ -1907,7 +1849,6 @@ async function postRubberband(id,mode,file) {
         } finally {
             exportAmbiX = prevAmbiX;
         }
-        console.log("[HOA export] fichier AmbiX:", ambiXPath);
         exportCompteur++;
         if (exportCompteur < exportTable.length) {
             document.getElementById("sliderLParam").style.width = (Math.floor((exportCompteur / exportTable.length) * 100)) + "%";
@@ -1935,10 +1876,8 @@ async function postRubberband(id,mode,file) {
         const exportFade = `${exportFadeIn} ${durationAfterSpeed * envX0} fade ${exportFadeOut} 0 ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
         const exportLengthSec = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
         const exportSoxParams = `pitch ${exportObj.detune} speed ${exportObj.transposition} vol ${exportObj.gain} trim ${exportObj.debut} ${exportLengthSec} fade ${exportFade}`;
-        console.log("[export SoX]", exportSoxParams);
         await window.api.soxProcessExport(outPath, exportSoxParams);
         document.getElementById("loading").style.display = "none";
-        console.log("[export DAW] fichier:", outPath);
         exportCompteur++;
         if (exportCompteur < exportTable.length) {
             document.getElementById("sliderLParam").style.width = (Math.floor((exportCompteur / exportTable.length) * 100)) + "%";
@@ -1985,11 +1924,9 @@ async function mixAndBinaural(lsgrp) {
     try {
         const mixResult = await window.api.renderHoaAmbiXMix(objects, exportDir);
         if (!mixResult || !mixResult.output) throw new Error('Mix AmbiX échoué');
-        console.log('[binaural] mix AmbiX:', mixResult.output);
 
         const binauralPath = window.api.joinPath(exportDir, 'rendu_binaural.wav');
         await window.api.renderBinauralFromAmbiX(mixResult.output, binauralPath);
-        console.log('[binaural] rendu binaural:', binauralPath);
 
         const info = await window.api.infoFile(binauralPath);
         const duration = info.nbsamples / info.rate;
@@ -2034,7 +1971,6 @@ async function exportIntv(){
 	lsgrp.sort(function (a, b) {
   		return tableObjet[a].posX - tableObjet[b].posX;
 	});
-	console.log("debut",deb,"fin",fin,lsgrp);
 	if(lsgrp.length===0) return;
 	exportTable=lsgrp;
 	exportCompteur=0;
@@ -2100,7 +2036,6 @@ function exportToSeq(refGrp){
 		const pd = tableObjet[a].piste - tableObjet[b].piste;
 		return pd !== 0 ? pd : tableObjet[a].posX - tableObjet[b].posX;
 	});
-	console.log("exportToSeq",refGrp,nfilesave);
 	for(let i in nfilesave){
 		if(tableObjet[nfilesave[i]].etat==1 && tableObjet[nfilesave[i]].file && tableObjet[nfilesave[i]].class==1 && tableObjet[nfilesave[i]].type<24){
 			if(refGrp.length>0){
@@ -2126,7 +2061,6 @@ async function actualiseObjets(){
 			}
 		}
 	}
-   console.log(lsgrp);
 	if(lsgrp.length===0) return;
 	document.getElementById("sliderLParam").style.width="0%";
 	document.getElementById("popupLoader").style.display="block";

@@ -115,7 +115,6 @@ function defObjGrp(id,nbobjets,cla) {
 		<spy value='"+id.spY+"'></spy>\n\
 		<spz value='"+id.spZ+"'></spz>\n";
 		txt=txt+"		<tablefx value='";
-		console.log(id);
 			for(let j=0;j<7;j++){
 				txt=txt+id.tableFx[j]+",";
 			}
@@ -125,10 +124,8 @@ function defObjGrp(id,nbobjets,cla) {
 			var txt2="";
 			for(let j=0;j<7;j++){
 				txt2=txt2+id.tableFxParam[j]+",";
-				console.log("neewstr",id.tableFxParam[j]+",");
 			}
 			newStr = txt2.substring(0, txt2.length - 1);
-			console.log("neewstr",newStr);
 			
 			txt=txt+newStr+"'></tablefxparam>\n\
 		<type value='"+id.type+"'></type>\n";
@@ -599,7 +596,6 @@ async function objXmlToScore(id,i) {
 		flagRevalider:0
 		};
 		
-		console.log(tableObjet[id]);
 		var np=tableObjet[id].tableFxParam[0].split("&");
 		var vp=np[0].split(",");
 		
@@ -1311,7 +1307,6 @@ function importReverbImpulseResponse(name) {
             },
 
             function (buffer) {
-              console.log("Error decoding impulse response!");
             }
           );
         };
