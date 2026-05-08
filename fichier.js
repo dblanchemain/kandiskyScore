@@ -861,9 +861,15 @@ function defObjets(i,liste,dx,dy){
 						nbObjets++;
 						break;
 					case 4:
-						grpXmlToScore(nbObjets,i,offset);
+						grpXmlToScore(nbObjets,i,0);
 						tableObjet[nbObjets].posX=tableObjet[nbObjets].posX+dx;
 						tableObjet[nbObjets].posY=tableObjet[nbObjets].posY+dy;
+						for(let k=0;k<tableObjet[nbObjets].liste.length;k++){
+							var midx=tableObjet[nbObjets].liste[k];
+							if(tableObjet[midx]){
+								tableObjet[midx].groupe=nbObjets;
+							}
+						}
 						graphGrp(nbObjets);
 						dragElement(document.getElementById(tableObjet[nbObjets].id));
 						document.getElementById(tableObjet[nbObjets].id).addEventListener('mouseup',selectBkgObj);
