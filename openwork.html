@@ -59,6 +59,40 @@
       cursor: default;
       pointer-events: none;
     }
+    /* ── Sous-menu Zoom ── */
+    .mnu-sub {
+      position: relative;
+    }
+    .mnu-sub::after {
+      content: ' ▶';
+      float: right;
+      font-size: 0.7em;
+      margin-top: 2px;
+    }
+    .mnu-subsub {
+      display: none;
+      position: absolute;
+      left: 100%;
+      top: 0;
+      background-color: #2a2d35;
+      border: 1px solid #555;
+      min-width: 100px;
+      list-style: none;
+      margin: 0; padding: 4px 0;
+      box-shadow: 2px 4px 10px rgba(0,0,0,0.4);
+      z-index: 400;
+    }
+    .mnu-sub:hover > .mnu-subsub { display: block; }
+    .mnu-subsub li {
+      padding: 5px 18px;
+      color: #e8e8e8;
+      cursor: pointer;
+      font-size: 0.82em;
+      white-space: nowrap;
+    }
+    .mnu-subsub li:hover { background-color: #373f8a; }
+    .mnu-subsub li.actif-zoom { color: #7fc; font-weight: bold; }
+
     #owFileLabel {
       color: #999;
       font-size: 0.78em;
@@ -255,6 +289,19 @@
       <li onclick="owAjouterGroupe()">Ajouter un groupe</li>
       <li onclick="owSupprimerGroupe()">Supprimer un groupe</li>
       <li onclick="owParamsGroupe()">Paramètres d'un groupe</li>
+      <li class="sep"></li>
+      <li class="mnu-sub">Zoom
+        <ul class="mnu-subsub">
+          <li onclick="owSetZoom(25)">25 %</li>
+          <li onclick="owSetZoom(50)">50 %</li>
+          <li onclick="owSetZoom(75)">75 %</li>
+          <li onclick="owSetZoom(100)">100 %</li>
+          <li onclick="owSetZoom(125)">125 %</li>
+          <li onclick="owSetZoom(150)">150 %</li>
+          <li onclick="owSetZoom(175)">175 %</li>
+          <li onclick="owSetZoom(200)">200 %</li>
+        </ul>
+      </li>
     </ul>
   </div>
 
@@ -1071,11 +1118,23 @@ function owRedrawReglette() {
   owCreateReglette();
 }
 
+function owSetZoom(pct) {
+  owCloseMenus();
+  owZoomScale = Math.max(0.25, Math.min(4, pct / 100));
+  owUpdateZoom();
+  // Marquer l'entrée active dans le sous-menu
+  document.querySelectorAll('.mnu-subsub li').forEach(li => {
+    li.classList.toggle('actif-zoom', parseInt(li.textContent) === pct);
+  });
+}
+
 function owZoom(event) {
   event.preventDefault();
   owZoomScale += event.deltaY * -0.001;
   owZoomScale = Math.max(0.25, Math.min(4, owZoomScale));
   owUpdateZoom();
+  // Effacer la marque active (valeur libre via molette)
+  document.querySelectorAll('.mnu-subsub li').forEach(li => li.classList.remove('actif-zoom'));
 }
 
 function owUpdateZoom() {
