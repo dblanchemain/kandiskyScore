@@ -713,7 +713,8 @@ function owParseData(txt, label) {
           posRelDebutGroupe:g(grpEl,'posRelDebutGroupe',''),
           posRelFin:        gb(grpEl,'posRelFin',false),
           posRelFinAvant:   g(grpEl,'posRelFinAvant','fin'),
-          posRelFinGroupe:  g(grpEl,'posRelFinGroupe','')
+          posRelFinGroupe:  g(grpEl,'posRelFinGroupe',''),
+          svgData: ''
         });
       });
     });
@@ -722,6 +723,13 @@ function owParseData(txt, label) {
     if (label) document.getElementById('owFileLabel').textContent = label;
     owRenderAll();
     owBuildNuancesTable();
+    // Demander les miniatures SVG pour tous les groupes
+    if (typeof window.api !== 'undefined') {
+      owGroups.forEach(grp => {
+        const svgName = grp.name.replace(/\.xml$/i, '.svg');
+        window.api.send('toMain', 'owReadSvg;' + grp.id + ';' + svgName);
+      });
+    }
   } catch(err) { owAlert('Erreur de chargement : ' + err.message); }
 }
 
@@ -883,7 +891,7 @@ async function owAjouterGroupe() {
     variationTempo: false, variationIntensite: false,
     posRelDebut: false, posRelDebutAvant: 'debut', posRelDebutGroupe: '',
     posRelFin:   false, posRelFinAvant:   'fin',   posRelFinGroupe:   '',
-    svgFile: ''
+    svgData: ''
   };
   owGroups.push(grp);
   owActiveGrp = grp.id;
@@ -1089,16 +1097,15 @@ function owRenderGroups() {
     div.style.left = grp.posX + 'px';
     div.style.top  = grp.posY + 'px';
 
-    // Miniature SVG
-    const baseName = grp.name.replace(/\.xml$/i, '.svg');
-    const svgSrc = grp.svgFile || (owProjDir ? owProjDir + '/' + baseName : '');
-    if (svgSrc) {
-      const img = document.createElement('img');
-      img.className = 'ow-grp-img';
-      img.src = 'file:///' + svgSrc.replace(/\\/g, '/').replace(/^\/+/, '');
-      img.onerror = () => { img.style.display = 'none'; };
-      div.appendChild(img);
+    // Miniature SVG (data URI transmise par IPC)
+    const img = document.createElement('img');
+    img.className = 'ow-grp-img';
+    if (grp.svgData) {
+      img.src = grp.svgData;
+    } else {
+      img.style.display = 'none';
     }
+    div.appendChild(img);
 
     const lbl = document.createElement('span');
     lbl.className   = 'ow-grp-lbl';
@@ -1343,14 +1350,36 @@ if (typeof window.api !== 'undefined') {
       }
       case 'owGrpFilePicked': {
         const parts = rest.split(';');
-        const fieldId  = parts[0] || '';
+        const fieldId = parts[0] || '';
         const fileName = parts[1] || '';
-        const svgPath  = parts[2] || '';
+        const svgB64  = parts[2] || '';
         const el = document.getElementById(fieldId);
         if (el) { el.value = fileName; owUpdateGrp(); }
-        if (fieldId === 'gpNom' && svgPath && owActiveGrp !== null) {
+        if (fieldId === 'gpNom' && owActiveGrp !== null) {
           const grp = owGroups.find(g => g.id === owActiveGrp);
-          if (grp) { grp.svgFile = svgPath; owRenderGroups(); }
+          if (grp) {
+            grp.svgData = svgB64 ? 'data:image/svg+xml;base64,' + svgB64 : '';
+            owRenderGroups();
+          }
+        }
+        break;
+      }
+      case 'owSvgData': {
+        const sep2 = rest.indexOf(';');
+        const grpId = sep2 > -1 ? parseInt(rest.substring(0, sep2)) : NaN;
+        const svgB64r = sep2 > -1 ? rest.substring(sep2 + 1) : '';
+        if (!isNaN(grpId) && svgB64r) {
+          const grp = owGroups.find(g => g.id === grpId);
+          if (grp) {
+            grp.svgData = 'data:image/svg+xml;base64,' + svgB64r;
+            const imgEl = document.querySelector('#grp' + grpId + ' .ow-grp-img');
+            if (imgEl) {
+              imgEl.src = grp.svgData;
+              imgEl.style.display = '';
+            } else {
+              // le bloc est peut-être dans une autre section, on patche à la prochaine render
+            }
+          }
         }
         break;
       }
