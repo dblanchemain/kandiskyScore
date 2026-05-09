@@ -2184,57 +2184,7 @@ function saveSvgAs(txt) {
 function saveDefGrp() {
 	mainWindow.webContents.send("fromMain", 'saveGrp');
 }
-function _xmlAttr(block, tag) {
-	const m = block.match(new RegExp("<" + tag + "[^>]*value='([^']*)'"));
-	return m ? m[1] : null;
-}
-function generateSvgFromXml(xmlTxt) {
-	// Découpe par balise <objet> ouvrante — robuste même sans </objet> (class 2)
-	const openRe = /<objet[^>]*>/g;
-	const starts = [];
-	let m;
-	while ((m = openRe.exec(xmlTxt)) !== null) starts.push(m.index + m[0].length);
-	if (starts.length === 0) return null;
-	const objects = [];
-	for (let i = 0; i < starts.length; i++) {
-		const block = xmlTxt.substring(starts[i], i + 1 < starts.length ? starts[i + 1] : xmlTxt.length);
-		if (parseInt(_xmlAttr(block,'etat')||'0') !== 1) continue;
-		const cls = parseInt(_xmlAttr(block,'class')||'1');
-		if (cls === 4) continue;
-		const posx = parseFloat(_xmlAttr(block,'posx')||'0');
-		const posy = parseFloat(_xmlAttr(block,'posy')||'0');
-		const bkgw = parseFloat(_xmlAttr(block,'bkgwidth')||'0');
-		const bkgh = parseFloat(_xmlAttr(block,'bkgheight')||'0');
-		if (isNaN(posx) || isNaN(posy) || bkgw <= 0 || bkgh <= 0) continue;
-		const objc = _xmlAttr(block,'objcolor');
-		const color = (objc && objc !== '') ? objc : (_xmlAttr(block,'bkgcolor') || '#888888');
-		objects.push({ posx, posy, bkgw, bkgh, color });
-	}
-	if (objects.length === 0) return null;
-	let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
-	for (const o of objects) {
-		minX = Math.min(minX, o.posx);
-		minY = Math.min(minY, o.posy);
-		maxX = Math.max(maxX, o.posx + o.bkgw);
-		maxY = Math.max(maxY, o.posy + o.bkgh);
-	}
-	const pad=8, maxSide=600;
-	const srcW = maxX - minX + 2*pad;
-	const srcH = maxY - minY + 2*pad;
-	const scale = Math.min(maxSide/srcW, maxSide/srcH, 1);
-	const svgW = Math.round(srcW*scale);
-	const svgH = Math.round(srcH*scale);
-	let rects = '';
-	for (const o of objects) {
-		const x = Math.round((o.posx - minX + pad)*scale);
-		const y = Math.round((o.posy - minY + pad)*scale);
-		const w = Math.max(1, Math.round(o.bkgw*scale));
-		const h = Math.max(1, Math.round(o.bkgh*scale));
-		rects += `  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${o.color}"/>\n`;
-	}
-	return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">\n  <rect width="100%" height="100%" fill="#1a1a2e"/>\n${rects}</svg>`;
-}
-function saveModifGrp(txt) {
+function saveModifGrp(xmlB64, svgB64) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
         defaultPath: path.join(__dirname, '../'),
@@ -2248,17 +2198,20 @@ function saveModifGrp(txt) {
         if (!file.canceled) {
             const xmlPath = file.filePath.toString();
             currentProjet = xmlPath;
-            fs.writeFile(xmlPath, txt, function(err) {
+            const xmlContent = aenu(xmlB64);
+            fs.writeFile(xmlPath, xmlContent, function(err) {
                 if (err) throw err;
                 console.log('Saved!', xmlPath);
             });
-            const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
-            const svgContent = generateSvgFromXml(txt);
-            if (svgContent) {
-                fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
-                    if (err) console.error('SVG save error:', err);
-                    else console.log('SVG saved:', svgPath);
-                });
+            if (svgB64) {
+                const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
+                try {
+                    const svgContent = aenu(svgB64);
+                    fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
+                        if (err) console.error('SVG save error:', err);
+                        else console.log('SVG saved:', svgPath);
+                    });
+                } catch(e) { console.error('SVG decode error:', e); }
             }
         }
     }).catch(err => {
@@ -4250,11 +4203,9 @@ ipcMain.on ("toMain", (event, args) => {
 			
 			saveModifProjetAs(cmd[1]);
 			break;
-		case 'saveModifGrp': {
-			const _firstSemi = args.indexOf(';');
-			saveModifGrp(args.substring(_firstSemi + 1));
+		case 'saveModifGrp':
+			saveModifGrp(cmd[1], cmd[2]||'');
 			break;
-		}
 		case 'nettoyerAudios':
 			nettoyerAudios(cmd[1]);
 			break;

@@ -974,7 +974,8 @@ async function vuePartitionA(pdf,grp,grpObjets){
 	}
 	for(let j=0;j<11;j++){
 		for(let i=0;i<grpObjets.length;i++){
-			if(grpObjets[i].etat==1 && document.getElementById(grpObjets[i].id).style.zIndex==j){
+			const _el=document.getElementById(grpObjets[i].id);
+			if(grpObjets[i].etat==1 && _el && _el.style.zIndex==j){
 				switch(grpObjets[i].class) {
 					case 1:
 						txt=txt+"<g transform='translate("+grpObjets[i].posX+" "+grpObjets[i].posY+")' >";
