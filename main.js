@@ -4751,7 +4751,7 @@ ipcMain.on ("toMain", (event, args) => {
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
 					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
-					filters: [{ name: 'OpenWork', extensions: ['owk','json'] }]
+					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
 					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
@@ -4759,39 +4759,38 @@ ipcMain.on ("toMain", (event, args) => {
 				}).catch(err => console.error('owOpen:', err));
 			break; }
 			case 'owSave': {
-				// cmd[1] = chemin existant (peut être vide), cmd[2..] = données JSON
 				const existingPath = cmd[1];
-				const jsonData = cmd.slice(2).join(';');
+				const xmlData = cmd.slice(2).join(';');
 				if (existingPath && fs.existsSync(existingPath)) {
-					fs.writeFileSync(existingPath, jsonData, 'utf-8');
+					fs.writeFileSync(existingPath, xmlData, 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + existingPath);
 				} else {
 					dialog.showSaveDialog(winOpenWork, {
-						defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.owk'),
-						filters: [{ name: 'OpenWork', extensions: ['owk'] }]
+						defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.xml'),
+						filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 					}).then(result => {
 						if (result.canceled || !result.filePath) return;
-						fs.writeFileSync(result.filePath, jsonData, 'utf-8');
+						fs.writeFileSync(result.filePath, xmlData, 'utf-8');
 						winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
 					}).catch(err => console.error('owSave:', err));
 				}
 			break; }
 			case 'owSaveAs': {
-				const jsonDataAs = cmd.slice(1).join(';');
+				const xmlDataAs = cmd.slice(1).join(';');
 				dialog.showSaveDialog(winOpenWork, {
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.owk'),
-					filters: [{ name: 'OpenWork', extensions: ['owk'] }]
+					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.xml'),
+					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePath) return;
-					fs.writeFileSync(result.filePath, jsonDataAs, 'utf-8');
+					fs.writeFileSync(result.filePath, xmlDataAs, 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
 				}).catch(err => console.error('owSaveAs:', err));
 			break; }
 			case 'owExportInterp': {
 				const expData = cmd.slice(1).join(';');
 				dialog.showSaveDialog(winOpenWork, {
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'export_interpretor.json'),
-					filters: [{ name: 'JSON', extensions: ['json'] }]
+					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'export_interpretor.xml'),
+					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePath) return;
 					fs.writeFileSync(result.filePath, expData, 'utf-8');
@@ -4802,7 +4801,7 @@ ipcMain.on ("toMain", (event, args) => {
 					properties: ['openFile'],
 					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
 					filters: [
-						{ name: 'OpenWork / JSON', extensions: ['owk','json'] }
+						{ name: 'OpenWork XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }
 					]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;

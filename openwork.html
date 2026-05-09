@@ -240,6 +240,20 @@
       cursor: move;
     }
     .ow-popup-body { padding: 12px; }
+    /* ── Paramètres groupe ── */
+    .gp-hdr {
+      font-weight: bold; font-size: 0.8em; color: #2a5fa8;
+      border-bottom: 1px solid #bcd; margin: 10px 0 4px 0; padding-bottom: 2px;
+    }
+    .gp-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.82em; margin: 3px 0;
+    }
+    .gp-row label { min-width: 150px; cursor: pointer; }
+    .gp-row input[type=number] { width: 58px; }
+    .gp-row input[type=text]   { font-size: 0.82em; }
+    .gp-row select             { font-size: 0.82em; }
+    .gp-sub { display:none; align-items:center; gap:4px; }
     .ow-popup-foot {
       padding: 6px 12px;
       text-align: right;
@@ -395,30 +409,114 @@
 </div>
 
 <!-- Input fichier caché pour ouverture -->
-<input type="file" id="owFileInput" style="display:none" accept=".owk,.json" />
+<input type="file" id="owFileInput" style="display:none" accept=".xml" />
 
 <!-- ════════════════════════ POPUP : Paramètres groupe ════════════════════════ -->
-<div id="grpParamsPopup" class="ow-popup" style="top:100px;left:360px;width:360px;">
+<div id="grpParamsPopup" class="ow-popup" style="top:60px;left:260px;width:520px;">
   <div id="grpParamsPopupHeader" class="ow-popup-hd">Paramètres du groupe</div>
-  <div class="ow-popup-body">
-    <table border="0" cellpadding="5">
-      <tbody>
-        <tr><td>Nom :</td>
-            <td><input id="gpNom" type="text" style="width:200px;" oninput="owUpdateGrp('nom')"/></td></tr>
-        <tr><td>Largeur :</td>
-            <td><input id="gpW" type="number" min="20" max="2000" value="120" style="width:80px;" oninput="owUpdateGrp('w')"/></td></tr>
-        <tr><td>Hauteur :</td>
-            <td><input id="gpH" type="number" min="20" max="800" value="60" style="width:80px;" oninput="owUpdateGrp('h')"/></td></tr>
-        <tr><td>Couleur :</td>
-            <td><input id="gpColor" type="color" value="#c8dcff" oninput="owUpdateGrp('color')"/></td></tr>
-        <tr><td>Opacité :</td>
-            <td><input id="gpOpacity" type="number" min="0.05" max="1" step="0.05" value="0.5" style="width:80px;" oninput="owUpdateGrp('opacity')"/></td></tr>
-        <tr><td>Nuance :</td>
-            <td><select id="gpNuance" oninput="owUpdateGrp('nuance')" style="width:160px;">
-              <option value="">—</option>
-            </select></td></tr>
-      </tbody>
-    </table>
+  <div class="ow-popup-body" style="max-height:500px;overflow-y:auto;">
+
+    <!-- Référence + affichage -->
+    <div class="gp-row">
+      <label>Nom (référence) :</label>
+      <input id="gpNom" type="text" style="width:190px;" oninput="owUpdateGrp()"/>
+    </div>
+    <div class="gp-row" style="margin-top:4px;">
+      <label>Largeur :</label>
+      <input id="gpW" type="number" min="20" max="2000" value="120" oninput="owUpdateGrp()"/>
+      &nbsp;Hauteur :
+      <input id="gpH" type="number" min="20" max="800" value="60" oninput="owUpdateGrp()"/>
+      &nbsp;Couleur :
+      <input id="gpColor" type="color" value="#c8dcff" oninput="owUpdateGrp()"/>
+      &nbsp;Opacité :
+      <input id="gpOpacity" type="number" min="0.05" max="1" step="0.05" value="0.5" style="width:48px;" oninput="owUpdateGrp()"/>
+    </div>
+
+    <!-- Transformations -->
+    <div class="gp-hdr">Transformations</div>
+
+    <div class="gp-row">
+      <input type="checkbox" id="gpDirect" onchange="owUpdateGrp()"/>
+      <label for="gpDirect">Direct</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRenversement" onchange="owUpdateGrp()"/>
+      <label for="gpRenversement">Renversement</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRetrograde" onchange="owUpdateGrp()"/>
+      <label for="gpRetrograde">Rétrograde</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRenvRetrograde" onchange="owUpdateGrp()"/>
+      <label for="gpRenvRetrograde">Renv. rétrograde</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRepetition" onchange="owUpdateGrp();owToggleGpSub('gpRepetition','gpRepetitionSub')"/>
+      <label for="gpRepetition">Répétition</label>
+      <span id="gpRepetitionSub" class="gp-sub">
+        max :&nbsp;<input id="gpRepetitionMax" type="number" min="1" max="99" value="2" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpTransposition" onchange="owUpdateGrp()"/>
+      <label for="gpTransposition">Transposition</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpAugDim" onchange="owUpdateGrp();owToggleGpSub('gpAugDim','gpAugDimSub')"/>
+      <label for="gpAugDim">Augmentée / Diminuée</label>
+      <span id="gpAugDimSub" class="gp-sub">
+        min :&nbsp;<input id="gpAugDimMin" type="number" step="0.5" value="-2" oninput="owUpdateGrp()"/>
+        &nbsp;max :&nbsp;<input id="gpAugDimMax" type="number" step="0.5" value="2" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpExpansion" onchange="owUpdateGrp();owToggleGpSub('gpExpansion','gpExpansionSub')"/>
+      <label for="gpExpansion">Expansion</label>
+      <span id="gpExpansionSub" class="gp-sub">
+        min :&nbsp;<input id="gpExpansionMin" type="number" step="0.1" min="0.01" value="0.5" oninput="owUpdateGrp()"/>
+        &nbsp;max :&nbsp;<input id="gpExpansionMax" type="number" step="0.1" value="2.0" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpVariationTempo" onchange="owUpdateGrp()"/>
+      <label for="gpVariationTempo">Variation tempo</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpVariationIntensite" onchange="owUpdateGrp()"/>
+      <label for="gpVariationIntensite">Variation intensité</label>
+    </div>
+
+    <!-- Position relative -->
+    <div class="gp-hdr">Position relative</div>
+
+    <div class="gp-row">
+      <input type="checkbox" id="gpPosRelDebut" onchange="owUpdateGrp();owToggleGpSub('gpPosRelDebut','gpPosRelDebutSub')"/>
+      <label for="gpPosRelDebut" style="min-width:46px;">Début</label>
+      <span id="gpPosRelDebutSub" class="gp-sub">
+        avant&nbsp;
+        <select id="gpPosRelDebutAvant" onchange="owUpdateGrp()">
+          <option value="debut">début</option>
+          <option value="fin">fin</option>
+        </select>
+        &nbsp;de&nbsp;
+        <input id="gpPosRelDebutGroupe" type="text" style="width:110px;" placeholder="grp.xml" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpPosRelFin" onchange="owUpdateGrp();owToggleGpSub('gpPosRelFin','gpPosRelFinSub')"/>
+      <label for="gpPosRelFin" style="min-width:46px;">Fin</label>
+      <span id="gpPosRelFinSub" class="gp-sub">
+        avant&nbsp;
+        <select id="gpPosRelFinAvant" onchange="owUpdateGrp()">
+          <option value="debut">début</option>
+          <option value="fin">fin</option>
+        </select>
+        &nbsp;de&nbsp;
+        <input id="gpPosRelFinGroupe" type="text" style="width:110px;" placeholder="grp.xml" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+
   </div>
   <div class="ow-popup-foot">
     <button onclick="document.getElementById('grpParamsPopup').style.display='none'">Fermer</button>
@@ -547,14 +645,58 @@ document.getElementById('owFileInput').addEventListener('change', function(e) {
 
 function owParseData(txt, label) {
   try {
-    const d = JSON.parse(txt);
-    owSections = d.sections  || [];
-    owGroups   = d.groups    || [];
-    owNuances  = d.nuances   || owNuances;
-    owNextSecId= d.nextSecId || owSections.length + 1;
-    owNextGrpId= d.nextGrpId || owGroups.length   + 1;
-    owActiveGrp = null;
-    owModified  = false;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(txt, 'application/xml');
+    if (doc.querySelector('parsererror'))
+      throw new Error(doc.querySelector('parsererror').textContent.split('\n')[0]);
+
+    const g  = (el, a, d) => { const v = el.getAttribute(a); return v !== null ? v : d; };
+    const gb = (el, a, d) => { const v = el.getAttribute(a); return v !== null ? v === 'true' : d; };
+    const gf = (el, a, d) => { const v = parseFloat(el.getAttribute(a)); return isNaN(v) ? d : v; };
+    const gi = (el, a, d) => { const v = parseInt(el.getAttribute(a));   return isNaN(v) ? d : v; };
+
+    owSections = []; owGroups = []; owNextSecId = 1; owNextGrpId = 1;
+
+    doc.querySelectorAll('section').forEach((secEl, idx) => {
+      const secId = owNextSecId++;
+      owSections.push({ id: secId, name: g(secEl,'name','Section '+secId), posY: idx*200, color:'#4a90d9' });
+      secEl.querySelectorAll('groupe').forEach(grpEl => {
+        owGroups.push({
+          id: owNextGrpId++,
+          name:             g(grpEl,'name','grp.xml'),
+          sectionId:        secId,
+          posX:             gf(grpEl,'posX',20),
+          posY:             gf(grpEl,'posY',20),
+          w:                gi(grpEl,'w',120),
+          h:                gi(grpEl,'h',60),
+          color:            g(grpEl,'color','#c8dcff'),
+          opacity:          gf(grpEl,'opacity',0.5),
+          direct:           gb(grpEl,'direct',true),
+          renversement:     gb(grpEl,'renversement',false),
+          retrograde:       gb(grpEl,'retrograde',false),
+          renvRetrograde:   gb(grpEl,'renvRetrograde',false),
+          repetition:       gb(grpEl,'repetition',false),
+          repetitionMax:    gi(grpEl,'repetitionMax',2),
+          transposition:    gb(grpEl,'transposition',false),
+          augDim:           gb(grpEl,'augDim',false),
+          augDimMin:        gf(grpEl,'augDimMin',-2),
+          augDimMax:        gf(grpEl,'augDimMax',2),
+          expansion:        gb(grpEl,'expansion',false),
+          expansionMin:     gf(grpEl,'expansionMin',0.5),
+          expansionMax:     gf(grpEl,'expansionMax',2.0),
+          variationTempo:   gb(grpEl,'variationTempo',false),
+          variationIntensite: gb(grpEl,'variationIntensite',false),
+          posRelDebut:      gb(grpEl,'posRelDebut',false),
+          posRelDebutAvant: g(grpEl,'posRelDebutAvant','debut'),
+          posRelDebutGroupe:g(grpEl,'posRelDebutGroupe',''),
+          posRelFin:        gb(grpEl,'posRelFin',false),
+          posRelFinAvant:   g(grpEl,'posRelFinAvant','fin'),
+          posRelFinGroupe:  g(grpEl,'posRelFinGroupe','')
+        });
+      });
+    });
+
+    owActiveGrp = null; owActiveSec = null; owModified = false;
     if (label) document.getElementById('owFileLabel').textContent = label;
     owRenderAll();
     owBuildNuancesTable();
@@ -562,10 +704,30 @@ function owParseData(txt, label) {
 }
 
 function owSerialise() {
-  return JSON.stringify({
-    sections: owSections, groups: owGroups,
-    nuances: owNuances, nextSecId: owNextSecId, nextGrpId: owNextGrpId
-  }, null, 2);
+  const x = s => (s == null ? '' : String(s))
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const b = v => v ? 'true' : 'false';
+  const sorted = [...owSections].sort((a,bk) => a.posY - bk.posY);
+  let xml = "<?xml version='1.0' encoding='UTF-8' ?>\n<openwork version='2.1.1'>\n  <partition name=\"\">\n";
+  sorted.forEach(sec => {
+    xml += `    <section name="${x(sec.name)}">\n`;
+    owGroups.filter(g => g.sectionId === sec.id).forEach(grp => {
+      xml += `      <groupe name="${x(grp.name)}"\n`;
+      xml += `              direct="${b(grp.direct)}" renversement="${b(grp.renversement)}"\n`;
+      xml += `              retrograde="${b(grp.retrograde)}" renvRetrograde="${b(grp.renvRetrograde)}"\n`;
+      xml += `              repetition="${b(grp.repetition)}" repetitionMax="${grp.repetitionMax??2}"\n`;
+      xml += `              transposition="${b(grp.transposition)}"\n`;
+      xml += `              augDim="${b(grp.augDim)}" augDimMin="${grp.augDimMin??-2}" augDimMax="${grp.augDimMax??2}"\n`;
+      xml += `              expansion="${b(grp.expansion)}" expansionMin="${grp.expansionMin??0.5}" expansionMax="${grp.expansionMax??2.0}"\n`;
+      xml += `              variationTempo="${b(grp.variationTempo)}" variationIntensite="${b(grp.variationIntensite)}"\n`;
+      xml += `              posRelDebut="${b(grp.posRelDebut)}" posRelDebutAvant="${x(grp.posRelDebutAvant)}" posRelDebutGroupe="${x(grp.posRelDebutGroupe)}"\n`;
+      xml += `              posRelFin="${b(grp.posRelFin)}" posRelFinAvant="${x(grp.posRelFinAvant)}" posRelFinGroupe="${x(grp.posRelFinGroupe)}"\n`;
+      xml += `              posX="${grp.posX}" posY="${grp.posY}" w="${grp.w}" h="${grp.h}" color="${x(grp.color)}" opacity="${grp.opacity}"/>\n`;
+    });
+    xml += `    </section>\n`;
+  });
+  xml += "  </partition>\n</openwork>\n";
+  return xml;
 }
 
 function owSauvegarder() {
@@ -573,7 +735,7 @@ function owSauvegarder() {
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSave;' + (owFilePath || '') + ';' + owSerialise());
   } else {
-    owTelecharger(owFilePath || 'projet.owk', owSerialise());
+    owTelecharger(owFilePath || 'projet.xml', owSerialise());
   }
 }
 
@@ -582,17 +744,17 @@ async function owSauvegarderSous() {
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSaveAs;' + owSerialise());
   } else {
-    const nom = await owPrompt('Nom du fichier :', owFilePath || 'projet.owk');
+    const nom = await owPrompt('Nom du fichier :', owFilePath || 'projet.xml');
     if (nom) owTelecharger(nom, owSerialise());
   }
 }
 
 function owTelecharger(nom, contenu) {
-  const blob = new Blob([contenu], {type:'application/json'});
+  const blob = new Blob([contenu], {type:'application/xml'});
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = nom.endsWith('.owk') ? nom : nom + '.owk';
+  a.download = nom.endsWith('.xml') ? nom : nom + '.xml';
   a.click();
   URL.revokeObjectURL(url);
   owModified = false;
@@ -600,21 +762,11 @@ function owTelecharger(nom, contenu) {
 
 function owExporterInterpretor() {
   owCloseMenus();
-  const exp = {
-    type: 'openwork',
-    sections: owSections.map(s => ({id:s.id, name:s.name, posY:s.posY})),
-    groups: owGroups.map(g => ({
-      id:g.id, name:g.name, sectionId:g.sectionId,
-      posX:g.posX, posY:g.posY, w:g.w, h:g.h,
-      nuance:g.nuance, color:g.color
-    })),
-    nuances: owNuances
-  };
-  const txt = JSON.stringify(exp, null, 2);
+  const txt = owSerialise();
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owExportInterp;' + txt);
   } else {
-    owTelecharger('interpretor_export.json', txt);
+    owTelecharger('interpretor_export.xml', txt);
   }
 }
 
@@ -692,14 +844,23 @@ async function owDoPermuter() {
 async function owAjouterGroupe() {
   owCloseMenus();
   if (owActiveSec === null) { await owAlert('Sélectionnez d\'abord une section dans le panneau gauche.'); return; }
-  const name = await owPrompt('Nom du groupe :', 'Groupe ' + owNextGrpId);
+  const name = await owPrompt('Référence (ex: grp1.xml) :', 'grp' + owNextGrpId + '.xml');
   if (!name) return;
   const grp = {
     id: owNextGrpId++, name,
     sectionId: owActiveSec,
     posX: 20, posY: 20,
     w: 120, h: 60,
-    color: '#c8dcff', opacity: 0.5, nuance: ''
+    color: '#c8dcff', opacity: 0.5,
+    direct: true,
+    renversement: false, retrograde: false, renvRetrograde: false,
+    repetition: false, repetitionMax: 2,
+    transposition: false,
+    augDim: false, augDimMin: -2, augDimMax: 2,
+    expansion: false, expansionMin: 0.5, expansionMax: 2.0,
+    variationTempo: false, variationIntensite: false,
+    posRelDebut: false, posRelDebutAvant: 'debut', posRelDebutGroupe: '',
+    posRelFin:   false, posRelFinAvant:   'fin',   posRelFinGroupe:   ''
   };
   owGroups.push(grp);
   owActiveGrp = grp.id;
@@ -721,41 +882,97 @@ async function owSupprimerGroupe() {
   owUpdateInfo();
 }
 
+function owToggleGpSub(cbId, subId) {
+  const sub = document.getElementById(subId);
+  sub.style.display = document.getElementById(cbId).checked ? 'flex' : 'none';
+}
+
 async function owParamsGroupe() {
   owCloseMenus();
   if (owActiveGrp === null) { await owAlert('Sélectionnez d\'abord un groupe.'); return; }
   const grp = owGroups.find(g => g.id === owActiveGrp);
   if (!grp) return;
-  document.getElementById('gpNom').value      = grp.name;
-  document.getElementById('gpW').value        = grp.w;
-  document.getElementById('gpH').value        = grp.h;
-  document.getElementById('gpColor').value    = grp.color;
-  document.getElementById('gpOpacity').value  = grp.opacity;
-  // Reconstruire le select nuances
-  const sel = document.getElementById('gpNuance');
-  sel.innerHTML = '<option value="">—</option>';
-  owNuances.forEach(n => {
-    const opt = document.createElement('option');
-    opt.value = n.nom;
-    opt.textContent = n.nom + ' (' + n.val + ')';
-    if (n.nom === grp.nuance) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  document.getElementById('grpParamsPopup').style.display = 'block';
+  const $  = id => document.getElementById(id);
+  const cb = (id, v) => { $(id).checked = !!v; };
+  const sub = (id, v) => { $(id).style.display = v ? 'flex' : 'none'; };
+
+  $('gpNom').value     = grp.name;
+  $('gpW').value       = grp.w;
+  $('gpH').value       = grp.h;
+  $('gpColor').value   = grp.color;
+  $('gpOpacity').value = grp.opacity;
+
+  cb('gpDirect',             grp.direct           ?? true);
+  cb('gpRenversement',       grp.renversement      ?? false);
+  cb('gpRetrograde',         grp.retrograde        ?? false);
+  cb('gpRenvRetrograde',     grp.renvRetrograde    ?? false);
+  cb('gpRepetition',         grp.repetition        ?? false);
+  $('gpRepetitionMax').value = grp.repetitionMax   ?? 2;
+  sub('gpRepetitionSub',     grp.repetition);
+
+  cb('gpTransposition',      grp.transposition     ?? false);
+
+  cb('gpAugDim',             grp.augDim            ?? false);
+  $('gpAugDimMin').value     = grp.augDimMin        ?? -2;
+  $('gpAugDimMax').value     = grp.augDimMax        ?? 2;
+  sub('gpAugDimSub',         grp.augDim);
+
+  cb('gpExpansion',          grp.expansion         ?? false);
+  $('gpExpansionMin').value  = grp.expansionMin     ?? 0.5;
+  $('gpExpansionMax').value  = grp.expansionMax     ?? 2.0;
+  sub('gpExpansionSub',      grp.expansion);
+
+  cb('gpVariationTempo',     grp.variationTempo    ?? false);
+  cb('gpVariationIntensite', grp.variationIntensite ?? false);
+
+  cb('gpPosRelDebut',        grp.posRelDebut       ?? false);
+  $('gpPosRelDebutAvant').value  = grp.posRelDebutAvant  || 'debut';
+  $('gpPosRelDebutGroupe').value = grp.posRelDebutGroupe || '';
+  sub('gpPosRelDebutSub',   grp.posRelDebut);
+
+  cb('gpPosRelFin',          grp.posRelFin         ?? false);
+  $('gpPosRelFinAvant').value    = grp.posRelFinAvant    || 'fin';
+  $('gpPosRelFinGroupe').value   = grp.posRelFinGroupe   || '';
+  sub('gpPosRelFinSub',     grp.posRelFin);
+
+  $('grpParamsPopup').style.display = 'block';
 }
 
-function owUpdateGrp(param) {
+function owUpdateGrp() {
   if (owActiveGrp === null) return;
   const grp = owGroups.find(g => g.id === owActiveGrp);
   if (!grp) return;
-  switch (param) {
-    case 'nom':     grp.name    = document.getElementById('gpNom').value; break;
-    case 'w':       grp.w       = Math.max(20, parseInt(document.getElementById('gpW').value)||120); break;
-    case 'h':       grp.h       = Math.max(20, parseInt(document.getElementById('gpH').value)||60); break;
-    case 'color':   grp.color   = document.getElementById('gpColor').value; break;
-    case 'opacity': grp.opacity = parseFloat(document.getElementById('gpOpacity').value)||0.5; break;
-    case 'nuance':  grp.nuance  = document.getElementById('gpNuance').value; break;
-  }
+  const $ = id => document.getElementById(id);
+  const cb = id => $(id).checked;
+
+  grp.name    = $('gpNom').value;
+  grp.w       = Math.max(20, parseInt($('gpW').value) || 120);
+  grp.h       = Math.max(20, parseInt($('gpH').value) || 60);
+  grp.color   = $('gpColor').value;
+  grp.opacity = parseFloat($('gpOpacity').value) || 0.5;
+
+  grp.direct             = cb('gpDirect');
+  grp.renversement       = cb('gpRenversement');
+  grp.retrograde         = cb('gpRetrograde');
+  grp.renvRetrograde     = cb('gpRenvRetrograde');
+  grp.repetition         = cb('gpRepetition');
+  grp.repetitionMax      = parseInt($('gpRepetitionMax').value) || 2;
+  grp.transposition      = cb('gpTransposition');
+  grp.augDim             = cb('gpAugDim');
+  grp.augDimMin          = parseFloat($('gpAugDimMin').value) || -2;
+  grp.augDimMax          = parseFloat($('gpAugDimMax').value) || 2;
+  grp.expansion          = cb('gpExpansion');
+  grp.expansionMin       = parseFloat($('gpExpansionMin').value) || 0.5;
+  grp.expansionMax       = parseFloat($('gpExpansionMax').value) || 2.0;
+  grp.variationTempo     = cb('gpVariationTempo');
+  grp.variationIntensite = cb('gpVariationIntensite');
+  grp.posRelDebut        = cb('gpPosRelDebut');
+  grp.posRelDebutAvant   = $('gpPosRelDebutAvant').value;
+  grp.posRelDebutGroupe  = $('gpPosRelDebutGroupe').value;
+  grp.posRelFin          = cb('gpPosRelFin');
+  grp.posRelFinAvant     = $('gpPosRelFinAvant').value;
+  grp.posRelFinGroupe    = $('gpPosRelFinGroupe').value;
+
   owModified = true;
   const el = document.getElementById('grp' + grp.id);
   if (el) owApplyGrpStyle(el, grp);
@@ -859,7 +1076,7 @@ function owApplyGrpStyle(el, grp) {
   el.style.borderColor     = grp.color || '#4a90d9';
   el.style.backgroundColor = owHexRgba(grp.color || '#c8dcff', grp.opacity ?? 0.45);
   const lbl = el.querySelector('.ow-grp-lbl');
-  if (lbl) lbl.textContent = grp.name + (grp.nuance ? ' [' + grp.nuance + ']' : '');
+  if (lbl) lbl.textContent = grp.name;
 }
 
 function owHexRgba(hex, a) {
