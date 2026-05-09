@@ -468,7 +468,10 @@ async function saveGrp() {
 	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
 	let svgB64='';
-	try { svgB64 = await vueGrpSvg(0,true); } catch(e) { console.error('SVG grp thumb:',e); }
+	try {
+		svgB64 = await vueGrpSvg(0,true);
+		console.log('[saveGrp] svgB64 length:', svgB64 ? svgB64.length : 'null/empty');
+	} catch(e) { console.error('[saveGrp] SVG grp thumb error:',e); }
 	saveProjetA("2",0,defgrp,svgB64);
 }
 function loadGrp(path){

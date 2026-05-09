@@ -2185,6 +2185,7 @@ function saveDefGrp() {
 	mainWindow.webContents.send("fromMain", 'saveGrp');
 }
 function saveModifGrp(xmlB64, svgB64) {
+	console.log('[saveModifGrp] xmlB64 length:', xmlB64?xmlB64.length:0, 'svgB64 length:', svgB64?svgB64.length:0);
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
         defaultPath: path.join(__dirname, '../'),
