@@ -4170,6 +4170,15 @@ function pasteSymbole(obj,copyX,copyY){
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			break;
+		case 84:
+			tableObjet[objActif].x2=tableObjet[obj].x2;
+			tableObjet[objActif].y2=tableObjet[obj].y2;
+			gArpege4(objActif);
+			redrawArpege(objActif);
+			document.getElementById("sglis"+objActif).style.border='0px solid red';
+			dragElement(document.getElementById('p1'+nbObjets));
+			dragElement(document.getElementById('sglis'+nbObjets));
+			break;
 	}
 	dragElement(document.getElementById(selectObj));
 	document.getElementById(selectObj).addEventListener('mouseup',selectBkgObj);
