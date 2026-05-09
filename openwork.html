@@ -158,6 +158,24 @@
       margin: 2px 0;
       cursor: default;
       color: #222;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .ow-sec-roman {
+      font-weight: bold;
+      font-size: 1em;
+      color: #2a5fa8;
+      min-width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .ow-sec-name {
+      font-size: 0.85em;
+      color: #444;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     /* ── Sections dans l'espace de travail ── */
@@ -797,8 +815,9 @@ function owRenderAll() {
 
 function owRenderSections() {
   document.querySelectorAll('.ow-section-line').forEach(el => el.remove());
-  const space = document.getElementById('space');
-  owSections.forEach(sec => {
+  const space  = document.getElementById('space');
+  const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
+  sorted.forEach((sec, idx) => {
     const div = document.createElement('div');
     div.className = 'ow-section-line';
     div.id        = 'owsec' + sec.id;
@@ -807,7 +826,7 @@ function owRenderSections() {
 
     const lbl = document.createElement('span');
     lbl.className   = 'ow-section-lbl';
-    lbl.textContent = sec.name;
+    lbl.textContent = toRoman(idx + 1) + '  ' + sec.name;
     lbl.style.color = sec.color || '#4a90d9';
     div.appendChild(lbl);
     space.appendChild(div);
@@ -855,14 +874,34 @@ function owHexRgba(hex, a) {
   return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 }
 
+function toRoman(n) {
+  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+  let result = '';
+  for (let i = 0; i < vals.length; i++) {
+    while (n >= vals[i]) { result += syms[i]; n -= vals[i]; }
+  }
+  return result;
+}
+
 function owBuildSectionList() {
   const div = document.getElementById('owSectionList');
   div.innerHTML = '';
-  [...owSections].sort((a,b) => a.posY - b.posY).forEach(sec => {
-    const item      = document.createElement('div');
-    item.className  = 'ow-sec-item';
+  [...owSections].sort((a,b) => a.posY - b.posY).forEach((sec, idx) => {
+    const item = document.createElement('div');
+    item.className = 'ow-sec-item';
     item.style.borderLeftColor = sec.color || '#4a90d9';
-    item.textContent = sec.name;
+
+    const roman = document.createElement('span');
+    roman.className = 'ow-sec-roman';
+    roman.textContent = toRoman(idx + 1);
+
+    const name = document.createElement('span');
+    name.className = 'ow-sec-name';
+    name.textContent = sec.name;
+
+    item.appendChild(roman);
+    item.appendChild(name);
     div.appendChild(item);
   });
 }
