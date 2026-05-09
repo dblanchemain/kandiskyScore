@@ -280,6 +280,32 @@
     }
     .nuance-row label { width: 52px; font-weight: bold; font-size: 0.85em; }
     .nuance-row input[type=number] { width: 70px; }
+
+    /* ── Mini-modal générique ── */
+    #owModalOverlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.35); z-index: 9000;
+      align-items: center; justify-content: center;
+    }
+    #owModalOverlay.actif { display: flex; }
+    #owModalBox {
+      background: #f5f5fa; border: 1px solid #aaa; border-radius: 6px;
+      padding: 18px 22px; min-width: 280px; max-width: 420px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.3); font-size: 0.9em;
+    }
+    #owModalMsg { margin-bottom: 10px; white-space: pre-wrap; line-height: 1.4; }
+    #owModalInput {
+      display: none; width: 100%; box-sizing: border-box;
+      margin-bottom: 10px; padding: 4px 6px; font-size: 0.95em;
+      border: 1px solid #bbb; border-radius: 3px;
+    }
+    #owModalBtns { display: flex; gap: 8px; justify-content: flex-end; }
+    #owModalBtns button {
+      padding: 4px 14px; border-radius: 3px; border: 1px solid #aaa;
+      cursor: pointer; font-size: 0.9em;
+    }
+    #owModalOk { background: #2a5fa8; color: #fff; border-color: #1e4a8a; }
+    #owModalCancel { background: #eee; }
   </style>
 </head>
 <body>
@@ -502,9 +528,9 @@ function owCloseMenus() {
 // ═══════════════════════════════════════════════
 //  FICHIER
 // ═══════════════════════════════════════════════
-function owNouveau() {
+async function owNouveau() {
   owCloseMenus();
-  if (owModified && !confirm('Nouveau projet ? Les modifications non sauvegardées seront perdues.')) return;
+  if (owModified && !await owConfirm('Nouveau projet ? Les modifications non sauvegardées seront perdues.')) return;
   owSections = []; owGroups = [];
   owNextSecId = 1; owNextGrpId = 1;
   owActiveGrp = null; owFilePath = null; owModified = false;
@@ -543,7 +569,7 @@ function owParseData(txt, label) {
     if (label) document.getElementById('owFileLabel').textContent = label;
     owRenderAll();
     owBuildNuancesTable();
-  } catch(err) { alert('Erreur de chargement : ' + err.message); }
+  } catch(err) { owAlert('Erreur de chargement : ' + err.message); }
 }
 
 function owSerialise() {
@@ -562,12 +588,12 @@ function owSauvegarder() {
   }
 }
 
-function owSauvegarderSous() {
+async function owSauvegarderSous() {
   owCloseMenus();
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSaveAs;' + owSerialise());
   } else {
-    const nom = prompt('Nom du fichier :', owFilePath || 'projet.owk');
+    const nom = await owPrompt('Nom du fichier :', owFilePath || 'projet.owk');
     if (nom) owTelecharger(nom, owSerialise());
   }
 }
@@ -606,9 +632,9 @@ function owExporterInterpretor() {
 // ═══════════════════════════════════════════════
 //  ÉDITION – SECTIONS
 // ═══════════════════════════════════════════════
-function owAjouterSection() {
+async function owAjouterSection() {
   owCloseMenus();
-  const name = prompt('Nom de la section :', 'Section ' + owNextSecId);
+  const name = await owPrompt('Nom de la section :', 'Section ' + owNextSecId);
   if (!name) return;
   const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
   let posY = 20;
@@ -621,16 +647,16 @@ function owAjouterSection() {
   owRenderAll();
 }
 
-function owSupprimerSection() {
+async function owSupprimerSection() {
   owCloseMenus();
-  if (owSections.length === 0) { alert('Aucune section à supprimer.'); return; }
+  if (owSections.length === 0) { await owAlert('Aucune section à supprimer.'); return; }
   const liste = [...owSections].sort((a,b)=>a.posY-b.posY)
     .map(s => s.id + ' → ' + s.name).join('\n');
-  const saisie = prompt('ID de la section à supprimer :\n' + liste);
+  const saisie = await owPrompt('ID de la section à supprimer :\n' + liste, '');
   if (!saisie) return;
   const id = parseInt(saisie);
   const idx = owSections.findIndex(s => s.id === id);
-  if (idx === -1) { alert('Section non trouvée.'); return; }
+  if (idx === -1) { await owAlert('Section non trouvée.'); return; }
   owGroups    = owGroups.filter(g => g.sectionId !== id);
   owSections.splice(idx, 1);
   if (!owGroups.find(g => g.id === owActiveGrp)) owActiveGrp = null;
@@ -638,9 +664,9 @@ function owSupprimerSection() {
   owRenderAll();
 }
 
-function owPermuter() {
+async function owPermuter() {
   owCloseMenus();
-  if (owSections.length < 2) { alert('Il faut au moins deux sections.'); return; }
+  if (owSections.length < 2) { await owAlert('Il faut au moins deux sections.'); return; }
   const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
   ['permSec1','permSec2'].forEach((selId, i) => {
     const sel = document.getElementById(selId);
@@ -656,10 +682,10 @@ function owPermuter() {
   document.getElementById('permutPopup').style.display = 'block';
 }
 
-function owDoPermuter() {
+async function owDoPermuter() {
   const id1 = parseInt(document.getElementById('permSec1').value);
   const id2 = parseInt(document.getElementById('permSec2').value);
-  if (id1 === id2) { alert('Sélectionner deux sections différentes.'); return; }
+  if (id1 === id2) { await owAlert('Sélectionner deux sections différentes.'); return; }
   const s1 = owSections.find(s => s.id === id1);
   const s2 = owSections.find(s => s.id === id2);
   if (!s1 || !s2) return;
@@ -679,10 +705,10 @@ function owDoPermuter() {
 // ═══════════════════════════════════════════════
 //  ÉDITION – GROUPES
 // ═══════════════════════════════════════════════
-function owAjouterGroupe() {
+async function owAjouterGroupe() {
   owCloseMenus();
-  if (owSections.length === 0) { alert('Créez d\'abord une section.'); return; }
-  const name = prompt('Nom du groupe :', 'Groupe ' + owNextGrpId);
+  if (owSections.length === 0) { await owAlert('Créez d\'abord une section.'); return; }
+  const name = await owPrompt('Nom du groupe :', 'Groupe ' + owNextGrpId);
   if (!name) return;
   const sec = [...owSections].sort((a,b) => a.posY - b.posY)[0];
   const grp = {
@@ -699,12 +725,12 @@ function owAjouterGroupe() {
   owUpdateInfo();
 }
 
-function owSupprimerGroupe() {
+async function owSupprimerGroupe() {
   owCloseMenus();
-  if (owActiveGrp === null) { alert('Sélectionnez d\'abord un groupe.'); return; }
+  if (owActiveGrp === null) { await owAlert('Sélectionnez d\'abord un groupe.'); return; }
   const grp = owGroups.find(g => g.id === owActiveGrp);
   if (!grp) return;
-  if (!confirm('Supprimer le groupe « ' + grp.name + ' » ?')) return;
+  if (!await owConfirm('Supprimer le groupe « ' + grp.name + ' » ?')) return;
   owGroups    = owGroups.filter(g => g.id !== owActiveGrp);
   owActiveGrp = null;
   owModified  = true;
@@ -712,9 +738,9 @@ function owSupprimerGroupe() {
   owUpdateInfo();
 }
 
-function owParamsGroupe() {
+async function owParamsGroupe() {
   owCloseMenus();
-  if (owActiveGrp === null) { alert('Sélectionnez d\'abord un groupe.'); return; }
+  if (owActiveGrp === null) { await owAlert('Sélectionnez d\'abord un groupe.'); return; }
   const grp = owGroups.find(g => g.id === owActiveGrp);
   if (!grp) return;
   document.getElementById('gpNom').value      = grp.name;
@@ -787,18 +813,18 @@ function owNuanceVal(inp) {
   owModified = true;
 }
 
-function owAjouterNuance() {
-  const nom = prompt('Nom de la nuance :', 'n' + (owNuances.length + 1));
+async function owAjouterNuance() {
+  const nom = await owPrompt('Nom de la nuance :', 'n' + (owNuances.length + 1));
   if (!nom) return;
   owNuances.push({nom, val: 60});
   owBuildNuancesTable();
   owModified = true;
 }
 
-function owSupprimerNuance() {
+async function owSupprimerNuance() {
   if (owNuances.length === 0) return;
   const last = owNuances.at(-1);
-  if (!confirm('Supprimer « ' + last.nom + ' » ?')) return;
+  if (!await owConfirm('Supprimer « ' + last.nom + ' » ?')) return;
   owNuances.pop();
   owBuildNuancesTable();
   owModified = true;
@@ -1223,6 +1249,56 @@ document.getElementById('space').addEventListener('mouseleave', owResetCompteur)
 owBuildNuancesTable();
 owResetCompteur();
 owCreateReglette();
+</script>
+
+<!-- ── Mini-modal générique ── -->
+<div id="owModalOverlay">
+  <div id="owModalBox">
+    <div id="owModalMsg"></div>
+    <input id="owModalInput" type="text"/>
+    <div id="owModalBtns">
+      <button id="owModalCancel">Annuler</button>
+      <button id="owModalOk">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const overlay = document.getElementById('owModalOverlay');
+  const msgEl   = document.getElementById('owModalMsg');
+  const inp     = document.getElementById('owModalInput');
+  const btnOk   = document.getElementById('owModalOk');
+  const btnCan  = document.getElementById('owModalCancel');
+  let _resolve  = null;
+
+  function _open(msg, withInput, defVal, withCancel) {
+    msgEl.textContent = msg;
+    inp.style.display = withInput ? 'block' : 'none';
+    inp.value = defVal || '';
+    btnCan.style.display = withCancel ? 'inline-block' : 'none';
+    overlay.classList.add('actif');
+    if (withInput) { inp.focus(); inp.select(); }
+    else btnOk.focus();
+    return new Promise(res => { _resolve = res; });
+  }
+  function _close(val) {
+    overlay.classList.remove('actif');
+    if (_resolve) { _resolve(val); _resolve = null; }
+  }
+  btnOk.addEventListener('click', () => {
+    _close(inp.style.display === 'block' ? inp.value : true);
+  });
+  btnCan.addEventListener('click', () => _close(null));
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') _close(inp.value);
+    if (e.key === 'Escape') _close(null);
+  });
+  overlay.addEventListener('mousedown', e => { if (e.target === overlay) _close(null); });
+
+  window.owAlert   = (msg)           => _open(msg, false, '', false);
+  window.owConfirm = (msg)           => _open(msg, false, '', true);
+  window.owPrompt  = (msg, def)      => _open(msg, true,  def, true);
+})();
 </script>
 </body>
 </html>
