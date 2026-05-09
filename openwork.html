@@ -177,14 +177,21 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    .ow-sec-item.actif {
+      background: #d0e4ff;
+      border-left-width: 4px;
+    }
+    .ow-sec-item:hover:not(.actif) {
+      background: #edf3ff;
+    }
 
     /* ── Sections dans l'espace de travail ── */
     .ow-section-line {
       position: absolute;
       left: 0;
       width: 12960px;
-      height: 0;
-      border-top: 2px solid #4a90d9;
+      height: 2px;
+      background-color: #4a90d9;
       z-index: 2;
       pointer-events: none;
     }
@@ -847,8 +854,8 @@ function owRenderSections() {
     const div = document.createElement('div');
     div.className = 'ow-section-line';
     div.id        = 'owsec' + sec.id;
-    div.style.top = sec.posY + 'px';
-    div.style.borderTopColor = sec.color || '#4a90d9';
+    div.style.top             = sec.posY + 'px';
+    div.style.backgroundColor = sec.color || '#4a90d9';
 
     const lbl = document.createElement('span');
     lbl.className   = 'ow-section-lbl';
@@ -910,13 +917,32 @@ function toRoman(n) {
   return result;
 }
 
+let owActiveSec = null;
+
+function owSelectSection(secId) {
+  owActiveSec = secId;
+  document.querySelectorAll('.ow-sec-item').forEach(el => el.classList.remove('actif'));
+  const el = document.getElementById('owsi' + secId);
+  if (el) el.classList.add('actif');
+  const sec = owSections.find(s => s.id === secId);
+  if (sec) {
+    const work2 = document.getElementById('work2');
+    work2.scrollTop = Math.max(0, sec.posY - 40);
+  }
+}
+
 function owBuildSectionList() {
   const div = document.getElementById('owSectionList');
   div.innerHTML = '';
   [...owSections].sort((a,b) => a.posY - b.posY).forEach((sec, idx) => {
     const item = document.createElement('div');
-    item.className = 'ow-sec-item';
+    item.className = 'ow-sec-item' + (sec.id === owActiveSec ? ' actif' : '');
+    item.id = 'owsi' + sec.id;
     item.style.borderLeftColor = sec.color || '#4a90d9';
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      owSelectSection(sec.id);
+    });
 
     const roman = document.createElement('span');
     roman.className = 'ow-sec-roman';
