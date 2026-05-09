@@ -1171,6 +1171,29 @@ function owSpaceClick(e) {
 // ═══════════════════════════════════════════════
 //  DRAG ELEMENT – groupes seulement (grp*)
 // ═══════════════════════════════════════════════
+function owApplyPosConstraints(grp) {
+  const peers = owGroups.filter(g => g.sectionId === owActiveSec && g.id !== grp.id);
+  const w = grp.w || 120;
+  let maxX = Infinity;
+
+  if (grp.posRelDebut && grp.posRelDebutGroupe) {
+    const ref = peers.find(g => g.name === grp.posRelDebutGroupe);
+    if (ref) {
+      const bound = grp.posRelDebutAvant === 'fin' ? ref.posX + (ref.w || 120) : ref.posX;
+      maxX = Math.min(maxX, bound - 1);
+    }
+  }
+  if (grp.posRelFin && grp.posRelFinGroupe) {
+    const ref = peers.find(g => g.name === grp.posRelFinGroupe);
+    if (ref) {
+      const bound = grp.posRelFinAvant === 'fin' ? ref.posX + (ref.w || 120) : ref.posX;
+      maxX = Math.min(maxX, bound - w - 1);
+    }
+  }
+
+  grp.posX = Math.max(0, maxX === Infinity ? grp.posX : Math.min(grp.posX, maxX));
+}
+
 function owDragElement(elmnt, grpData, startEvt) {
   let p1=0, p2=0, p3=startEvt.clientX, p4=startEvt.clientY;
 
@@ -1183,14 +1206,17 @@ function owDragElement(elmnt, grpData, startEvt) {
     p2 = p4 - e.clientY;
     p3 = e.clientX;
     p4 = e.clientY;
-    grpData.posX = Math.max(0, elmnt.offsetLeft - p1);
-    grpData.posY = Math.max(0, elmnt.offsetTop  - p2);
+    grpData.posX = elmnt.offsetLeft - p1;
+    grpData.posY = Math.max(0, elmnt.offsetTop - p2);
+    owApplyPosConstraints(grpData);
     elmnt.style.left = grpData.posX + 'px';
     elmnt.style.top  = grpData.posY + 'px';
   }
   function stop() {
     document.onmousemove = null;
     document.onmouseup   = null;
+    owApplyPosConstraints(grpData);
+    elmnt.style.left = grpData.posX + 'px';
     owModified = true;
   }
 }
