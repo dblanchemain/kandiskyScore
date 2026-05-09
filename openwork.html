@@ -714,6 +714,7 @@ function owParseData(txt, label) {
           posRelFin:        gb(grpEl,'posRelFin',false),
           posRelFinAvant:   g(grpEl,'posRelFinAvant','fin'),
           posRelFinGroupe:  g(grpEl,'posRelFinGroupe',''),
+          dir:              g(grpEl,'dir',''),
           svgData: ''
         });
       });
@@ -727,7 +728,7 @@ function owParseData(txt, label) {
     if (typeof window.api !== 'undefined') {
       owGroups.forEach(grp => {
         const svgName = grp.name.replace(/\.xml$/i, '.svg');
-        window.api.send('toMain', 'owReadSvg;' + grp.id + ';' + svgName);
+        window.api.send('toMain', 'owReadSvg;' + grp.id + ';' + svgName + ';' + (grp.dir || ''));
       });
     }
   } catch(err) { owAlert('Erreur de chargement : ' + err.message); }
@@ -752,6 +753,7 @@ function owSerialise() {
       xml += `              variationTempo="${b(grp.variationTempo)}" variationIntensite="${b(grp.variationIntensite)}"\n`;
       xml += `              posRelDebut="${b(grp.posRelDebut)}" posRelDebutAvant="${x(grp.posRelDebutAvant)}" posRelDebutGroupe="${x(grp.posRelDebutGroupe)}"\n`;
       xml += `              posRelFin="${b(grp.posRelFin)}" posRelFinAvant="${x(grp.posRelFinAvant)}" posRelFinGroupe="${x(grp.posRelFinGroupe)}"\n`;
+      xml += `              dir="${x(grp.dir||'')}"\n`;
       xml += `              posX="${grp.posX}" posY="${grp.posY}" w="${grp.w}" h="${grp.h}" color="${x(grp.color)}" opacity="${grp.opacity}"/>\n`;
     });
     xml += `    </section>\n`;
@@ -891,6 +893,7 @@ async function owAjouterGroupe() {
     variationTempo: false, variationIntensite: false,
     posRelDebut: false, posRelDebutAvant: 'debut', posRelDebutGroupe: '',
     posRelFin:   false, posRelFinAvant:   'fin',   posRelFinGroupe:   '',
+    dir: '',
     svgData: ''
   };
   owGroups.push(grp);
@@ -1353,11 +1356,13 @@ if (typeof window.api !== 'undefined') {
         const fieldId = parts[0] || '';
         const fileName = parts[1] || '';
         const svgB64  = parts[2] || '';
+        const grpDir  = parts[3] || '';
         const el = document.getElementById(fieldId);
         if (el) { el.value = fileName; owUpdateGrp(); }
         if (fieldId === 'gpNom' && owActiveGrp !== null) {
           const grp = owGroups.find(g => g.id === owActiveGrp);
           if (grp) {
+            grp.dir    = grpDir;
             grp.svgData = svgB64 ? 'data:image/svg+xml;base64,' + svgB64 : '';
             owRenderGroups();
           }

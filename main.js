@@ -4767,20 +4767,23 @@ ipcMain.on ("toMain", (event, args) => {
 					if (result.canceled || !result.filePaths[0]) return;
 					const xmlFull  = result.filePaths[0];
 					const fileName = path.basename(xmlFull);
+					const xmlDir   = path.dirname(xmlFull);
 					const svgFull  = xmlFull.replace(/\.xml$/i, '.svg');
 					let svgB64 = '';
 					try {
 						const svgContent = fs.readFileSync(svgFull, 'utf-8');
 						svgB64 = Buffer.from(svgContent, 'utf-8').toString('base64');
 					} catch(e) {}
-					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64);
+					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + xmlDir);
 				}).catch(err => console.error('owPickGrpFile:', err));
 			break; }
 			case 'owReadSvg': {
 				const grpId   = cmd[1];
 				const svgName = cmd[2];
-				if (!owCurrentDir || !svgName) break;
-				const svgFull2 = path.join(owCurrentDir, svgName);
+				const grpDir  = (cmd[3] || '').trim();
+				const baseDir = grpDir || owCurrentDir;
+				if (!baseDir || !svgName) break;
+				const svgFull2 = path.join(baseDir, svgName);
 				try {
 					const svgContent2 = fs.readFileSync(svgFull2, 'utf-8');
 					const svgB642 = Buffer.from(svgContent2, 'utf-8').toString('base64');
