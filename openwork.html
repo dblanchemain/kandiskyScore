@@ -185,26 +185,8 @@
       background: #edf3ff;
     }
 
-    /* ── Sections dans l'espace de travail ── */
-    .ow-section-line {
-      position: absolute;
-      left: 0;
-      width: 12960px;
-      height: 2px;
-      background-color: #4a90d9;
-      z-index: 2;
-      pointer-events: none;
-    }
     .ow-section-lbl {
-      position: absolute;
-      top: 3px;
-      left: 4px;
-      font-size: 0.72em;
-      color: #4a90d9;
-      background: rgba(255,255,255,0.85);
-      padding: 1px 5px;
-      pointer-events: none;
-      z-index: 3;
+      display: none;
       font-weight: bold;
     }
 
@@ -696,11 +678,6 @@ async function owDoPermuter() {
   const s1 = owSections.find(s => s.id === id1);
   const s2 = owSections.find(s => s.id === id2);
   if (!s1 || !s2) return;
-  const dy = s2.posY - s1.posY;
-  owGroups.forEach(g => {
-    if (g.sectionId === id1) { g.posY += dy; g.sectionId = id2; }
-    else if (g.sectionId === id2) { g.posY -= dy; g.sectionId = id1; }
-  });
   const tmp = s1.posY;
   s1.posY = s2.posY;
   s2.posY = tmp;
@@ -714,14 +691,13 @@ async function owDoPermuter() {
 // ═══════════════════════════════════════════════
 async function owAjouterGroupe() {
   owCloseMenus();
-  if (owSections.length === 0) { await owAlert('Créez d\'abord une section.'); return; }
+  if (owActiveSec === null) { await owAlert('Sélectionnez d\'abord une section dans le panneau gauche.'); return; }
   const name = await owPrompt('Nom du groupe :', 'Groupe ' + owNextGrpId);
   if (!name) return;
-  const sec = [...owSections].sort((a,b) => a.posY - b.posY)[0];
   const grp = {
     id: owNextGrpId++, name,
-    sectionId: sec.id,
-    posX: 20, posY: sec.posY + 20,
+    sectionId: owActiveSec,
+    posX: 20, posY: 20,
     w: 120, h: 60,
     color: '#c8dcff', opacity: 0.5, nuance: ''
   };
@@ -847,23 +823,15 @@ function owRenderAll() {
 }
 
 function owRenderSections() {
-  document.querySelectorAll('.ow-section-line').forEach(el => el.remove());
-  const space  = document.getElementById('space');
-  const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
-  sorted.forEach((sec, idx) => {
-    const div = document.createElement('div');
-    div.className = 'ow-section-line';
-    div.id        = 'owsec' + sec.id;
-    div.style.top             = sec.posY + 'px';
-    div.style.backgroundColor = sec.color || '#4a90d9';
-    space.appendChild(div);
-  });
+  // Les sections n'ont pas de représentation dans l'espace de travail.
+  // Le canvas affiche uniquement les groupes de la section active.
 }
 
 function owRenderGroups() {
   document.querySelectorAll('.ow-grp').forEach(el => el.remove());
+  if (owActiveSec === null) return;
   const space = document.getElementById('space');
-  owGroups.forEach(grp => {
+  owGroups.filter(g => g.sectionId === owActiveSec).forEach(grp => {
     const div = document.createElement('div');
     div.className = 'ow-grp' + (grp.id === owActiveGrp ? ' actif' : '');
     div.id        = 'grp' + grp.id;
@@ -915,14 +883,10 @@ let owActiveSec = null;
 
 function owSelectSection(secId) {
   owActiveSec = secId;
-  document.querySelectorAll('.ow-sec-item').forEach(el => el.classList.remove('actif'));
-  const el = document.getElementById('owsi' + secId);
-  if (el) el.classList.add('actif');
-  const sec = owSections.find(s => s.id === secId);
-  if (sec) {
-    const work2 = document.getElementById('work2');
-    work2.scrollTop = Math.max(0, sec.posY - 40);
-  }
+  owActiveGrp = null;
+  document.querySelector('#work2').scrollTop = 0;
+  document.querySelector('#work2').scrollLeft = 0;
+  owRenderAll();
 }
 
 function owBuildSectionList() {
@@ -1001,25 +965,14 @@ function owDragElement(elmnt, grpData, startEvt) {
     grpData.posY = Math.max(0, elmnt.offsetTop  - p2);
     elmnt.style.left = grpData.posX + 'px';
     elmnt.style.top  = grpData.posY + 'px';
-    owAffecterSection(grpData);
   }
   function stop() {
     document.onmousemove = null;
     document.onmouseup   = null;
-    owAffecterSection(grpData);
     owModified = true;
   }
 }
 
-function owAffecterSection(grp) {
-  const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
-  let aff = null;
-  for (const sec of sorted) {
-    if (sec.posY <= grp.posY) aff = sec;
-  }
-  if (aff) grp.sectionId = aff.id;
-  owUpdateInfo();
-}
 
 // ═══════════════════════════════════════════════
 //  DRAG des popups (via leur header)
