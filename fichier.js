@@ -369,7 +369,7 @@ function defProjetConf(txt) {
 function saveProjet(t){
 	saveProjetA(t,0,tableObjet);
 }
-function saveProjetA(t,offset,tabgrp){
+function saveProjetA(t,offset,tabgrp,svgB64){
 	var obj=document.getElementById("fichierSave");
 	var txt="<?xml version='1.0' encoding='UTF-8' ?>\n<kandiskyscore version='"+KANDISKYSCORE_VERSION+"'>\n";
 	if(t!=2){
@@ -449,31 +449,56 @@ function saveProjetA(t,offset,tabgrp){
 			window.api.send("toMain", "saveModifProjetAs;"+uena(txt));
 			break;
 		case "2":
-			window.api.send("toMain", "saveModifGrp;"+txt);
+			window.api.send("toMain", "saveModifGrp;"+txt+(svgB64?";"+svgB64:""));
 			break;
 	}
 }
-function saveGrp() {
+async function saveGrp() {
 	var defgrp=[];
-	// Collecter récursivement tous les membres du groupe (y compris sous-groupes)
 	function collectMembers(idxGrp) {
 		var membres = tableObjet[idxGrp].liste;
 		for(let i=0;i<membres.length;i++){
 			var m = tableObjet[membres[i]];
 			if(m && m.etat==1){
-				if(m.class==4){
-					collectMembers(membres[i]);
-				}
-				// Eviter les doublons
-				if(defgrp.indexOf(m)==-1){
-					defgrp.push(m);
-				}
+				if(m.class==4) collectMembers(membres[i]);
+				if(defgrp.indexOf(m)==-1) defgrp.push(m);
 			}
 		}
 	}
 	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
-	saveProjetA("2",0,defgrp);
+
+	var svgB64='';
+	try {
+		document.getElementById('vueSvg').innerHTML='';
+		await vuePartitionA(1,2,defgrp);
+		var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+		for(let obj of defgrp){
+			if(obj.etat==1){
+				var x=parseFloat(obj.posX)||0, y=parseFloat(obj.posY)||0;
+				var el=document.getElementById(obj.id);
+				var w=el?el.offsetWidth:60, h=el?el.offsetHeight:40;
+				if(x<minX)minX=x; if(y<minY)minY=y;
+				if(x+w>maxX)maxX=x+w; if(y+h>maxY)maxY=y+h;
+			}
+		}
+		if(!isFinite(minX)){minX=0;minY=0;maxX=200;maxY=100;}
+		var pad=10;
+		var vbX=Math.max(0,minX-pad), vbY=Math.max(0,minY-pad);
+		var vbW=(maxX-minX)+2*pad, vbH=(maxY-minY)+2*pad;
+		var inner=document.getElementById('vueSvg').innerHTML;
+		var bkg=typeof vueSvgBackground!=='undefined'?vueSvgBackground:'#ffffff';
+		var svgDoc='<?xml version="1.0" encoding="UTF-8"?>'
+			+'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"'
+			+' viewBox="'+vbX+' '+vbY+' '+vbW+' '+vbH+'"'
+			+' width="'+vbW+'" height="'+vbH+'">'
+			+'<rect x="'+vbX+'" y="'+vbY+'" width="'+vbW+'" height="'+vbH+'" fill="'+bkg+'"/>'
+			+'<g>'+inner+'</g></svg>';
+		svgB64=uena(svgDoc);
+	} catch(e){
+		console.error('saveGrp SVG:',e);
+	}
+	saveProjetA("2",0,defgrp,svgB64);
 }
 function loadGrp(path){
 	var xhttp = new XMLHttpRequest();
