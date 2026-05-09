@@ -4747,6 +4747,17 @@ ipcMain.on ("toMain", (event, args) => {
 					winSpatMassEtat=0;
 				}
 			break;
+			case 'owPickGrpFile': {
+				const pickFieldId = cmd[1];
+				dialog.showOpenDialog(winOpenWork, {
+					properties: ['openFile'],
+					filters: [{ name: 'Kandiskyscore XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
+				}).then(result => {
+					if (result.canceled || !result.filePaths[0]) return;
+					const fileName = path.basename(result.filePaths[0]);
+					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName);
+				}).catch(err => console.error('owPickGrpFile:', err));
+			break; }
 			case 'owOpen': {
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],

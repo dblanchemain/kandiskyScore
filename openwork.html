@@ -408,28 +408,21 @@
   </div>
 </div>
 
-<!-- Input fichier caché pour ouverture -->
+<!-- Input fichier caché pour ouverture projet -->
 <input type="file" id="owFileInput" style="display:none" accept=".xml" />
+<!-- Input fichier caché pour sélection de groupe -->
+<input type="file" id="owGrpFileInput" style="display:none" accept=".xml" />
 
 <!-- ════════════════════════ POPUP : Paramètres groupe ════════════════════════ -->
 <div id="grpParamsPopup" class="ow-popup" style="top:60px;left:260px;width:520px;">
   <div id="grpParamsPopupHeader" class="ow-popup-hd">Paramètres du groupe</div>
   <div class="ow-popup-body" style="max-height:500px;overflow-y:auto;">
 
-    <!-- Référence + affichage -->
+    <!-- Référence fichier groupe -->
     <div class="gp-row">
       <label>Nom (référence) :</label>
-      <input id="gpNom" type="text" style="width:190px;" oninput="owUpdateGrp()"/>
-    </div>
-    <div class="gp-row" style="margin-top:4px;">
-      <label>Largeur :</label>
-      <input id="gpW" type="number" min="20" max="2000" value="120" oninput="owUpdateGrp()"/>
-      &nbsp;Hauteur :
-      <input id="gpH" type="number" min="20" max="800" value="60" oninput="owUpdateGrp()"/>
-      &nbsp;Couleur :
-      <input id="gpColor" type="color" value="#c8dcff" oninput="owUpdateGrp()"/>
-      &nbsp;Opacité :
-      <input id="gpOpacity" type="number" min="0.05" max="1" step="0.05" value="0.5" style="width:48px;" oninput="owUpdateGrp()"/>
+      <input id="gpNom" type="text" style="width:180px;" oninput="owUpdateGrp()" readonly/>
+      <button onclick="owPickFile('gpNom')" style="font-size:0.8em;">…</button>
     </div>
 
     <!-- Transformations -->
@@ -500,7 +493,8 @@
           <option value="fin">fin</option>
         </select>
         &nbsp;de&nbsp;
-        <input id="gpPosRelDebutGroupe" type="text" style="width:110px;" placeholder="grp.xml" oninput="owUpdateGrp()"/>
+        <input id="gpPosRelDebutGroupe" type="text" style="width:100px;" placeholder="grp.xml" readonly/>
+        <button onclick="owPickFile('gpPosRelDebutGroupe')" style="font-size:0.8em;">…</button>
       </span>
     </div>
     <div class="gp-row">
@@ -513,7 +507,8 @@
           <option value="fin">fin</option>
         </select>
         &nbsp;de&nbsp;
-        <input id="gpPosRelFinGroupe" type="text" style="width:110px;" placeholder="grp.xml" oninput="owUpdateGrp()"/>
+        <input id="gpPosRelFinGroupe" type="text" style="width:100px;" placeholder="grp.xml" readonly/>
+        <button onclick="owPickFile('gpPosRelFinGroupe')" style="font-size:0.8em;">…</button>
       </span>
     </div>
 
@@ -882,6 +877,24 @@ async function owSupprimerGroupe() {
   owUpdateInfo();
 }
 
+function owPickFile(fieldId) {
+  if (typeof window.api !== 'undefined') {
+    window.api.send('toMain', 'owPickGrpFile;' + fieldId);
+  } else {
+    const inp = document.getElementById('owGrpFileInput');
+    inp.dataset.field = fieldId;
+    inp.click();
+  }
+}
+
+document.getElementById('owGrpFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const el = document.getElementById(this.dataset.field);
+  if (el) { el.value = file.name; owUpdateGrp(); }
+  this.value = '';
+});
+
 function owToggleGpSub(cbId, subId) {
   const sub = document.getElementById(subId);
   sub.style.display = document.getElementById(cbId).checked ? 'flex' : 'none';
@@ -896,11 +909,7 @@ async function owParamsGroupe() {
   const cb = (id, v) => { $(id).checked = !!v; };
   const sub = (id, v) => { $(id).style.display = v ? 'flex' : 'none'; };
 
-  $('gpNom').value     = grp.name;
-  $('gpW').value       = grp.w;
-  $('gpH').value       = grp.h;
-  $('gpColor').value   = grp.color;
-  $('gpOpacity').value = grp.opacity;
+  $('gpNom').value = grp.name;
 
   cb('gpDirect',             grp.direct           ?? true);
   cb('gpRenversement',       grp.renversement      ?? false);
@@ -945,11 +954,7 @@ function owUpdateGrp() {
   const $ = id => document.getElementById(id);
   const cb = id => $(id).checked;
 
-  grp.name    = $('gpNom').value;
-  grp.w       = Math.max(20, parseInt($('gpW').value) || 120);
-  grp.h       = Math.max(20, parseInt($('gpH').value) || 60);
-  grp.color   = $('gpColor').value;
-  grp.opacity = parseFloat($('gpOpacity').value) || 0.5;
+  grp.name = $('gpNom').value;
 
   grp.direct             = cb('gpDirect');
   grp.renversement       = cb('gpRenversement');
@@ -1230,6 +1235,14 @@ if (typeof window.api !== 'undefined') {
       case 'owLoaded':
         owParseData(rest, rest.split(/[\\/]/).at(-1));
         break;
+      case 'owGrpFilePicked': {
+        const sep2 = rest.indexOf(';');
+        const fieldId = sep2 > -1 ? rest.substring(0, sep2) : rest;
+        const fileName = sep2 > -1 ? rest.substring(sep2 + 1) : '';
+        const el = document.getElementById(fieldId);
+        if (el) { el.value = fileName; owUpdateGrp(); }
+        break;
+      }
     }
   });
 }
