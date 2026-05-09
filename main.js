@@ -2184,7 +2184,50 @@ function saveSvgAs(txt) {
 function saveDefGrp() {
 	mainWindow.webContents.send("fromMain", 'saveGrp');
 }
-function saveModifGrp(txt, svgB64) {
+function _xmlAttr(block, tag) {
+	const m = block.match(new RegExp("<" + tag + "[^>]*value='([^']*)'"));
+	return m ? m[1] : null;
+}
+function generateSvgFromXml(xmlTxt) {
+	const blocks = xmlTxt.match(/<objet[^>]*>[\s\S]*?<\/objet>/g) || [];
+	const objects = [];
+	for (const b of blocks) {
+		if (parseInt(_xmlAttr(b,'etat')||'0') !== 1) continue;
+		const posx = parseFloat(_xmlAttr(b,'posx')||'0');
+		const posy = parseFloat(_xmlAttr(b,'posy')||'0');
+		const bkgw = parseFloat(_xmlAttr(b,'bkgwidth')||'50');
+		const bkgh = parseFloat(_xmlAttr(b,'bkgheight')||'30');
+		const bkgc = _xmlAttr(b,'bkgcolor') || '#888888';
+		const cls  = parseInt(_xmlAttr(b,'class')||'1');
+		if (!isNaN(posx) && !isNaN(posy) && bkgw > 0 && bkgh > 0)
+			objects.push({ posx, posy, bkgw, bkgh, bkgc, cls });
+	}
+	if (objects.length === 0) return null;
+	let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+	for (const o of objects) {
+		minX = Math.min(minX, o.posx);
+		minY = Math.min(minY, o.posy);
+		maxX = Math.max(maxX, o.posx + o.bkgw);
+		maxY = Math.max(maxY, o.posy + o.bkgh);
+	}
+	const pad=8, maxSide=600;
+	const srcW = maxX - minX + 2*pad;
+	const srcH = maxY - minY + 2*pad;
+	const scale = Math.min(maxSide/srcW, maxSide/srcH, 1);
+	const svgW = Math.round(srcW*scale);
+	const svgH = Math.round(srcH*scale);
+	let rects = '';
+	for (const o of objects) {
+		const x = Math.round((o.posx - minX + pad)*scale);
+		const y = Math.round((o.posy - minY + pad)*scale);
+		const w = Math.max(1, Math.round(o.bkgw*scale));
+		const h = Math.max(1, Math.round(o.bkgh*scale));
+		const op = o.cls === 4 ? ' opacity="0.5"' : '';
+		rects += `  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${o.bkgc}"${op}/>\n`;
+	}
+	return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">\n  <rect width="100%" height="100%" fill="#1a1a2e"/>\n${rects}</svg>`;
+}
+function saveModifGrp(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
         defaultPath: path.join(__dirname, '../'),
@@ -2202,17 +2245,13 @@ function saveModifGrp(txt, svgB64) {
                 if (err) throw err;
                 console.log('Saved!', xmlPath);
             });
-            if (svgB64) {
-                const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
-                try {
-                    const svgContent = aenu(svgB64);
-                    fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
-                        if (err) console.error('SVG save error:', err);
-                        else console.log('SVG saved:', svgPath);
-                    });
-                } catch(e) {
-                    console.error('SVG decode error:', e);
-                }
+            const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
+            const svgContent = generateSvgFromXml(txt);
+            if (svgContent) {
+                fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
+                    if (err) console.error('SVG save error:', err);
+                    else console.log('SVG saved:', svgPath);
+                });
             }
         }
     }).catch(err => {
@@ -4205,19 +4244,8 @@ ipcMain.on ("toMain", (event, args) => {
 			saveModifProjetAs(cmd[1]);
 			break;
 		case 'saveModifGrp': {
-			// Le dernier segment après le dernier ';' est svgB64 si c'est du base64 pur
 			const _firstSemi = args.indexOf(';');
-			const _rest = args.substring(_firstSemi + 1);
-			const _lastSemi = _rest.lastIndexOf(';');
-			let _xmlTxt = _rest, _svgB64 = '';
-			if (_lastSemi > -1) {
-				const _cand = _rest.substring(_lastSemi + 1);
-				if (_cand.length > 20 && /^[A-Za-z0-9+/=]+$/.test(_cand)) {
-					_xmlTxt = _rest.substring(0, _lastSemi);
-					_svgB64 = _cand;
-				}
-			}
-			saveModifGrp(_xmlTxt, _svgB64);
+			saveModifGrp(args.substring(_firstSemi + 1));
 			break;
 		}
 		case 'nettoyerAudios':

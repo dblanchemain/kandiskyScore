@@ -453,7 +453,7 @@ function saveProjetA(t,offset,tabgrp,svgB64){
 			break;
 	}
 }
-async function saveGrp() {
+function saveGrp() {
 	var defgrp=[];
 	function collectMembers(idxGrp) {
 		var membres = tableObjet[idxGrp].liste;
@@ -467,47 +467,7 @@ async function saveGrp() {
 	}
 	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
-
-	// Générer le SVG — même protocole que createPdf/spaceToSvg
-	var svgB64='';
-	try {
-		// Ne passer que les objets dont l'élément DOM existe (évite null.style)
-		var defgrpDom=defgrp.filter(function(obj){
-			if(obj.etat!=1) return false;
-			if(!obj.id) return false;
-			return !!document.getElementById(obj.id);
-		});
-		document.getElementById('svgTime').innerHTML='';
-		document.getElementById('vueSign').innerHTML='';
-		document.getElementById('vueSvg').innerHTML='';
-		await vuePartitionA(1,2,defgrpDom);
-		// Boîte englobante depuis les positions des objets
-		var minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
-		for(let obj of defgrpDom){
-			var x=parseFloat(obj.posX)||0, y=parseFloat(obj.posY)||0;
-			var w=parseFloat(obj.bkgWidth)||parseFloat(obj.width)||60;
-			var h=parseFloat(obj.bkgHeight)||parseFloat(obj.height)||40;
-			if(x<minX)minX=x; if(y<minY)minY=y;
-			if(x+w>maxX)maxX=x+w; if(y+h>maxY)maxY=y+h;
-		}
-		if(!isFinite(minX)){minX=0;minY=0;maxX=200;maxY=100;}
-		var pad=10;
-		var vbX=Math.max(0,minX-pad), vbY=Math.max(0,minY-pad);
-		var vbW=(maxX-minX)+2*pad, vbH=(maxY-minY)+2*pad;
-		var inner=document.getElementById('vueSvg').innerHTML;
-		var bkg=(typeof vueSvgBackground!=='undefined'&&vueSvgBackground)?vueSvgBackground:'#ffffff';
-		// Même encodage que createPdf → spaceToSvg
-		var svgDoc='<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"'
-			+' viewBox="'+vbX+' '+vbY+' '+vbW+' '+vbH+'"'
-			+' width="'+vbW+'" height="'+vbH+'">'
-			+'<rect x="'+vbX+'" y="'+vbY+'" width="'+vbW+'" height="'+vbH+'" fill="'+bkg+'"/>'
-			+'<g>'+inner+'</g></svg>';
-		svgB64=uena(svgDoc);
-		console.log('saveGrp SVG ok, objets:', defgrpDom.length, 'taille:', svgDoc.length);
-	} catch(e){
-		console.error('saveGrp SVG erreur:',e.message,e.stack);
-	}
-	saveProjetA("2",0,defgrp,svgB64);
+	saveProjetA("2",0,defgrp);
 }
 function loadGrp(path){
 	var xhttp = new XMLHttpRequest();
