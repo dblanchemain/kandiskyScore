@@ -2206,7 +2206,7 @@ function saveModifGrp(txt) {
             if (pendingGrpSvg) {
                 const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
                 try {
-                    const svgContent = aenu(pendingGrpSvg);
+                    const svgContent = Buffer.from(pendingGrpSvg, 'base64').toString('utf8');
                     fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
                         if (err) console.error('SVG save error:', err);
                         else console.log('SVG saved:', svgPath);

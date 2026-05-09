@@ -941,7 +941,7 @@ async function vueGrpSvg(mode, returnSvg=false){
 	
 	var obj=document.getElementById("svgGrpVue");
 	//var new_window = window.open(URL.createObjectURL(new Blob([obj.innerHTML], { type: "image/svg+xml" })));
-	if(returnSvg) return uena(obj.innerHTML);
+	if(returnSvg) return btoa(obj.innerHTML);
 	window.api.send("toMain", "saveSvg;"+btoa(obj.innerHTML)+";"+mode);
 }
 
