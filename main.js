@@ -667,6 +667,7 @@ let winMassWasmEtat=0;
 let winSpectWamEtat=0;
 let winTrajectoryEtat=0;
 let winSvgEtat=0;
+let winOpenWorkEtat=0;
 let projetName='';
 let projetPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 let audioPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
@@ -1021,6 +1022,9 @@ const template = [
 				}
   				]
       },
+      { type: 'separator' },
+      { label: 'openWork',
+				click: () => openOpenWork() },
       { type: 'separator' },
       { label: Mtempo,
 				click: () => tempoAudio() },
@@ -4740,6 +4744,56 @@ ipcMain.on ("toMain", (event, args) => {
 					winSpatMassEtat=0;
 				}
 			break;
+			case 'owOpen': {
+				dialog.showOpenDialog(winOpenWork, {
+					properties: ['openFile'],
+					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
+					filters: [{ name: 'OpenWork', extensions: ['owk','json'] }]
+				}).then(result => {
+					if (result.canceled || !result.filePaths[0]) return;
+					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
+					winOpenWork.webContents.send('fromMain', 'owLoaded;' + data);
+				}).catch(err => console.error('owOpen:', err));
+			break; }
+			case 'owSave': {
+				// cmd[1] = chemin existant (peut être vide), cmd[2..] = données JSON
+				const existingPath = cmd[1];
+				const jsonData = cmd.slice(2).join(';');
+				if (existingPath && fs.existsSync(existingPath)) {
+					fs.writeFileSync(existingPath, jsonData, 'utf-8');
+					winOpenWork.webContents.send('fromMain', 'owSaved;' + existingPath);
+				} else {
+					dialog.showSaveDialog(winOpenWork, {
+						defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.owk'),
+						filters: [{ name: 'OpenWork', extensions: ['owk'] }]
+					}).then(result => {
+						if (result.canceled || !result.filePath) return;
+						fs.writeFileSync(result.filePath, jsonData, 'utf-8');
+						winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
+					}).catch(err => console.error('owSave:', err));
+				}
+			break; }
+			case 'owSaveAs': {
+				const jsonDataAs = cmd.slice(1).join(';');
+				dialog.showSaveDialog(winOpenWork, {
+					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.owk'),
+					filters: [{ name: 'OpenWork', extensions: ['owk'] }]
+				}).then(result => {
+					if (result.canceled || !result.filePath) return;
+					fs.writeFileSync(result.filePath, jsonDataAs, 'utf-8');
+					winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
+				}).catch(err => console.error('owSaveAs:', err));
+			break; }
+			case 'owExportInterp': {
+				const expData = cmd.slice(1).join(';');
+				dialog.showSaveDialog(winOpenWork, {
+					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'export_interpretor.json'),
+					filters: [{ name: 'JSON', extensions: ['json'] }]
+				}).then(result => {
+					if (result.canceled || !result.filePath) return;
+					fs.writeFileSync(result.filePath, expData, 'utf-8');
+				}).catch(err => console.error('owExportInterp:', err));
+			break; }
         }
 		}   
 		if (args && typeof args === "object" && args.type) {
@@ -6508,7 +6562,33 @@ function interp() {
   		//mainWindow.webContents.send("fromMain", "selectTheme;"+result.filePaths[0]);
   		mainWindow.webContents.send("fromMain", "interpreteur;"+rt);
 	});
-	
+
+}
+
+let winOpenWork = null;
+function openOpenWork() {
+	if (winOpenWorkEtat === 0) {
+		winOpenWork = new BrowserWindow({
+			width: 1300, height: 860,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				enableRemoteModule: false,
+				preload: path.join(__dirname, 'preload.js'),
+				sandbox: false
+			}
+		});
+		winOpenWork.loadFile('openwork.html');
+		winOpenWork.removeMenu();
+		if (!app.isPackaged) winOpenWork.webContents.openDevTools();
+		winOpenWorkEtat = 1;
+		winOpenWork.on('close', () => {
+			winOpenWork = null;
+			winOpenWorkEtat = 0;
+		});
+	} else {
+		winOpenWork.focus();
+	}
 }
 
 
