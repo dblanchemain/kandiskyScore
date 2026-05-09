@@ -2184,8 +2184,8 @@ function saveSvgAs(txt) {
 function saveDefGrp() {
 	mainWindow.webContents.send("fromMain", 'saveGrp');
 }
-function saveModifGrp(xmlB64, svgB64) {
-	console.log('[saveModifGrp] xmlB64 length:', xmlB64?xmlB64.length:0, 'svgB64 length:', svgB64?svgB64.length:0);
+let pendingGrpSvg = '';
+function saveModifGrp(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
         defaultPath: path.join(__dirname, '../'),
@@ -2199,20 +2199,20 @@ function saveModifGrp(xmlB64, svgB64) {
         if (!file.canceled) {
             const xmlPath = file.filePath.toString();
             currentProjet = xmlPath;
-            const xmlContent = aenu(xmlB64);
-            fs.writeFile(xmlPath, xmlContent, function(err) {
+            fs.writeFile(xmlPath, txt, function(err) {
                 if (err) throw err;
                 console.log('Saved!', xmlPath);
             });
-            if (svgB64) {
+            if (pendingGrpSvg) {
                 const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
                 try {
-                    const svgContent = aenu(svgB64);
+                    const svgContent = aenu(pendingGrpSvg);
                     fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
                         if (err) console.error('SVG save error:', err);
                         else console.log('SVG saved:', svgPath);
                     });
                 } catch(e) { console.error('SVG decode error:', e); }
+                pendingGrpSvg = '';
             }
         }
     }).catch(err => {
@@ -4204,9 +4204,14 @@ ipcMain.on ("toMain", (event, args) => {
 			
 			saveModifProjetAs(cmd[1]);
 			break;
-		case 'saveModifGrp':
-			saveModifGrp(cmd[1], cmd[2]||'');
+		case 'saveGrpSvgPending':
+			pendingGrpSvg = cmd[1] || '';
 			break;
+		case 'saveModifGrp': {
+			const _firstSemi = args.indexOf(';');
+			saveModifGrp(args.substring(_firstSemi + 1));
+			break;
+		}
 		case 'nettoyerAudios':
 			nettoyerAudios(cmd[1]);
 			break;

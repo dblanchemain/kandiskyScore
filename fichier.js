@@ -449,7 +449,7 @@ function saveProjetA(t,offset,tabgrp,svgB64){
 			window.api.send("toMain", "saveModifProjetAs;"+uena(txt));
 			break;
 		case "2":
-			window.api.send("toMain", "saveModifGrp;"+uena(txt)+(svgB64?";"+svgB64:""));
+			window.api.send("toMain", "saveModifGrp;"+txt);
 			break;
 	}
 }
@@ -468,11 +468,9 @@ async function saveGrp() {
 	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
 	let svgB64='';
-	try {
-		svgB64 = await vueGrpSvg(0,true);
-		console.log('[saveGrp] svgB64 length:', svgB64 ? svgB64.length : 'null/empty');
-	} catch(e) { console.error('[saveGrp] SVG grp thumb error:',e); }
-	saveProjetA("2",0,defgrp,svgB64);
+	try { svgB64 = await vueGrpSvg(0,true); } catch(e) { console.error('[saveGrp] SVG error:',e); }
+	if(svgB64) window.api.send("toMain","saveGrpSvgPending;"+svgB64);
+	saveProjetA("2",0,defgrp);
 }
 function loadGrp(path){
 	var xhttp = new XMLHttpRequest();
