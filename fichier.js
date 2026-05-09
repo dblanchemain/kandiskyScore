@@ -136,12 +136,12 @@ function defObjGrp(id,nbobjets,cla) {
 			<y2 value='"+id.y2+"'></y2>\n";
 		}
 		if(parseInt(id.type)==13||parseInt(id.type)==14||parseInt(id.type)==15||parseInt(id.type)==16){
-			txt=txt+"<cp1x value='"+(id.cp1x||0)+"'></cp1x>\n\
-			<cp1y value='"+(id.cp1y||0)+"'></cp1y>\n\
-			<cp2x value='"+(id.cp2x||0)+"'></cp2x>\n\
-			<cp2y value='"+(id.cp2y||0)+"'></cp2y>\n\
-			<crvbasew value='"+(id.crvBaseW||50)+"'></crvbasew>\n\
-			<crvbaseh value='"+(id.crvBaseH||40)+"'></crvbaseh>\n";
+			txt=txt+"<cp1x value='"+(id.cp1x!=null?id.cp1x:30)+"'></cp1x>\n\
+			<cp1y value='"+(id.cp1y!=null?id.cp1y:30)+"'></cp1y>\n\
+			<cp2x value='"+(id.cp2x!=null?id.cp2x:40)+"'></cp2x>\n\
+			<cp2y value='"+(id.cp2y!=null?id.cp2y:30)+"'></cp2y>\n\
+			<crvbasew value='"+(id.crvBaseW!=null?id.crvBaseW:50)+"'></crvbasew>\n\
+			<crvbaseh value='"+(id.crvBaseH!=null?id.crvBaseH:40)+"'></crvbaseh>\n";
 		}
 
 		txt=txt+"		<width value='"+id.width+"'></width>\n";	
