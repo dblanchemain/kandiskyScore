@@ -1026,7 +1026,6 @@ const template = [
       { type: 'separator' },
       { label: 'openWork',
 				click: () => openOpenWork() },
-      { type: 'separator' },
       { label: 'interpretor',
 				click: () => openInterpretor() },
       { type: 'separator' },
