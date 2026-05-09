@@ -210,6 +210,9 @@ function defSymbGrp(id,nbobjets) {
 			txt=txt+"<x3 value='"+(id.x3||0)+"'></x3>\n\
 			<y3 value='"+(id.y3||0)+"'></y3>\n";
 		}
+		if(parseInt(id.type)==25){
+			txt=txt+"<curveh value='"+(id.curveH!==undefined?id.curveH:10)+"'></curveh>\n";
+		}
 		if(parseInt(id.type)==26){
 			txt=txt+"<openh value='"+(id.openH!==undefined?id.openH:4)+"'></openh>\n";
 		}
@@ -746,6 +749,10 @@ function symbXmlToScore(id,i) {
 		if(tableObjet[id].type==19||tableObjet[id].type==20||tableObjet[id].type==71||tableObjet[id].type==72){
 			tableObjet[id].x3=org.getElementsByTagName("x3")[0]?parseFloat(_tagVal(org, "x3")):undefined;
 			tableObjet[id].y3=org.getElementsByTagName("y3")[0]?parseFloat(_tagVal(org, "y3")):undefined;
+		}
+		if(tableObjet[id].type==25){
+			var _ch=org.getElementsByTagName("curveh")[0];
+			tableObjet[id].curveH=_ch?parseFloat(_ch.getAttribute("value")):10;
 		}
 		if(tableObjet[id].type==26){
 			var _oh=org.getElementsByTagName("openh")[0];
