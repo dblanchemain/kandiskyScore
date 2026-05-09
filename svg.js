@@ -911,11 +911,11 @@ async function vueGrpSvg(mode, returnSvg=false){
 		}
 ;	for(let i=0;i<lsgrp.length;i++){
 		if(grpSelect==1){
-			lsgrp[i].posX=lsgrp[i].posX-parseFloat(slblock.left)+10;
-			lsgrp[i].posY=lsgrp[i].posY-parseFloat(slblock.top)+10;
+			lsgrp[i].posX=lsgrp[i].posX-parseFloat(slblock.left);
+			lsgrp[i].posY=lsgrp[i].posY-parseFloat(slblock.top);
 		}else{
-			lsgrp[i].posX=lsgrp[i].posX-tableObjet[objActif].posX+10;
-			lsgrp[i].posY=lsgrp[i].posY-tableObjet[objActif].posY+10;
+			lsgrp[i].posX=lsgrp[i].posX-tableObjet[objActif].posX;
+			lsgrp[i].posY=lsgrp[i].posY-tableObjet[objActif].posY;
 		}
 	}
 	await vuePartitionA(0,1,lsgrp);
@@ -927,16 +927,16 @@ async function vueGrpSvg(mode, returnSvg=false){
 	document.getElementById("svgGrpVue").firstChild.innerHTML=document.getElementById("vueSvg").innerHTML;
 	document.getElementById("vueSvg").innerHTML="";
 	if(grpSelect==1){
-		document.getElementById("svgGrpVue").firstChild.setAttribute("width",parseFloat(slblock.width)+20);
-		document.getElementById("svgGrpVue").firstChild.setAttribute("height",parseFloat(slblock.height)+20);
-		document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+(parseFloat(slblock.width)+20)+" "+(parseFloat(slblock.height)+20));
+		document.getElementById("svgGrpVue").firstChild.setAttribute("width",parseFloat(slblock.width));
+		document.getElementById("svgGrpVue").firstChild.setAttribute("height",parseFloat(slblock.height));
+		document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+parseFloat(slblock.width)+" "+parseFloat(slblock.height));
 		grpSelect=0;
 		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
 	}else{
 	var actif=lsgrp.length-1;
-	document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp[actif].width+20);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("height",lsgrp[actif].height+20);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+(lsgrp[actif].width+20)+" "+(lsgrp[actif].height+20));
+	document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp[actif].width);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("height",lsgrp[actif].height);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+lsgrp[actif].width+" "+lsgrp[actif].height);
 	}
 	
 	var obj=document.getElementById("svgGrpVue");
