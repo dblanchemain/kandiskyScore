@@ -4204,9 +4204,22 @@ ipcMain.on ("toMain", (event, args) => {
 			
 			saveModifProjetAs(cmd[1]);
 			break;
-		case 'saveModifGrp':
-			saveModifGrp(cmd[1],cmd[2]);
+		case 'saveModifGrp': {
+			// Le dernier segment après le dernier ';' est svgB64 si c'est du base64 pur
+			const _firstSemi = args.indexOf(';');
+			const _rest = args.substring(_firstSemi + 1);
+			const _lastSemi = _rest.lastIndexOf(';');
+			let _xmlTxt = _rest, _svgB64 = '';
+			if (_lastSemi > -1) {
+				const _cand = _rest.substring(_lastSemi + 1);
+				if (_cand.length > 20 && /^[A-Za-z0-9+/=]+$/.test(_cand)) {
+					_xmlTxt = _rest.substring(0, _lastSemi);
+					_svgB64 = _cand;
+				}
+			}
+			saveModifGrp(_xmlTxt, _svgB64);
 			break;
+		}
 		case 'nettoyerAudios':
 			nettoyerAudios(cmd[1]);
 			break;
