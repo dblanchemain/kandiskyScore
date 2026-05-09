@@ -1024,9 +1024,9 @@ const template = [
   				]
       },
       { type: 'separator' },
-      { label: 'openWork',
+      { label: 'OpenWork',
 				click: () => openOpenWork() },
-      { label: 'interpretor',
+      { label: 'Interpretor',
 				click: () => openInterpretor() },
       { type: 'separator' },
       { label: Mtempo,
