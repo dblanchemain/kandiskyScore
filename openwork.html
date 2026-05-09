@@ -226,7 +226,7 @@
     .ow-grp-img {
       position: absolute;
       top: 0; left: 0;
-      width: 100%; height: calc(100% - 20px);
+      width: 100%; height: 100%;
       object-fit: contain;
       pointer-events: none;
       z-index: 0;
@@ -1106,7 +1106,7 @@ function owRenderGroups() {
     img.addEventListener('load', function() {
       if (img.naturalWidth && img.naturalHeight) {
         grp.w = img.naturalWidth;
-        grp.h = img.naturalHeight + 20;
+        grp.h = img.naturalHeight;
         owApplyGrpStyle(div, grp);
       }
     }, { once: true });
@@ -1389,7 +1389,7 @@ if (typeof window.api !== 'undefined') {
               imgEl.addEventListener('load', function() {
                 if (imgEl.naturalWidth && imgEl.naturalHeight) {
                   grp.w = imgEl.naturalWidth;
-                  grp.h = imgEl.naturalHeight + 20;
+                  grp.h = imgEl.naturalHeight;
                   const container = document.getElementById('grp' + grpId);
                   if (container) owApplyGrpStyle(container, grp);
                 }
