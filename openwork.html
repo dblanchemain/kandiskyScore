@@ -982,29 +982,23 @@ if (typeof window.api !== 'undefined') {
 // ═══════════════════════════════════════════════
 //  COMPTEUR
 // ═══════════════════════════════════════════════
-let owCompteurSec = 0;
-let owCompteurTimer = null;
-
-function owStartCompteur() {
-  if (owCompteurTimer) return;
-  owCompteurTimer = setInterval(() => {
-    owCompteurSec++;
-    const h = Math.floor(owCompteurSec / 3600);
-    const m = Math.floor((owCompteurSec % 3600) / 60);
-    const s = owCompteurSec % 60;
-    document.getElementById('compteurH').textContent = ' ' + String(h).padStart(2,'0') + ' :';
-    document.getElementById('compteurM').textContent = ' ' + String(m).padStart(2,'0') + ' : ';
-    document.getElementById('compteurS').textContent = ' ' + String(s).padStart(2,'0');
-  }, 1000);
+// Affiche la position temporelle correspondant à posX (pixels scroll)
+function owSetCompteur(posX) {
+  const sec  = posX / (OW_BASE_PX * owZoomScale);
+  const h    = Math.floor(sec / 3600);
+  const m    = Math.floor((sec % 3600) / 60);
+  const s    = Math.floor(sec % 60);
+  const ms   = Math.floor((sec % 1) * 100);
+  document.getElementById('compteurH').textContent = ' ' + String(h).padStart(2,'0') + ' :';
+  document.getElementById('compteurM').textContent = ' ' + String(m).padStart(2,'0') + ' : ';
+  document.getElementById('compteurS').textContent = ' ' + String(s).padStart(2,'0')
+                                                   + '.' + String(ms).padStart(2,'0');
 }
 
 function owResetCompteur() {
-  clearInterval(owCompteurTimer);
-  owCompteurTimer = null;
-  owCompteurSec = 0;
   document.getElementById('compteurH').textContent = ' 00 :';
   document.getElementById('compteurM').textContent = ' 00 : ';
-  document.getElementById('compteurS').textContent = ' 00';
+  document.getElementById('compteurS').textContent = ' 00.00';
 }
 
 // Contexte audio – taux d'échantillonnage
@@ -1169,11 +1163,26 @@ function owUpdateZoom() {
 // Écouter le mousewheel sur la réglette
 document.getElementById('owReglette').addEventListener('wheel', owZoom, { passive: false });
 
+// ── Compteur de position (mousemove sur réglette + espace) ──
+const owWork = document.getElementById('work');
+
+function owMousePosToTime(e) {
+  // Position X dans le repère scroll (viewport scroll px)
+  const posX = owWork.scrollLeft + e.clientX - 200;
+  owSetCompteur(Math.max(0, posX));
+}
+
+document.getElementById('owReglette').addEventListener('mousemove', owMousePosToTime);
+document.getElementById('owReglette').addEventListener('mouseleave', owResetCompteur);
+
+document.getElementById('space').addEventListener('mousemove', owMousePosToTime);
+document.getElementById('space').addEventListener('mouseleave', owResetCompteur);
+
 // ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
 owBuildNuancesTable();
-owStartCompteur();
+owResetCompteur();
 owCreateReglette();
 </script>
 </body>
