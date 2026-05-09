@@ -4751,6 +4751,7 @@ ipcMain.on ("toMain", (event, args) => {
 				const pickFieldId = cmd[1];
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
+					defaultPath: owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'),
 					filters: [{ name: 'Kandiskyscore XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
@@ -4765,6 +4766,7 @@ ipcMain.on ("toMain", (event, args) => {
 					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
+					owCurrentDir = path.dirname(result.filePaths[0]);
 					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owLoaded;' + data);
 				}).catch(err => console.error('owOpen:', err));
@@ -4773,14 +4775,16 @@ ipcMain.on ("toMain", (event, args) => {
 				const existingPath = cmd[1];
 				const xmlData = cmd.slice(2).join(';');
 				if (existingPath && fs.existsSync(existingPath)) {
+					owCurrentDir = path.dirname(existingPath);
 					fs.writeFileSync(existingPath, xmlData, 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + existingPath);
 				} else {
 					dialog.showSaveDialog(winOpenWork, {
-						defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.xml'),
+						defaultPath: path.join(owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'), 'projet.xml'),
 						filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 					}).then(result => {
 						if (result.canceled || !result.filePath) return;
+						owCurrentDir = path.dirname(result.filePath);
 						fs.writeFileSync(result.filePath, xmlData, 'utf-8');
 						winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
 					}).catch(err => console.error('owSave:', err));
@@ -4789,10 +4793,11 @@ ipcMain.on ("toMain", (event, args) => {
 			case 'owSaveAs': {
 				const xmlDataAs = cmd.slice(1).join(';');
 				dialog.showSaveDialog(winOpenWork, {
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.xml'),
+					defaultPath: path.join(owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'), 'projet.xml'),
 					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePath) return;
+					owCurrentDir = path.dirname(result.filePath);
 					fs.writeFileSync(result.filePath, xmlDataAs, 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
 				}).catch(err => console.error('owSaveAs:', err));
@@ -6592,6 +6597,7 @@ function interp() {
 }
 
 let winOpenWork = null;
+let owCurrentDir = null;
 function openOpenWork() {
 	if (winOpenWorkEtat === 0) {
 		winOpenWork = new BrowserWindow({
