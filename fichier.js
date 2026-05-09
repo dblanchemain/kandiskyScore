@@ -467,10 +467,8 @@ async function saveGrp() {
 	}
 	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
-	document.getElementById('svgTime').innerHTML="";
-	document.getElementById('vueSign').innerHTML="";
-	await vuePartitionA(1,2,defgrp.slice(0,-1));
-	const svgB64=uena(document.getElementById("svgVue").innerHTML);
+	let svgB64='';
+	try { svgB64 = await vueGrpSvg(0,true); } catch(e) { console.error('SVG grp thumb:',e); }
 	saveProjetA("2",0,defgrp,svgB64);
 }
 function loadGrp(path){

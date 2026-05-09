@@ -884,7 +884,7 @@ function vuePartSvg(){
 	vuePartitionA(0,0,tableObjet);
 	
 }
-async function vueGrpSvg(mode){
+async function vueGrpSvg(mode, returnSvg=false){
 	lsgrp=[];
 	var rt;
 	var slblock;
@@ -940,8 +940,9 @@ async function vueGrpSvg(mode){
 	}
 	
 	var obj=document.getElementById("svgGrpVue");
-	
+
 	//var new_window = window.open(URL.createObjectURL(new Blob([obj.innerHTML], { type: "image/svg+xml" })));
+	if(returnSvg) return uena(obj.innerHTML);
 	window.api.send("toMain", "saveSvg;"+btoa(obj.innerHTML)+";"+mode);
 }
 
