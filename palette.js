@@ -3225,6 +3225,7 @@ function createSymbole2(objType) {
 			break;
 		case 26:
 			gArpege26(objActif);
+			redrawArpege(objActif);
 			document.getElementById("sglis"+objActif).style.border='0px solid red';
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
