@@ -77,6 +77,30 @@
       height: calc(100vh - 26px) !important;
     }
 
+    /* ── Réglette ── */
+    #owRegle {
+      position: absolute;
+      top: 0; left: 0;
+      padding: 0; margin: 0;
+      width: 12960px;
+      height: 50px;
+      border-top: 1px solid #8a8a8a;
+      transform-origin: 0 0;
+    }
+    #owReglette {
+      display: block;
+      background-color: #e8e8e8;
+      cursor: default;
+    }
+    #owReglette:active { cursor: ew-resize; }
+    #owZoomLabel {
+      font-size: 0.75em;
+      color: #555;
+      margin-left: 16px;
+      display: flex;
+      align-items: center;
+    }
+
     /* ── Panneau gauche : Sections ── */
     #owSectionHeader {
       padding: 5px 4px;
@@ -255,12 +279,32 @@
   <div id="paramGlobal">
     <span id="compteur" style="margin-left:6px;">openWork</span> :
     <span id="compteurH" style="font-size:1.5em;"> 00 :</span><span id="compteurM" style="font-size:1.5em;"> 00 : </span><span id="compteurS" style="font-size:1.5em;"> 00</span>
-    <span id="owGrpInfo" style="margin-left:30px;font-size:0.85em;color:#555;"></span>
-    <span style="margin-left:250px;">Contexte</span> : <span id="owRate" style="margin-left:6px;">48000</span>
+    <span style="margin-left:30px;">M :</span>
+    <input id="owNbMesure" type="number" min="1" max="16" step="1" value="4"
+           style="width:40px;margin-left:4px;" title="Nombre de temps par mesure"
+           oninput="owRedrawReglette()" />
+    <select id="owNbDiv" size="1" style="margin-left:6px;" title="Subdivision" onchange="owRedrawReglette()">
+      <option value="0.25">1</option>
+      <option value="0.5">2</option>
+      <option value="1" selected>4</option>
+      <option value="2">8</option>
+      <option value="4">16</option>
+    </select>
+    <span id="owGrpInfo" style="margin-left:20px;font-size:0.85em;color:#555;"></span>
+    <span id="owZoomLabel">Zoom : <b id="owZoomVal">100</b> %</span>
+    <span style="margin-left:40px;">Contexte</span> : <span id="owRate" style="margin-left:6px;">48000</span>
   </div>
 
   <div id="work" style="position:absolute;top:38px;left:0;width:12960px;height:788px;overflow-x:scroll;overflow-y:hidden;border:0;">
-    <div id="work2" style="position:absolute;top:0;left:0;width:12960px;height:788px;overflow-x:hidden;overflow-y:scroll;border:1px solid #ccc;">
+    <!-- Réglette temporelle + mesures -->
+    <div id="owRegle" style="position:absolute;top:0;left:0;width:12960px;height:50px;">
+      <svg id="owReglette" width="12960" height="50"
+           viewBox="0 0 12960 50"
+           xmlns="http://www.w3.org/2000/svg">
+        <style>.owRSmall{font:0.72em sans-serif;}</style>
+      </svg>
+    </div>
+    <div id="work2" style="position:absolute;top:52px;left:0;width:12960px;height:736px;overflow-x:hidden;overflow-y:scroll;border:1px solid #ccc;">
       <div id="spaceBkg" style="position:absolute;top:0;left:0;width:12960px;height:3000px;z-index:0;background:#f5f5f5;"></div>
       <div id="space" style="position:absolute;top:0;left:0;width:12960px;height:3000px;z-index:1;background:transparent;"
            onclick="owSpaceClick(event)" oncontextmenu="event.preventDefault();">
@@ -928,10 +972,150 @@ function owResetCompteur() {
 })();
 
 // ═══════════════════════════════════════════════
+//  RÉGLETTES + ZOOM
+// ═══════════════════════════════════════════════
+const OW_SVG = 'http://www.w3.org/2000/svg';
+const OW_BASE_PX = 18;   // pixels par seconde à scale=1 (60 BPM)
+
+let owZoomScale = 1.0;
+
+function owCreateReglette() {
+  const svg   = document.getElementById('owReglette');
+  const scale = owZoomScale;
+  const nbmax = 12960 * scale;
+
+  // Vider et redimensionner le SVG
+  svg.innerHTML = '<style>.owRSmall{font:0.72em sans-serif;}</style>';
+  svg.setAttribute('width', nbmax);
+  svg.setAttribute('viewBox', '0 0 ' + nbmax + ' 50');
+
+  // ── Fond ──────────────────────────────────────
+  const bg = document.createElementNS(OW_SVG, 'rect');
+  bg.setAttribute('x', 0); bg.setAttribute('y', 0);
+  bg.setAttribute('width', nbmax); bg.setAttribute('height', 50);
+  bg.setAttribute('fill', '#e8e8e8');
+  svg.appendChild(bg);
+
+  // ── Ligne séparatrice haute / mesures ─────────
+  const sep = document.createElementNS(OW_SVG, 'line');
+  sep.setAttribute('x1', 0); sep.setAttribute('y1', 25);
+  sep.setAttribute('x2', nbmax); sep.setAttribute('y2', 25);
+  sep.setAttribute('stroke', '#aaa'); sep.setAttribute('stroke-width', '0.5');
+  svg.appendChild(sep);
+
+  // ── Réglette temporelle (zone 0→25px) ─────────
+  const step = OW_BASE_PX * scale;   // px par seconde
+  let tickCount = 0;
+  for (let p = 0; p < nbmax; p += step, tickCount++) {
+    const isMajor = (tickCount % 10 === 0);
+    const line = document.createElementNS(OW_SVG, 'line');
+    line.setAttribute('x1', p); line.setAttribute('y1', 0);
+    line.setAttribute('x2', p); line.setAttribute('y2', isMajor ? 20 : 11);
+    line.setAttribute('stroke', '#444'); line.setAttribute('stroke-width', 1);
+    svg.appendChild(line);
+
+    if (isMajor && tickCount > 0) {
+      const txt = document.createElementNS(OW_SVG, 'text');
+      txt.setAttribute('x', p + 2); txt.setAttribute('y', 20);
+      txt.setAttribute('class', 'owRSmall'); txt.setAttribute('fill', '#333');
+      txt.textContent = tickCount + 's';
+      svg.appendChild(txt);
+    }
+  }
+
+  // ── Réglette de mesures (zone 25→50px) ────────
+  const nbmes = parseInt(document.getElementById('owNbMesure').value) || 4;
+  const nbdiv = parseFloat(document.getElementById('owNbDiv').value) || 1;
+  const beatPx   = OW_BASE_PX * scale;          // px par temps (1s@60BPM)
+  const divPx    = beatPx / nbdiv;              // px par subdivision
+  const mesurePx = nbmes * beatPx;              // px par mesure
+
+  // Subdivisions
+  for (let p = 0; p < nbmax; p += divPx) {
+    const line = document.createElementNS(OW_SVG, 'line');
+    line.setAttribute('x1', p); line.setAttribute('y1', 25);
+    line.setAttribute('x2', p); line.setAttribute('y2', 30);
+    line.setAttribute('stroke', '#999'); line.setAttribute('stroke-width', 0.6);
+    svg.appendChild(line);
+  }
+
+  // Temps (beats)
+  for (let p = 0; p < nbmax; p += beatPx) {
+    const line = document.createElementNS(OW_SVG, 'line');
+    line.setAttribute('x1', p); line.setAttribute('y1', 25);
+    line.setAttribute('x2', p); line.setAttribute('y2', 37);
+    line.setAttribute('stroke', '#666'); line.setAttribute('stroke-width', 1);
+    svg.appendChild(line);
+  }
+
+  // Mesures
+  let mesNum = 1;
+  for (let p = 0; p < nbmax; p += mesurePx, mesNum++) {
+    const line = document.createElementNS(OW_SVG, 'line');
+    line.setAttribute('x1', p); line.setAttribute('y1', 25);
+    line.setAttribute('x2', p); line.setAttribute('y2', 50);
+    line.setAttribute('stroke', '#444'); line.setAttribute('stroke-width', 1.5);
+    svg.appendChild(line);
+
+    if (mesNum > 1) {
+      const txt = document.createElementNS(OW_SVG, 'text');
+      txt.setAttribute('x', p + 2); txt.setAttribute('y', 48);
+      txt.setAttribute('class', 'owRSmall'); txt.setAttribute('fill', '#333');
+      txt.textContent = mesNum;
+      svg.appendChild(txt);
+    }
+  }
+}
+
+function owRedrawReglette() {
+  owCreateReglette();
+}
+
+function owZoom(event) {
+  event.preventDefault();
+  owZoomScale += event.deltaY * -0.001;
+  owZoomScale = Math.max(0.25, Math.min(4, owZoomScale));
+  owUpdateZoom();
+}
+
+function owUpdateZoom() {
+  const scale  = owZoomScale;
+  const pct    = Math.round(scale * 100);
+  document.getElementById('owZoomVal').textContent = pct;
+
+  owCreateReglette();
+
+  const regle  = document.getElementById('owRegle');
+  const work2  = document.getElementById('work2');
+  const space  = document.getElementById('space');
+  const spaceBkg = document.getElementById('spaceBkg');
+
+  if (scale > 1) {
+    const w = Math.round(12960 * scale);
+    regle.style.width  = w + 'px';
+    work2.style.width  = w + 'px';
+    space.style.width  = w + 'px';
+    spaceBkg.style.width = w + 'px';
+  } else {
+    regle.style.width    = '12960px';
+    work2.style.width    = '12960px';
+    space.style.width    = '12960px';
+    spaceBkg.style.width = '12960px';
+  }
+
+  space.style.transform    = 'scale(' + scale + ',' + scale + ')';
+  space.style.transformOrigin = '0 0';
+}
+
+// Écouter le mousewheel sur la réglette
+document.getElementById('owReglette').addEventListener('wheel', owZoom, { passive: false });
+
+// ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
 owBuildNuancesTable();
 owStartCompteur();
+owCreateReglette();
 </script>
 </body>
 </html>
