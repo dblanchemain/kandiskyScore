@@ -200,7 +200,7 @@
       min-width: 40px;
       min-height: 24px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
       overflow: hidden;
       box-sizing: border-box;
@@ -210,11 +210,37 @@
       box-shadow: 0 0 4px rgba(224,68,0,0.5);
     }
     .ow-grp-lbl {
+      position: relative;
+      z-index: 2;
       pointer-events: none;
       font-size: 0.75em;
       text-align: center;
       word-break: break-word;
-      padding: 2px;
+      padding: 2px 4px;
+      background: rgba(255,255,255,0.72);
+      border-radius: 2px;
+      align-self: flex-end;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .ow-grp-img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ow-grp-rsz {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 12px; height: 12px;
+      cursor: se-resize;
+      z-index: 10;
+      background: linear-gradient(135deg, transparent 50%, #4a90d9 50%);
+    }
+    .ow-grp.actif .ow-grp-rsz {
+      background: linear-gradient(135deg, transparent 50%, #e04400 50%);
     }
 
     /* ── Popups communs ── */
@@ -563,6 +589,7 @@
 // ═══════════════════════════════════════════════
 let owSections  = [];   // {id, name, posY, color}
 let owGroups    = [];   // {id, name, sectionId, posX, posY, w, h, color, opacity, nuance}
+let owProjDir   = '';   // dossier du projet courant (pour les miniatures SVG)
 let owNuances   = [
   {nom:'pppp', val:10}, {nom:'ppp', val:20}, {nom:'pp', val:30},
   {nom:'p',    val:40}, {nom:'mp',  val:50}, {nom:'mf', val:60},
@@ -855,7 +882,8 @@ async function owAjouterGroupe() {
     expansion: false, expansionMin: 0.5, expansionMax: 2.0,
     variationTempo: false, variationIntensite: false,
     posRelDebut: false, posRelDebutAvant: 'debut', posRelDebutGroupe: '',
-    posRelFin:   false, posRelFinAvant:   'fin',   posRelFinGroupe:   ''
+    posRelFin:   false, posRelFinAvant:   'fin',   posRelFinGroupe:   '',
+    svgFile: ''
   };
   owGroups.push(grp);
   owActiveGrp = grp.id;
@@ -1061,10 +1089,30 @@ function owRenderGroups() {
     div.style.left = grp.posX + 'px';
     div.style.top  = grp.posY + 'px';
 
+    // Miniature SVG
+    const baseName = grp.name.replace(/\.xml$/i, '.svg');
+    const svgSrc = grp.svgFile || (owProjDir ? owProjDir + '/' + baseName : '');
+    if (svgSrc) {
+      const img = document.createElement('img');
+      img.className = 'ow-grp-img';
+      img.src = 'file:///' + svgSrc.replace(/\\/g, '/').replace(/^\/+/, '');
+      img.onerror = () => { img.style.display = 'none'; };
+      div.appendChild(img);
+    }
+
     const lbl = document.createElement('span');
     lbl.className   = 'ow-grp-lbl';
     lbl.textContent = grp.name + (grp.nuance ? ' [' + grp.nuance + ']' : '');
     div.appendChild(lbl);
+
+    // Poignée de redimensionnement
+    const rsz = document.createElement('div');
+    rsz.className = 'ow-grp-rsz';
+    rsz.addEventListener('mousedown', function(e) {
+      e.stopPropagation();
+      owResizeElement(div, grp, e);
+    });
+    div.appendChild(rsz);
 
     div.addEventListener('mousedown', function(e) {
       e.stopPropagation();
@@ -1228,6 +1276,23 @@ function owDragElement(elmnt, grpData, startEvt) {
   }
 }
 
+function owResizeElement(elmnt, grpData, startEvt) {
+  const sx = startEvt.clientX, sy = startEvt.clientY;
+  const sw = grpData.w, sh = grpData.h;
+  document.onmousemove = function(e) {
+    e.preventDefault();
+    grpData.w = Math.max(40, sw + (e.clientX - sx));
+    grpData.h = Math.max(24, sh + (e.clientY - sy));
+    elmnt.style.width  = grpData.w + 'px';
+    elmnt.style.height = grpData.h + 'px';
+  };
+  document.onmouseup = function() {
+    document.onmousemove = null;
+    document.onmouseup   = null;
+    owModified = true;
+  };
+}
+
 
 // ═══════════════════════════════════════════════
 //  DRAG des popups (via leur header)
@@ -1262,18 +1327,31 @@ if (typeof window.api !== 'undefined') {
     switch (cmd) {
       case 'owSaved':
         owFilePath = rest;
+        owProjDir  = rest.replace(/[/\\][^/\\]*$/, '');
         owModified = false;
         document.getElementById('owFileLabel').textContent = rest.split(/[\\/]/).at(-1);
         break;
-      case 'owLoaded':
-        owParseData(rest, rest.split(/[\\/]/).at(-1));
+      case 'owLoaded': {
+        const nl = rest.indexOf('\n');
+        if (nl > -1) {
+          owProjDir = rest.substring(0, nl);
+          owParseData(rest.substring(nl + 1), rest.substring(nl + 1).split(/[\\/]/).at(-1));
+        } else {
+          owParseData(rest, rest.split(/[\\/]/).at(-1));
+        }
         break;
+      }
       case 'owGrpFilePicked': {
-        const sep2 = rest.indexOf(';');
-        const fieldId = sep2 > -1 ? rest.substring(0, sep2) : rest;
-        const fileName = sep2 > -1 ? rest.substring(sep2 + 1) : '';
+        const parts = rest.split(';');
+        const fieldId  = parts[0] || '';
+        const fileName = parts[1] || '';
+        const svgPath  = parts[2] || '';
         const el = document.getElementById(fieldId);
         if (el) { el.value = fileName; owUpdateGrp(); }
+        if (fieldId === 'gpNom' && svgPath && owActiveGrp !== null) {
+          const grp = owGroups.find(g => g.id === owActiveGrp);
+          if (grp) { grp.svgFile = svgPath; owRenderGroups(); }
+        }
         break;
       }
     }

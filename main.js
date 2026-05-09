@@ -4760,8 +4760,12 @@ ipcMain.on ("toMain", (event, args) => {
 					filters: [{ name: 'Kandiskyscore XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
-					const fileName = path.basename(result.filePaths[0]);
-					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName);
+					const xmlFull  = result.filePaths[0];
+					const fileName = path.basename(xmlFull);
+					const svgFull  = xmlFull.replace(/\.xml$/i, '.svg');
+					let svgPath = '';
+					try { fs.accessSync(svgFull, fs.constants.F_OK); svgPath = svgFull; } catch(e) {}
+					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgPath);
 				}).catch(err => console.error('owPickGrpFile:', err));
 			break; }
 			case 'owOpen': {
@@ -4773,7 +4777,7 @@ ipcMain.on ("toMain", (event, args) => {
 					if (result.canceled || !result.filePaths[0]) return;
 					owCurrentDir = path.dirname(result.filePaths[0]);
 					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
-					winOpenWork.webContents.send('fromMain', 'owLoaded;' + data);
+					winOpenWork.webContents.send('fromMain', 'owLoaded;' + owCurrentDir + '\n' + data);
 				}).catch(err => console.error('owOpen:', err));
 			break; }
 			case 'owSave': {
