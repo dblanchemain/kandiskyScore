@@ -253,8 +253,10 @@
 <!-- ════════════════════════ ESPACE SECONDAIRE ════════════════════════ -->
 <div id="secondaire">
   <div id="paramGlobal">
-    <span id="owStatusBar" style="margin-left:10px;font-size:0.85em;">Espace de travail</span>
+    <span id="compteur" style="margin-left:6px;">openWork</span> :
+    <span id="compteurH" style="font-size:1.5em;"> 00 :</span><span id="compteurM" style="font-size:1.5em;"> 00 : </span><span id="compteurS" style="font-size:1.5em;"> 00</span>
     <span id="owGrpInfo" style="margin-left:30px;font-size:0.85em;color:#555;"></span>
+    <span style="margin-left:250px;">Contexte</span> : <span id="owRate" style="margin-left:6px;">48000</span>
   </div>
 
   <div id="work" style="position:absolute;top:38px;left:0;width:12960px;height:788px;overflow-x:scroll;overflow-y:hidden;border:0;">
@@ -887,9 +889,49 @@ if (typeof window.api !== 'undefined') {
 }
 
 // ═══════════════════════════════════════════════
+//  COMPTEUR
+// ═══════════════════════════════════════════════
+let owCompteurSec = 0;
+let owCompteurTimer = null;
+
+function owStartCompteur() {
+  if (owCompteurTimer) return;
+  owCompteurTimer = setInterval(() => {
+    owCompteurSec++;
+    const h = Math.floor(owCompteurSec / 3600);
+    const m = Math.floor((owCompteurSec % 3600) / 60);
+    const s = owCompteurSec % 60;
+    document.getElementById('compteurH').textContent = ' ' + String(h).padStart(2,'0') + ' :';
+    document.getElementById('compteurM').textContent = ' ' + String(m).padStart(2,'0') + ' : ';
+    document.getElementById('compteurS').textContent = ' ' + String(s).padStart(2,'0');
+  }, 1000);
+}
+
+function owResetCompteur() {
+  clearInterval(owCompteurTimer);
+  owCompteurTimer = null;
+  owCompteurSec = 0;
+  document.getElementById('compteurH').textContent = ' 00 :';
+  document.getElementById('compteurM').textContent = ' 00 : ';
+  document.getElementById('compteurS').textContent = ' 00';
+}
+
+// Contexte audio – taux d'échantillonnage
+(function() {
+  try {
+    const ctx = new AudioContext();
+    document.getElementById('owRate').textContent = ctx.sampleRate;
+    ctx.close();
+  } catch(e) {
+    document.getElementById('owRate').textContent = '48000';
+  }
+})();
+
+// ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
 owBuildNuancesTable();
+owStartCompteur();
 </script>
 </body>
 </html>
