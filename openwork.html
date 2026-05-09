@@ -1196,16 +1196,19 @@ function owApplyPosConstraints(grp) {
 
 function owDragElement(elmnt, grpData, startEvt) {
   let p1=0, p2=0, p3=startEvt.clientX, p4=startEvt.clientY;
+  const sx = startEvt.clientX, sy = startEvt.clientY;
+  let dragged = false;
 
   document.onmousemove = drag;
   document.onmouseup   = stop;
 
   function drag(e) {
     e.preventDefault();
-    p1 = p3 - e.clientX;
-    p2 = p4 - e.clientY;
-    p3 = e.clientX;
-    p4 = e.clientY;
+    if (!dragged && (Math.abs(e.clientX - sx) > 4 || Math.abs(e.clientY - sy) > 4))
+      dragged = true;
+    p1 = p3 - e.clientX; p2 = p4 - e.clientY;
+    p3 = e.clientX;       p4 = e.clientY;
+    if (!dragged) return;
     grpData.posX = elmnt.offsetLeft - p1;
     grpData.posY = Math.max(0, elmnt.offsetTop - p2);
     owApplyPosConstraints(grpData);
@@ -1215,9 +1218,13 @@ function owDragElement(elmnt, grpData, startEvt) {
   function stop() {
     document.onmousemove = null;
     document.onmouseup   = null;
-    owApplyPosConstraints(grpData);
-    elmnt.style.left = grpData.posX + 'px';
-    owModified = true;
+    if (!dragged) {
+      owParamsGroupe();
+    } else {
+      owApplyPosConstraints(grpData);
+      elmnt.style.left = grpData.posX + 'px';
+      owModified = true;
+    }
   }
 }
 
