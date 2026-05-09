@@ -3897,6 +3897,7 @@ function pasteSymbole(obj,copyX,copyY){
 			tableObjet[objActif].y2=tableObjet[obj].y2;
 			tableObjet[objActif].openH=tableObjet[obj].openH;
 			gArpege26(objActif);
+			redrawArpege(objActif);
 			dragElement(document.getElementById('p1'+nbObjets));
 			dragElement(document.getElementById('sglis'+nbObjets));
 			dragElement(document.getElementById('p2'+nbObjets));
