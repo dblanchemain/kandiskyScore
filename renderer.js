@@ -852,7 +852,7 @@ window.api.receive("fromMain", (data) => {
 					} else {
 						await postRubberband(cmd[1],cmd[2],cmd[3]);
 					}
-				})();
+				})().catch(e => console.warn('processRubberband:', e));
 				
  				break;
  			case 'tempoError':
