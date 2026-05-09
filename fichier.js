@@ -469,7 +469,7 @@ async function saveGrp() {
 	defgrp.push(tableObjet[objActif]);
 	document.getElementById('svgTime').innerHTML="";
 	document.getElementById('vueSign').innerHTML="";
-	await vuePartitionA(1,2,defgrp);
+	await vuePartitionA(1,2,defgrp.slice(0,-1));
 	const svgB64=uena(document.getElementById("svgVue").innerHTML);
 	saveProjetA("2",0,defgrp,svgB64);
 }
