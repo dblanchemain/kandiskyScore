@@ -2189,18 +2189,26 @@ function _xmlAttr(block, tag) {
 	return m ? m[1] : null;
 }
 function generateSvgFromXml(xmlTxt) {
-	const blocks = xmlTxt.match(/<objet[^>]*>[\s\S]*?<\/objet>/g) || [];
+	// Découpe par balise <objet> ouvrante — robuste même sans </objet> (class 2)
+	const openRe = /<objet[^>]*>/g;
+	const starts = [];
+	let m;
+	while ((m = openRe.exec(xmlTxt)) !== null) starts.push(m.index + m[0].length);
+	if (starts.length === 0) return null;
 	const objects = [];
-	for (const b of blocks) {
-		if (parseInt(_xmlAttr(b,'etat')||'0') !== 1) continue;
-		const posx = parseFloat(_xmlAttr(b,'posx')||'0');
-		const posy = parseFloat(_xmlAttr(b,'posy')||'0');
-		const bkgw = parseFloat(_xmlAttr(b,'bkgwidth')||'50');
-		const bkgh = parseFloat(_xmlAttr(b,'bkgheight')||'30');
-		const bkgc = _xmlAttr(b,'bkgcolor') || '#888888';
-		const cls  = parseInt(_xmlAttr(b,'class')||'1');
-		if (!isNaN(posx) && !isNaN(posy) && bkgw > 0 && bkgh > 0)
-			objects.push({ posx, posy, bkgw, bkgh, bkgc, cls });
+	for (let i = 0; i < starts.length; i++) {
+		const block = xmlTxt.substring(starts[i], i + 1 < starts.length ? starts[i + 1] : xmlTxt.length);
+		if (parseInt(_xmlAttr(block,'etat')||'0') !== 1) continue;
+		const cls = parseInt(_xmlAttr(block,'class')||'1');
+		if (cls === 4) continue;
+		const posx = parseFloat(_xmlAttr(block,'posx')||'0');
+		const posy = parseFloat(_xmlAttr(block,'posy')||'0');
+		const bkgw = parseFloat(_xmlAttr(block,'bkgwidth')||'0');
+		const bkgh = parseFloat(_xmlAttr(block,'bkgheight')||'0');
+		if (isNaN(posx) || isNaN(posy) || bkgw <= 0 || bkgh <= 0) continue;
+		const objc = _xmlAttr(block,'objcolor');
+		const color = (objc && objc !== '') ? objc : (_xmlAttr(block,'bkgcolor') || '#888888');
+		objects.push({ posx, posy, bkgw, bkgh, color });
 	}
 	if (objects.length === 0) return null;
 	let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
@@ -2222,8 +2230,7 @@ function generateSvgFromXml(xmlTxt) {
 		const y = Math.round((o.posy - minY + pad)*scale);
 		const w = Math.max(1, Math.round(o.bkgw*scale));
 		const h = Math.max(1, Math.round(o.bkgh*scale));
-		const op = o.cls === 4 ? ' opacity="0.5"' : '';
-		rects += `  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${o.bkgc}"${op}/>\n`;
+		rects += `  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${o.color}"/>\n`;
 	}
 	return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">\n  <rect width="100%" height="100%" fill="#1a1a2e"/>\n${rects}</svg>`;
 }
