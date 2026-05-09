@@ -1103,6 +1103,13 @@ function owRenderGroups() {
     // Miniature SVG (data URI transmise par IPC)
     const img = document.createElement('img');
     img.className = 'ow-grp-img';
+    img.addEventListener('load', function() {
+      if (img.naturalWidth && img.naturalHeight) {
+        grp.w = img.naturalWidth;
+        grp.h = img.naturalHeight + 20;
+        owApplyGrpStyle(div, grp);
+      }
+    }, { once: true });
     if (grp.svgData) {
       img.src = grp.svgData;
     } else {
@@ -1379,10 +1386,16 @@ if (typeof window.api !== 'undefined') {
             grp.svgData = 'data:image/svg+xml;base64,' + svgB64r;
             const imgEl = document.querySelector('#grp' + grpId + ' .ow-grp-img');
             if (imgEl) {
+              imgEl.addEventListener('load', function() {
+                if (imgEl.naturalWidth && imgEl.naturalHeight) {
+                  grp.w = imgEl.naturalWidth;
+                  grp.h = imgEl.naturalHeight + 20;
+                  const container = document.getElementById('grp' + grpId);
+                  if (container) owApplyGrpStyle(container, grp);
+                }
+              }, { once: true });
               imgEl.src = grp.svgData;
               imgEl.style.display = '';
-            } else {
-              // le bloc est peut-être dans une autre section, on patche à la prochaine render
             }
           }
         }
