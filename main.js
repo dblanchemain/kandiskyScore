@@ -2188,7 +2188,7 @@ let pendingGrpSvg = '';
 function saveModifGrp(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join(__dirname, '../'),
+        defaultPath: path.dirname(currentProjet),
         buttonLabel: 'Save',
         filters: [
             {name: 'Kandiskyscore',extensions: ['xml']},
