@@ -856,12 +856,6 @@ function owRenderSections() {
     div.id        = 'owsec' + sec.id;
     div.style.top             = sec.posY + 'px';
     div.style.backgroundColor = sec.color || '#4a90d9';
-
-    const lbl = document.createElement('span');
-    lbl.className   = 'ow-section-lbl';
-    lbl.textContent = toRoman(idx + 1) + '  ' + sec.name;
-    lbl.style.color = sec.color || '#4a90d9';
-    div.appendChild(lbl);
     space.appendChild(div);
   });
 }
