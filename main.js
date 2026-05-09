@@ -668,6 +668,7 @@ let winSpectWamEtat=0;
 let winTrajectoryEtat=0;
 let winSvgEtat=0;
 let winOpenWorkEtat=0;
+let winInterpretorEtat=0;
 let projetName='';
 let projetPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 let audioPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
@@ -1025,6 +1026,9 @@ const template = [
       { type: 'separator' },
       { label: 'openWork',
 				click: () => openOpenWork() },
+      { type: 'separator' },
+      { label: 'interpretor',
+				click: () => openInterpretor() },
       { type: 'separator' },
       { label: Mtempo,
 				click: () => tempoAudio() },
@@ -4794,6 +4798,19 @@ ipcMain.on ("toMain", (event, args) => {
 					fs.writeFileSync(result.filePath, expData, 'utf-8');
 				}).catch(err => console.error('owExportInterp:', err));
 			break; }
+			case 'interpOpen': {
+				dialog.showOpenDialog(winInterpretor, {
+					properties: ['openFile'],
+					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
+					filters: [
+						{ name: 'OpenWork / JSON', extensions: ['owk','json'] }
+					]
+				}).then(result => {
+					if (result.canceled || !result.filePaths[0]) return;
+					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
+					winInterpretor.webContents.send('fromMain', 'owLoaded;' + data);
+				}).catch(err => console.error('interpOpen:', err));
+			break; }
         }
 		}   
 		if (args && typeof args === "object" && args.type) {
@@ -6588,6 +6605,32 @@ function openOpenWork() {
 		});
 	} else {
 		winOpenWork.focus();
+	}
+}
+
+let winInterpretor = null;
+function openInterpretor() {
+	if (winInterpretorEtat === 0) {
+		winInterpretor = new BrowserWindow({
+			width: 1300, height: 860,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				enableRemoteModule: false,
+				preload: path.join(__dirname, 'preload.js'),
+				sandbox: false
+			}
+		});
+		winInterpretor.loadFile('interpretor.html');
+		winInterpretor.removeMenu();
+		if (!app.isPackaged) winInterpretor.webContents.openDevTools();
+		winInterpretorEtat = 1;
+		winInterpretor.on('close', () => {
+			winInterpretor = null;
+			winInterpretorEtat = 0;
+		});
+	} else {
+		winInterpretor.focus();
 	}
 }
 
