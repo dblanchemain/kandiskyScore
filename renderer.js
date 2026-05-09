@@ -1431,7 +1431,7 @@ async function importMulti(url,c,d){
     	var pathnom=url.split('/');
       contextAudio.decodeAudioData(request.response, function(buffer) {
       tableBuffer.push({name:url,buffer:buffer,canaux:1,duree:d});
-      });
+      }, function(e){ console.warn('decodeAudioData importMulti:', url, e); });
       };
    request.send(); 
 }
@@ -1455,7 +1455,7 @@ async function loadSoundTableBufferB(id,dir,base,c,d) {
 				tableObjet[id].bufferId=tableBuffer.length-1;
 				tableObjet[id].canaux=buffer.numberOfChannels;
 				window.api.send("toMain","canaux;"+id+";"+buffer.numberOfChannels);
-			});
+			}, function(e){ console.warn('decodeAudioData loadSoundTableBufferB:', base, e); });
 		};
 		req.send();
 	}
@@ -1494,7 +1494,7 @@ function loadPreDefSound(id,url) {
 	        ls.file=tableObjet[id].file;
         }
         window.api.send("toMain", "fileAudioPreDef;"+id+";"+tableObjet[id].duree+";"+buffer.numberOfChannels );
-    });
+    }, function(e){ console.warn('decodeAudioData loadPreDefSound:', url, e); });
     };
     request.send();
 }
