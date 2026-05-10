@@ -2157,7 +2157,7 @@ function saveTheme(txt) {
 function saveSvgAs(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-       defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'Projets', projetName, 'Images'),
+       defaultPath: path.join(path.dirname(audioPath), 'openWork', 'Images'),
         // defaultPath: path.join(__dirname, '../assets/'),
         buttonLabel: 'Save',
         // Restricting the user to only Text Files.
