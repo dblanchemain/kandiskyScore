@@ -2204,7 +2204,8 @@ function saveModifGrp(txt) {
                 console.log('Saved!', xmlPath);
             });
             if (pendingGrpSvg) {
-                const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
+                const svgName = path.basename(xmlPath).replace(/\.xml$/i, '.svg');
+                const svgPath = path.join(path.dirname(audioPath), 'openWork', 'Images', svgName);
                 try {
                     const svgContent = Buffer.from(pendingGrpSvg, 'base64').toString('utf8');
                     fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
