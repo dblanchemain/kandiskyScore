@@ -5725,6 +5725,7 @@ function mainExternes2(txt) {
 	if (audioPath && !fs.existsSync(audioPath)) {
 		try { fs.mkdirSync(audioPath, { recursive: true }); } catch(e) { console.error('Erreur création dossier Audios:', e); }
 	}
+	if (!imgPath && audioPath) imgPath = path.join(path.dirname(audioPath), 'Images');
 	if (imgPath && !fs.existsSync(imgPath)) {
 		try { fs.mkdirSync(imgPath, { recursive: true }); } catch(e) { console.error('Erreur création dossier Images:', e); }
 	}
