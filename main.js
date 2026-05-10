@@ -5728,6 +5728,15 @@ function mainExternes2(txt) {
 	if (imgPath && !fs.existsSync(imgPath)) {
 		try { fs.mkdirSync(imgPath, { recursive: true }); } catch(e) { console.error('Erreur création dossier Images:', e); }
 	}
+	if (audioPath) {
+		const openWorkPath = path.join(path.dirname(audioPath), 'openWork');
+		for (const sub of ['', 'Groupes', 'Images']) {
+			const dir = sub ? path.join(openWorkPath, sub) : openWorkPath;
+			if (!fs.existsSync(dir)) {
+				try { fs.mkdirSync(dir, { recursive: true }); } catch(e) { console.error('Erreur création dossier openWork/'+sub+':', e); }
+			}
+		}
+	}
 	editor=defc.editor;
 	daw=defc.daw;
 	cmdDaw=defc.cmdDaw;
