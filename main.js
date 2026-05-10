@@ -2188,7 +2188,7 @@ let pendingGrpSvg = '';
 function saveModifGrp(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.dirname(currentProjet),
+        defaultPath: path.join(path.dirname(currentProjet), 'openWork', 'Groupes'),
         buttonLabel: 'Save',
         filters: [
             {name: 'Kandiskyscore',extensions: ['xml']},
