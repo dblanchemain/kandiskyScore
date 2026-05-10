@@ -4760,31 +4760,31 @@ ipcMain.on ("toMain", (event, args) => {
 			break;
 			case 'owPickGrpFile': {
 				const pickFieldId = cmd[1];
+				const owGrpDir = path.join(path.dirname(audioPath), 'openWork', 'Groupes');
+				const owImgDir = path.join(path.dirname(audioPath), 'openWork', 'Images');
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
-					defaultPath: owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'),
+					defaultPath: owGrpDir,
 					filters: [{ name: 'Kandiskyscore XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
 					const xmlFull  = result.filePaths[0];
 					const fileName = path.basename(xmlFull);
-					const xmlDir   = path.dirname(xmlFull);
-					const svgFull  = xmlFull.replace(/\.xml$/i, '.svg');
+					const svgFull  = path.join(owImgDir, fileName.replace(/\.xml$/i, '.svg'));
 					let svgB64 = '';
 					try {
 						const svgContent = fs.readFileSync(svgFull, 'utf-8');
 						svgB64 = Buffer.from(svgContent, 'utf-8').toString('base64');
 					} catch(e) {}
-					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + xmlDir);
+					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + owImgDir);
 				}).catch(err => console.error('owPickGrpFile:', err));
 			break; }
 			case 'owReadSvg': {
 				const grpId   = cmd[1];
 				const svgName = cmd[2];
-				const grpDir  = (cmd[3] || '').trim();
-				const baseDir = grpDir || owCurrentDir;
-				if (!baseDir || !svgName) break;
-				const svgFull2 = path.join(baseDir, svgName);
+				const owImgDir2 = path.join(path.dirname(audioPath), 'openWork', 'Images');
+				if (!svgName) break;
+				const svgFull2 = path.join(owImgDir2, svgName);
 				try {
 					const svgContent2 = fs.readFileSync(svgFull2, 'utf-8');
 					const svgB642 = Buffer.from(svgContent2, 'utf-8').toString('base64');
@@ -4792,9 +4792,10 @@ ipcMain.on ("toMain", (event, args) => {
 				} catch(e) { /* fichier SVG absent, on ignore */ }
 			break; }
 			case 'owOpen': {
+				const owDir = path.join(path.dirname(audioPath), 'openWork');
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
+					defaultPath: owDir,
 					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
@@ -4806,13 +4807,14 @@ ipcMain.on ("toMain", (event, args) => {
 			case 'owSave': {
 				const existingPath = cmd[1];
 				const xmlData = cmd.slice(2).join(';');
+				const owSaveDir = path.join(path.dirname(audioPath), 'openWork');
 				if (existingPath && fs.existsSync(existingPath)) {
 					owCurrentDir = path.dirname(existingPath);
 					fs.writeFileSync(existingPath, xmlData, 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + existingPath);
 				} else {
 					dialog.showSaveDialog(winOpenWork, {
-						defaultPath: path.join(owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'), 'projet.xml'),
+						defaultPath: path.join(owCurrentDir || owSaveDir, 'projet.xml'),
 						filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 					}).then(result => {
 						if (result.canceled || !result.filePath) return;
@@ -4824,8 +4826,9 @@ ipcMain.on ("toMain", (event, args) => {
 			break; }
 			case 'owSaveAs': {
 				const xmlDataAs = cmd.slice(1).join(';');
+				const owSaveAsDir = path.join(path.dirname(audioPath), 'openWork');
 				dialog.showSaveDialog(winOpenWork, {
-					defaultPath: path.join(owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'), 'projet.xml'),
+					defaultPath: path.join(owCurrentDir || owSaveAsDir, 'projet.xml'),
 					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePath) return;
@@ -4836,8 +4839,9 @@ ipcMain.on ("toMain", (event, args) => {
 			break; }
 			case 'owExportInterp': {
 				const expData = cmd.slice(1).join(';');
+				const owExpDir = path.join(path.dirname(audioPath), 'openWork');
 				dialog.showSaveDialog(winOpenWork, {
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'export_interpretor.xml'),
+					defaultPath: path.join(owExpDir, 'export_interpretor.xml'),
 					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePath) return;
