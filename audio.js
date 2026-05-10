@@ -1778,8 +1778,9 @@ async function spatialise(id,filePath,interpType="linear") {
 
 async function postRubberband(id,mode,file) {
 	const buffer = await window.api.readFile(file);
-  	// Décode les données en AudioBuffer via Web Audio API
-  	const audioBuffer = await contextAudio.decodeAudioData(buffer);				
+  	let audioBuffer;
+  	try { audioBuffer = await contextAudio.decodeAudioData(buffer); }
+  	catch(e) { console.warn('postRubberband decodeAudioData:', file, e); return; }				
 	const numChannels = audioBuffer.numberOfChannels;
    const numSamples = audioBuffer.length;
    const sampleRate =audioBuffer.sampleRate;

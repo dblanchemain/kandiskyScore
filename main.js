@@ -2184,31 +2184,36 @@ function saveSvgAs(txt) {
 function saveDefGrp() {
 	mainWindow.webContents.send("fromMain", 'saveGrp');
 }
+let pendingGrpSvg = '';
 function saveModifGrp(txt) {
 	dialog.showSaveDialog({
         title: 'Select the File Path to save',
-        defaultPath: path.join(__dirname, '../'),
-        // defaultPath: path.join(__dirname, '../assets/'),
+        defaultPath: path.dirname(currentProjet),
         buttonLabel: 'Save',
-        // Restricting the user to only Text Files.
         filters: [
             {name: 'Kandiskyscore',extensions: ['xml']},
              {name: 'All Files',extensions: ['*']},
              ],
         properties: []
     }).then(file => {
-        // Stating whether dialog operation was cancelled or not.
-        console.log(file.canceled);
         if (!file.canceled) {
-            console.log(file.filePath.toString());
-            currentProjet=file.filePath.toString();
-            // Creating and Writing to the sample.txt file
-            
-            fs.writeFile(file.filePath.toString(), 
-                         txt, function (err) {
+            const xmlPath = file.filePath.toString();
+            currentProjet = xmlPath;
+            fs.writeFile(xmlPath, txt, function(err) {
                 if (err) throw err;
-                console.log('Saved!');
+                console.log('Saved!', xmlPath);
             });
+            if (pendingGrpSvg) {
+                const svgPath = xmlPath.replace(/\.xml$/i, '.svg');
+                try {
+                    const svgContent = Buffer.from(pendingGrpSvg, 'base64').toString('utf8');
+                    fs.writeFile(svgPath, svgContent, 'utf8', function(err) {
+                        if (err) console.error('SVG save error:', err);
+                        else console.log('SVG saved:', svgPath);
+                    });
+                } catch(e) { console.error('SVG decode error:', e); }
+                pendingGrpSvg = '';
+            }
         }
     }).catch(err => {
         console.log(err);
@@ -4199,9 +4204,14 @@ ipcMain.on ("toMain", (event, args) => {
 			
 			saveModifProjetAs(cmd[1]);
 			break;
-		case 'saveModifGrp':
-			saveModifGrp(cmd[1]);
+		case 'saveGrpSvgPending':
+			pendingGrpSvg = cmd[1] || '';
 			break;
+		case 'saveModifGrp': {
+			const _firstSemi = args.indexOf(';');
+			saveModifGrp(args.substring(_firstSemi + 1));
+			break;
+		}
 		case 'nettoyerAudios':
 			nettoyerAudios(cmd[1]);
 			break;
@@ -4747,51 +4757,87 @@ ipcMain.on ("toMain", (event, args) => {
 					winSpatMassEtat=0;
 				}
 			break;
+			case 'owPickGrpFile': {
+				const pickFieldId = cmd[1];
+				dialog.showOpenDialog(winOpenWork, {
+					properties: ['openFile'],
+					defaultPath: owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'),
+					filters: [{ name: 'Kandiskyscore XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
+				}).then(result => {
+					if (result.canceled || !result.filePaths[0]) return;
+					const xmlFull  = result.filePaths[0];
+					const fileName = path.basename(xmlFull);
+					const xmlDir   = path.dirname(xmlFull);
+					const svgFull  = xmlFull.replace(/\.xml$/i, '.svg');
+					let svgB64 = '';
+					try {
+						const svgContent = fs.readFileSync(svgFull, 'utf-8');
+						svgB64 = Buffer.from(svgContent, 'utf-8').toString('base64');
+					} catch(e) {}
+					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + xmlDir);
+				}).catch(err => console.error('owPickGrpFile:', err));
+			break; }
+			case 'owReadSvg': {
+				const grpId   = cmd[1];
+				const svgName = cmd[2];
+				const grpDir  = (cmd[3] || '').trim();
+				const baseDir = grpDir || owCurrentDir;
+				if (!baseDir || !svgName) break;
+				const svgFull2 = path.join(baseDir, svgName);
+				try {
+					const svgContent2 = fs.readFileSync(svgFull2, 'utf-8');
+					const svgB642 = Buffer.from(svgContent2, 'utf-8').toString('base64');
+					winOpenWork.webContents.send('fromMain', 'owSvgData;' + grpId + ';' + svgB642);
+				} catch(e) { /* fichier SVG absent, on ignore */ }
+			break; }
 			case 'owOpen': {
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
 					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
-					filters: [{ name: 'OpenWork', extensions: ['owk','json'] }]
+					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
+					owCurrentDir = path.dirname(result.filePaths[0]);
 					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
-					winOpenWork.webContents.send('fromMain', 'owLoaded;' + data);
+					winOpenWork.webContents.send('fromMain', 'owLoaded;' + owCurrentDir + '\n' + data);
 				}).catch(err => console.error('owOpen:', err));
 			break; }
 			case 'owSave': {
-				// cmd[1] = chemin existant (peut être vide), cmd[2..] = données JSON
 				const existingPath = cmd[1];
-				const jsonData = cmd.slice(2).join(';');
+				const xmlData = cmd.slice(2).join(';');
 				if (existingPath && fs.existsSync(existingPath)) {
-					fs.writeFileSync(existingPath, jsonData, 'utf-8');
+					owCurrentDir = path.dirname(existingPath);
+					fs.writeFileSync(existingPath, xmlData, 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + existingPath);
 				} else {
 					dialog.showSaveDialog(winOpenWork, {
-						defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.owk'),
-						filters: [{ name: 'OpenWork', extensions: ['owk'] }]
+						defaultPath: path.join(owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'), 'projet.xml'),
+						filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 					}).then(result => {
 						if (result.canceled || !result.filePath) return;
-						fs.writeFileSync(result.filePath, jsonData, 'utf-8');
+						owCurrentDir = path.dirname(result.filePath);
+						fs.writeFileSync(result.filePath, xmlData, 'utf-8');
 						winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
 					}).catch(err => console.error('owSave:', err));
 				}
 			break; }
 			case 'owSaveAs': {
-				const jsonDataAs = cmd.slice(1).join(';');
+				const xmlDataAs = cmd.slice(1).join(';');
 				dialog.showSaveDialog(winOpenWork, {
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'projet.owk'),
-					filters: [{ name: 'OpenWork', extensions: ['owk'] }]
+					defaultPath: path.join(owCurrentDir || path.join(app.getPath('home'), 'kandiskyscore'), 'projet.xml'),
+					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePath) return;
-					fs.writeFileSync(result.filePath, jsonDataAs, 'utf-8');
+					owCurrentDir = path.dirname(result.filePath);
+					fs.writeFileSync(result.filePath, xmlDataAs, 'utf-8');
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
 				}).catch(err => console.error('owSaveAs:', err));
 			break; }
 			case 'owExportInterp': {
 				const expData = cmd.slice(1).join(';');
 				dialog.showSaveDialog(winOpenWork, {
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'export_interpretor.json'),
-					filters: [{ name: 'JSON', extensions: ['json'] }]
+					defaultPath: path.join(app.getPath('home'), 'kandiskyscore', 'export_interpretor.xml'),
+					filters: [{ name: 'OpenWork XML', extensions: ['xml'] }]
 				}).then(result => {
 					if (result.canceled || !result.filePath) return;
 					fs.writeFileSync(result.filePath, expData, 'utf-8');
@@ -4802,7 +4848,7 @@ ipcMain.on ("toMain", (event, args) => {
 					properties: ['openFile'],
 					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
 					filters: [
-						{ name: 'OpenWork / JSON', extensions: ['owk','json'] }
+						{ name: 'OpenWork XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }
 					]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
@@ -5681,6 +5727,15 @@ function mainExternes2(txt) {
 	}
 	if (imgPath && !fs.existsSync(imgPath)) {
 		try { fs.mkdirSync(imgPath, { recursive: true }); } catch(e) { console.error('Erreur création dossier Images:', e); }
+	}
+	if (audioPath) {
+		const openWorkPath = path.join(path.dirname(audioPath), 'openWork');
+		for (const sub of ['', 'Groupes', 'Images']) {
+			const dir = sub ? path.join(openWorkPath, sub) : openWorkPath;
+			if (!fs.existsSync(dir)) {
+				try { fs.mkdirSync(dir, { recursive: true }); } catch(e) { console.error('Erreur création dossier openWork/'+sub+':', e); }
+			}
+		}
 	}
 	editor=defc.editor;
 	daw=defc.daw;
@@ -6582,6 +6637,7 @@ function interp() {
 }
 
 let winOpenWork = null;
+let owCurrentDir = null;
 function openOpenWork() {
 	if (winOpenWorkEtat === 0) {
 		winOpenWork = new BrowserWindow({

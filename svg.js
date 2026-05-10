@@ -884,7 +884,7 @@ function vuePartSvg(){
 	vuePartitionA(0,0,tableObjet);
 	
 }
-async function vueGrpSvg(mode){
+async function vueGrpSvg(mode, returnSvg=false){
 	lsgrp=[];
 	var rt;
 	var slblock;
@@ -911,11 +911,11 @@ async function vueGrpSvg(mode){
 		}
 ;	for(let i=0;i<lsgrp.length;i++){
 		if(grpSelect==1){
-			lsgrp[i].posX=lsgrp[i].posX-parseFloat(slblock.left)+10;
-			lsgrp[i].posY=lsgrp[i].posY-parseFloat(slblock.top)+10;
+			lsgrp[i].posX=lsgrp[i].posX-parseFloat(slblock.left);
+			lsgrp[i].posY=lsgrp[i].posY-parseFloat(slblock.top);
 		}else{
-			lsgrp[i].posX=lsgrp[i].posX-tableObjet[objActif].posX+10;
-			lsgrp[i].posY=lsgrp[i].posY-tableObjet[objActif].posY+10;
+			lsgrp[i].posX=lsgrp[i].posX-tableObjet[objActif].posX;
+			lsgrp[i].posY=lsgrp[i].posY-tableObjet[objActif].posY;
 		}
 	}
 	await vuePartitionA(0,1,lsgrp);
@@ -927,21 +927,21 @@ async function vueGrpSvg(mode){
 	document.getElementById("svgGrpVue").firstChild.innerHTML=document.getElementById("vueSvg").innerHTML;
 	document.getElementById("vueSvg").innerHTML="";
 	if(grpSelect==1){
-		document.getElementById("svgGrpVue").firstChild.setAttribute("width",parseFloat(slblock.width)+20);
-		document.getElementById("svgGrpVue").firstChild.setAttribute("height",parseFloat(slblock.height)+20);
-		document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+(parseFloat(slblock.width)+20)+" "+(parseFloat(slblock.height)+20));
+		document.getElementById("svgGrpVue").firstChild.setAttribute("width",parseFloat(slblock.width));
+		document.getElementById("svgGrpVue").firstChild.setAttribute("height",parseFloat(slblock.height));
+		document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+parseFloat(slblock.width)+" "+parseFloat(slblock.height));
 		grpSelect=0;
 		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
 	}else{
 	var actif=lsgrp.length-1;
-	document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp[actif].width+20);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("height",lsgrp[actif].height+20);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+(lsgrp[actif].width+20)+" "+(lsgrp[actif].height+20));
+	document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp[actif].width);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("height",lsgrp[actif].height);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+lsgrp[actif].width+" "+lsgrp[actif].height);
 	}
 	
 	var obj=document.getElementById("svgGrpVue");
-	
 	//var new_window = window.open(URL.createObjectURL(new Blob([obj.innerHTML], { type: "image/svg+xml" })));
+	if(returnSvg) return btoa(obj.innerHTML);
 	window.api.send("toMain", "saveSvg;"+btoa(obj.innerHTML)+";"+mode);
 }
 
@@ -974,7 +974,8 @@ async function vuePartitionA(pdf,grp,grpObjets){
 	}
 	for(let j=0;j<11;j++){
 		for(let i=0;i<grpObjets.length;i++){
-			if(grpObjets[i].etat==1 && document.getElementById(grpObjets[i].id).style.zIndex==j){
+			const _el=document.getElementById(grpObjets[i].id);
+			if(grpObjets[i].etat==1 && _el && _el.style.zIndex==j){
 				switch(grpObjets[i].class) {
 					case 1:
 						txt=txt+"<g transform='translate("+grpObjets[i].posX+" "+grpObjets[i].posY+")' >";

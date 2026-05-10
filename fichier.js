@@ -369,7 +369,7 @@ function defProjetConf(txt) {
 function saveProjet(t){
 	saveProjetA(t,0,tableObjet);
 }
-function saveProjetA(t,offset,tabgrp){
+function saveProjetA(t,offset,tabgrp,svgB64){
 	var obj=document.getElementById("fichierSave");
 	var txt="<?xml version='1.0' encoding='UTF-8' ?>\n<kandiskyscore version='"+KANDISKYSCORE_VERSION+"'>\n";
 	if(t!=2){
@@ -453,26 +453,23 @@ function saveProjetA(t,offset,tabgrp){
 			break;
 	}
 }
-function saveGrp() {
+async function saveGrp() {
 	var defgrp=[];
-	// Collecter récursivement tous les membres du groupe (y compris sous-groupes)
 	function collectMembers(idxGrp) {
 		var membres = tableObjet[idxGrp].liste;
 		for(let i=0;i<membres.length;i++){
 			var m = tableObjet[membres[i]];
 			if(m && m.etat==1){
-				if(m.class==4){
-					collectMembers(membres[i]);
-				}
-				// Eviter les doublons
-				if(defgrp.indexOf(m)==-1){
-					defgrp.push(m);
-				}
+				if(m.class==4) collectMembers(membres[i]);
+				if(defgrp.indexOf(m)==-1) defgrp.push(m);
 			}
 		}
 	}
 	collectMembers(objActif);
 	defgrp.push(tableObjet[objActif]);
+	let svgB64='';
+	try { svgB64 = await vueGrpSvg(0,true); } catch(e) { console.error('[saveGrp] SVG error:',e); }
+	if(svgB64) window.api.send("toMain","saveGrpSvgPending;"+svgB64);
 	saveProjetA("2",0,defgrp);
 }
 function loadGrp(path){

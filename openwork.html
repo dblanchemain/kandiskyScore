@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;"/>
   <meta http-equiv="content-style-type" content="text/css"/>
   <link rel="stylesheet" type="text/css" media="all" href="score.css" />
   <title>OpenWork</title>
@@ -158,28 +158,35 @@
       margin: 2px 0;
       cursor: default;
       color: #222;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .ow-sec-roman {
+      font-weight: bold;
+      font-size: 1em;
+      color: #2a5fa8;
+      min-width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .ow-sec-name {
+      font-size: 0.85em;
+      color: #444;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ow-sec-item.actif {
+      background: #d0e4ff;
+      border-left-width: 4px;
+    }
+    .ow-sec-item:hover:not(.actif) {
+      background: #edf3ff;
     }
 
-    /* ── Sections dans l'espace de travail ── */
-    .ow-section-line {
-      position: absolute;
-      left: 0;
-      width: 12960px;
-      height: 0;
-      border-top: 2px solid #4a90d9;
-      z-index: 2;
-      pointer-events: none;
-    }
     .ow-section-lbl {
-      position: absolute;
-      top: 3px;
-      left: 4px;
-      font-size: 0.72em;
-      color: #4a90d9;
-      background: rgba(255,255,255,0.85);
-      padding: 1px 5px;
-      pointer-events: none;
-      z-index: 3;
+      display: none;
       font-weight: bold;
     }
 
@@ -193,7 +200,7 @@
       min-width: 40px;
       min-height: 24px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
       overflow: hidden;
       box-sizing: border-box;
@@ -203,11 +210,37 @@
       box-shadow: 0 0 4px rgba(224,68,0,0.5);
     }
     .ow-grp-lbl {
+      position: relative;
+      z-index: 2;
       pointer-events: none;
       font-size: 0.75em;
       text-align: center;
       word-break: break-word;
-      padding: 2px;
+      padding: 0;
+      background: rgba(255,255,255,0.72);
+      border-radius: 2px;
+      align-self: flex-end;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .ow-grp-img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: calc(100% - 20px);
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ow-grp-rsz {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 12px; height: 12px;
+      cursor: se-resize;
+      z-index: 10;
+      background: linear-gradient(135deg, transparent 50%, #4a90d9 50%);
+    }
+    .ow-grp.actif .ow-grp-rsz {
+      background: linear-gradient(135deg, transparent 50%, #e04400 50%);
     }
 
     /* ── Popups communs ── */
@@ -233,6 +266,20 @@
       cursor: move;
     }
     .ow-popup-body { padding: 12px; }
+    /* ── Paramètres groupe ── */
+    .gp-hdr {
+      font-weight: bold; font-size: 0.8em; color: #2a5fa8;
+      border-bottom: 1px solid #bcd; margin: 10px 0 4px 0; padding-bottom: 2px;
+    }
+    .gp-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.82em; margin: 3px 0;
+    }
+    .gp-row label { min-width: 150px; cursor: pointer; }
+    .gp-row input[type=number] { width: 58px; }
+    .gp-row input[type=text]   { font-size: 0.82em; }
+    .gp-row select             { font-size: 0.82em; }
+    .gp-sub { display:none; align-items:center; gap:4px; }
     .ow-popup-foot {
       padding: 6px 12px;
       text-align: right;
@@ -262,6 +309,32 @@
     }
     .nuance-row label { width: 52px; font-weight: bold; font-size: 0.85em; }
     .nuance-row input[type=number] { width: 70px; }
+
+    /* ── Mini-modal générique ── */
+    #owModalOverlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.35); z-index: 9000;
+      align-items: center; justify-content: center;
+    }
+    #owModalOverlay.actif { display: flex; }
+    #owModalBox {
+      background: #f5f5fa; border: 1px solid #aaa; border-radius: 6px;
+      padding: 18px 22px; min-width: 280px; max-width: 420px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.3); font-size: 0.9em;
+    }
+    #owModalMsg { margin-bottom: 10px; white-space: pre-wrap; line-height: 1.4; }
+    #owModalInput {
+      display: none; width: 100%; box-sizing: border-box;
+      margin-bottom: 10px; padding: 4px 6px; font-size: 0.95em;
+      border: 1px solid #bbb; border-radius: 3px;
+    }
+    #owModalBtns { display: flex; gap: 8px; justify-content: flex-end; }
+    #owModalBtns button {
+      padding: 4px 14px; border-radius: 3px; border: 1px solid #aaa;
+      cursor: pointer; font-size: 0.9em;
+    }
+    #owModalOk { background: #2a5fa8; color: #fff; border-color: #1e4a8a; }
+    #owModalCancel { background: #eee; }
   </style>
 </head>
 <body>
@@ -361,31 +434,110 @@
   </div>
 </div>
 
-<!-- Input fichier caché pour ouverture -->
-<input type="file" id="owFileInput" style="display:none" accept=".owk,.json" />
+<!-- Input fichier caché pour ouverture projet -->
+<input type="file" id="owFileInput" style="display:none" accept=".xml" />
+<!-- Input fichier caché pour sélection de groupe -->
+<input type="file" id="owGrpFileInput" style="display:none" accept=".xml" />
 
 <!-- ════════════════════════ POPUP : Paramètres groupe ════════════════════════ -->
-<div id="grpParamsPopup" class="ow-popup" style="top:100px;left:360px;width:360px;">
+<div id="grpParamsPopup" class="ow-popup" style="top:60px;left:260px;width:520px;">
   <div id="grpParamsPopupHeader" class="ow-popup-hd">Paramètres du groupe</div>
-  <div class="ow-popup-body">
-    <table border="0" cellpadding="5">
-      <tbody>
-        <tr><td>Nom :</td>
-            <td><input id="gpNom" type="text" style="width:200px;" oninput="owUpdateGrp('nom')"/></td></tr>
-        <tr><td>Largeur :</td>
-            <td><input id="gpW" type="number" min="20" max="2000" value="120" style="width:80px;" oninput="owUpdateGrp('w')"/></td></tr>
-        <tr><td>Hauteur :</td>
-            <td><input id="gpH" type="number" min="20" max="800" value="60" style="width:80px;" oninput="owUpdateGrp('h')"/></td></tr>
-        <tr><td>Couleur :</td>
-            <td><input id="gpColor" type="color" value="#c8dcff" oninput="owUpdateGrp('color')"/></td></tr>
-        <tr><td>Opacité :</td>
-            <td><input id="gpOpacity" type="number" min="0.05" max="1" step="0.05" value="0.5" style="width:80px;" oninput="owUpdateGrp('opacity')"/></td></tr>
-        <tr><td>Nuance :</td>
-            <td><select id="gpNuance" oninput="owUpdateGrp('nuance')" style="width:160px;">
-              <option value="">—</option>
-            </select></td></tr>
-      </tbody>
-    </table>
+  <div class="ow-popup-body" style="max-height:500px;overflow-y:auto;">
+
+    <!-- Référence fichier groupe -->
+    <div class="gp-row">
+      <label>Nom (référence) :</label>
+      <input id="gpNom" type="text" style="width:180px;" oninput="owUpdateGrp()" readonly/>
+      <button onclick="owPickFile('gpNom')" style="font-size:0.8em;">…</button>
+    </div>
+
+    <!-- Transformations -->
+    <div class="gp-hdr">Transformations</div>
+
+    <div class="gp-row">
+      <input type="checkbox" id="gpDirect" onchange="owUpdateGrp()"/>
+      <label for="gpDirect">Direct</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRenversement" onchange="owUpdateGrp()"/>
+      <label for="gpRenversement">Renversement</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRetrograde" onchange="owUpdateGrp()"/>
+      <label for="gpRetrograde">Rétrograde</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRenvRetrograde" onchange="owUpdateGrp()"/>
+      <label for="gpRenvRetrograde">Renv. rétrograde</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpRepetition" onchange="owUpdateGrp();owToggleGpSub('gpRepetition','gpRepetitionSub')"/>
+      <label for="gpRepetition">Répétition</label>
+      <span id="gpRepetitionSub" class="gp-sub">
+        max :&nbsp;<input id="gpRepetitionMax" type="number" min="1" max="99" value="2" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpTransposition" onchange="owUpdateGrp()"/>
+      <label for="gpTransposition">Transposition</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpAugDim" onchange="owUpdateGrp();owToggleGpSub('gpAugDim','gpAugDimSub')"/>
+      <label for="gpAugDim">Augmentée / Diminuée</label>
+      <span id="gpAugDimSub" class="gp-sub">
+        min :&nbsp;<input id="gpAugDimMin" type="number" step="0.5" value="-2" oninput="owUpdateGrp()"/>
+        &nbsp;max :&nbsp;<input id="gpAugDimMax" type="number" step="0.5" value="2" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpExpansion" onchange="owUpdateGrp();owToggleGpSub('gpExpansion','gpExpansionSub')"/>
+      <label for="gpExpansion">Expansion</label>
+      <span id="gpExpansionSub" class="gp-sub">
+        min :&nbsp;<input id="gpExpansionMin" type="number" step="0.1" min="0.01" value="0.5" oninput="owUpdateGrp()"/>
+        &nbsp;max :&nbsp;<input id="gpExpansionMax" type="number" step="0.1" value="2.0" oninput="owUpdateGrp()"/>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpVariationTempo" onchange="owUpdateGrp()"/>
+      <label for="gpVariationTempo">Variation tempo</label>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpVariationIntensite" onchange="owUpdateGrp()"/>
+      <label for="gpVariationIntensite">Variation intensité</label>
+    </div>
+
+    <!-- Position relative -->
+    <div class="gp-hdr">Position relative</div>
+
+    <div class="gp-row">
+      <input type="checkbox" id="gpPosRelDebut" onchange="owUpdateGrp();owToggleGpSub('gpPosRelDebut','gpPosRelDebutSub')"/>
+      <label for="gpPosRelDebut" style="min-width:46px;">Début</label>
+      <span id="gpPosRelDebutSub" class="gp-sub">
+        avant&nbsp;
+        <select id="gpPosRelDebutAvant" onchange="owUpdateGrp()">
+          <option value="debut">début</option>
+          <option value="fin">fin</option>
+        </select>
+        &nbsp;de&nbsp;
+        <input id="gpPosRelDebutGroupe" type="text" style="width:100px;" placeholder="grp.xml" readonly/>
+        <button onclick="owPickFile('gpPosRelDebutGroupe')" style="font-size:0.8em;">…</button>
+      </span>
+    </div>
+    <div class="gp-row">
+      <input type="checkbox" id="gpPosRelFin" onchange="owUpdateGrp();owToggleGpSub('gpPosRelFin','gpPosRelFinSub')"/>
+      <label for="gpPosRelFin" style="min-width:46px;">Fin</label>
+      <span id="gpPosRelFinSub" class="gp-sub">
+        avant&nbsp;
+        <select id="gpPosRelFinAvant" onchange="owUpdateGrp()">
+          <option value="debut">début</option>
+          <option value="fin">fin</option>
+        </select>
+        &nbsp;de&nbsp;
+        <input id="gpPosRelFinGroupe" type="text" style="width:100px;" placeholder="grp.xml" readonly/>
+        <button onclick="owPickFile('gpPosRelFinGroupe')" style="font-size:0.8em;">…</button>
+      </span>
+    </div>
+
   </div>
   <div class="ow-popup-foot">
     <button onclick="document.getElementById('grpParamsPopup').style.display='none'">Fermer</button>
@@ -437,6 +589,7 @@
 // ═══════════════════════════════════════════════
 let owSections  = [];   // {id, name, posY, color}
 let owGroups    = [];   // {id, name, sectionId, posX, posY, w, h, color, opacity, nuance}
+let owProjDir   = '';   // dossier du projet courant (pour les miniatures SVG)
 let owNuances   = [
   {nom:'pppp', val:10}, {nom:'ppp', val:20}, {nom:'pp', val:30},
   {nom:'p',    val:40}, {nom:'mp',  val:50}, {nom:'mf', val:60},
@@ -484,9 +637,9 @@ function owCloseMenus() {
 // ═══════════════════════════════════════════════
 //  FICHIER
 // ═══════════════════════════════════════════════
-function owNouveau() {
+async function owNouveau() {
   owCloseMenus();
-  if (owModified && !confirm('Nouveau projet ? Les modifications non sauvegardées seront perdues.')) return;
+  if (owModified && !await owConfirm('Nouveau projet ? Les modifications non sauvegardées seront perdues.')) return;
   owSections = []; owGroups = [];
   owNextSecId = 1; owNextGrpId = 1;
   owActiveGrp = null; owFilePath = null; owModified = false;
@@ -514,25 +667,99 @@ document.getElementById('owFileInput').addEventListener('change', function(e) {
 
 function owParseData(txt, label) {
   try {
-    const d = JSON.parse(txt);
-    owSections = d.sections  || [];
-    owGroups   = d.groups    || [];
-    owNuances  = d.nuances   || owNuances;
-    owNextSecId= d.nextSecId || owSections.length + 1;
-    owNextGrpId= d.nextGrpId || owGroups.length   + 1;
-    owActiveGrp = null;
-    owModified  = false;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(txt, 'application/xml');
+    if (doc.querySelector('parsererror'))
+      throw new Error(doc.querySelector('parsererror').textContent.split('\n')[0]);
+
+    const g  = (el, a, d) => { const v = el.getAttribute(a); return v !== null ? v : d; };
+    const gb = (el, a, d) => { const v = el.getAttribute(a); return v !== null ? v === 'true' : d; };
+    const gf = (el, a, d) => { const v = parseFloat(el.getAttribute(a)); return isNaN(v) ? d : v; };
+    const gi = (el, a, d) => { const v = parseInt(el.getAttribute(a));   return isNaN(v) ? d : v; };
+
+    owSections = []; owGroups = []; owNextSecId = 1; owNextGrpId = 1;
+
+    doc.querySelectorAll('section').forEach((secEl, idx) => {
+      const secId = owNextSecId++;
+      owSections.push({ id: secId, name: g(secEl,'name','Section '+secId), posY: idx*200, color:'#4a90d9' });
+      secEl.querySelectorAll('groupe').forEach(grpEl => {
+        owGroups.push({
+          id: owNextGrpId++,
+          name:             g(grpEl,'name','grp.xml'),
+          sectionId:        secId,
+          posX:             gf(grpEl,'posX',20),
+          posY:             gf(grpEl,'posY',20),
+          w:                gi(grpEl,'w',120),
+          h:                gi(grpEl,'h',60),
+          color:            g(grpEl,'color','#c8dcff'),
+          opacity:          gf(grpEl,'opacity',0.5),
+          direct:           gb(grpEl,'direct',true),
+          renversement:     gb(grpEl,'renversement',false),
+          retrograde:       gb(grpEl,'retrograde',false),
+          renvRetrograde:   gb(grpEl,'renvRetrograde',false),
+          repetition:       gb(grpEl,'repetition',false),
+          repetitionMax:    gi(grpEl,'repetitionMax',2),
+          transposition:    gb(grpEl,'transposition',false),
+          augDim:           gb(grpEl,'augDim',false),
+          augDimMin:        gf(grpEl,'augDimMin',-2),
+          augDimMax:        gf(grpEl,'augDimMax',2),
+          expansion:        gb(grpEl,'expansion',false),
+          expansionMin:     gf(grpEl,'expansionMin',0.5),
+          expansionMax:     gf(grpEl,'expansionMax',2.0),
+          variationTempo:   gb(grpEl,'variationTempo',false),
+          variationIntensite: gb(grpEl,'variationIntensite',false),
+          posRelDebut:      gb(grpEl,'posRelDebut',false),
+          posRelDebutAvant: g(grpEl,'posRelDebutAvant','debut'),
+          posRelDebutGroupe:g(grpEl,'posRelDebutGroupe',''),
+          posRelFin:        gb(grpEl,'posRelFin',false),
+          posRelFinAvant:   g(grpEl,'posRelFinAvant','fin'),
+          posRelFinGroupe:  g(grpEl,'posRelFinGroupe',''),
+          dir:              g(grpEl,'dir',''),
+          svgData: ''
+        });
+      });
+    });
+
+    owActiveGrp = null; owActiveSec = null; owModified = false;
     if (label) document.getElementById('owFileLabel').textContent = label;
     owRenderAll();
     owBuildNuancesTable();
-  } catch(err) { alert('Erreur de chargement : ' + err.message); }
+    // Demander les miniatures SVG pour tous les groupes
+    if (typeof window.api !== 'undefined') {
+      owGroups.forEach(grp => {
+        const svgName = grp.name.replace(/\.xml$/i, '.svg');
+        window.api.send('toMain', 'owReadSvg;' + grp.id + ';' + svgName + ';' + (grp.dir || ''));
+      });
+    }
+  } catch(err) { owAlert('Erreur de chargement : ' + err.message); }
 }
 
 function owSerialise() {
-  return JSON.stringify({
-    sections: owSections, groups: owGroups,
-    nuances: owNuances, nextSecId: owNextSecId, nextGrpId: owNextGrpId
-  }, null, 2);
+  const x = s => (s == null ? '' : String(s))
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const b = v => v ? 'true' : 'false';
+  const sorted = [...owSections].sort((a,bk) => a.posY - bk.posY);
+  let xml = "<?xml version='1.0' encoding='UTF-8' ?>\n<openwork version='2.1.1'>\n  <partition name=\"\">\n";
+  sorted.forEach(sec => {
+    xml += `    <section name="${x(sec.name)}">\n`;
+    owGroups.filter(g => g.sectionId === sec.id).forEach(grp => {
+      xml += `      <groupe name="${x(grp.name)}"\n`;
+      xml += `              direct="${b(grp.direct)}" renversement="${b(grp.renversement)}"\n`;
+      xml += `              retrograde="${b(grp.retrograde)}" renvRetrograde="${b(grp.renvRetrograde)}"\n`;
+      xml += `              repetition="${b(grp.repetition)}" repetitionMax="${grp.repetitionMax??2}"\n`;
+      xml += `              transposition="${b(grp.transposition)}"\n`;
+      xml += `              augDim="${b(grp.augDim)}" augDimMin="${grp.augDimMin??-2}" augDimMax="${grp.augDimMax??2}"\n`;
+      xml += `              expansion="${b(grp.expansion)}" expansionMin="${grp.expansionMin??0.5}" expansionMax="${grp.expansionMax??2.0}"\n`;
+      xml += `              variationTempo="${b(grp.variationTempo)}" variationIntensite="${b(grp.variationIntensite)}"\n`;
+      xml += `              posRelDebut="${b(grp.posRelDebut)}" posRelDebutAvant="${x(grp.posRelDebutAvant)}" posRelDebutGroupe="${x(grp.posRelDebutGroupe)}"\n`;
+      xml += `              posRelFin="${b(grp.posRelFin)}" posRelFinAvant="${x(grp.posRelFinAvant)}" posRelFinGroupe="${x(grp.posRelFinGroupe)}"\n`;
+      xml += `              dir="${x(grp.dir||'')}"\n`;
+      xml += `              posX="${grp.posX}" posY="${grp.posY}" w="${grp.w}" h="${grp.h}" color="${x(grp.color)}" opacity="${grp.opacity}"/>\n`;
+    });
+    xml += `    </section>\n`;
+  });
+  xml += "  </partition>\n</openwork>\n";
+  return xml;
 }
 
 function owSauvegarder() {
@@ -540,26 +767,26 @@ function owSauvegarder() {
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSave;' + (owFilePath || '') + ';' + owSerialise());
   } else {
-    owTelecharger(owFilePath || 'projet.owk', owSerialise());
+    owTelecharger(owFilePath || 'projet.xml', owSerialise());
   }
 }
 
-function owSauvegarderSous() {
+async function owSauvegarderSous() {
   owCloseMenus();
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSaveAs;' + owSerialise());
   } else {
-    const nom = prompt('Nom du fichier :', owFilePath || 'projet.owk');
+    const nom = await owPrompt('Nom du fichier :', owFilePath || 'projet.xml');
     if (nom) owTelecharger(nom, owSerialise());
   }
 }
 
 function owTelecharger(nom, contenu) {
-  const blob = new Blob([contenu], {type:'application/json'});
+  const blob = new Blob([contenu], {type:'application/xml'});
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = nom.endsWith('.owk') ? nom : nom + '.owk';
+  a.download = nom.endsWith('.xml') ? nom : nom + '.xml';
   a.click();
   URL.revokeObjectURL(url);
   owModified = false;
@@ -567,30 +794,20 @@ function owTelecharger(nom, contenu) {
 
 function owExporterInterpretor() {
   owCloseMenus();
-  const exp = {
-    type: 'openwork',
-    sections: owSections.map(s => ({id:s.id, name:s.name, posY:s.posY})),
-    groups: owGroups.map(g => ({
-      id:g.id, name:g.name, sectionId:g.sectionId,
-      posX:g.posX, posY:g.posY, w:g.w, h:g.h,
-      nuance:g.nuance, color:g.color
-    })),
-    nuances: owNuances
-  };
-  const txt = JSON.stringify(exp, null, 2);
+  const txt = owSerialise();
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owExportInterp;' + txt);
   } else {
-    owTelecharger('interpretor_export.json', txt);
+    owTelecharger('interpretor_export.xml', txt);
   }
 }
 
 // ═══════════════════════════════════════════════
 //  ÉDITION – SECTIONS
 // ═══════════════════════════════════════════════
-function owAjouterSection() {
+async function owAjouterSection() {
   owCloseMenus();
-  const name = prompt('Nom de la section :', 'Section ' + owNextSecId);
+  const name = await owPrompt('Nom de la section :', 'Section ' + owNextSecId);
   if (!name) return;
   const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
   let posY = 20;
@@ -603,16 +820,16 @@ function owAjouterSection() {
   owRenderAll();
 }
 
-function owSupprimerSection() {
+async function owSupprimerSection() {
   owCloseMenus();
-  if (owSections.length === 0) { alert('Aucune section à supprimer.'); return; }
+  if (owSections.length === 0) { await owAlert('Aucune section à supprimer.'); return; }
   const liste = [...owSections].sort((a,b)=>a.posY-b.posY)
     .map(s => s.id + ' → ' + s.name).join('\n');
-  const saisie = prompt('ID de la section à supprimer :\n' + liste);
+  const saisie = await owPrompt('ID de la section à supprimer :\n' + liste, '');
   if (!saisie) return;
   const id = parseInt(saisie);
   const idx = owSections.findIndex(s => s.id === id);
-  if (idx === -1) { alert('Section non trouvée.'); return; }
+  if (idx === -1) { await owAlert('Section non trouvée.'); return; }
   owGroups    = owGroups.filter(g => g.sectionId !== id);
   owSections.splice(idx, 1);
   if (!owGroups.find(g => g.id === owActiveGrp)) owActiveGrp = null;
@@ -620,9 +837,9 @@ function owSupprimerSection() {
   owRenderAll();
 }
 
-function owPermuter() {
+async function owPermuter() {
   owCloseMenus();
-  if (owSections.length < 2) { alert('Il faut au moins deux sections.'); return; }
+  if (owSections.length < 2) { await owAlert('Il faut au moins deux sections.'); return; }
   const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
   ['permSec1','permSec2'].forEach((selId, i) => {
     const sel = document.getElementById(selId);
@@ -638,18 +855,13 @@ function owPermuter() {
   document.getElementById('permutPopup').style.display = 'block';
 }
 
-function owDoPermuter() {
+async function owDoPermuter() {
   const id1 = parseInt(document.getElementById('permSec1').value);
   const id2 = parseInt(document.getElementById('permSec2').value);
-  if (id1 === id2) { alert('Sélectionner deux sections différentes.'); return; }
+  if (id1 === id2) { await owAlert('Sélectionner deux sections différentes.'); return; }
   const s1 = owSections.find(s => s.id === id1);
   const s2 = owSections.find(s => s.id === id2);
   if (!s1 || !s2) return;
-  const dy = s2.posY - s1.posY;
-  owGroups.forEach(g => {
-    if (g.sectionId === id1) { g.posY += dy; g.sectionId = id2; }
-    else if (g.sectionId === id2) { g.posY -= dy; g.sectionId = id1; }
-  });
   const tmp = s1.posY;
   s1.posY = s2.posY;
   s2.posY = tmp;
@@ -661,18 +873,28 @@ function owDoPermuter() {
 // ═══════════════════════════════════════════════
 //  ÉDITION – GROUPES
 // ═══════════════════════════════════════════════
-function owAjouterGroupe() {
+async function owAjouterGroupe() {
   owCloseMenus();
-  if (owSections.length === 0) { alert('Créez d\'abord une section.'); return; }
-  const name = prompt('Nom du groupe :', 'Groupe ' + owNextGrpId);
+  if (owActiveSec === null) { await owAlert('Sélectionnez d\'abord une section dans le panneau gauche.'); return; }
+  const name = await owPrompt('Référence (ex: grp1.xml) :', 'grp' + owNextGrpId + '.xml');
   if (!name) return;
-  const sec = [...owSections].sort((a,b) => a.posY - b.posY)[0];
   const grp = {
     id: owNextGrpId++, name,
-    sectionId: sec.id,
-    posX: 20, posY: sec.posY + 20,
+    sectionId: owActiveSec,
+    posX: 20, posY: 20,
     w: 120, h: 60,
-    color: '#c8dcff', opacity: 0.5, nuance: ''
+    color: '#c8dcff', opacity: 0.5,
+    direct: true,
+    renversement: false, retrograde: false, renvRetrograde: false,
+    repetition: false, repetitionMax: 2,
+    transposition: false,
+    augDim: false, augDimMin: -2, augDimMax: 2,
+    expansion: false, expansionMin: 0.5, expansionMax: 2.0,
+    variationTempo: false, variationIntensite: false,
+    posRelDebut: false, posRelDebutAvant: 'debut', posRelDebutGroupe: '',
+    posRelFin:   false, posRelFinAvant:   'fin',   posRelFinGroupe:   '',
+    dir: '',
+    svgData: ''
   };
   owGroups.push(grp);
   owActiveGrp = grp.id;
@@ -681,12 +903,12 @@ function owAjouterGroupe() {
   owUpdateInfo();
 }
 
-function owSupprimerGroupe() {
+async function owSupprimerGroupe() {
   owCloseMenus();
-  if (owActiveGrp === null) { alert('Sélectionnez d\'abord un groupe.'); return; }
+  if (owActiveGrp === null) { await owAlert('Sélectionnez d\'abord un groupe.'); return; }
   const grp = owGroups.find(g => g.id === owActiveGrp);
   if (!grp) return;
-  if (!confirm('Supprimer le groupe « ' + grp.name + ' » ?')) return;
+  if (!await owConfirm('Supprimer le groupe « ' + grp.name + ' » ?')) return;
   owGroups    = owGroups.filter(g => g.id !== owActiveGrp);
   owActiveGrp = null;
   owModified  = true;
@@ -694,41 +916,107 @@ function owSupprimerGroupe() {
   owUpdateInfo();
 }
 
-function owParamsGroupe() {
-  owCloseMenus();
-  if (owActiveGrp === null) { alert('Sélectionnez d\'abord un groupe.'); return; }
-  const grp = owGroups.find(g => g.id === owActiveGrp);
-  if (!grp) return;
-  document.getElementById('gpNom').value      = grp.name;
-  document.getElementById('gpW').value        = grp.w;
-  document.getElementById('gpH').value        = grp.h;
-  document.getElementById('gpColor').value    = grp.color;
-  document.getElementById('gpOpacity').value  = grp.opacity;
-  // Reconstruire le select nuances
-  const sel = document.getElementById('gpNuance');
-  sel.innerHTML = '<option value="">—</option>';
-  owNuances.forEach(n => {
-    const opt = document.createElement('option');
-    opt.value = n.nom;
-    opt.textContent = n.nom + ' (' + n.val + ')';
-    if (n.nom === grp.nuance) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  document.getElementById('grpParamsPopup').style.display = 'block';
+function owPickFile(fieldId) {
+  if (typeof window.api !== 'undefined') {
+    window.api.send('toMain', 'owPickGrpFile;' + fieldId);
+  } else {
+    const inp = document.getElementById('owGrpFileInput');
+    inp.dataset.field = fieldId;
+    inp.click();
+  }
 }
 
-function owUpdateGrp(param) {
+document.getElementById('owGrpFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const el = document.getElementById(this.dataset.field);
+  if (el) { el.value = file.name; owUpdateGrp(); }
+  this.value = '';
+});
+
+function owToggleGpSub(cbId, subId) {
+  const sub = document.getElementById(subId);
+  sub.style.display = document.getElementById(cbId).checked ? 'flex' : 'none';
+}
+
+async function owParamsGroupe() {
+  owCloseMenus();
+  if (owActiveGrp === null) { await owAlert('Sélectionnez d\'abord un groupe.'); return; }
+  const grp = owGroups.find(g => g.id === owActiveGrp);
+  if (!grp) return;
+  const $  = id => document.getElementById(id);
+  const cb = (id, v) => { $(id).checked = !!v; };
+  const sub = (id, v) => { $(id).style.display = v ? 'flex' : 'none'; };
+
+  $('gpNom').value = grp.name;
+
+  cb('gpDirect',             grp.direct           ?? true);
+  cb('gpRenversement',       grp.renversement      ?? false);
+  cb('gpRetrograde',         grp.retrograde        ?? false);
+  cb('gpRenvRetrograde',     grp.renvRetrograde    ?? false);
+  cb('gpRepetition',         grp.repetition        ?? false);
+  $('gpRepetitionMax').value = grp.repetitionMax   ?? 2;
+  sub('gpRepetitionSub',     grp.repetition);
+
+  cb('gpTransposition',      grp.transposition     ?? false);
+
+  cb('gpAugDim',             grp.augDim            ?? false);
+  $('gpAugDimMin').value     = grp.augDimMin        ?? -2;
+  $('gpAugDimMax').value     = grp.augDimMax        ?? 2;
+  sub('gpAugDimSub',         grp.augDim);
+
+  cb('gpExpansion',          grp.expansion         ?? false);
+  $('gpExpansionMin').value  = grp.expansionMin     ?? 0.5;
+  $('gpExpansionMax').value  = grp.expansionMax     ?? 2.0;
+  sub('gpExpansionSub',      grp.expansion);
+
+  cb('gpVariationTempo',     grp.variationTempo    ?? false);
+  cb('gpVariationIntensite', grp.variationIntensite ?? false);
+
+  cb('gpPosRelDebut',        grp.posRelDebut       ?? false);
+  $('gpPosRelDebutAvant').value  = grp.posRelDebutAvant  || 'debut';
+  $('gpPosRelDebutGroupe').value = grp.posRelDebutGroupe || '';
+  sub('gpPosRelDebutSub',   grp.posRelDebut);
+
+  cb('gpPosRelFin',          grp.posRelFin         ?? false);
+  $('gpPosRelFinAvant').value    = grp.posRelFinAvant    || 'fin';
+  $('gpPosRelFinGroupe').value   = grp.posRelFinGroupe   || '';
+  sub('gpPosRelFinSub',     grp.posRelFin);
+
+  $('grpParamsPopup').style.display = 'block';
+}
+
+function owUpdateGrp() {
   if (owActiveGrp === null) return;
   const grp = owGroups.find(g => g.id === owActiveGrp);
   if (!grp) return;
-  switch (param) {
-    case 'nom':     grp.name    = document.getElementById('gpNom').value; break;
-    case 'w':       grp.w       = Math.max(20, parseInt(document.getElementById('gpW').value)||120); break;
-    case 'h':       grp.h       = Math.max(20, parseInt(document.getElementById('gpH').value)||60); break;
-    case 'color':   grp.color   = document.getElementById('gpColor').value; break;
-    case 'opacity': grp.opacity = parseFloat(document.getElementById('gpOpacity').value)||0.5; break;
-    case 'nuance':  grp.nuance  = document.getElementById('gpNuance').value; break;
-  }
+  const $ = id => document.getElementById(id);
+  const cb = id => $(id).checked;
+
+  grp.name = $('gpNom').value;
+
+  grp.direct             = cb('gpDirect');
+  grp.renversement       = cb('gpRenversement');
+  grp.retrograde         = cb('gpRetrograde');
+  grp.renvRetrograde     = cb('gpRenvRetrograde');
+  grp.repetition         = cb('gpRepetition');
+  grp.repetitionMax      = parseInt($('gpRepetitionMax').value) || 2;
+  grp.transposition      = cb('gpTransposition');
+  grp.augDim             = cb('gpAugDim');
+  grp.augDimMin          = parseFloat($('gpAugDimMin').value) || -2;
+  grp.augDimMax          = parseFloat($('gpAugDimMax').value) || 2;
+  grp.expansion          = cb('gpExpansion');
+  grp.expansionMin       = parseFloat($('gpExpansionMin').value) || 0.5;
+  grp.expansionMax       = parseFloat($('gpExpansionMax').value) || 2.0;
+  grp.variationTempo     = cb('gpVariationTempo');
+  grp.variationIntensite = cb('gpVariationIntensite');
+  grp.posRelDebut        = cb('gpPosRelDebut');
+  grp.posRelDebutAvant   = $('gpPosRelDebutAvant').value;
+  grp.posRelDebutGroupe  = $('gpPosRelDebutGroupe').value;
+  grp.posRelFin          = cb('gpPosRelFin');
+  grp.posRelFinAvant     = $('gpPosRelFinAvant').value;
+  grp.posRelFinGroupe    = $('gpPosRelFinGroupe').value;
+
   owModified = true;
   const el = document.getElementById('grp' + grp.id);
   if (el) owApplyGrpStyle(el, grp);
@@ -769,18 +1057,18 @@ function owNuanceVal(inp) {
   owModified = true;
 }
 
-function owAjouterNuance() {
-  const nom = prompt('Nom de la nuance :', 'n' + (owNuances.length + 1));
+async function owAjouterNuance() {
+  const nom = await owPrompt('Nom de la nuance :', 'n' + (owNuances.length + 1));
   if (!nom) return;
   owNuances.push({nom, val: 60});
   owBuildNuancesTable();
   owModified = true;
 }
 
-function owSupprimerNuance() {
+async function owSupprimerNuance() {
   if (owNuances.length === 0) return;
   const last = owNuances.at(-1);
-  if (!confirm('Supprimer « ' + last.nom + ' » ?')) return;
+  if (!await owConfirm('Supprimer « ' + last.nom + ' » ?')) return;
   owNuances.pop();
   owBuildNuancesTable();
   owModified = true;
@@ -796,28 +1084,15 @@ function owRenderAll() {
 }
 
 function owRenderSections() {
-  document.querySelectorAll('.ow-section-line').forEach(el => el.remove());
-  const space = document.getElementById('space');
-  owSections.forEach(sec => {
-    const div = document.createElement('div');
-    div.className = 'ow-section-line';
-    div.id        = 'owsec' + sec.id;
-    div.style.top = sec.posY + 'px';
-    div.style.borderTopColor = sec.color || '#4a90d9';
-
-    const lbl = document.createElement('span');
-    lbl.className   = 'ow-section-lbl';
-    lbl.textContent = sec.name;
-    lbl.style.color = sec.color || '#4a90d9';
-    div.appendChild(lbl);
-    space.appendChild(div);
-  });
+  // Les sections n'ont pas de représentation dans l'espace de travail.
+  // Le canvas affiche uniquement les groupes de la section active.
 }
 
 function owRenderGroups() {
   document.querySelectorAll('.ow-grp').forEach(el => el.remove());
+  if (owActiveSec === null) return;
   const space = document.getElementById('space');
-  owGroups.forEach(grp => {
+  owGroups.filter(g => g.sectionId === owActiveSec).forEach(grp => {
     const div = document.createElement('div');
     div.className = 'ow-grp' + (grp.id === owActiveGrp ? ' actif' : '');
     div.id        = 'grp' + grp.id;
@@ -825,10 +1100,36 @@ function owRenderGroups() {
     div.style.left = grp.posX + 'px';
     div.style.top  = grp.posY + 'px';
 
+    // Miniature SVG (data URI transmise par IPC)
+    const img = document.createElement('img');
+    img.className = 'ow-grp-img';
+    img.addEventListener('load', function() {
+      if (img.naturalWidth && img.naturalHeight) {
+        grp.w = img.naturalWidth;
+        grp.h = img.naturalHeight + 20;
+        owApplyGrpStyle(div, grp);
+      }
+    }, { once: true });
+    if (grp.svgData) {
+      img.src = grp.svgData;
+    } else {
+      img.style.display = 'none';
+    }
+    div.appendChild(img);
+
     const lbl = document.createElement('span');
     lbl.className   = 'ow-grp-lbl';
     lbl.textContent = grp.name + (grp.nuance ? ' [' + grp.nuance + ']' : '');
     div.appendChild(lbl);
+
+    // Poignée de redimensionnement
+    const rsz = document.createElement('div');
+    rsz.className = 'ow-grp-rsz';
+    rsz.addEventListener('mousedown', function(e) {
+      e.stopPropagation();
+      owResizeElement(div, grp, e);
+    });
+    div.appendChild(rsz);
 
     div.addEventListener('mousedown', function(e) {
       e.stopPropagation();
@@ -845,7 +1146,7 @@ function owApplyGrpStyle(el, grp) {
   el.style.borderColor     = grp.color || '#4a90d9';
   el.style.backgroundColor = owHexRgba(grp.color || '#c8dcff', grp.opacity ?? 0.45);
   const lbl = el.querySelector('.ow-grp-lbl');
-  if (lbl) lbl.textContent = grp.name + (grp.nuance ? ' [' + grp.nuance + ']' : '');
+  if (lbl) lbl.textContent = grp.name;
 }
 
 function owHexRgba(hex, a) {
@@ -855,14 +1156,49 @@ function owHexRgba(hex, a) {
   return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 }
 
+function toRoman(n) {
+  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+  let result = '';
+  for (let i = 0; i < vals.length; i++) {
+    while (n >= vals[i]) { result += syms[i]; n -= vals[i]; }
+  }
+  return result;
+}
+
+let owActiveSec = null;
+
+function owSelectSection(secId) {
+  owActiveSec = secId;
+  owActiveGrp = null;
+  document.querySelector('#work2').scrollTop = 0;
+  document.querySelector('#work2').scrollLeft = 0;
+  owRenderAll();
+}
+
 function owBuildSectionList() {
   const div = document.getElementById('owSectionList');
   div.innerHTML = '';
-  [...owSections].sort((a,b) => a.posY - b.posY).forEach(sec => {
-    const item      = document.createElement('div');
-    item.className  = 'ow-sec-item';
+  [...owSections].sort((a,b) => a.posY - b.posY).forEach((sec, idx) => {
+    const item = document.createElement('div');
+    item.className = 'ow-sec-item' + (sec.id === owActiveSec ? ' actif' : '');
+    item.id = 'owsi' + sec.id;
     item.style.borderLeftColor = sec.color || '#4a90d9';
-    item.textContent = sec.name;
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      owSelectSection(sec.id);
+    });
+
+    const roman = document.createElement('span');
+    roman.className = 'ow-sec-roman';
+    roman.textContent = toRoman(idx + 1);
+
+    const name = document.createElement('span');
+    name.className = 'ow-sec-name';
+    name.textContent = sec.name;
+
+    item.appendChild(roman);
+    item.appendChild(name);
     div.appendChild(item);
   });
 }
@@ -900,41 +1236,80 @@ function owSpaceClick(e) {
 // ═══════════════════════════════════════════════
 //  DRAG ELEMENT – groupes seulement (grp*)
 // ═══════════════════════════════════════════════
+function owApplyPosConstraints(grp) {
+  const peers = owGroups.filter(g => g.sectionId === owActiveSec && g.id !== grp.id);
+  const w = grp.w || 120;
+  let maxX = Infinity;
+
+  if (grp.posRelDebut && grp.posRelDebutGroupe) {
+    const ref = peers.find(g => g.name === grp.posRelDebutGroupe);
+    if (ref) {
+      const bound = grp.posRelDebutAvant === 'fin' ? ref.posX + (ref.w || 120) : ref.posX;
+      maxX = Math.min(maxX, bound - 1);
+    }
+  }
+  if (grp.posRelFin && grp.posRelFinGroupe) {
+    const ref = peers.find(g => g.name === grp.posRelFinGroupe);
+    if (ref) {
+      const bound = grp.posRelFinAvant === 'fin' ? ref.posX + (ref.w || 120) : ref.posX;
+      maxX = Math.min(maxX, bound - w - 1);
+    }
+  }
+
+  grp.posX = Math.max(0, maxX === Infinity ? grp.posX : Math.min(grp.posX, maxX));
+}
+
 function owDragElement(elmnt, grpData, startEvt) {
   let p1=0, p2=0, p3=startEvt.clientX, p4=startEvt.clientY;
+  const sx = startEvt.clientX, sy = startEvt.clientY;
+  let dragged = false;
 
   document.onmousemove = drag;
   document.onmouseup   = stop;
 
   function drag(e) {
     e.preventDefault();
-    p1 = p3 - e.clientX;
-    p2 = p4 - e.clientY;
-    p3 = e.clientX;
-    p4 = e.clientY;
-    grpData.posX = Math.max(0, elmnt.offsetLeft - p1);
-    grpData.posY = Math.max(0, elmnt.offsetTop  - p2);
+    if (!dragged && (Math.abs(e.clientX - sx) > 4 || Math.abs(e.clientY - sy) > 4))
+      dragged = true;
+    p1 = p3 - e.clientX; p2 = p4 - e.clientY;
+    p3 = e.clientX;       p4 = e.clientY;
+    if (!dragged) return;
+    grpData.posX = elmnt.offsetLeft - p1;
+    grpData.posY = Math.max(0, elmnt.offsetTop - p2);
+    owApplyPosConstraints(grpData);
     elmnt.style.left = grpData.posX + 'px';
     elmnt.style.top  = grpData.posY + 'px';
-    owAffecterSection(grpData);
   }
   function stop() {
     document.onmousemove = null;
     document.onmouseup   = null;
-    owAffecterSection(grpData);
-    owModified = true;
+    if (!dragged) {
+      owParamsGroupe();
+    } else {
+      owApplyPosConstraints(grpData);
+      elmnt.style.left = grpData.posX + 'px';
+      owModified = true;
+    }
   }
 }
 
-function owAffecterSection(grp) {
-  const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
-  let aff = null;
-  for (const sec of sorted) {
-    if (sec.posY <= grp.posY) aff = sec;
-  }
-  if (aff) grp.sectionId = aff.id;
-  owUpdateInfo();
+function owResizeElement(elmnt, grpData, startEvt) {
+  const sx = startEvt.clientX, sy = startEvt.clientY;
+  const sw = grpData.w, sh = grpData.h;
+  document.onmousemove = function(e) {
+    e.preventDefault();
+    grpData.w = Math.max(40, sw + (e.clientX - sx));
+    grpData.h = Math.max(24, sh + (e.clientY - sy));
+    elmnt.style.width  = grpData.w + 'px';
+    elmnt.style.height = grpData.h + 'px';
+  };
+  document.onmouseup = function() {
+    document.onmousemove = null;
+    document.onmouseup   = null;
+    owModified = true;
+  };
 }
+
 
 // ═══════════════════════════════════════════════
 //  DRAG des popups (via leur header)
@@ -969,12 +1344,63 @@ if (typeof window.api !== 'undefined') {
     switch (cmd) {
       case 'owSaved':
         owFilePath = rest;
+        owProjDir  = rest.replace(/[/\\][^/\\]*$/, '');
         owModified = false;
         document.getElementById('owFileLabel').textContent = rest.split(/[\\/]/).at(-1);
         break;
-      case 'owLoaded':
-        owParseData(rest, rest.split(/[\\/]/).at(-1));
+      case 'owLoaded': {
+        const nl = rest.indexOf('\n');
+        if (nl > -1) {
+          owProjDir = rest.substring(0, nl);
+          owParseData(rest.substring(nl + 1), rest.substring(nl + 1).split(/[\\/]/).at(-1));
+        } else {
+          owParseData(rest, rest.split(/[\\/]/).at(-1));
+        }
         break;
+      }
+      case 'owGrpFilePicked': {
+        const parts = rest.split(';');
+        const fieldId = parts[0] || '';
+        const fileName = parts[1] || '';
+        const svgB64  = parts[2] || '';
+        const grpDir  = parts[3] || '';
+        const el = document.getElementById(fieldId);
+        if (el) { el.value = fileName; owUpdateGrp(); }
+        if (fieldId === 'gpNom' && owActiveGrp !== null) {
+          const grp = owGroups.find(g => g.id === owActiveGrp);
+          if (grp) {
+            grp.dir    = grpDir;
+            grp.svgData = svgB64 ? 'data:image/svg+xml;base64,' + svgB64 : '';
+            owRenderGroups();
+          }
+        }
+        break;
+      }
+      case 'owSvgData': {
+        const sep2 = rest.indexOf(';');
+        const grpId = sep2 > -1 ? parseInt(rest.substring(0, sep2)) : NaN;
+        const svgB64r = sep2 > -1 ? rest.substring(sep2 + 1) : '';
+        if (!isNaN(grpId) && svgB64r) {
+          const grp = owGroups.find(g => g.id === grpId);
+          if (grp) {
+            grp.svgData = 'data:image/svg+xml;base64,' + svgB64r;
+            const imgEl = document.querySelector('#grp' + grpId + ' .ow-grp-img');
+            if (imgEl) {
+              imgEl.addEventListener('load', function() {
+                if (imgEl.naturalWidth && imgEl.naturalHeight) {
+                  grp.w = imgEl.naturalWidth;
+                  grp.h = imgEl.naturalHeight + 20;
+                  const container = document.getElementById('grp' + grpId);
+                  if (container) owApplyGrpStyle(container, grp);
+                }
+              }, { once: true });
+              imgEl.src = grp.svgData;
+              imgEl.style.display = '';
+            }
+          }
+        }
+        break;
+      }
     }
   });
 }
@@ -1184,6 +1610,56 @@ document.getElementById('space').addEventListener('mouseleave', owResetCompteur)
 owBuildNuancesTable();
 owResetCompteur();
 owCreateReglette();
+</script>
+
+<!-- ── Mini-modal générique ── -->
+<div id="owModalOverlay">
+  <div id="owModalBox">
+    <div id="owModalMsg"></div>
+    <input id="owModalInput" type="text"/>
+    <div id="owModalBtns">
+      <button id="owModalCancel">Annuler</button>
+      <button id="owModalOk">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const overlay = document.getElementById('owModalOverlay');
+  const msgEl   = document.getElementById('owModalMsg');
+  const inp     = document.getElementById('owModalInput');
+  const btnOk   = document.getElementById('owModalOk');
+  const btnCan  = document.getElementById('owModalCancel');
+  let _resolve  = null;
+
+  function _open(msg, withInput, defVal, withCancel) {
+    msgEl.textContent = msg;
+    inp.style.display = withInput ? 'block' : 'none';
+    inp.value = defVal || '';
+    btnCan.style.display = withCancel ? 'inline-block' : 'none';
+    overlay.classList.add('actif');
+    if (withInput) { inp.focus(); inp.select(); }
+    else btnOk.focus();
+    return new Promise(res => { _resolve = res; });
+  }
+  function _close(val) {
+    overlay.classList.remove('actif');
+    if (_resolve) { _resolve(val); _resolve = null; }
+  }
+  btnOk.addEventListener('click', () => {
+    _close(inp.style.display === 'block' ? inp.value : true);
+  });
+  btnCan.addEventListener('click', () => _close(null));
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') _close(inp.value);
+    if (e.key === 'Escape') _close(null);
+  });
+  overlay.addEventListener('mousedown', e => { if (e.target === overlay) _close(null); });
+
+  window.owAlert   = (msg)           => _open(msg, false, '', false);
+  window.owConfirm = (msg)           => _open(msg, false, '', true);
+  window.owPrompt  = (msg, def)      => _open(msg, true,  def, true);
+})();
 </script>
 </body>
 </html>
