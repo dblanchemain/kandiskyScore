@@ -4880,16 +4880,23 @@ ipcMain.on ("toMain", (event, args) => {
 							fs.copyFileSync(grpSrc, grpDst);
 							grpXml = fs.readFileSync(grpDst, 'utf-8');
 						} catch(e) { console.error('Export: groupe absent', grpSrc); }
-						// Pour chaque objet de class=1, copier <base>-fx.wav depuis audioPath/tmp/
+						// Résoudre le dossier tmp source depuis <dirorg> ou audioPath
+						const dirorgM   = grpXml.match(/<dirorg\s+dir='([^']+)'/);
+						const dirorgVal = dirorgM ? dirorgM[1].replace(/\\/g, '/').replace(/\/?$/, '') : null;
+						const grpTmpDir = dirorgVal
+							? path.join(app.getPath('home'), dirorgVal, 'tmp')
+							: audioTmpDir;
+						// Pour chaque objet de class=1, copier <id>-fx.wav depuis grpTmpDir
 						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
 							const classM = objBlock.match(/<class\s+value='([^']+)'/);
 							if (!classM || classM[1] !== '1') continue;
-							const fileM  = objBlock.match(/<file\s+value='([^']+)'/);
-							if (!fileM || !fileM[1]) continue;
-							const base   = fileM[1].replace(/\.[^.]+$/, '');
-							const fxName = base + '-fx.wav';
+							const idM    = objBlock.match(/<objet\s+id='([^']+)'/);
+							if (!idM) continue;
+							const fxName = idM[1] + '-fx.wav';
+							const fxSrc  = path.join(grpTmpDir, fxName);
+							const fxFall = path.join(audioTmpDir, fxName);
 							try {
-								fs.copyFileSync(path.join(audioTmpDir, fxName), path.join(audiosDir, fxName));
+								fs.copyFileSync(fs.existsSync(fxSrc) ? fxSrc : fxFall, path.join(audiosDir, fxName));
 							} catch(e) { console.error('Export: audio absent', fxName); }
 						}
 						// Copier l'image SVG correspondante
