@@ -4880,24 +4880,40 @@ ipcMain.on ("toMain", (event, args) => {
 							fs.copyFileSync(grpSrc, grpDst);
 							grpXml = fs.readFileSync(grpDst, 'utf-8');
 						} catch(e) { console.error('Export: groupe absent', grpSrc); }
-						// Résoudre le dossier tmp source depuis <dirorg> ou audioPath
-						const dirorgM   = grpXml.match(/<dirorg\s+dir='([^']+)'/);
-						const dirorgVal = dirorgM ? dirorgM[1].replace(/\\/g, '/').replace(/\/?$/, '') : null;
-						const grpTmpDir = dirorgVal
-							? path.join(app.getPath('home'), dirorgVal, 'tmp')
-							: audioTmpDir;
-						// Pour chaque objet de class=1, copier <id>-fx.wav depuis grpTmpDir
+						// Résoudre les dossiers source depuis <dirorg> ou audioPath
+						const dirorgM    = grpXml.match(/<dirorg\s+dir='([^']+)'/);
+						const dirorgVal  = dirorgM ? dirorgM[1].replace(/\\/g, '/').replace(/\/?$/, '') : null;
+						const dirorgAbs  = dirorgVal ? path.join(app.getPath('home'), dirorgVal) : audioPath;
+						const grpTmpDir  = path.join(dirorgAbs, 'tmp');
+						const grpImgDir  = path.join(path.dirname(dirorgAbs), 'Images');
+						// Pour chaque objet, copier audio (class=1) et images (type=23)
 						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
 							const classM = objBlock.match(/<class\s+value='([^']+)'/);
-							if (!classM || classM[1] !== '1') continue;
-							const idM    = objBlock.match(/<objet\s+id='([^']+)'/);
-							if (!idM) continue;
-							const fxName = idM[1] + '-fx.wav';
-							const fxSrc  = path.join(grpTmpDir, fxName);
-							const fxFall = path.join(audioTmpDir, fxName);
-							try {
-								fs.copyFileSync(fs.existsSync(fxSrc) ? fxSrc : fxFall, path.join(audiosDir, fxName));
-							} catch(e) { console.error('Export: audio absent', fxName); }
+							// Audio : class=1 → <id>-fx.wav
+							if (classM && classM[1] === '1') {
+								const idM = objBlock.match(/<objet\s+id='([^']+)'/);
+								if (idM) {
+									const fxName = idM[1] + '-fx.wav';
+									const fxSrc  = path.join(grpTmpDir, fxName);
+									const fxFall = path.join(audioTmpDir, fxName);
+									try {
+										fs.copyFileSync(fs.existsSync(fxSrc) ? fxSrc : fxFall, path.join(audiosDir, fxName));
+									} catch(e) { console.error('Export: audio absent', fxName); }
+								}
+							}
+							// Image : type=23 → <imag value='filename'>
+							const typeM = objBlock.match(/<type\s+value='([^']+)'/);
+							if (typeM && typeM[1] === '23') {
+								const imagM = objBlock.match(/<imag\s+value='([^']+)'/);
+								if (imagM && imagM[1]) {
+									const imgFile = imagM[1];
+									const imgSrc  = path.join(grpImgDir, imgFile);
+									const imgFall = path.join(imgPath, imgFile);
+									try {
+										fs.copyFileSync(fs.existsSync(imgSrc) ? imgSrc : imgFall, path.join(imagesDir, imgFile));
+									} catch(e) { console.error('Export: image absente', imgFile); }
+								}
+							}
 						}
 						// Copier l'image SVG correspondante
 						const svgName = grpName.replace(/\.xml$/i, '.svg');
