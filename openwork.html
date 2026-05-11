@@ -99,7 +99,9 @@
       display: flex;
       align-items: center;
       padding-left: 20px;
+      cursor: pointer;
     }
+    #owFileLabel:hover { color: #ccc; }
 
     /* ── Layout principal ── */
     #principal {
@@ -379,7 +381,7 @@
   </div>
 
 
-  <span id="owFileLabel">Sans titre</span>
+  <span id="owFileLabel" onclick="owRenommerPartition()" title="Cliquer pour définir le titre de la partition">Sans titre</span>
 </div>
 
 <!-- ════════════════════════ PANNEAU GAUCHE ════════════════════════ -->
@@ -582,9 +584,10 @@
 // ═══════════════════════════════════════════════
 //  DONNÉES
 // ═══════════════════════════════════════════════
-let owSections  = [];   // {id, name, posY, color}
-let owGroups    = [];   // {id, name, sectionId, posX, posY, w, h, color, opacity, nuance}
-let owProjDir   = '';   // dossier du projet courant (pour les miniatures SVG)
+let owSections      = [];   // {id, name, posY, color}
+let owGroups        = [];   // {id, name, sectionId, posX, posY, w, h, color, opacity, nuance}
+let owProjDir       = '';   // dossier du projet courant (pour les miniatures SVG)
+let owPartitionTitle = 'Sans titre';
 let owNuances   = [
   {nom:'pppp', val:10}, {nom:'ppp', val:20}, {nom:'pp', val:30},
   {nom:'p',    val:40}, {nom:'mp',  val:50}, {nom:'mf', val:60},
@@ -638,6 +641,7 @@ async function owNouveau() {
   owSections = []; owGroups = [];
   owNextSecId = 1; owNextGrpId = 1;
   owActiveGrp = null; owFilePath = null; owModified = false;
+  owPartitionTitle = 'Sans titre';
   document.getElementById('owFileLabel').textContent = 'Sans titre';
   owRenderAll();
 }
@@ -673,6 +677,10 @@ function owParseData(txt, label) {
     const gi = (el, a, d) => { const v = parseInt(el.getAttribute(a));   return isNaN(v) ? d : v; };
 
     owSections = []; owGroups = []; owNextSecId = 1; owNextGrpId = 1;
+
+    const partEl = doc.querySelector('partition');
+    owPartitionTitle = (partEl && partEl.getAttribute('name')) || 'Sans titre';
+    document.getElementById('owFileLabel').textContent = owPartitionTitle;
 
     doc.querySelectorAll('section').forEach((secEl, idx) => {
       const secId = owNextSecId++;
@@ -734,7 +742,7 @@ function owSerialise() {
     .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const b = v => v ? 'true' : 'false';
   const sorted = [...owSections].sort((a,bk) => a.posY - bk.posY);
-  let xml = "<?xml version='1.0' encoding='UTF-8' ?>\n<openwork version='2.1.1'>\n  <partition name=\"\">\n";
+  let xml = `<?xml version='1.0' encoding='UTF-8' ?>\n<openwork version='2.1.1'>\n  <partition name="${x(owPartitionTitle)}">\n`;
   sorted.forEach(sec => {
     xml += `    <section name="${x(sec.name)}">\n`;
     owGroups.filter(g => g.sectionId === sec.id).forEach(grp => {
@@ -795,6 +803,14 @@ function owExporterInterpretor() {
   } else {
     owTelecharger('interpretor_export.xml', txt);
   }
+}
+
+async function owRenommerPartition() {
+  const titre = await owPrompt('Titre de la partition :', owPartitionTitle);
+  if (titre === null) return;
+  owPartitionTitle = titre.trim() || 'Sans titre';
+  document.getElementById('owFileLabel').textContent = owPartitionTitle;
+  owModified = true;
 }
 
 // ═══════════════════════════════════════════════
@@ -1341,7 +1357,6 @@ if (typeof window.api !== 'undefined') {
         owFilePath = rest;
         owProjDir  = rest.replace(/[/\\][^/\\]*$/, '');
         owModified = false;
-        document.getElementById('owFileLabel').textContent = rest.split(/[\\/]/).at(-1);
         break;
       case 'owExportDone':
         owAlert('Export interpretor terminé dans :\n' + rest);
