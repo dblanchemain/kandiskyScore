@@ -1343,6 +1343,9 @@ if (typeof window.api !== 'undefined') {
         owModified = false;
         document.getElementById('owFileLabel').textContent = rest.split(/[\\/]/).at(-1);
         break;
+      case 'owExportDone':
+        owAlert('Export interpretor terminé dans :\n' + rest);
+        break;
       case 'owLoaded': {
         const nl = rest.indexOf('\n');
         if (nl > -1) {
