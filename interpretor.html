@@ -1018,7 +1018,7 @@ function drawObjets(grpXml, grpDiv, imgBasePath) {
     if (clsEl && parseInt(clsEl.getAttribute('value'))||0 === 4) {
       const o = parseObjetEl(el);
       ctnX=o.posX; ctnY=o.posY;
-      ctnW=o.bkgWidth||o.width; ctnH=o.bkgHeight||o.height;
+      ctnW=o.width; ctnH=o.height;
       break;
     }
   }
