@@ -619,6 +619,9 @@ document.querySelectorAll('.mnu-item').forEach(item => {
     }
   });
 });
+document.querySelectorAll('.mnu-drop li').forEach(li => {
+  li.addEventListener('click', e => e.stopPropagation());
+});
 document.addEventListener('click', function() {
   if (owOpenMenu) {
     document.getElementById(owOpenMenu).classList.remove('open');
