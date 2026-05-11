@@ -669,6 +669,7 @@ let winTrajectoryEtat=0;
 let winSvgEtat=0;
 let winOpenWorkEtat=0;
 let winInterpretorEtat=0;
+let interpCurrentDir='';
 let projetName='';
 let projetPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 let audioPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
@@ -4933,9 +4934,21 @@ ipcMain.on ("toMain", (event, args) => {
 					]
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
+					interpCurrentDir = path.dirname(result.filePaths[0]);
 					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
-					winInterpretor.webContents.send('fromMain', 'owLoaded;' + data);
+					winInterpretor.webContents.send('fromMain', 'owLoaded;' + interpCurrentDir + '\n' + data);
 				}).catch(err => console.error('interpOpen:', err));
+			break; }
+			case 'interpLoadGrp': {
+				const grpId   = cmd[1];
+				const grpName = cmd[2];
+				const grpFile = path.join(interpCurrentDir, 'Groupes', grpName);
+				const imgDir  = path.join(interpCurrentDir, 'Images');
+				try {
+					const grpXml = fs.readFileSync(grpFile, 'utf-8');
+					const b64    = Buffer.from(grpXml, 'utf-8').toString('base64');
+					winInterpretor.webContents.send('fromMain', 'interpGrpLoaded;' + grpId + ';' + imgDir + ';' + b64);
+				} catch(e) { console.error('interpLoadGrp:', grpName, e.message); }
 			break; }
         }
 		}   

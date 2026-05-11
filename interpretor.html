@@ -208,7 +208,10 @@
       text-align: center;
       word-break: break-word;
       padding: 2px;
+      position: relative;
+      z-index: 2;
     }
+    .ow-drawn-obj { pointer-events: none; position: absolute; }
 
     /* ── Popups communs ── */
     .ow-popup {
@@ -415,9 +418,11 @@ let owNuances   = [
 ];
 let owNextSecId  = 1;
 let owNextGrpId  = 1;
-let owActiveGrp  = null;   // id du groupe sélectionné
-let owFilePath   = null;   // chemin courant (Electron)
+let owActiveGrp  = null;
+let owFilePath   = null;
 let owModified   = false;
+let interpDir    = '';        // dossier de la partition ouverte
+let interpGrpData = {};       // {grpId: {xml, imgBase}} — cache des XMLs de groupe
 
 // ═══════════════════════════════════════════════
 //  MENU – ouverture / fermeture
@@ -484,18 +489,61 @@ document.getElementById('owFileInput').addEventListener('change', function(e) {
 
 function owParseData(txt, label) {
   try {
-    const d = JSON.parse(txt);
-    owSections = d.sections  || [];
-    owGroups   = d.groups    || [];
-    owNuances  = d.nuances   || owNuances;
-    owNextSecId= d.nextSecId || owSections.length + 1;
-    owNextGrpId= d.nextGrpId || owGroups.length   + 1;
-    owActiveGrp = null;
-    owModified  = false;
-    if (label) document.getElementById('owFileLabel').textContent = label;
-    owRenderAll();
-    owBuildNuancesTable();
+    if (txt.trimStart().startsWith('<')) {
+      owParseDataXml(txt);
+    } else {
+      const d = JSON.parse(txt);
+      owSections  = d.sections  || [];
+      owGroups    = d.groups    || [];
+      owNuances   = d.nuances   || owNuances;
+      owNextSecId = d.nextSecId || owSections.length + 1;
+      owNextGrpId = d.nextGrpId || owGroups.length   + 1;
+      owActiveGrp = null; owModified = false;
+      if (label) document.getElementById('owFileLabel').textContent = label;
+      owRenderAll(); owBuildNuancesTable();
+    }
   } catch(err) { alert('Erreur de chargement : ' + err.message); }
+}
+
+function owParseDataXml(txt) {
+  const parser = new DOMParser();
+  const doc    = parser.parseFromString(txt, 'application/xml');
+  if (doc.querySelector('parsererror'))
+    throw new Error(doc.querySelector('parsererror').textContent.split('\n')[0]);
+  const ga  = (el,a,d='')  => { const v=el.getAttribute(a); return v!==null?v:d; };
+  const gaf = (el,a,d=0)   => { const v=parseFloat(el.getAttribute(a)); return isNaN(v)?d:v; };
+  const gai = (el,a,d=0)   => { const v=parseInt(el.getAttribute(a));   return isNaN(v)?d:v; };
+  owSections=[]; owGroups=[]; owNextSecId=1; owNextGrpId=1; interpGrpData={};
+  const partEl = doc.querySelector('partition');
+  const title  = (partEl && partEl.getAttribute('name')) || 'Sans titre';
+  document.getElementById('owFileLabel').textContent = title;
+  doc.querySelectorAll('section').forEach((secEl, idx) => {
+    const secId = owNextSecId++;
+    owSections.push({ id:secId, name:ga(secEl,'name','Section '+secId), posY:idx*200, color:'#4a90d9' });
+    secEl.querySelectorAll('groupe').forEach(grpEl => {
+      owGroups.push({
+        id: owNextGrpId++,
+        name:    ga(grpEl,'name',''),
+        sectionId: secId,
+        posX:    gaf(grpEl,'posX',20),
+        posY:    gaf(grpEl,'posY',20),
+        w:       gai(grpEl,'w',120),
+        h:       gai(grpEl,'h',60),
+        color:   ga(grpEl,'color','#c8dcff'),
+        opacity: gaf(grpEl,'opacity',0.5),
+        dir:     ga(grpEl,'dir',''),
+        nuance:  ''
+      });
+    });
+  });
+  owActiveGrp=null; owModified=false;
+  owRenderAll(); owBuildNuancesTable();
+  // Demander les XMLs de groupe via IPC
+  if (typeof window.api !== 'undefined') {
+    owGroups.forEach(grp => {
+      if (grp.name) window.api.send('toMain', `interpLoadGrp;${grp.id};${grp.name}`);
+    });
+  }
 }
 
 function owSerialise() {
@@ -806,6 +854,10 @@ function owRenderGroups() {
       owDragElement(div, grp, e);
     });
     space.appendChild(div);
+    if (interpGrpData[grp.id]) {
+      const { xml, imgBase } = interpGrpData[grp.id];
+      drawObjets(xml, div, imgBase);
+    }
   });
 }
 
@@ -864,6 +916,137 @@ function owSpaceClick(e) {
     owActiveGrp = null;
     document.querySelectorAll('.ow-grp').forEach(el => el.classList.remove('actif'));
     owUpdateInfo();
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  DESSIN DES OBJETS DE GROUPE
+// ═══════════════════════════════════════════════
+
+function parseObjetEl(el) {
+  const v  = (tag, d='') => { const e=el.querySelector(tag); return e?(e.getAttribute('value')??d):d; };
+  const vf = (tag, d=0)  => { const n=parseFloat(v(tag,String(d))); return isNaN(n)?d:n; };
+  const vi = (tag, d=0)  => { const n=parseInt(v(tag,String(d)));   return isNaN(n)?d:n; };
+  return {
+    id:        el.getAttribute('id')||'',
+    type:      vi('type'),
+    class:     vi('class'),
+    posX:      vf('posx'),   posY: vf('posy'),
+    bkgWidth:  vf('bkgwidth',20), bkgHeight: vf('bkgheight',20),
+    bkgColor:  v('bkgcolor','#ffffff'),
+    bkgOpacity:vf('bkgopacity',1),
+    bkgTrp:    v('bkgtrp','true')==='true',
+    borderGc:v('bordergc','#000000'), borderGw:vf('bordergw'),
+    borderHc:v('borderhc','#000000'), borderHw:vf('borderhw'),
+    borderDc:v('borderdc','#000000'), borderDw:vf('borderdw'),
+    borderBc:v('borderbc','#000000'), borderBw:vf('borderbw'),
+    width:   vf('width',20),  height:  vf('height',20),
+    margeG:  vf('margeg'),    margeH:  vf('margeh'),
+    objColor:  v('objcolor','#000000'),
+    objBorderC:v('objborderc','#000000'), objBorderW:vf('objborderw'),
+    scaleX:  vf('scalex',1),  scaleY:  vf('scaley',1), scaleY2:vf('scaley2',1),
+    rotate:  vf('rotation', vf('rotate')),
+    r:  vf('r',10), cx:vf('cx',10), cy:vf('cy',10), rx:vf('rx',20), ry:vf('ry',10),
+    x1: vf('x1'),   y1:vf('y1'),    x2:vf('x2'),    y2:vf('y2'),
+    cp1x:vf('cp1x',25), cp1y:vf('cp1y',30),
+    cp2x:vf('cp2x',45), cp2y:vf('cp2y',30),
+    img: v('imag','')
+  };
+}
+
+function buildObjSvg(o, imgBasePath) {
+  const sc = `scale(${o.scaleX},${o.scaleY}) translate(${o.margeG},${o.margeH})`;
+  switch (o.type) {
+    case 1: {
+      const r = o.r * o.scaleX;
+      return `<circle cx="${(o.r+o.margeG)*o.scaleX}" cy="${(o.r+o.margeH)*o.scaleX}" r="${r}" fill="${o.objColor}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>`;
+    }
+    case 2: case 5:
+      return `<rect x="${o.objBorderW+o.margeG}" y="${o.objBorderW+o.margeH}" width="${Math.max(0,o.width*o.scaleX-o.objBorderW*2)}" height="${Math.max(0,o.height*o.scaleY-o.objBorderW*2)}" fill="${o.objColor}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>`;
+    case 3:
+      return `<polyline points="0,20 0,0 20,10 0,20" fill="${o.objColor}" transform="scale(${o.scaleX},${o.scaleY}) translate(${o.margeG},${o.margeH}) rotate(${o.rotate} 10 10)" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>`;
+    case 4:
+      return `<ellipse cx="${o.cx}" cy="${o.cy}" rx="${o.rx}" ry="${o.ry}" fill="${o.objColor}" transform="${sc}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>`;
+    case 6:
+      return `<polyline points="0,0 0,10 50,5 0,0" fill="${o.objColor}" transform="${sc}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>`;
+    case 7: {
+      const r7=10*o.scaleY2, ly7=r7-(10*o.scaleY)/2+o.margeH;
+      return `<circle cx="${r7+o.margeG}" cy="${r7+o.margeH}" r="${r7}" fill="${o.objColor}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>` +
+             `<rect x="${r7+o.margeG}" y="${ly7}" width="${20*o.scaleX}" height="${10*o.scaleY}" fill="${o.objColor}"/>`;
+    }
+    case 8: {
+      const ly8=(10*o.scaleY2+o.margeH)-(10*o.scaleY)/2;
+      return `<rect x="${o.margeG}" y="${o.margeH}" width="${20*o.scaleY2}" height="${20*o.scaleY2}" fill="${o.objColor}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>` +
+             `<rect x="${10*o.scaleY2+o.margeG}" y="${ly8}" width="${20*o.scaleX-5*o.scaleY2}" height="${10*o.scaleY}" fill="${o.objColor}"/>`;
+    }
+    case 9:
+      return `<path d="M 0,10 0,5 50,0 50,15 0,10 Z" fill="${o.objColor}" transform="${sc}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>`;
+    case 10:
+      return `<line x1="${o.margeG*o.scaleX}" y1="${o.margeH*o.scaleY}" x2="${o.width*o.scaleX+o.margeG}" y2="${o.margeH*o.scaleY}" stroke="${o.objColor}" stroke-width="${o.height}"/>`;
+    case 11:
+      return `<line x1="${o.x1}" y1="${o.y1}" x2="${o.x2}" y2="${o.y2}" stroke="${o.objBorderC}" stroke-width="${o.scaleX}"/>`;
+    case 12:
+      return `<rect x="${o.margeG}" y="${o.margeH}" width="${10*o.scaleX}" height="${40*o.scaleY}" fill="${o.objColor}" stroke="${o.objBorderC}" stroke-width="${o.objBorderW}"/>`;
+    case 13:
+      return `<path d="M 0 25 Q ${o.cp1x} ${o.cp1y} 50 0 Q ${o.cp2x} ${o.cp2y} 0 40 L 0 25 Z" transform="${sc}" fill="${o.objColor}"/>`;
+    case 14:
+      return `<path d="M 0 0 Q ${o.cp1x} ${o.cp1y} 40 38 Q ${o.cp2x} ${o.cp2y} 0 7 Z" transform="${sc}" fill="${o.objColor}"/>`;
+    case 15:
+      return `<path d="M 0 35 L 0 30 Q ${o.cp1x} ${o.cp1y} 50 0 L 50 20 Q ${o.cp2x} ${o.cp2y} 0 35 Z" transform="${sc}" fill="${o.objColor}"/>`;
+    case 16:
+      return `<path d="M 0 0 Q ${o.cp1x} ${o.cp1y} 50 20 L 50 50 Q ${o.cp2x} ${o.cp2y} 0 5 Z" transform="${sc}" fill="${o.objColor}"/>`;
+    case 21:
+      return `<path d="m 0,18 c 2.563522,-4.224314 5.082396,-8.502207 9.5544,-10.436343 15.408596,-2.005519 10.194491,-4.131414 15.287035,-6.173611 15.94465,-2.511366 17.400141,2.490165 23.66551,4.997685 2.271129,3.188679 5.724476,4.406994 4.703704,13.082175 -1.620314,13.767922 -5.475164,14.575533 -8.966435,17.4919 -8.306339,2.87551 -16.042438,4.467977 -22.783564,3.821758 -6.306339,0.87551 -14.042438,2.467977 -20.783564,-10.821758 Z" transform="${sc}" fill="${o.objColor}"/>`;
+    case 23:
+      if (imgBasePath && o.img && window.api) {
+        const url = window.api.toFileUrl(window.api.joinPath(imgBasePath, o.img));
+        return `<image x="${o.margeG}" y="${o.margeH}" width="${o.bkgWidth*o.scaleX}" height="${o.bkgHeight*o.scaleY}" preserveAspectRatio="none" href="${url}" transform="rotate(${o.rotate} ${o.bkgWidth/2} ${o.bkgHeight/2})"/>`;
+      }
+      return '';
+    default: return '';
+  }
+}
+
+function drawObjets(grpXml, grpDiv, imgBasePath) {
+  const parser = new DOMParser();
+  const doc    = parser.parseFromString(grpXml, 'application/xml');
+  if (doc.querySelector('parsererror')) return;
+  // Conteneur class=4 : définit l'espace de coordonnées du groupe
+  let ctnX=0, ctnY=0, ctnW=0, ctnH=0;
+  for (const el of doc.querySelectorAll('objet')) {
+    const clsEl = el.querySelector('class');
+    if (clsEl && parseInt(clsEl.getAttribute('value'))||0 === 4) {
+      const o = parseObjetEl(el);
+      ctnX=o.posX; ctnY=o.posY;
+      ctnW=o.bkgWidth||o.width; ctnH=o.bkgHeight||o.height;
+      break;
+    }
+  }
+  if (!ctnW || !ctnH) return;
+  const divW = grpDiv.offsetWidth  || parseFloat(grpDiv.style.width)  || 120;
+  const divH = grpDiv.offsetHeight || parseFloat(grpDiv.style.height) || 60;
+  const sx   = divW / ctnW;
+  const sy   = divH / ctnH;
+  grpDiv.querySelectorAll('.ow-drawn-obj').forEach(e => e.remove());
+  for (const el of doc.querySelectorAll('objet')) {
+    const o     = parseObjetEl(el);
+    if (o.class === 4 || o.class === 0) continue;
+    const shape = buildObjSvg(o, imgBasePath);
+    if (!shape) continue;
+    let bkg = '';
+    if (!o.bkgTrp) {
+      const op = Math.round(o.bkgOpacity*255).toString(16).padStart(2,'0');
+      bkg = `<rect x="0" y="0" width="${o.bkgWidth}" height="${o.bkgHeight}" fill="${o.bkgColor}${op}"/>`;
+    }
+    const rx = (o.posX - ctnX) * sx;
+    const ry = (o.posY - ctnY) * sy;
+    const w  = Math.max(1, o.bkgWidth  * sx);
+    const h  = Math.max(1, o.bkgHeight * sy);
+    const div = document.createElement('div');
+    div.className = 'ow-drawn-obj';
+    div.style.cssText = `left:${rx}px;top:${ry}px;`;
+    div.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${o.bkgWidth} ${o.bkgHeight}" xmlns="http://www.w3.org/2000/svg">${bkg}${shape}</svg>`;
+    grpDiv.appendChild(div);
   }
 }
 
@@ -942,9 +1125,31 @@ if (typeof window.api !== 'undefined') {
         owModified = false;
         document.getElementById('owFileLabel').textContent = rest.split(/[\\/]/).at(-1);
         break;
-      case 'owLoaded':
-        owParseData(rest, rest.split(/[\\/]/).at(-1));
+      case 'owLoaded': {
+        const nl = rest.indexOf('\n');
+        if (nl > -1) {
+          interpDir = rest.substring(0, nl);
+          owParseData(rest.substring(nl + 1));
+        } else {
+          owParseData(rest);
+        }
         break;
+      }
+      case 'interpGrpLoaded': {
+        const parts   = rest.split(';');
+        const grpId   = parseInt(parts[0]);
+        const imgBase = parts[1] || '';
+        const xmlB64  = parts[2] || '';
+        if (!xmlB64) break;
+        const grpXml = atob(xmlB64);
+        const grp    = owGroups.find(g => g.id === grpId);
+        if (!grp) break;
+        const grpDiv = document.getElementById('grp' + grpId);
+        if (!grpDiv) break;
+        interpGrpData[grp.id] = { xml: grpXml, imgBase };
+        drawObjets(grpXml, grpDiv, imgBase);
+        break;
+      }
     }
   });
 }
