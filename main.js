@@ -4880,9 +4880,13 @@ ipcMain.on ("toMain", (event, args) => {
 							fs.copyFileSync(grpSrc, grpDst);
 							grpXml = fs.readFileSync(grpDst, 'utf-8');
 						} catch(e) { console.error('Export: groupe absent', grpSrc); }
-						// Copier les audios référencés dans le groupe (<file value='...'> → audioTmpDir/<base>-fx.wav)
-						for (const [, fileVal] of grpXml.matchAll(/<file\s+value='([^']+)'/g)) {
-							const base   = fileVal.replace(/\.[^.]+$/, '');
+						// Pour chaque objet de class=1, copier <base>-fx.wav depuis audioPath/tmp/
+						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
+							const classM = objBlock.match(/<class\s+value='([^']+)'/);
+							if (!classM || classM[1] !== '1') continue;
+							const fileM  = objBlock.match(/<file\s+value='([^']+)'/);
+							if (!fileM || !fileM[1]) continue;
+							const base   = fileM[1].replace(/\.[^.]+$/, '');
 							const fxName = base + '-fx.wav';
 							try {
 								fs.copyFileSync(path.join(audioTmpDir, fxName), path.join(audiosDir, fxName));
