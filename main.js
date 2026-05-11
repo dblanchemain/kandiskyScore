@@ -4840,14 +4840,17 @@ ipcMain.on ("toMain", (event, args) => {
 			case 'owExportInterp': {
 				const expData    = cmd.slice(1).join(';');
 				const docsDir    = app.getPath('documents');
+				const titleM     = expData.match(/<partition\b[^>]*\bname="([^"]*)"/);
+				const rawTitle   = (titleM && titleM[1]) ? titleM[1] : 'export_interpretor';
+				const safeTitle  = rawTitle.replace(/[/\\:*?"<>|]/g, '_').trim() || 'export_interpretor';
 				dialog.showOpenDialog(winOpenWork, {
-					properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
+					properties: ['openDirectory', 'createDirectory'],
 					defaultPath: docsDir,
-					title: "Choisir le dossier d'export interpretor",
+					title: "Choisir le dossier parent pour l'export interpretor",
 					buttonLabel: 'Exporter ici'
 				}).then(result => {
 					if (result.canceled || !result.filePaths[0]) return;
-					const destDir    = result.filePaths[0];
+					const destDir    = path.join(result.filePaths[0], safeTitle);
 					const audiosDir  = path.join(destDir, 'Audios');
 					const groupesDir = path.join(destDir, 'Groupes');
 					const imagesDir  = path.join(destDir, 'Images');
