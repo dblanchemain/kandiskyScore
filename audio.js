@@ -1251,7 +1251,7 @@ async function readSimpleAudioA(id,mode) {
 	 
 	  
 	 
-	 if(tempoPoints.length>=2){
+	 if(tempoPoints.length>=2 && mode !== 5){
 	 	 await window.api.saveAudioBuffer({
         filePath: window.api.joinPath(`${baseDatatPath}`,"renduin.wav"),
         buffer: { sampleRate, channels: [monoBuffer] }
@@ -1866,9 +1866,11 @@ async function postRubberband(id,mode,file) {
 
     } else if (mode === 5) {
         // ===== MODE owExport : objet unique, FX inclus, sans spat, sans chaînage =====
-        outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
-        await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
+        // Écriture directe dans destDir/Audios/ (le dossier est créé par owExportInterp)
         const obj5 = tableObjet[id];
+        if (!owExportDestDir) { console.warn('[mode5] owExportDestDir non défini'); return; }
+        outPath = window.api.joinPath(owExportDestDir, 'Audios', obj5.id + '.wav');
+        await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
         const spd5 = (obj5.transposition > 0) ? obj5.transposition : 1;
         const dur5 = ((obj5.duree * obj5.fin) - (obj5.duree * obj5.debut)) / spd5;
         const ex05 = obj5.envX?.[0] ?? 0;
@@ -1877,11 +1879,8 @@ async function postRubberband(id,mode,file) {
         const fo5  = (obj5.fadeOut && obj5.fadeOut !== 'undefined') ? obj5.fadeOut : fi5;
         const fade5 = `${fi5} ${dur5 * ex05} fade ${fo5} 0 ${dur5} ${dur5 * (1 - ex15)}`;
         const sox5  = `pitch ${obj5.detune} speed ${spd5} vol ${obj5.gain} trim ${obj5.debut} ${dur5} fade ${fade5}`;
+        console.log('[owExport mode5]', obj5.id, sox5);
         await window.api.soxProcessExport(outPath, sox5);
-        if (owExportDestDir) {
-            const dest5 = window.api.joinPath(owExportDestDir, 'Audios', obj5.id + '.wav');
-            window.api.send('toMain', 'owExportCopyAudio;' + outPath + ';' + dest5);
-        }
 
     } else {
         // ===== MODE EXPORT DAW (mode=1) : audio sec + SoX =====
