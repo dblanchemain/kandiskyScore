@@ -4939,8 +4939,9 @@ ipcMain.on ("toMain", (event, args) => {
 										const detune      = tagNum('detune')          ?? 0;
 										const speedFactor = tagNum('transpositionval')?? 1;
 										const gain        = tagNum('gain')            ?? 1;
-										const fadeInType  = tagStr('fadein')  || 'l';
-										const fadeOutType = tagStr('fadeout') || fadeInType;
+										const validFade   = v => (v && v !== 'undefined') ? v : null;
+										const fadeInType  = validFade(tagStr('fadein'))  || 'l';
+										const fadeOutType = validFade(tagStr('fadeout')) || fadeInType;
 										const envxStr     = tagStr('envx') || '0,1';
 										const envX        = envxStr.split(',').map(parseFloat);
 										const envX0       = isNaN(envX[0]) ? 0 : envX[0];
