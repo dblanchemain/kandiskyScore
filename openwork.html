@@ -1376,9 +1376,15 @@ if (typeof window.api !== 'undefined') {
         owProjDir  = rest.replace(/[/\\][^/\\]*$/, '');
         owModified = false;
         break;
-      case 'owExportDone':
-        owAlert('Export interpretor terminé dans :\n' + rest);
+      case 'owExportDone': {
+        const nl2 = rest.indexOf('\n');
+        const destDir2 = nl2 > -1 ? rest.substring(0, nl2) : rest;
+        const warn2    = nl2 > -1 ? rest.substring(nl2 + 1) : '';
+        const msg2 = 'Export interpretor terminé dans :\n' + destDir2
+                   + (warn2 ? '\n\n⚠ ' + warn2 : '');
+        owAlert(msg2);
         break;
+      }
       case 'owLoaded': {
         const nl = rest.indexOf('\n');
         if (nl > -1) {
