@@ -95,10 +95,10 @@ async function exportPart(adm){
 	exportTable=[];
 	for(let i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].class==1 ){
-		exportTable[i]=tableObjet[i];
+			exportTable.push(tableObjet[i]);
 		}
 	}
-	
+
 	exportTable=exportTable.sort((s1, s2) => {
  		return s1.posX - s2.posX;
 	});
