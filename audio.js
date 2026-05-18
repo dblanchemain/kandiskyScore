@@ -1866,18 +1866,24 @@ async function postRubberband(id,mode,file) {
 
     } else {
         // ===== MODE EXPORT DAW (mode=1) : audio sec + SoX =====
-        outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
-        await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
-        const exportObj = tableObjet[id];
-        const durationAfterSpeed = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
-        const envX0 = (exportObj.envX && exportObj.envX[0] !== undefined) ? exportObj.envX[0] : 0;
-        const envX1 = (exportObj.envX && exportObj.envX[1] !== undefined) ? exportObj.envX[1] : 1;
-        const exportFadeIn  = exportObj.fadeIn  || 'l';
-        const exportFadeOut = exportObj.fadeOut || exportFadeIn;
-        const exportFade = `${exportFadeIn} ${durationAfterSpeed * envX0} fade ${exportFadeOut} 0 ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
-        const exportLengthSec = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
-        const exportSoxParams = `pitch ${exportObj.detune} speed ${exportObj.transposition} vol ${exportObj.gain} trim ${exportObj.debut} ${exportLengthSec} fade ${exportFade}`;
-        await window.api.soxProcessExport(outPath, exportSoxParams);
+        try {
+            outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
+            await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
+            const exportObj = tableObjet[id];
+            const speedFactor = exportObj.transposition > 0 ? exportObj.transposition : 1;
+            const durationAfterSpeed = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / speedFactor;
+            const envX0 = (exportObj.envX && exportObj.envX[0] !== undefined) ? exportObj.envX[0] : 0;
+            const envX1 = (exportObj.envX && exportObj.envX[1] !== undefined) ? exportObj.envX[1] : 1;
+            const exportFadeIn  = (exportObj.fadeIn  && exportObj.fadeIn  !== 'undefined') ? exportObj.fadeIn  : 'l';
+            const exportFadeOut = (exportObj.fadeOut && exportObj.fadeOut !== 'undefined') ? exportObj.fadeOut : exportFadeIn;
+            const exportFade = `${exportFadeIn} ${durationAfterSpeed * envX0} fade ${exportFadeOut} 0 ${durationAfterSpeed} ${durationAfterSpeed * (1 - envX1)}`;
+            const exportLengthSec = durationAfterSpeed;
+            const exportSoxParams = `pitch ${exportObj.detune} speed ${speedFactor} vol ${exportObj.gain} trim ${exportObj.debut} ${exportLengthSec} fade ${exportFade}`;
+            console.log('[exportPart SoX]', tableObjet[id].id, exportSoxParams);
+            await window.api.soxProcessExport(outPath, exportSoxParams);
+        } catch(e) {
+            console.error('[exportPart] erreur sur', tableObjet[id] && tableObjet[id].id, e.message || e);
+        }
         document.getElementById("loading").style.display = "none";
         exportCompteur++;
         if (exportCompteur < exportTable.length) {
@@ -2018,7 +2024,13 @@ async function exportPart(){
 	exportCompteur=0;
 	document.getElementById("sliderLParam").style.width="0%";
 	document.getElementById("popupLoader").style.display="block";
-	await readSimpleAudioA(lsgrp[0],1);
+	try {
+		await readSimpleAudioA(lsgrp[0],1);
+	} catch(e) {
+		console.error('[exportPart] erreur chaîne:', e.message || e);
+		document.getElementById("popupLoader").style.display="none";
+		return;
+	}
 	exportToSeq(lsgrp);
 }
 function exportToSeq(refGrp){
