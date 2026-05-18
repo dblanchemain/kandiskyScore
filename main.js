@@ -4881,8 +4881,9 @@ ipcMain.on ("toMain", (event, args) => {
 						fs.mkdirSync(d, { recursive: true });
 					// Écrire la partition
 					fs.writeFileSync(path.join(destDir, 'partition.xml'), expData, 'utf-8');
-					const owGrpDir    = path.join(path.dirname(audioPath), 'openWork', 'Groupes');
-					const owImgDir    = path.join(path.dirname(audioPath), 'openWork', 'Images');
+					const owBaseDir   = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
+					const owGrpDir    = path.join(owBaseDir, 'Groupes');
+					const owImgDir    = path.join(owBaseDir, 'Images');
 					const audioTmpDir = path.join(audioPath, 'tmp');
 					// Parcourir chaque groupe de la partition
 					const processed = new Set();
@@ -4892,9 +4893,8 @@ ipcMain.on ("toMain", (event, args) => {
 						const grpName = nameM[1];
 						if (processed.has(grpName)) continue;
 						processed.add(grpName);
-						const dirM      = block.match(/\bdir="([^"]+)"/);
-						const imgSrcDir = (dirM && dirM[1]) ? dirM[1] : owImgDir;
-						const grpSrcDir = imgSrcDir ? path.join(path.dirname(imgSrcDir), 'Groupes') : owGrpDir;
+						const imgSrcDir = owImgDir;
+						const grpSrcDir = owGrpDir;
 						// Copier le fichier de groupe
 						const grpSrc = path.join(grpSrcDir, grpName);
 						const grpDst = path.join(groupesDir, grpName);
