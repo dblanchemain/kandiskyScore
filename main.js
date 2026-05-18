@@ -1307,6 +1307,16 @@ ipcMain.handle('copyGrpAudio', async (event, files, srcDir, destDir) => {
 	return results;
 });
 
+ipcMain.handle('copyGrpExports', async (event, srcDir, destDir, srcIds, offset) => {
+	const exportsDir = path.join(destDir, 'exports');
+	try { await fs.promises.mkdir(exportsDir, { recursive: true }); } catch(_) {}
+	for (let i = 0; i < srcIds.length; i++) {
+		const srcFile  = path.join(srcDir,  'exports', `objet${srcIds[i]}.wav`);
+		const destFile = path.join(exportsDir, `objet${offset + i}.wav`);
+		try { await fs.promises.copyFile(srcFile, destFile); } catch(_) {}
+	}
+});
+
 // ── Import ADM ────────────────────────────────────────────────────────────────
 
 function admTimeToSecondsNode(str) {
@@ -4761,8 +4771,8 @@ ipcMain.on ("toMain", (event, args) => {
 			break;
 			case 'owPickGrpFile': {
 				const pickFieldId = cmd[1];
-				const owGrpDir = path.join(path.dirname(audioPath), 'openWork', 'Groupes');
-				const owImgDir = path.join(path.dirname(audioPath), 'openWork', 'Images');
+				const baseDir = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
+				const owGrpDir = path.join(baseDir, 'Groupes');
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
 					defaultPath: owGrpDir,
@@ -4771,29 +4781,40 @@ ipcMain.on ("toMain", (event, args) => {
 					if (result.canceled || !result.filePaths[0]) return;
 					const xmlFull  = result.filePaths[0];
 					const fileName = path.basename(xmlFull);
-					const svgFull  = path.join(owImgDir, fileName.replace(/\.xml$/i, '.svg'));
+					// Dériver le dossier Images depuis le dossier parent de Groupes
+					const pickedOwDir = path.dirname(path.dirname(xmlFull));
+					const svgImgDir   = path.join(pickedOwDir, 'Images');
+					const svgFull  = path.join(svgImgDir, fileName.replace(/\.xml$/i, '.svg'));
 					let svgB64 = '';
 					try {
 						const svgContent = fs.readFileSync(svgFull, 'utf-8');
 						svgB64 = Buffer.from(svgContent, 'utf-8').toString('base64');
 					} catch(e) {}
-					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + owImgDir);
+					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + svgImgDir);
 				}).catch(err => console.error('owPickGrpFile:', err));
 			break; }
 			case 'owReadSvg': {
 				const grpId   = cmd[1];
 				const svgName = cmd[2];
-				const owImgDir2 = path.join(path.dirname(audioPath), 'openWork', 'Images');
+				const grpDir  = cmd[3] || '';
 				if (!svgName) break;
-				const svgFull2 = path.join(owImgDir2, svgName);
-				try {
-					const svgContent2 = fs.readFileSync(svgFull2, 'utf-8');
-					const svgB642 = Buffer.from(svgContent2, 'utf-8').toString('base64');
-					winOpenWork.webContents.send('fromMain', 'owSvgData;' + grpId + ';' + svgB642);
-				} catch(e) { /* fichier SVG absent, on ignore */ }
+				const imgDirFallback = path.join(path.dirname(audioPath), 'openWork', 'Images');
+				const candidates = [
+					grpDir || null,
+					owCurrentDir ? path.join(owCurrentDir, 'Images') : null,
+					imgDirFallback
+				].filter(Boolean);
+				for (const dir of candidates) {
+					try {
+						const svgContent = fs.readFileSync(path.join(dir, svgName), 'utf-8');
+						const svgB64 = Buffer.from(svgContent, 'utf-8').toString('base64');
+						winOpenWork.webContents.send('fromMain', 'owSvgData;' + grpId + ';' + svgB64);
+						break;
+					} catch(e) { /* essayer le candidat suivant */ }
+				}
 			break; }
 			case 'owOpen': {
-				const owDir = path.join(path.dirname(audioPath), 'openWork');
+				const owDir = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
 					defaultPath: owDir,
@@ -4802,7 +4823,8 @@ ipcMain.on ("toMain", (event, args) => {
 					if (result.canceled || !result.filePaths[0]) return;
 					owCurrentDir = path.dirname(result.filePaths[0]);
 					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
-					winOpenWork.webContents.send('fromMain', 'owLoaded;' + owCurrentDir + '\n' + data);
+					// Envoyer le chemin complet en première ligne pour que le renderer puisse l'afficher
+					winOpenWork.webContents.send('fromMain', 'owLoaded;' + result.filePaths[0] + '\n' + data);
 				}).catch(err => console.error('owOpen:', err));
 			break; }
 			case 'owSave': {
@@ -4839,92 +4861,65 @@ ipcMain.on ("toMain", (event, args) => {
 				}).catch(err => console.error('owSaveAs:', err));
 			break; }
 			case 'owExportInterp': {
-				const expData    = cmd.slice(1).join(';');
-				const docsDir    = app.getPath('documents');
-				const titleM     = expData.match(/<partition\b[^>]*\bname="([^"]*)"/);
-				const rawTitle   = (titleM && titleM[1]) ? titleM[1] : 'export_interpretor';
-				const safeTitle  = rawTitle.replace(/[/\\:*?"<>|]/g, '_').trim() || 'export_interpretor';
-				dialog.showOpenDialog(winOpenWork, {
-					properties: ['openDirectory', 'createDirectory'],
-					defaultPath: docsDir,
-					title: "Choisir le dossier parent pour l'export interpretor",
-					buttonLabel: 'Exporter ici'
-				}).then(result => {
-					if (result.canceled || !result.filePaths[0]) return;
-					const destDir    = path.join(result.filePaths[0], safeTitle);
-					const audiosDir  = path.join(destDir, 'Audios');
-					const groupesDir = path.join(destDir, 'Groupes');
-					const imagesDir  = path.join(destDir, 'Images');
-					for (const d of [audiosDir, groupesDir, imagesDir])
-						fs.mkdirSync(d, { recursive: true });
-					// Écrire la partition
-					fs.writeFileSync(path.join(destDir, 'partition.xml'), expData, 'utf-8');
-					const owGrpDir    = path.join(path.dirname(audioPath), 'openWork', 'Groupes');
-					const owImgDir    = path.join(path.dirname(audioPath), 'openWork', 'Images');
-					const audioTmpDir = path.join(audioPath, 'tmp');
-					// Parcourir chaque groupe de la partition
-					const processed = new Set();
-					for (const [block] of expData.matchAll(/<groupe\b[\s\S]*?\/>/g)) {
-						const nameM = block.match(/\bname="([^"]+)"/);
-						if (!nameM) continue;
-						const grpName = nameM[1];
-						if (processed.has(grpName)) continue;
-						processed.add(grpName);
-						const dirM      = block.match(/\bdir="([^"]+)"/);
-						const imgSrcDir = (dirM && dirM[1]) ? dirM[1] : owImgDir;
-						const grpSrcDir = imgSrcDir ? path.join(path.dirname(imgSrcDir), 'Groupes') : owGrpDir;
-						// Copier le fichier de groupe
-						const grpSrc = path.join(grpSrcDir, grpName);
-						const grpDst = path.join(groupesDir, grpName);
-						let grpXml   = '';
-						try {
-							fs.copyFileSync(grpSrc, grpDst);
-							grpXml = fs.readFileSync(grpDst, 'utf-8');
-						} catch(e) { console.error('Export: groupe absent', grpSrc); }
-						// Résoudre les dossiers source depuis <dirorg> ou audioPath
-						const dirorgM    = grpXml.match(/<dirorg\s+dir='([^']+)'/);
-						const dirorgVal  = dirorgM ? dirorgM[1].replace(/\\/g, '/').replace(/\/?$/, '') : null;
-						const dirorgAbs  = dirorgVal ? path.join(app.getPath('home'), dirorgVal) : audioPath;
-						const grpTmpDir  = path.join(dirorgAbs, 'tmp');
-						const grpImgDir  = path.join(path.dirname(dirorgAbs), 'Images');
-						// Pour chaque objet, copier audio (class=1) et images (type=23)
-						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
-							const classM = objBlock.match(/<class\s+value='([^']+)'/);
-							// Audio : class=1 → <id>-fx.wav
-							if (classM && classM[1] === '1') {
-								const idM = objBlock.match(/<objet\s+id='([^']+)'/);
-								if (idM) {
-									const fxName = idM[1] + '-fx.wav';
-									const fxSrc  = path.join(grpTmpDir, fxName);
-									const fxFall = path.join(audioTmpDir, fxName);
-									try {
-										fs.copyFileSync(fs.existsSync(fxSrc) ? fxSrc : fxFall, path.join(audiosDir, fxName));
-									} catch(e) { console.error('Export: audio absent', fxName); }
-								}
-							}
-							// Image : type=23 → <imag value='filename'>
-							const typeM = objBlock.match(/<type\s+value='([^']+)'/);
-							if (typeM && typeM[1] === '23') {
-								const imagM = objBlock.match(/<imag\s+value='([^']+)'/);
-								if (imagM && imagM[1]) {
-									const imgFile = imagM[1];
-									const imgSrc  = path.join(grpImgDir, imgFile);
-									const imgFall = path.join(imgPath, imgFile);
-									try {
-										fs.copyFileSync(fs.existsSync(imgSrc) ? imgSrc : imgFall, path.join(imagesDir, imgFile));
-									} catch(e) { console.error('Export: image absente', imgFile); }
-								}
-							}
-						}
-						// Copier l'image SVG correspondante
-						const svgName = grpName.replace(/\.xml$/i, '.svg');
-						try {
-							fs.copyFileSync(path.join(imgSrcDir, svgName), path.join(imagesDir, svgName));
-						} catch(e) { /* SVG optionnel */ }
-					}
-					winOpenWork.webContents.send('fromMain', 'owExportDone;' + destDir);
-				}).catch(err => console.error('owExportInterp:', err));
-			break; }
+					const expData   = cmd.slice(1).join(';');
+					const docsDir   = app.getPath('documents');
+					const titleM    = expData.match(/<partition\b[^>]*\bname="([^"]*)"/);
+					const rawTitle  = (titleM && titleM[1]) ? titleM[1] : 'export_interpretor';
+					const safeTitle = rawTitle.replace(/[\/\\:*?"<>|]/g, '_').trim() || 'export_interpretor';
+					dialog.showOpenDialog(winOpenWork, {
+						properties: ['openDirectory', 'createDirectory'],
+						defaultPath: docsDir,
+						title: "Choisir le dossier parent pour l'export interpretor",
+						buttonLabel: 'Exporter ici'
+					}).then(result => {
+						if (result.canceled || !result.filePaths[0]) return;
+						const destDir    = path.join(result.filePaths[0], safeTitle);
+						const audiosDir  = path.join(destDir, 'Audios');
+						const groupesDir = path.join(destDir, 'Groupes');
+						const imagesDir  = path.join(destDir, 'Images');
+						for (const d of [audiosDir, groupesDir, imagesDir])
+							fs.mkdirSync(d, { recursive: true });
+						fs.writeFileSync(path.join(destDir, 'partition.xml'), expData, 'utf-8');
+						const owBaseDir = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
+						const owGrpDir  = path.join(owBaseDir, 'Groupes');
+						const owImgDir  = path.join(owBaseDir, 'Images');
+						// Déléguer le traitement audio+xml au renderer (FX inclus via readSimpleAudioA mode 5)
+						mainWindow.webContents.send('fromMain',
+							'owExportStart;' + owGrpDir + ';' + owImgDir + ';' + destDir + ';' + expData);
+					}).catch(err => console.error('owExportInterp:', err));
+				break; }
+			// Handlers IPC pour owExportProcess (renderer → main)
+			case 'owExportWriteGroup': {
+				// cmd[1]=destDir, cmd[2]=grpName, cmd[3]=base64(xml utf-8)
+				try {
+					const xml = Buffer.from(cmd[3], 'base64').toString('utf-8');
+					fs.writeFileSync(path.join(cmd[1], 'Groupes', cmd[2]), xml, 'utf-8');
+				} catch(e) { console.error('owExportWriteGroup:', e); }
+				break; }
+			case 'owExportCopyAudio': {
+				// cmd[1]=src, cmd[2]=dest
+				try { fs.copyFileSync(cmd[1], cmd[2]); }
+				catch(e) { console.error('owExportCopyAudio:', cmd[1], e.message); }
+				break; }
+			case 'owExportCopyImage': {
+				// cmd[1]=imgDir, cmd[2]=destDir, cmd[3]=imgFile
+				const imgSrc2 = path.join(cmd[1], cmd[3]);
+				const imgDst2 = path.join(cmd[2], 'Images', cmd[3]);
+				try { fs.copyFileSync(imgSrc2, imgDst2); }
+				catch(e) { console.error('owExportCopyImage:', cmd[3], e.message); }
+				break; }
+			case 'owExportCopySvg': {
+				// cmd[1]=imgDir, cmd[2]=destDir, cmd[3]=svgName
+				try { fs.copyFileSync(path.join(cmd[1], cmd[3]), path.join(cmd[2], 'Images', cmd[3])); }
+				catch(e) { /* SVG optionnel */ }
+				break; }
+			case 'owExportFinalDone': {
+				// cmd[1]=destDir, [cmd[2]='ERRORS', cmd[3+]=erreurs]
+				let owDoneMsg = 'owExportDone;' + cmd[1];
+				const errIdx = cmd.indexOf('ERRORS');
+				if (errIdx >= 0) owDoneMsg += '\nAudios manquants :\n' + cmd.slice(errIdx + 1).join(';');
+				winOpenWork.webContents.send('fromMain', owDoneMsg);
+				break; }
 			case 'interpOpen': {
 				dialog.showOpenDialog(winInterpretor, {
 					properties: ['openFile'],
@@ -6535,7 +6530,6 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 			  input,
 			  tmpOut,
 			  "trim", obj.debut.toString(), trimmedDuration.toString(),
-			  ...(obj.reverse ? ["reverse"] : []),
 			  "pitch", obj.detune.toString(),
 			  "speed", speedFactor.toString(),
 			  "vol", obj.gain.toString(),

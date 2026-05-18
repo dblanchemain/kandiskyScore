@@ -736,6 +736,18 @@ window.api.receive("fromMain", (data) => {
 			case 'exportPart':
 				exportPart(0);
 				break;
+			case 'owExportStart': {
+				// cmd[1]=grpDir, cmd[2]=imgDir, cmd[3]=destDir, reste=partitionXML
+				const owGrpDir2  = cmd[1];
+				const owImgDir2  = cmd[2];
+				const owDestDir2 = cmd[3];
+				const owPartXml2 = cmd.slice(4).join(';');
+				owExportProcess(owPartXml2, owDestDir2, owGrpDir2, owImgDir2).catch(e => {
+					console.error('owExportProcess:', e);
+					window.api.send('toMain', 'owExportFinalDone;' + owDestDir2 + ';ERRORS;Erreur: ' + (e.message || e));
+				});
+				break;
+			}
 			case 'exportAdm':
 				exportAdm(1);
 				break;

@@ -726,7 +726,10 @@ function owParseData(txt, label) {
       });
     });
 
-    owActiveGrp = null; owActiveSec = null; owModified = false;
+    owActiveGrp = null; owModified = false;
+    // Auto-sélectionner la première section (ordre posY)
+    const firstSec = [...owSections].sort((a, b) => a.posY - b.posY)[0];
+    owActiveSec = firstSec ? firstSec.id : null;
     if (label) document.getElementById('owFileLabel').textContent = label;
     owRenderAll();
     owBuildNuancesTable();
@@ -759,7 +762,6 @@ function owSerialise() {
       xml += `              variationTempo="${b(grp.variationTempo)}" variationIntensite="${b(grp.variationIntensite)}"\n`;
       xml += `              posRelDebut="${b(grp.posRelDebut)}" posRelDebutAvant="${x(grp.posRelDebutAvant)}" posRelDebutGroupe="${x(grp.posRelDebutGroupe)}"\n`;
       xml += `              posRelFin="${b(grp.posRelFin)}" posRelFinAvant="${x(grp.posRelFinAvant)}" posRelFinGroupe="${x(grp.posRelFinGroupe)}"\n`;
-      xml += `              dir="${x(grp.dir||'')}"\n`;
       xml += `              posX="${grp.posX}" posY="${grp.posY}" w="${grp.w}" h="${grp.h}" color="${x(grp.color)}" opacity="${grp.opacity}"/>\n`;
     });
     xml += `    </section>\n`;
@@ -768,8 +770,20 @@ function owSerialise() {
   return xml;
 }
 
-function owSauvegarder() {
+async function owDemanderTitreSiDefaut() {
+  if (owPartitionTitle !== 'Sans titre') return true;
+  const titre = await owPrompt('Titre de la partition :', '');
+  if (titre === null) return false;
+  if (titre.trim()) {
+    owPartitionTitle = titre.trim();
+    document.getElementById('owFileLabel').textContent = owPartitionTitle;
+  }
+  return true;
+}
+
+async function owSauvegarder() {
   owCloseMenus();
+  if (!await owDemanderTitreSiDefaut()) return;
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSave;' + (owFilePath || '') + ';' + owSerialise());
   } else {
@@ -779,6 +793,7 @@ function owSauvegarder() {
 
 async function owSauvegarderSous() {
   owCloseMenus();
+  if (!await owDemanderTitreSiDefaut()) return;
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSaveAs;' + owSerialise());
   } else {
@@ -1361,16 +1376,25 @@ if (typeof window.api !== 'undefined') {
         owProjDir  = rest.replace(/[/\\][^/\\]*$/, '');
         owModified = false;
         break;
-      case 'owExportDone':
-        owAlert('Export interpretor terminé dans :\n' + rest);
+      case 'owExportDone': {
+        const nl2 = rest.indexOf('\n');
+        const destDir2 = nl2 > -1 ? rest.substring(0, nl2) : rest;
+        const warn2    = nl2 > -1 ? rest.substring(nl2 + 1) : '';
+        const msg2 = 'Export interpretor terminé dans :\n' + destDir2
+                   + (warn2 ? '\n\n⚠ ' + warn2 : '');
+        owAlert(msg2);
         break;
+      }
       case 'owLoaded': {
         const nl = rest.indexOf('\n');
         if (nl > -1) {
-          owProjDir = rest.substring(0, nl);
-          owParseData(rest.substring(nl + 1), rest.substring(nl + 1).split(/[\\/]/).at(-1));
+          const filePath = rest.substring(0, nl);
+          owFilePath = filePath;
+          owProjDir  = filePath.replace(/[/\\][^/\\]*$/, '');
+          const baseName = filePath.split(/[\\/]/).at(-1) || '';
+          owParseData(rest.substring(nl + 1), baseName);
         } else {
-          owParseData(rest, rest.split(/[\\/]/).at(-1));
+          owParseData(rest, '');
         }
         break;
       }
