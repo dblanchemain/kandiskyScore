@@ -1367,10 +1367,13 @@ if (typeof window.api !== 'undefined') {
       case 'owLoaded': {
         const nl = rest.indexOf('\n');
         if (nl > -1) {
-          owProjDir = rest.substring(0, nl);
-          owParseData(rest.substring(nl + 1), rest.substring(nl + 1).split(/[\\/]/).at(-1));
+          const filePath = rest.substring(0, nl);
+          owFilePath = filePath;
+          owProjDir  = filePath.replace(/[/\\][^/\\]*$/, '');
+          const baseName = filePath.split(/[\\/]/).at(-1) || '';
+          owParseData(rest.substring(nl + 1), baseName);
         } else {
-          owParseData(rest, rest.split(/[\\/]/).at(-1));
+          owParseData(rest, '');
         }
         break;
       }

@@ -4771,8 +4771,8 @@ ipcMain.on ("toMain", (event, args) => {
 			break;
 			case 'owPickGrpFile': {
 				const pickFieldId = cmd[1];
-				const owGrpDir = path.join(path.dirname(audioPath), 'openWork', 'Groupes');
-				const owImgDir = path.join(path.dirname(audioPath), 'openWork', 'Images');
+				const baseDir = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
+				const owGrpDir = path.join(baseDir, 'Groupes');
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
 					defaultPath: owGrpDir,
@@ -4781,29 +4781,40 @@ ipcMain.on ("toMain", (event, args) => {
 					if (result.canceled || !result.filePaths[0]) return;
 					const xmlFull  = result.filePaths[0];
 					const fileName = path.basename(xmlFull);
-					const svgFull  = path.join(owImgDir, fileName.replace(/\.xml$/i, '.svg'));
+					// Dériver le dossier Images depuis le dossier parent de Groupes
+					const pickedOwDir = path.dirname(path.dirname(xmlFull));
+					const svgImgDir   = path.join(pickedOwDir, 'Images');
+					const svgFull  = path.join(svgImgDir, fileName.replace(/\.xml$/i, '.svg'));
 					let svgB64 = '';
 					try {
 						const svgContent = fs.readFileSync(svgFull, 'utf-8');
 						svgB64 = Buffer.from(svgContent, 'utf-8').toString('base64');
 					} catch(e) {}
-					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + owImgDir);
+					winOpenWork.webContents.send('fromMain', 'owGrpFilePicked;' + pickFieldId + ';' + fileName + ';' + svgB64 + ';' + svgImgDir);
 				}).catch(err => console.error('owPickGrpFile:', err));
 			break; }
 			case 'owReadSvg': {
 				const grpId   = cmd[1];
 				const svgName = cmd[2];
-				const owImgDir2 = path.join(path.dirname(audioPath), 'openWork', 'Images');
+				const grpDir  = cmd[3] || '';
 				if (!svgName) break;
-				const svgFull2 = path.join(owImgDir2, svgName);
-				try {
-					const svgContent2 = fs.readFileSync(svgFull2, 'utf-8');
-					const svgB642 = Buffer.from(svgContent2, 'utf-8').toString('base64');
-					winOpenWork.webContents.send('fromMain', 'owSvgData;' + grpId + ';' + svgB642);
-				} catch(e) { /* fichier SVG absent, on ignore */ }
+				const imgDirFallback = path.join(path.dirname(audioPath), 'openWork', 'Images');
+				const candidates = [
+					grpDir || null,
+					owCurrentDir ? path.join(owCurrentDir, 'Images') : null,
+					imgDirFallback
+				].filter(Boolean);
+				for (const dir of candidates) {
+					try {
+						const svgContent = fs.readFileSync(path.join(dir, svgName), 'utf-8');
+						const svgB64 = Buffer.from(svgContent, 'utf-8').toString('base64');
+						winOpenWork.webContents.send('fromMain', 'owSvgData;' + grpId + ';' + svgB64);
+						break;
+					} catch(e) { /* essayer le candidat suivant */ }
+				}
 			break; }
 			case 'owOpen': {
-				const owDir = path.join(path.dirname(audioPath), 'openWork');
+				const owDir = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
 				dialog.showOpenDialog(winOpenWork, {
 					properties: ['openFile'],
 					defaultPath: owDir,
@@ -4812,7 +4823,8 @@ ipcMain.on ("toMain", (event, args) => {
 					if (result.canceled || !result.filePaths[0]) return;
 					owCurrentDir = path.dirname(result.filePaths[0]);
 					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
-					winOpenWork.webContents.send('fromMain', 'owLoaded;' + owCurrentDir + '\n' + data);
+					// Envoyer le chemin complet en première ligne pour que le renderer puisse l'afficher
+					winOpenWork.webContents.send('fromMain', 'owLoaded;' + result.filePaths[0] + '\n' + data);
 				}).catch(err => console.error('owOpen:', err));
 			break; }
 			case 'owSave': {
