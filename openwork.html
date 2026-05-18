@@ -726,7 +726,10 @@ function owParseData(txt, label) {
       });
     });
 
-    owActiveGrp = null; owActiveSec = null; owModified = false;
+    owActiveGrp = null; owModified = false;
+    // Auto-sélectionner la première section (ordre posY)
+    const firstSec = [...owSections].sort((a, b) => a.posY - b.posY)[0];
+    owActiveSec = firstSec ? firstSec.id : null;
     if (label) document.getElementById('owFileLabel').textContent = label;
     owRenderAll();
     owBuildNuancesTable();
