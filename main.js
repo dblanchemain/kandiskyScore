@@ -1307,6 +1307,16 @@ ipcMain.handle('copyGrpAudio', async (event, files, srcDir, destDir) => {
 	return results;
 });
 
+ipcMain.handle('copyGrpExports', async (event, srcDir, destDir, srcIds, offset) => {
+	const exportsDir = path.join(destDir, 'exports');
+	try { await fs.promises.mkdir(exportsDir, { recursive: true }); } catch(_) {}
+	for (let i = 0; i < srcIds.length; i++) {
+		const srcFile  = path.join(srcDir,  'exports', `objet${srcIds[i]}.wav`);
+		const destFile = path.join(exportsDir, `objet${offset + i}.wav`);
+		try { await fs.promises.copyFile(srcFile, destFile); } catch(_) {}
+	}
+});
+
 // ── Import ADM ────────────────────────────────────────────────────────────────
 
 function admTimeToSecondsNode(str) {

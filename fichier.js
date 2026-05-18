@@ -484,6 +484,7 @@ function loadGrp(path){
 			var dirorg=dirorgTag ? toAbsPath(dirorgTag.getAttribute("dir")) : null;
 			// Construire la liste des fichiers audio depuis les balises <file> des objets
 			var tmpbuffer=[];
+			var srcIds=[];
 			var objets=objXml.getElementsByTagName("objet");
 			for(let i=0;i<objets.length;i++){
 				var fileTag=objets[i].getElementsByTagName("file")[0];
@@ -493,6 +494,8 @@ function loadGrp(path){
 						tmpbuffer.push(fname);
 					}
 				}
+				var idAttr=objets[i].getAttribute("id");
+				if(idAttr) srcIds.push(parseInt(idAttr.replace("objet","")));
 			}
 			// Copier les fichiers audio manquants depuis dirorg si nécessaire
 			if(dirorg && tmpbuffer.length>0){
@@ -508,6 +511,10 @@ function loadGrp(path){
 			}
 			var dx=(typeof coordClientX!=='undefined') ? coordClientX : (scrollDemo.scrollLeft+Math.round(scrollDemo.clientWidth/2)-204);
 			var dy=(typeof coordClientY!=='undefined') ? coordClientY : (scrollDemo2.scrollTop+Math.round(scrollDemo2.clientHeight/2)-94);
+			var offset=nbObjets;
+			if(dirorg && srcIds.length>0){
+				await window.api.copyGrpExports(dirorg, toAbsPath(paramProjet.audioPath), srcIds, offset);
+			}
 			initTableGrp(0,tmpbuffer,dx,dy);
 		}
 	};

@@ -141,6 +141,7 @@ contextBridge.exposeInMainWorld(
     admStreamChunk: (buf)  => ipcRenderer.invoke('adm-stream-chunk', buf),
     admStreamEnd:   (data) => ipcRenderer.invoke('adm-stream-end',   data),
     copyGrpAudio: (files, srcDir, destDir) => ipcRenderer.invoke('copyGrpAudio', files, srcDir, destDir),
+    copyGrpExports: (srcDir, destDir, srcIds, offset) => ipcRenderer.invoke('copyGrpExports', srcDir, destDir, srcIds, offset),
     isDev
     }
 );
