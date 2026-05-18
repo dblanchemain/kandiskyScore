@@ -3049,7 +3049,7 @@ async function waveSvgForm(pos,zoom) {
     const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName=baseName.split(".")[0];
-    const nPath = `${dir}/tmp/${tableObjet[objActif].id}-fx.wav`;
+    const nPath = `${dir}/tmp/${tableObjet[objActif].nom || tableObjet[objActif].id}-fx.wav`;
    // const def=await readSimpleAudioA(objActif,1);
     setTimeout(() => {}, 2000);
     const rt = await window.api.loadBuffers(nPath);

@@ -6524,8 +6524,9 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const objfile = path.join(audioPath,obj.file);
         const { dir, name } = path.parse(objfile);
-        const premixFile = path.join(tmpDir, `${obj.id}-premix.wav`);
-        const input = fs.existsSync(premixFile) ? premixFile : path.join(tmpDir, `${obj.id}-fx.wav`);
+        const nomKey = obj.nom || obj.id;
+        const premixFile = path.join(tmpDir, `${nomKey}-premix.wav`);
+        const input = fs.existsSync(premixFile) ? premixFile : path.join(tmpDir, `${nomKey}-fx.wav`);
 			console.log("sox_dir", input);
         // Position dans la timeline (en secondes)
         const tStart = (obj.posX - start) / 18;
@@ -6572,7 +6573,6 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 			  input,
 			  tmpOut,
 			  "trim", obj.debut.toString(), trimmedDuration.toString(),
-			  ...(obj.reverse ? ["reverse"] : []),
 			  "pitch", obj.detune.toString(),
 			  "speed", speedFactor.toString(),
 			  "vol", obj.gain.toString(),
@@ -6602,7 +6602,8 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 	    // Crée le dossier si nécessaire
 	    fs.mkdirSync(path.dirname(output), { recursive: true });
 	  } else {
-	    output = path.join(audioPath, "exports", `${tableObjet[lsgrp[0]].id}.wav`);
+	    const outNomKey = tableObjet[lsgrp[0]].nom || tableObjet[lsgrp[0]].id;
+	    output = path.join(audioPath, "exports", `${outNomKey}.wav`);
 	    fs.mkdirSync(path.dirname(output), { recursive: true });
 	  }
 	

@@ -71,7 +71,7 @@ function readPart(){
 		try {
 			const filesToPreload = lsgrp.map(id => {
 				const obj = tableObjet[id];
-				return window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-fx.wav`);
+				return window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.nom || obj.id}-fx.wav`);
 			});
 			const _barStart = parseFloat(document.getElementById("barVerticale").style.left);
 			const _startPlay = () => { clockManager.start(_barStart); foo(); };
@@ -175,7 +175,7 @@ function foo() {
 				tableListSource[i].etat=1;
 				try {
 					var obj=tableObjet[tableListSource[i].obj];
-					var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
+					var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.nom || obj.id}-fx.wav`);
 					const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
 					const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
 					const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
@@ -457,7 +457,7 @@ async function readSimpleAudio() {
 		    let baseName = await rdBaseName(filePath);
 		    baseName=baseName.split(".")[0];
 		    let outPath ="";
-		    outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
+		    outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.nom || obj.id}-fx.wav`);
 		    const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
 		    const _fadeIn  = obj.fadeIn  || 'l';
 		    const _fadeOut = obj.fadeOut || _fadeIn;
@@ -1196,7 +1196,7 @@ async function readSimpleAudioA(id,mode) {
     let baseName = await rdBaseName(filePath);
     baseName=baseName.split(".")[0];
 
-    const outPath = window.api.joinPath(toAbsPath(paramProjet.audioPath),"tmp",`${obj.id}-fx.wav`);
+    const outPath = window.api.joinPath(toAbsPath(paramProjet.audioPath),"tmp",`${obj.nom || obj.id}-fx.wav`);
 
 
     // ----- LOAD BUFFERS (via preload, déjà Float32Array) -----
@@ -1686,7 +1686,7 @@ async function spatialiseBufferHoa(id, outPath, numChannels, numSamples, sampleR
 async function spatialise(id,filePath,interpType="linear") {
 	 const obj = tableObjet[id];
     const baseName = rdBaseName(filePath).split(".")[0];
-    const outPath = `${rdDirName(filePath)}/tmp/${obj.id}-fx.wav`;
+    const outPath = `${rdDirName(filePath)}/tmp/${obj.nom || obj.id}-fx.wav`;
 
     // ===== LOAD AUDIO BUFFERS =====
     const rt = await window.api.loadBuffers(filePath);
@@ -1814,16 +1814,16 @@ async function postRubberband(id,mode,file) {
     const dir = await rdDirName(filePath);
     let baseName = await rdBaseName(filePath);
     baseName = baseName.split(".")[0];
-    let outPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-fx.wav`);
+    let outPath = window.api.joinPath(`${dir}`,"tmp",`${obj.nom || obj.id}-fx.wav`);
     if (mode == 0) {
         // ===== MODE LECTURE : spatialisation VBAP ou HOA décodé =====
-        const premixPath = window.api.joinPath(`${dir}`,"tmp",`${obj.id}-premix.wav`);
+        const premixPath = window.api.joinPath(`${dir}`,"tmp",`${obj.nom || obj.id}-premix.wav`);
         await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: currentChannels } });
         await spatialiseBuffer(id, outPath, numChannels, trimmedLength, sampleRate, currentChannels, "linear");
 
     } else if (mode == 2) {
         // ===== MODE HOA AmbiX : encodage HOA -> B-format, 1 fichier par objet =====
-        const ambiXPath = window.api.joinPath(`${dir}`,'exports',`${obj.id}.wav`);
+        const ambiXPath = window.api.joinPath(`${dir}`,'exports',`${obj.nom || obj.id}.wav`);
 
         // Appliquer les paramètres de lecture via SoX (idem mode 1)
         const durationAfterSpeed = ((obj.duree * obj.fin) - (obj.duree * obj.debut)) / obj.transposition;
@@ -1866,7 +1866,7 @@ async function postRubberband(id,mode,file) {
 
     } else {
         // ===== MODE EXPORT DAW (mode=1) : audio sec + SoX =====
-        outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
+        outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].nom || tableObjet[id].id}.wav`);
         await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
         const exportObj = tableObjet[id];
         const durationAfterSpeed = ((exportObj.duree * exportObj.fin) - (exportObj.duree * exportObj.debut)) / exportObj.transposition;
