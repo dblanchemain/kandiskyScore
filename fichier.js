@@ -24,7 +24,7 @@ var versionProjet = "";
 function defObjGrp(id,nbobjets,cla) {
 	var txt="";
 	if(id.etat==1){
-		txt=txt+"<objet id='"+id.id+"'>\n\
+		txt=txt+"<objet id='objet"+nbobjets+"'>\n\
 		<baseposy value='"+id.basePosY+"'></baseposy>\n\
 		<bkgcolor value='"+id.bkgColor+"'></bkgcolor>\n\
 		<bkgheight value='"+id.bkgHeight+"'></bkgheight>\n\
@@ -151,7 +151,7 @@ function defObjGrp(id,nbobjets,cla) {
 function defSymbGrp(id,nbobjets) {
 	var txt="";
 	if(id.etat==1){
-		txt=txt+"<objet id='"+id.id+"'>\n\
+		txt=txt+"<objet id='objet"+nbobjets+"'>\n\
 		<baseposy value='"+id.basePosY+"'></baseposy>\n\
 		<bkgcolor value='"+id.bkgColor+"'></bkgcolor>\n\
 		<bkgheight value='"+id.bkgHeight+"'></bkgheight>\n\
