@@ -4907,21 +4907,21 @@ ipcMain.on ("toMain", (event, args) => {
 						const dirorgM    = grpXml.match(/<dirorg\s+dir='([^']+)'/);
 						const dirorgVal  = dirorgM ? dirorgM[1].replace(/\\/g, '/').replace(/\/?$/, '') : null;
 						const dirorgAbs  = dirorgVal ? path.join(app.getPath('home'), dirorgVal) : audioPath;
-						const grpTmpDir  = path.join(dirorgAbs, 'tmp');
+						const grpExportsDir = path.join(dirorgAbs, 'exports');
 						const grpImgDir  = path.join(path.dirname(dirorgAbs), 'Images');
 						// Pour chaque objet, copier audio (class=1) et images (type=23)
 						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
 							const classM = objBlock.match(/<class\s+value='([^']+)'/);
-							// Audio : class=1 → <id>-fx.wav
+							// Audio : class=1 → <id>.wav (sans spatialisation, depuis exports/)
 							if (classM && classM[1] === '1') {
 								const idM = objBlock.match(/<objet\s+id='([^']+)'/);
 								if (idM) {
-									const fxName = idM[1] + '-fx.wav';
-									const fxSrc  = path.join(grpTmpDir, fxName);
-									const fxFall = path.join(audioTmpDir, fxName);
+									const dryName = idM[1] + '.wav';
+									const drySrc  = path.join(grpExportsDir, dryName);
+									const dryFall = path.join(audioPath, 'exports', dryName);
 									try {
-										fs.copyFileSync(fs.existsSync(fxSrc) ? fxSrc : fxFall, path.join(audiosDir, fxName));
-									} catch(e) { console.error('Export: audio absent', fxName); }
+										fs.copyFileSync(fs.existsSync(drySrc) ? drySrc : dryFall, path.join(audiosDir, dryName));
+									} catch(e) { console.error('Export: audio absent', dryName); }
 								}
 							}
 							// Image : type=23 → <imag value='filename'>
