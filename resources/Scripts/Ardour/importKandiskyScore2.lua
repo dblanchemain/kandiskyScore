@@ -131,7 +131,7 @@ function factory () return function ()
       importPos, ARDOUR.PluginInfo(), track, false)
 
     -- Position dans la session (conversion sampleRate fichier → SR session)
-    local pos_samples = math.floor(tonumber(items[5]) / sampleRate * sr)
+    local pos_samples = math.floor((parse_number(items[5]) or 0) / sampleRate * sr)
     local pos = playhead + Temporal.timepos_t(pos_samples - offsetpos)
 
     -- Placer la région sur la playlist
