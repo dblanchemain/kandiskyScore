@@ -771,8 +771,20 @@ function owSerialise() {
   return xml;
 }
 
-function owSauvegarder() {
+async function owDemanderTitreSiDefaut() {
+  if (owPartitionTitle !== 'Sans titre') return true;
+  const titre = await owPrompt('Titre de la partition :', '');
+  if (titre === null) return false;
+  if (titre.trim()) {
+    owPartitionTitle = titre.trim();
+    document.getElementById('owFileLabel').textContent = owPartitionTitle;
+  }
+  return true;
+}
+
+async function owSauvegarder() {
   owCloseMenus();
+  if (!await owDemanderTitreSiDefaut()) return;
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSave;' + (owFilePath || '') + ';' + owSerialise());
   } else {
@@ -782,6 +794,7 @@ function owSauvegarder() {
 
 async function owSauvegarderSous() {
   owCloseMenus();
+  if (!await owDemanderTitreSiDefaut()) return;
   if (typeof window.api !== 'undefined') {
     window.api.send('toMain', 'owSaveAs;' + owSerialise());
   } else {
