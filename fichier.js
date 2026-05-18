@@ -24,7 +24,7 @@ var versionProjet = "";
 function defObjGrp(id,nbobjets,cla) {
 	var txt="";
 	if(id.etat==1){
-		txt=txt+"<objet id='objet"+nbobjets+"'>\n\
+		txt=txt+"<objet id='"+id.id+"'>\n\
 		<baseposy value='"+id.basePosY+"'></baseposy>\n\
 		<bkgcolor value='"+id.bkgColor+"'></bkgcolor>\n\
 		<bkgheight value='"+id.bkgHeight+"'></bkgheight>\n\
@@ -151,7 +151,7 @@ function defObjGrp(id,nbobjets,cla) {
 function defSymbGrp(id,nbobjets) {
 	var txt="";
 	if(id.etat==1){
-		txt=txt+"<objet id='objet"+nbobjets+"'>\n\
+		txt=txt+"<objet id='"+id.id+"'>\n\
 		<baseposy value='"+id.basePosY+"'></baseposy>\n\
 		<bkgcolor value='"+id.bkgColor+"'></bkgcolor>\n\
 		<bkgheight value='"+id.bkgHeight+"'></bkgheight>\n\
@@ -579,7 +579,7 @@ async function objXmlToScore(id,i) {
 		gain:parseFloat(_tagVal(org, "gain")),
 		groupe:parseInt(_tagVal(org, "groupe")),
 		height:parseFloat(_tagVal(org, "height")),
-		id:org.getAttribute('id') || "objet"+nbObjets,
+		id:_tagVal(org, "nom") || org.getAttribute('id') || "objet"+nbObjets,
 		margeG:parseFloat(_tagVal(org, "margeg")),
 		margeH:parseFloat(_tagVal(org, "margeh")),
 		mute:_tagVal(org, "mute"),
@@ -722,7 +722,7 @@ function symbXmlToScore(id,i) {
 		etat:_tagVal(org, "etat"),
 		groupe:parseInt(_tagVal(org, "groupe")),
 		height:parseFloat(_tagVal(org, "height")),
-		id:org.getAttribute('id') || "objet"+nbObjets,
+		id:_tagVal(org, "nom") || org.getAttribute('id') || "objet"+nbObjets,
 		margeG:parseFloat(_tagVal(org, "margeg")),
 		margeH:parseFloat(_tagVal(org, "margeh")),
 		nom:_tagVal(org, "nom"),
