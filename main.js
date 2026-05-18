@@ -4911,12 +4911,12 @@ ipcMain.on ("toMain", (event, args) => {
 						// Pour chaque objet, copier audio (class=1) et images (type=23)
 						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
 							const classM = objBlock.match(/<class\s+value='([^']+)'/);
-							// Audio : class=1 → <nom>.wav (nom global unique, depuis exports/)
+							// Audio : class=1 → {id}.wav (id XML structurel, depuis exports/)
 							if (classM && classM[1] === '1') {
-								const nomM  = objBlock.match(/<nom\s+value='([^']+)'/);
+								const idM   = objBlock.match(/^<objet\b[^>]*\bid='([^']+)'/);
 								const fileM = objBlock.match(/<file\s+value='([^']+)'/);
-								if (nomM && fileM) {
-									const dryName  = nomM[1]  + '.wav';
+								if (idM && fileM) {
+									const dryName  = idM[1] + '.wav';
 									const srcFile  = fileM[1];           // audio source brut
 									// 1. rendu sans spat (exports/)
 									const drySrc   = path.join(grpExportsDir, dryName);
@@ -6524,9 +6524,8 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const objfile = path.join(audioPath,obj.file);
         const { dir, name } = path.parse(objfile);
-        const nomKey = obj.nom || obj.id;
-        const premixFile = path.join(tmpDir, `${nomKey}-premix.wav`);
-        const input = fs.existsSync(premixFile) ? premixFile : path.join(tmpDir, `${nomKey}-fx.wav`);
+        const premixFile = path.join(tmpDir, `${obj.id}-premix.wav`);
+        const input = fs.existsSync(premixFile) ? premixFile : path.join(tmpDir, `${obj.id}-fx.wav`);
 			console.log("sox_dir", input);
         // Position dans la timeline (en secondes)
         const tStart = (obj.posX - start) / 18;
@@ -6602,8 +6601,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 	    // Crée le dossier si nécessaire
 	    fs.mkdirSync(path.dirname(output), { recursive: true });
 	  } else {
-	    const outNomKey = tableObjet[lsgrp[0]].nom || tableObjet[lsgrp[0]].id;
-	    output = path.join(audioPath, "exports", `${outNomKey}.wav`);
+	    output = path.join(audioPath, "exports", `${tableObjet[lsgrp[0]].id}.wav`);
 	    fs.mkdirSync(path.dirname(output), { recursive: true });
 	  }
 	
