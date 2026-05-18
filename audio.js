@@ -1864,6 +1864,25 @@ async function postRubberband(id,mode,file) {
             }
         }
 
+    } else if (mode === 5) {
+        // ===== MODE owExport : objet unique, FX inclus, sans spat, sans chaînage =====
+        outPath = window.api.joinPath(`${dir}`,'exports',`${tableObjet[id].id}.wav`);
+        await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
+        const obj5 = tableObjet[id];
+        const spd5 = (obj5.transposition > 0) ? obj5.transposition : 1;
+        const dur5 = ((obj5.duree * obj5.fin) - (obj5.duree * obj5.debut)) / spd5;
+        const ex05 = obj5.envX?.[0] ?? 0;
+        const ex15 = obj5.envX?.[1] ?? 1;
+        const fi5  = (obj5.fadeIn  && obj5.fadeIn  !== 'undefined') ? obj5.fadeIn  : 'l';
+        const fo5  = (obj5.fadeOut && obj5.fadeOut !== 'undefined') ? obj5.fadeOut : fi5;
+        const fade5 = `${fi5} ${dur5 * ex05} fade ${fo5} 0 ${dur5} ${dur5 * (1 - ex15)}`;
+        const sox5  = `pitch ${obj5.detune} speed ${spd5} vol ${obj5.gain} trim ${obj5.debut} ${dur5} fade ${fade5}`;
+        await window.api.soxProcessExport(outPath, sox5);
+        if (owExportDestDir) {
+            const dest5 = window.api.joinPath(owExportDestDir, 'Audios', obj5.id + '.wav');
+            window.api.send('toMain', 'owExportCopyAudio;' + outPath + ';' + dest5);
+        }
+
     } else {
         // ===== MODE EXPORT DAW (mode=1) : audio sec + SoX =====
         try {
@@ -2220,5 +2239,119 @@ async function validStretchingAudio() {
 function annulStretchingAudio() {
 	if (stretchingPlayerStat === 1) { stretchingPlayerStat = 0; window.api.send("toMain", "killPlay"); }
 	document.getElementById("stretchingAudio").style.display = "none";
+}
+
+// ── owExport : répertoire de destination courant (mode 5) ─────────────────────
+let owExportDestDir = null;
+
+async function owExportProcess(partitionXML, destDir, grpDir, imgDir) {
+    owExportDestDir = destDir;
+    const processed   = new Set();
+    const audiosManq  = [];
+    let   exportCount = 0;
+    const TEMP_IDX    = 50000;
+
+    function encB64(str) {
+        const bytes = new TextEncoder().encode(str);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin);
+    }
+    function tagNum(xml, tag) {
+        const m = xml.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));
+        return m ? parseFloat(m[1]) : null;
+    }
+    function tagStr(xml, tag) {
+        const m = xml.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));
+        return m ? m[1] : null;
+    }
+
+    for (const [block] of partitionXML.matchAll(/<groupe\b[\s\S]*?\/>/g)) {
+        const nameM = block.match(/\bname="([^"]+)"/);
+        if (!nameM) continue;
+        const grpName = nameM[1];
+        if (processed.has(grpName)) continue;
+        processed.add(grpName);
+
+        // Lire le fichier groupe
+        let grpXml = '';
+        try {
+            const buf = await window.api.readFile(grpDir + '/' + grpName);
+            grpXml = new TextDecoder().decode(buf);
+        } catch(e) { console.error('owExportProcess groupe absent:', grpName, e); continue; }
+
+        let rewrittenXml = grpXml;
+
+        for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
+            const classM  = objBlock.match(/<class\s+value='([^']+)'/);
+            const localIdM = objBlock.match(/<objet\b[^>]*\bid='([^']+)'/);
+            if (!localIdM) continue;
+            const localId  = localIdM[1];
+            const globalId = 'objet' + exportCount;
+            exportCount++;
+
+            // Audio class=1 → readSimpleAudioA mode 5
+            if (classM && classM[1] === '1') {
+                const fileM = objBlock.match(/<file\s+value='([^']+)'/);
+                if (fileM) {
+                    const envxStr = tagStr(objBlock, 'envx') || '0,1';
+                    const envXArr = envxStr.split(',').map(parseFloat);
+                    const tfxStr  = tagStr(objBlock, 'tablefx')      || '';
+                    const tfxpStr = tagStr(objBlock, 'tablefxparam') || '';
+                    tableObjet[TEMP_IDX] = {
+                        id: globalId,
+                        file: fileM[1],
+                        etat: 1, mute: 0, class: 1,
+                        debut:         tagNum(objBlock, 'debut')           ?? 0,
+                        fin:           tagNum(objBlock, 'fin')             ?? 1,
+                        duree:         tagNum(objBlock, 'duree')           ?? 10,
+                        detune:        tagNum(objBlock, 'detune')          ?? 0,
+                        transposition: tagNum(objBlock, 'transpositionval')?? 1,
+                        gain:          tagNum(objBlock, 'gain')            ?? 1,
+                        envX: [isNaN(envXArr[0]) ? 0 : envXArr[0], isNaN(envXArr[1]) ? 1 : envXArr[1]],
+                        fadeIn:   tagStr(objBlock, 'fadein')  || 'l',
+                        fadeOut:  tagStr(objBlock, 'fadeout') || 'l',
+                        reverse:  tagStr(objBlock, 'reverse') === 'true',
+                        convolver: tagStr(objBlock, 'convolver') || '',
+                        tableFx:      tfxStr  ? tfxStr.split(',')  : [],
+                        tableFxParam: tfxpStr ? tfxpStr.split('/') : [],
+                        posX: tagNum(objBlock, 'posx') ?? 0,
+                        canaux: 1, rmsdb: 0, flagRevalider: 1
+                    };
+                    try {
+                        await readSimpleAudioA(TEMP_IDX, 5);
+                    } catch(e) {
+                        console.error('owExportProcess audio:', globalId, e);
+                        audiosManq.push(grpName + ' / ' + globalId + ' — ' + (e.message || e));
+                    }
+                    delete tableObjet[TEMP_IDX];
+                }
+            }
+
+            // Image type=23
+            const typeM = objBlock.match(/<type\s+value='([^']+)'/);
+            if (typeM && typeM[1] === '23') {
+                const imagM = objBlock.match(/<imag\s+value='([^']+)'/);
+                if (imagM && imagM[1]) {
+                    window.api.send('toMain', 'owExportCopyImage;' + imgDir + ';' + destDir + ';' + imagM[1]);
+                }
+            }
+
+            // Réécrire id local → global
+            rewrittenXml = rewrittenXml.replace(
+                new RegExp(`(<objet\\b[^>]*\\bid=')${localId}(')`), `$1${globalId}$2`
+            );
+        }
+
+        // Envoyer XML réécrit + copie SVG
+        window.api.send('toMain', 'owExportWriteGroup;' + destDir + ';' + grpName + ';' + encB64(rewrittenXml));
+        const svgName = grpName.replace(/\.xml$/i, '.svg');
+        window.api.send('toMain', 'owExportCopySvg;' + imgDir + ';' + destDir + ';' + svgName);
+    }
+
+    owExportDestDir = null;
+    let doneMsg = 'owExportFinalDone;' + destDir;
+    if (audiosManq.length) doneMsg += ';ERRORS;' + audiosManq.join('\n');
+    window.api.send('toMain', doneMsg);
 }
 

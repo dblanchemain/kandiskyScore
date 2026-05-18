@@ -4860,159 +4860,66 @@ ipcMain.on ("toMain", (event, args) => {
 					winOpenWork.webContents.send('fromMain', 'owSaved;' + result.filePath);
 				}).catch(err => console.error('owSaveAs:', err));
 			break; }
-			case 'owExportInterp': {
-				const expData    = cmd.slice(1).join(';');
-				const docsDir    = app.getPath('documents');
-				const titleM     = expData.match(/<partition\b[^>]*\bname="([^"]*)"/);
-				const rawTitle   = (titleM && titleM[1]) ? titleM[1] : 'export_interpretor';
-				const safeTitle  = rawTitle.replace(/[/\\:*?"<>|]/g, '_').trim() || 'export_interpretor';
-				dialog.showOpenDialog(winOpenWork, {
-					properties: ['openDirectory', 'createDirectory'],
-					defaultPath: docsDir,
-					title: "Choisir le dossier parent pour l'export interpretor",
-					buttonLabel: 'Exporter ici'
-				}).then(result => {
-					if (result.canceled || !result.filePaths[0]) return;
-					const destDir    = path.join(result.filePaths[0], safeTitle);
-					const audiosDir  = path.join(destDir, 'Audios');
-					const groupesDir = path.join(destDir, 'Groupes');
-					const imagesDir  = path.join(destDir, 'Images');
-					for (const d of [audiosDir, groupesDir, imagesDir])
-						fs.mkdirSync(d, { recursive: true });
-					// Écrire la partition
-					fs.writeFileSync(path.join(destDir, 'partition.xml'), expData, 'utf-8');
-					const owBaseDir   = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
-					const owGrpDir    = path.join(owBaseDir, 'Groupes');
-					const owImgDir    = path.join(owBaseDir, 'Images');
-					const audioTmpDir = path.join(audioPath, 'tmp');
-					// Parcourir chaque groupe — compteur global pour ids uniques inter-groupes
-					const processed    = new Set();
-					const audiosManq   = []; // fichiers audio introuvables
-					let   exportCount  = 0;  // compteur global openWork
-					for (const [block] of expData.matchAll(/<groupe\b[\s\S]*?\/>/g)) {
-						const nameM = block.match(/\bname="([^"]+)"/);
-						if (!nameM) continue;
-						const grpName = nameM[1];
-						if (processed.has(grpName)) continue;
-						processed.add(grpName);
-						// Lire le fichier de groupe source
-						const grpSrc = path.join(owGrpDir, grpName);
-						let grpXml   = '';
-						try { grpXml = fs.readFileSync(grpSrc, 'utf-8'); }
-						catch(e) { console.error('Export: groupe absent', grpSrc); continue; }
-						// Résoudre les dossiers source depuis <dirorg> ou audioPath
-						const dirorgM       = grpXml.match(/<dirorg\s+dir='([^']+)'/);
-						const dirorgVal     = dirorgM ? dirorgM[1].replace(/\\/g, '/').replace(/\/?$/, '') : null;
-						const dirorgAbs     = dirorgVal ? path.join(app.getPath('home'), dirorgVal) : audioPath;
-						const grpExportsDir = path.join(dirorgAbs, 'exports');
-						const grpImgDir     = path.join(path.dirname(dirorgAbs), 'Images');
-						// Renuméroter les objets avec le compteur global et réécrire le XML
-						let rewrittenXml = grpXml;
-						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
-							const classM = objBlock.match(/<class\s+value='([^']+)'/);
-							const localIdM = objBlock.match(/<objet\b[^>]*\bid='([^']+)'/);
-							if (!localIdM) continue;
-							const localId  = localIdM[1];            // ex: objet0 (local groupe)
-							const globalId = 'objet' + exportCount;  // ex: objet5 (unique export)
-							exportCount++;
-							// Audio : class=1 — traitement SoX direct sur fichier source brut
-							if (classM && classM[1] === '1') {
-								const fileM = objBlock.match(/<file\s+value='([^']+)'/);
-								if (fileM) {
-									const globalWav = globalId + '.wav';
-									const srcFile   = fileM[1];
-									const rawSrc    = path.join(dirorgAbs, srcFile);
-									const rawFall   = path.join(audioPath, srcFile);
-									const src = fs.existsSync(rawSrc) ? rawSrc
-									          : fs.existsSync(rawFall) ? rawFall : null;
-									if (src) {
-										const tagNum = tag => {
-											const m = objBlock.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));
-											return m ? parseFloat(m[1]) : null;
-										};
-										const tagStr = tag => {
-											const m = objBlock.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));
-											return m ? m[1] : null;
-										};
-										const debut       = tagNum('debut')           ?? 0;
-										const fin         = tagNum('fin')             ?? 1;
-										const detune      = tagNum('detune')          ?? 0;
-										const speedFactor = tagNum('transpositionval')?? 1;
-										const gain        = tagNum('gain')            ?? 1;
-										const validFade   = v => (v && v !== 'undefined') ? v : null;
-										const fadeInType  = validFade(tagStr('fadein'))  || 'l';
-										const fadeOutType = validFade(tagStr('fadeout')) || fadeInType;
-										const envxStr     = tagStr('envx') || '0,1';
-										const envX        = envxStr.split(',').map(parseFloat);
-										const envX0       = isNaN(envX[0]) ? 0 : envX[0];
-										const envX1       = isNaN(envX[1]) ? 1 : envX[1];
-										let realDuration = 1;
-										try {
-											if (platform === 'win32') {
-												const wsoxPath = path.join(baseDir, 'win', 'sox.exe ');
-												realDuration = parseFloat(execSync(`"${wsoxPath}" --info -D "${src}"`).toString());
-											} else {
-												realDuration = parseFloat(execSync(`"${soxiPath}" -D "${src}"`).toString());
-											}
-										} catch(e) { console.error('owExport soxi:', e.message); }
-										let trimmedDuration = (fin - debut) * realDuration;
-										if (trimmedDuration <= 0) trimmedDuration = realDuration;
-										const durationAfterSpeed = trimmedDuration / speedFactor;
-										const outWav = path.join(audiosDir, globalWav);
-										const soxArgs = [
-											src, outWav,
-											'trim',  debut.toString(), trimmedDuration.toString(),
-											'pitch', detune.toString(),
-											'speed', speedFactor.toString(),
-											'vol',   gain.toString(),
-											'fade',  fadeInType,  (durationAfterSpeed * envX0).toString(),
-											'fade',  fadeOutType, '0', durationAfterSpeed.toString(),
-											         (durationAfterSpeed * (1 - envX1)).toString()
-										];
-										console.log('owExport SoX:', soxPath, soxArgs.join(' '));
-										const res = spawnSync(soxPath, soxArgs, { stdio: ['inherit', 'inherit', 'pipe'] });
-										if (res.error || res.status !== 0) {
-											const soxErr = res.stderr ? res.stderr.toString().trim() : (res.error ? res.error.message : 'status ' + res.status);
-											console.error('owExport SoX erreur:', soxErr);
-											audiosManq.push(grpName + ' / ' + globalWav + ' — ' + soxErr.split('\n')[0]);
-										}
-									} else {
-										audiosManq.push(grpName + ' / ' + globalId + '.wav (source introuvable: ' + srcFile + ')');
-									}
-								}
-							}
-							// Image : type=23
-							const typeM = objBlock.match(/<type\s+value='([^']+)'/);
-							if (typeM && typeM[1] === '23') {
-								const imagM = objBlock.match(/<imag\s+value='([^']+)'/);
-								if (imagM && imagM[1]) {
-									const imgFile = imagM[1];
-									const imgSrc  = path.join(grpImgDir, imgFile);
-									const imgFall = path.join(imgPath, imgFile);
-									try {
-										fs.copyFileSync(fs.existsSync(imgSrc) ? imgSrc : imgFall, path.join(imagesDir, imgFile));
-									} catch(e) { console.error('Export: image absente', imgFile); }
-								}
-							}
-							// Réécrire l'id local → global dans le XML du groupe
-							rewrittenXml = rewrittenXml.replace(
-								new RegExp(`(<objet\\b[^>]*\\bid=')${localId}(')`), `$1${globalId}$2`
-							);
-						}
-						// Écrire le XML réécrit dans le dossier export
-						fs.writeFileSync(path.join(groupesDir, grpName), rewrittenXml, 'utf-8');
-						// Copier l'image SVG correspondante
-						const svgName = grpName.replace(/\.xml$/i, '.svg');
-						try {
-							fs.copyFileSync(path.join(owImgDir, svgName), path.join(imagesDir, svgName));
-						} catch(e) { /* SVG optionnel */ }
-					}
-					let msg = 'owExportDone;' + destDir;
-					if (audiosManq.length > 0)
-						msg += '\nAudios manquants (objets non rendus) :\n' + audiosManq.join('\n');
-					winOpenWork.webContents.send('fromMain', msg);
-				}).catch(err => console.error('owExportInterp:', err));
-			break; }
+				case 'owExportInterp': {
+					const expData   = cmd.slice(1).join(';');
+					const docsDir   = app.getPath('documents');
+					const titleM    = expData.match(/<partition\b[^>]*\bname="([^"]*)"/);
+					const rawTitle  = (titleM && titleM[1]) ? titleM[1] : 'export_interpretor';
+					const safeTitle = rawTitle.replace(/[\/\\:*?"<>|]/g, '_').trim() || 'export_interpretor';
+					dialog.showOpenDialog(winOpenWork, {
+						properties: ['openDirectory', 'createDirectory'],
+						defaultPath: docsDir,
+						title: "Choisir le dossier parent pour l'export interpretor",
+						buttonLabel: 'Exporter ici'
+					}).then(result => {
+						if (result.canceled || !result.filePaths[0]) return;
+						const destDir    = path.join(result.filePaths[0], safeTitle);
+						const audiosDir  = path.join(destDir, 'Audios');
+						const groupesDir = path.join(destDir, 'Groupes');
+						const imagesDir  = path.join(destDir, 'Images');
+						for (const d of [audiosDir, groupesDir, imagesDir])
+							fs.mkdirSync(d, { recursive: true });
+						fs.writeFileSync(path.join(destDir, 'partition.xml'), expData, 'utf-8');
+						const owBaseDir = owCurrentDir || path.join(path.dirname(audioPath), 'openWork');
+						const owGrpDir  = path.join(owBaseDir, 'Groupes');
+						const owImgDir  = path.join(owBaseDir, 'Images');
+						// Déléguer le traitement audio+xml au renderer (FX inclus via readSimpleAudioA mode 5)
+						mainWindow.webContents.send('fromMain',
+							'owExportStart;' + owGrpDir + ';' + owImgDir + ';' + destDir + ';' + expData);
+					}).catch(err => console.error('owExportInterp:', err));
+				break; }
+			// Handlers IPC pour owExportProcess (renderer → main)
+			case 'owExportWriteGroup': {
+				// cmd[1]=destDir, cmd[2]=grpName, cmd[3]=base64(xml utf-8)
+				try {
+					const xml = Buffer.from(cmd[3], 'base64').toString('utf-8');
+					fs.writeFileSync(path.join(cmd[1], 'Groupes', cmd[2]), xml, 'utf-8');
+				} catch(e) { console.error('owExportWriteGroup:', e); }
+				break; }
+			case 'owExportCopyAudio': {
+				// cmd[1]=src, cmd[2]=dest
+				try { fs.copyFileSync(cmd[1], cmd[2]); }
+				catch(e) { console.error('owExportCopyAudio:', cmd[1], e.message); }
+				break; }
+			case 'owExportCopyImage': {
+				// cmd[1]=imgDir, cmd[2]=destDir, cmd[3]=imgFile
+				const imgSrc2 = path.join(cmd[1], cmd[3]);
+				const imgDst2 = path.join(cmd[2], 'Images', cmd[3]);
+				try { fs.copyFileSync(imgSrc2, imgDst2); }
+				catch(e) { console.error('owExportCopyImage:', cmd[3], e.message); }
+				break; }
+			case 'owExportCopySvg': {
+				// cmd[1]=imgDir, cmd[2]=destDir, cmd[3]=svgName
+				try { fs.copyFileSync(path.join(cmd[1], cmd[3]), path.join(cmd[2], 'Images', cmd[3])); }
+				catch(e) { /* SVG optionnel */ }
+				break; }
+			case 'owExportFinalDone': {
+				// cmd[1]=destDir, [cmd[2]='ERRORS', cmd[3+]=erreurs]
+				let owDoneMsg = 'owExportDone;' + cmd[1];
+				const errIdx = cmd.indexOf('ERRORS');
+				if (errIdx >= 0) owDoneMsg += '\nAudios manquants :\n' + cmd.slice(errIdx + 1).join(';');
+				winOpenWork.webContents.send('fromMain', owDoneMsg);
+				break; }
 			case 'interpOpen': {
 				dialog.showOpenDialog(winInterpretor, {
 					properties: ['openFile'],
