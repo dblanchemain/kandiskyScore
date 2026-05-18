@@ -4915,26 +4915,65 @@ ipcMain.on ("toMain", (event, args) => {
 							const localId  = localIdM[1];            // ex: objet0 (local groupe)
 							const globalId = 'objet' + exportCount;  // ex: objet5 (unique export)
 							exportCount++;
-							// Audio : class=1
+							// Audio : class=1 — traitement SoX direct sur fichier source brut
 							if (classM && classM[1] === '1') {
 								const fileM = objBlock.match(/<file\s+value='([^']+)'/);
 								if (fileM) {
-									const localWav = localId + '.wav';
-									const globalWav= globalId + '.wav';
-									const srcFile  = fileM[1];
-									const drySrc   = path.join(grpExportsDir, localWav);
-									const dryFall  = path.join(audioPath, 'exports', localWav);
-									const rawSrc   = path.join(dirorgAbs, srcFile);
-									const rawFall  = path.join(audioPath, srcFile);
-									const src = fs.existsSync(drySrc)  ? drySrc
-									          : fs.existsSync(dryFall)  ? dryFall
-									          : fs.existsSync(rawSrc)   ? rawSrc
-									          : fs.existsSync(rawFall)  ? rawFall : null;
+									const globalWav = globalId + '.wav';
+									const srcFile   = fileM[1];
+									const rawSrc    = path.join(dirorgAbs, srcFile);
+									const rawFall   = path.join(audioPath, srcFile);
+									const src = fs.existsSync(rawSrc) ? rawSrc
+									          : fs.existsSync(rawFall) ? rawFall : null;
 									if (src) {
-										try { fs.copyFileSync(src, path.join(audiosDir, globalWav)); }
-										catch(e) { audiosManq.push(grpName + ' / ' + localWav); }
+										const tagNum = tag => {
+											const m = objBlock.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));
+											return m ? parseFloat(m[1]) : null;
+										};
+										const tagStr = tag => {
+											const m = objBlock.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));
+											return m ? m[1] : null;
+										};
+										const debut       = tagNum('debut')           ?? 0;
+										const fin         = tagNum('fin')             ?? 1;
+										const detune      = tagNum('detune')          ?? 0;
+										const speedFactor = tagNum('transpositionval')?? 1;
+										const gain        = tagNum('gain')            ?? 1;
+										const fadeInType  = tagStr('fadein')  || 'l';
+										const fadeOutType = tagStr('fadeout') || fadeInType;
+										const envxStr     = tagStr('envx') || '0,1';
+										const envX        = envxStr.split(',').map(parseFloat);
+										const envX0       = isNaN(envX[0]) ? 0 : envX[0];
+										const envX1       = isNaN(envX[1]) ? 1 : envX[1];
+										let realDuration = 1;
+										try {
+											if (platform === 'win32') {
+												const wsoxPath = path.join(baseDir, 'win', 'sox.exe ');
+												realDuration = parseFloat(execSync(`"${wsoxPath}" --info -D "${src}"`).toString());
+											} else {
+												realDuration = parseFloat(execSync(`"${soxiPath}" -D "${src}"`).toString());
+											}
+										} catch(e) { console.error('owExport soxi:', e.message); }
+										let trimmedDuration = (fin - debut) * realDuration;
+										if (trimmedDuration <= 0) trimmedDuration = realDuration;
+										const durationAfterSpeed = trimmedDuration / speedFactor;
+										const outWav = path.join(audiosDir, globalWav);
+										const soxArgs = [
+											src, outWav,
+											'trim',  debut.toString(), trimmedDuration.toString(),
+											'pitch', detune.toString(),
+											'speed', speedFactor.toString(),
+											'vol',   gain.toString(),
+											'fade',  fadeInType,  (durationAfterSpeed * envX0).toString(),
+											'fade',  fadeOutType, '0', durationAfterSpeed.toString(),
+											         (durationAfterSpeed * (1 - envX1)).toString()
+										];
+										const res = spawnSync(soxPath, soxArgs, { stdio: 'inherit' });
+										if (res.error || res.status !== 0) {
+											audiosManq.push(grpName + ' / ' + globalWav + ' (erreur SoX)');
+										}
 									} else {
-										audiosManq.push(grpName + ' / ' + localWav + ' (source: ' + srcFile + ')');
+										audiosManq.push(grpName + ' / ' + globalId + '.wav (source introuvable: ' + srcFile + ')');
 									}
 								}
 							}

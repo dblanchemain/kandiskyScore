@@ -69,6 +69,7 @@ function defObjGrp(id,nbobjets,cla) {
 		<file value='"+id.file+"'></file>\n\
 		<fin value='"+id.fin+"'></fin>\n\
 		<flagtranspo value='"+id.flagTranspo+"'></flagtranspo>\n\
+		<transpositionval value='"+(id.transposition||1)+"'></transpositionval>\n\
 		<gain value='"+id.gain+"'></gain>\n\
 		<groupe value='"+id.groupe+"'></groupe>\n\
 		<height value='"+id.height+"'></height>\n";
