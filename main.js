@@ -4913,18 +4913,26 @@ ipcMain.on ("toMain", (event, args) => {
 							const classM = objBlock.match(/<class\s+value='([^']+)'/);
 							// Audio : class=1 → <nom>.wav (nom global unique, depuis exports/)
 							if (classM && classM[1] === '1') {
-								const nomM = objBlock.match(/<nom\s+value='([^']+)'/);
-								if (nomM) {
-									const dryName = nomM[1] + '.wav';
-									const drySrc  = path.join(grpExportsDir, dryName);
-									const dryFall = path.join(audioPath, 'exports', dryName);
-									const src     = fs.existsSync(drySrc) ? drySrc
-									              : fs.existsSync(dryFall) ? dryFall : null;
+								const nomM  = objBlock.match(/<nom\s+value='([^']+)'/);
+								const fileM = objBlock.match(/<file\s+value='([^']+)'/);
+								if (nomM && fileM) {
+									const dryName  = nomM[1]  + '.wav';
+									const srcFile  = fileM[1];           // audio source brut
+									// 1. rendu sans spat (exports/)
+									const drySrc   = path.join(grpExportsDir, dryName);
+									const dryFall  = path.join(audioPath, 'exports', dryName);
+									// 2. source brute dans Audios/ (fallback si non rendu)
+									const rawSrc   = path.join(dirorgAbs, srcFile);
+									const rawFall  = path.join(audioPath, srcFile);
+									const src = fs.existsSync(drySrc)  ? drySrc
+									          : fs.existsSync(dryFall)  ? dryFall
+									          : fs.existsSync(rawSrc)   ? rawSrc
+									          : fs.existsSync(rawFall)  ? rawFall : null;
 									if (src) {
 										try { fs.copyFileSync(src, path.join(audiosDir, dryName)); }
 										catch(e) { audiosManq.push(grpName + ' / ' + dryName); }
 									} else {
-										audiosManq.push(grpName + ' / ' + dryName);
+										audiosManq.push(grpName + ' / ' + dryName + ' (source: ' + srcFile + ')');
 									}
 								}
 							}
