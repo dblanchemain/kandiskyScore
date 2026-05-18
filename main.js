@@ -4968,9 +4968,12 @@ ipcMain.on ("toMain", (event, args) => {
 											'fade',  fadeOutType, '0', durationAfterSpeed.toString(),
 											         (durationAfterSpeed * (1 - envX1)).toString()
 										];
-										const res = spawnSync(soxPath, soxArgs, { stdio: 'inherit' });
+										console.log('owExport SoX:', soxPath, soxArgs.join(' '));
+										const res = spawnSync(soxPath, soxArgs, { stdio: ['inherit', 'inherit', 'pipe'] });
 										if (res.error || res.status !== 0) {
-											audiosManq.push(grpName + ' / ' + globalWav + ' (erreur SoX)');
+											const soxErr = res.stderr ? res.stderr.toString().trim() : (res.error ? res.error.message : 'status ' + res.status);
+											console.error('owExport SoX erreur:', soxErr);
+											audiosManq.push(grpName + ' / ' + globalWav + ' — ' + soxErr.split('\n')[0]);
 										}
 									} else {
 										audiosManq.push(grpName + ' / ' + globalId + '.wav (source introuvable: ' + srcFile + ')');
