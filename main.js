@@ -4911,11 +4911,11 @@ ipcMain.on ("toMain", (event, args) => {
 						// Pour chaque objet, copier audio (class=1) et images (type=23)
 						for (const [objBlock] of grpXml.matchAll(/<objet\b[\s\S]*?<\/objet>/g)) {
 							const classM = objBlock.match(/<class\s+value='([^']+)'/);
-							// Audio : class=1 → <id>.wav (sans spatialisation, depuis exports/)
+							// Audio : class=1 → <nom>.wav (nom global unique, depuis exports/)
 							if (classM && classM[1] === '1') {
-								const idM = objBlock.match(/<objet\s+id='([^']+)'/);
-								if (idM) {
-									const dryName = idM[1] + '.wav';
+								const nomM = objBlock.match(/<nom\s+value='([^']+)'/);
+								if (nomM) {
+									const dryName = nomM[1] + '.wav';
 									const drySrc  = path.join(grpExportsDir, dryName);
 									const dryFall = path.join(audioPath, 'exports', dryName);
 									const src     = fs.existsSync(drySrc) ? drySrc
