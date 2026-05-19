@@ -12,7 +12,7 @@
 
 
 
-const KANDISKYSCORE_VERSION = "2.1.1";
+const KANDISKYSCORE_VERSION = "2.3";
 
 function _tagVal(el, tag, def) {
   var t = el.getElementsByTagName(tag)[0];
