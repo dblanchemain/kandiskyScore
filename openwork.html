@@ -142,11 +142,28 @@
       padding: 5px 4px;
       border: 1px solid #aaa;
       margin: 4px;
-      text-align: center;
       font-weight: bold;
       font-size: 0.9em;
       background-color: #d8e4f0;
       letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #owPermCbWrap {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.8em;
+      font-weight: normal;
+      letter-spacing: 0;
+      color: #444;
+      cursor: pointer;
+    }
+    #owPermCbWrap input[type=checkbox] {
+      margin: 0;
+      cursor: pointer;
+      accent-color: #2a5fa8;
     }
     #owSectionList {
       padding: 2px 4px;
@@ -161,7 +178,7 @@
       cursor: default;
       color: #222;
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 6px;
     }
     .ow-sec-roman {
@@ -178,23 +195,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      flex: 1;
-    }
-    .ow-sec-perm {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      font-size: 0.72em;
-      color: #666;
-      margin-left: auto;
-    }
-    .ow-sec-perm input[type=checkbox] {
-      width: 11px;
-      height: 11px;
-      margin: 0;
-      cursor: pointer;
-      accent-color: #2a5fa8;
     }
     .ow-sec-item.actif {
       background: #d0e4ff;
@@ -404,7 +404,12 @@
 <!-- ════════════════════════ PANNEAU GAUCHE ════════════════════════ -->
 <div id="principal">
   <h2 style="font-size:0.95em;margin:4px 0;">OpenWork</h2>
-  <div id="owSectionHeader">Sections</div>
+  <div id="owSectionHeader">
+    <span>Sections</span>
+    <label id="owPermCbWrap" title="Autoriser la permutation des sections">
+      <input type="checkbox" id="owPermCb" checked onchange="owSetPermutation(this.checked)">⇄
+    </label>
+  </div>
   <div id="owSectionList"></div>
 </div>
 
@@ -603,6 +608,7 @@
 // ═══════════════════════════════════════════════
 let owSections      = [];   // {id, name, posY, color}
 let owGroups        = [];   // {id, name, sectionId, posX, posY, w, h, color, opacity, nuance}
+let owPermutationAutorisee = true;
 let owProjDir       = '';   // dossier du projet courant (pour les miniatures SVG)
 let owPartitionTitle = 'Sans titre';
 let owNuances   = [
@@ -661,6 +667,8 @@ async function owNouveau() {
   owSections = []; owGroups = [];
   owNextSecId = 1; owNextGrpId = 1;
   owActiveGrp = null; owFilePath = null; owModified = false;
+  owPermutationAutorisee = true;
+  document.getElementById('owPermCb').checked = true;
   owPartitionTitle = 'Sans titre';
   document.getElementById('owFileLabel').textContent = 'Sans titre';
   owRenderAll();
@@ -701,10 +709,12 @@ function owParseData(txt, label) {
     const partEl = doc.querySelector('partition');
     owPartitionTitle = (partEl && partEl.getAttribute('name')) || 'Sans titre';
     document.getElementById('owFileLabel').textContent = owPartitionTitle;
+    owPermutationAutorisee = partEl ? gb(partEl, 'permutationAutorisee', true) : true;
+    document.getElementById('owPermCb').checked = owPermutationAutorisee;
 
     doc.querySelectorAll('section').forEach((secEl, idx) => {
       const secId = owNextSecId++;
-      owSections.push({ id: secId, name: g(secEl,'name','Section '+secId), posY: idx*200, color:'#4a90d9', permutable: gb(secEl,'permutable',true) });
+      owSections.push({ id: secId, name: g(secEl,'name','Section '+secId), posY: idx*200, color:'#4a90d9' });
       secEl.querySelectorAll('groupe').forEach(grpEl => {
         owGroups.push({
           id: owNextGrpId++,
@@ -765,9 +775,9 @@ function owSerialise() {
     .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const b = v => v ? 'true' : 'false';
   const sorted = [...owSections].sort((a,bk) => a.posY - bk.posY);
-  let xml = `<?xml version='1.0' encoding='UTF-8' ?>\n<openwork version='2.1.1'>\n  <partition name="${x(owPartitionTitle)}">\n`;
+  let xml = `<?xml version='1.0' encoding='UTF-8' ?>\n<openwork version='2.1.1'>\n  <partition name="${x(owPartitionTitle)}" permutationAutorisee="${b(owPermutationAutorisee)}">\n`;
   sorted.forEach(sec => {
-    xml += `    <section name="${x(sec.name)}" permutable="${b(sec.permutable ?? true)}">\n`;
+    xml += `    <section name="${x(sec.name)}">\n`;
     owGroups.filter(g => g.sectionId === sec.id).forEach(grp => {
       xml += `      <groupe name="${x(grp.name)}"\n`;
       xml += `              direct="${b(grp.direct)}" renversement="${b(grp.renversement)}"\n`;
@@ -861,7 +871,7 @@ async function owAjouterSection() {
     posY = sorted.at(-1).posY + 100;
     if (posY > 2800) posY = 2800;
   }
-  owSections.push({id: owNextSecId++, name, posY, color:'#4a90d9', permutable: true});
+  owSections.push({id: owNextSecId++, name, posY, color:'#4a90d9'});
   owModified = true;
   owRenderAll();
 }
@@ -883,20 +893,26 @@ async function owSupprimerSection() {
   owRenderAll();
 }
 
+function owSetPermutation(val) {
+  owPermutationAutorisee = val;
+  owModified = true;
+}
+
 async function owPermuter() {
   owCloseMenus();
-  const permutables = [...owSections].filter(s => s.permutable !== false).sort((a,b) => a.posY - b.posY);
-  if (permutables.length < 2) { await owAlert('Il faut au moins deux sections autorisées à permuter.'); return; }
+  if (!owPermutationAutorisee) { await owAlert('La permutation des sections est désactivée.'); return; }
+  if (owSections.length < 2) { await owAlert('Il faut au moins deux sections.'); return; }
+  const sorted = [...owSections].sort((a,b) => a.posY - b.posY);
   ['permSec1','permSec2'].forEach((selId, i) => {
     const sel = document.getElementById(selId);
     sel.innerHTML = '';
-    permutables.forEach(s => {
+    sorted.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.id;
       opt.textContent = s.name;
       sel.appendChild(opt);
     });
-    if (i === 1 && permutables.length >= 2) sel.selectedIndex = 1;
+    if (i === 1 && sorted.length >= 2) sel.selectedIndex = 1;
   });
   document.getElementById('permutPopup').style.display = 'block';
 }
@@ -1243,24 +1259,8 @@ function owBuildSectionList() {
     name.className = 'ow-sec-name';
     name.textContent = sec.name;
 
-    const permWrap = document.createElement('label');
-    permWrap.className = 'ow-sec-perm';
-    permWrap.title = 'Autoriser la permutation de cette section';
-    const permCb = document.createElement('input');
-    permCb.type = 'checkbox';
-    permCb.checked = sec.permutable !== false;
-    permCb.addEventListener('change', e => {
-      e.stopPropagation();
-      sec.permutable = permCb.checked;
-      owModified = true;
-    });
-    permCb.addEventListener('click', e => e.stopPropagation());
-    permWrap.appendChild(permCb);
-    permWrap.appendChild(document.createTextNode('⇄'));
-
     item.appendChild(roman);
     item.appendChild(name);
-    item.appendChild(permWrap);
     div.appendChild(item);
   });
 }
