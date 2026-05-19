@@ -668,8 +668,7 @@ let winSpectWamEtat=0;
 let winTrajectoryEtat=0;
 let winSvgEtat=0;
 let winOpenWorkEtat=0;
-let winInterpretorEtat=0;
-let interpCurrentDir='';
+let interpretorPath='';
 let projetName='';
 let projetPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 let audioPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
@@ -4413,6 +4412,16 @@ ipcMain.on ("toMain", (event, args) => {
 		console.log(`externe ${args} from renderer process`);
 			mainRead3D();
 			break;
+		case 'browseInterpretor':
+			dialog.showOpenDialog({
+				properties: ['openFile'],
+				title: 'Sélectionner l\'application kandiskyscore-interpretor'
+			}).then(result => {
+				if (result.canceled || !result.filePaths[0]) return;
+				interpretorPath = result.filePaths[0];
+				if (winProjet) winProjet.webContents.send('fromMain', 'interpretorPathSelected;' + interpretorPath);
+			}).catch(err => console.error('browseInterpretor:', err));
+			break;
 		case 'exportExterne':
 		console.log(`externe ${args} from renderer process`);
 			mainExternes(cmd[1]);
@@ -4920,31 +4929,6 @@ ipcMain.on ("toMain", (event, args) => {
 				if (errIdx >= 0) owDoneMsg += '\nAudios manquants :\n' + cmd.slice(errIdx + 1).join(';');
 				winOpenWork.webContents.send('fromMain', owDoneMsg);
 				break; }
-			case 'interpOpen': {
-				dialog.showOpenDialog(winInterpretor, {
-					properties: ['openFile'],
-					defaultPath: path.join(app.getPath('home'), 'kandiskyscore'),
-					filters: [
-						{ name: 'OpenWork XML', extensions: ['xml'] }, { name: 'Tous', extensions: ['*'] }
-					]
-				}).then(result => {
-					if (result.canceled || !result.filePaths[0]) return;
-					interpCurrentDir = path.dirname(result.filePaths[0]);
-					const data = fs.readFileSync(result.filePaths[0], 'utf-8');
-					winInterpretor.webContents.send('fromMain', 'owLoaded;' + interpCurrentDir + '\n' + data);
-				}).catch(err => console.error('interpOpen:', err));
-			break; }
-			case 'interpLoadGrp': {
-				const grpId   = cmd[1];
-				const grpName = cmd[2];
-				const grpFile = path.join(interpCurrentDir, 'Groupes', grpName);
-				const imgDir  = path.join(interpCurrentDir, 'Images');
-				try {
-					const grpXml = fs.readFileSync(grpFile, 'utf-8');
-					const b64    = Buffer.from(grpXml, 'utf-8').toString('base64');
-					winInterpretor.webContents.send('fromMain', 'interpGrpLoaded;' + grpId + ';' + imgDir + ';' + b64);
-				} catch(e) { console.error('interpLoadGrp:', grpName, e.message); }
-			break; }
         }
 		}   
 		if (args && typeof args === "object" && args.type) {
@@ -5789,6 +5773,7 @@ function listImgFiles(dirPath,type) {
 function mainExternes(txt) {
 	var defc=JSON.parse(atob(txt));
 	console.log('importExterne',defc);
+	interpretorPath=defc.interpretorPath||'';
 	editor=defc.editor;
 	daw=defc.daw;
 	cmdDaw=defc.cmdDaw;
@@ -6752,30 +6737,17 @@ function openOpenWork() {
 	}
 }
 
-let winInterpretor = null;
 function openInterpretor() {
-	if (winInterpretorEtat === 0) {
-		winInterpretor = new BrowserWindow({
-			width: 1300, height: 860,
-			webPreferences: {
-				nodeIntegration: false,
-				contextIsolation: true,
-				enableRemoteModule: false,
-				preload: path.join(__dirname, 'preload.js'),
-				sandbox: false
-			}
-		});
-		winInterpretor.loadFile('interpretor.html');
-		winInterpretor.removeMenu();
-		if (!app.isPackaged) winInterpretor.webContents.openDevTools();
-		winInterpretorEtat = 1;
-		winInterpretor.on('close', () => {
-			winInterpretor = null;
-			winInterpretorEtat = 0;
-		});
-	} else {
-		winInterpretor.focus();
+	if (!interpretorPath) {
+		dialog.showErrorBox('Interpréteur', 'Chemin de l\'application Interpréteur non défini.\nVeuillez le renseigner dans Préférences > Externes.');
+		return;
 	}
+	if (!fs.existsSync(interpretorPath)) {
+		dialog.showErrorBox('Interpréteur', `Application introuvable :\n${interpretorPath}`);
+		return;
+	}
+	const child = spawn(interpretorPath, [], { detached: true, stdio: 'ignore' });
+	child.unref();
 }
 
 

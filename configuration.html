@@ -141,6 +141,9 @@
 <div id="panExt"  style="padding:10px;background-color:#f9f9fd;overflow:auto;height:600px;border:0px solid black;display:none">
 	<table id="table3D" align="center" border="1" style="font-size:1em;" cellpadding="4" cellspacing="0" >
 		<tbody>
+			<tr ><td colspan="4"> <b>Interpréteur</b> </td></tr>
+			<tr><td></td><td colspan="3"><input id='interpretorPath' type="text" style="width:460px" value='' />&nbsp;<button onclick="browseInterpretor()">...</button></td></tr>
+			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>Éditeur</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='defEditor' type="texte" style="width:520px" value='' /></td></tr>
 			<tr ><td colspan="4">  </td></tr>
@@ -1103,6 +1106,7 @@ function externeDefault() {
 function externeRestore() {
 	paramExterne={}
 	paramExterne={
+	interpretorPath:'',
 	daw:0,
 	cmdDaw:'',
 	pdfPage:0,
@@ -1123,7 +1127,17 @@ function importExterne(txt){
 	paramExterne=JSON.parse(atob(txt));
 	console.log('importExterne',paramExterne)
 }
+function browseInterpretor() {
+	window.api.send("toMain", "browseInterpretor");
+}
+window.api.receive("fromMain", (msg) => {
+	const [cmd, ...rest] = msg.split(";");
+	if (cmd === "interpretorPathSelected") {
+		document.getElementById("interpretorPath").value = rest.join(";");
+	}
+});
 function configExterne(txt) {
+	document.getElementById("interpretorPath").value=paramExterne.interpretorPath||''
 	document.getElementById("defEditor").value=paramExterne.editor
 	if(paramExterne.daw=='reaper'){
 		document.getElementById("cmd3D0").checked=true
@@ -1159,6 +1173,7 @@ function configExterne(txt) {
 	}
 }
 function defExterne(txt) {
+	paramExterne.interpretorPath=document.getElementById("interpretorPath").value;
 	paramExterne.editor=document.getElementById("defEditor").value;
 	if(document.getElementById("cmd3D0").checked==true){
 		paramExterne.daw='reaper';
