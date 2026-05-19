@@ -1,6 +1,6 @@
 {
   "name": "kandiskyscore",
-  "version": "2.3",
+  "version": "2.3.0",
   "description": "Éditeur électroacoustique",
   "main": "main.js",
   "scripts": {
