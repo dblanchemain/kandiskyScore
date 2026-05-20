@@ -5812,6 +5812,7 @@ function mainExternes2(txt) {
 			}
 		}
 	}
+	interpretorPath=defc.interpretorPath||'';
 	editor=defc.editor;
 	daw=defc.daw;
 	cmdDaw=defc.cmdDaw;
