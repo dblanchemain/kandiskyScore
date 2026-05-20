@@ -364,6 +364,7 @@ function defProjetConf(txt) {
 	<externepdfright value='"+pdfMgRight+"'></externepdfright>\n\
 	<externepdfbkg value='"+pdfBkg+"'></externepdfbkg>\n\
 	<externeaudioedit value='"+editAudioCmd+"'></externeaudioedit>\n\
+	<externeinterpretorpath value='"+interpretorPath+"'></externeinterpretorpath>\n\
 	</externe>\n";
 	return txt;
 }
@@ -896,7 +897,7 @@ function defObjets(i,liste,dx,dy){
 						break;
 				}
 			}
-			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd}));
+			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd,interpretorPath}));
 			window.api.send("toMain", 'defExterne;'+txt);
 			actualiseObjets();
 			// Régénérer les -fx.wav au chargement du projet (séquentiel — renduout.wav partagé)
@@ -1309,6 +1310,7 @@ function defExterneConfig() {
 		pdfMgRight = parseFloat(_tagVal(obj, "externepdfright"));
 		pdfBkg = _tagVal(obj, "externepdfbkg");
 		editAudioCmd = _tagVal(obj, "externeaudioedit");
+		interpretorPath = _tagVal(obj, "externeinterpretorpath") || '';
 		if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png";
 		}else{
