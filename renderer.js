@@ -2983,6 +2983,7 @@ async function openLv2Browser(slotId) {
 	const listDiv = document.getElementById('lv2PluginList');
 	listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
 	if (!_lv2PluginsCache) {
+		_lv2PluginsCache = [];
 		_lv2PluginsCache = await window.api.lv2ListNames();
 	}
 	lv2FilterPlugins('');
@@ -2990,6 +2991,7 @@ async function openLv2Browser(slotId) {
 }
 
 function lv2FilterPlugins(q) {
+	if (!_lv2PluginsCache) return;
 	const listDiv = document.getElementById('lv2PluginList');
 	const lower = q.toLowerCase();
 	const filtered = _lv2PluginsCache.filter(p => p.name.toLowerCase().includes(lower) || p.uri.toLowerCase().includes(lower));
