@@ -144,8 +144,9 @@ contextBridge.exposeInMainWorld(
     copyGrpExports: (srcDir, destDir, srcIds, offset) => ipcRenderer.invoke('copyGrpExports', srcDir, destDir, srcIds, offset),
     isDev,
     // ── LV2 ──
-    lv2List:    ()                        => ipcRenderer.invoke('lv2-list'),
-    lv2Info:    (uri)                     => ipcRenderer.invoke('lv2-info', uri),
+    lv2List:      ()                      => ipcRenderer.invoke('lv2-list'),
+    lv2ListNames: ()                      => ipcRenderer.invoke('lv2-list-names'),
+    lv2Info:      (uri)                   => ipcRenderer.invoke('lv2-info', uri),
     lv2Process: (params)                  => ipcRenderer.invoke('lv2-process', params),
     // ── VST3 (pedalboard) ──
     vst3List:    ()                       => ipcRenderer.invoke('vst3-list'),

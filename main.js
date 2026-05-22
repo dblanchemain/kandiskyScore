@@ -7106,6 +7106,11 @@ function runLv2Helper(args, stdinData) {
     });
 }
 
+// Retourne [{uri, name}] de tous les plugins LV2 (tri alphabétique, un seul chargement)
+ipcMain.handle('lv2-list-names', async () => {
+    return runLv2Helper(['list-names']);
+});
+
 // Retourne les métadonnées d'un plugin LV2 (ports de contrôle) via lv2_helper.py
 ipcMain.handle('lv2-info', async (event, uri) => {
     return runLv2Helper(['info', uri]);

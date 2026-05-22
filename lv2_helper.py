@@ -43,6 +43,7 @@ _sig(_L.lilv_plugins_is_end,       _b,   _vp, _vp)
 _sig(_L.lilv_plugins_get,          _vp,  _vp, _vp)
 _sig(_L.lilv_plugins_get_by_uri,   _vp,  _vp, _vp)
 _sig(_L.lilv_plugin_get_name,      _vp,  _vp)
+_sig(_L.lilv_plugin_get_uri,       _vp,  _vp)   # const LilvNode* — ne pas libérer
 _sig(_L.lilv_plugin_get_num_ports, _u32, _vp)
 _sig(_L.lilv_plugin_get_port_by_index, _vp, _vp, _u32)
 _sig(_L.lilv_plugin_instantiate,   _vp,  _vp, _f64, _vp)
@@ -149,6 +150,28 @@ def _classify_ports(world, plugin):
 def cmd_list():
     r = subprocess.run(['lv2ls'], capture_output=True, text=True)
     print(json.dumps([l.strip() for l in r.stdout.splitlines() if l.strip()]))
+
+
+def cmd_list_names():
+    """Retourne [{uri, name}] trié par nom — un seul chargement lilv."""
+    w = _L.lilv_world_new()
+    _L.lilv_world_load_all(w)
+    plugins = _L.lilv_world_get_all_plugins(w)
+    result  = []
+    it = _L.lilv_plugins_begin(plugins)
+    while not _L.lilv_plugins_is_end(plugins, it):
+        p     = _L.lilv_plugins_get(plugins, it)
+        uri_n = _L.lilv_plugin_get_uri(p)
+        uri   = _nstr(uri_n) if uri_n else None   # const — ne pas libérer
+        nm_n  = _L.lilv_plugin_get_name(p)
+        name  = (_nstr(nm_n) or uri) if nm_n else uri
+        if nm_n: _L.lilv_node_free(nm_n)
+        if uri:
+            result.append({'uri': uri, 'name': name or uri})
+        it = _L.lilv_plugins_next(plugins, it)
+    _L.lilv_world_free(w)
+    result.sort(key=lambda x: x['name'].lower())
+    print(json.dumps(result))
 
 
 def cmd_info(uri):
@@ -319,12 +342,14 @@ if __name__ == '__main__':
     try:
         if cmd == 'list':
             cmd_list()
+        elif cmd == 'list-names':
+            cmd_list_names()
         elif cmd == 'info' and len(sys.argv) > 2:
             cmd_info(sys.argv[2])
         elif cmd == 'process' and len(sys.argv) > 4:
             cmd_process(sys.argv[2], sys.argv[3], sys.argv[4])
         else:
-            sys.stderr.write('Usage: lv2_helper.py [list | info <uri> | process <uri> <in> <out>]\n')
+            sys.stderr.write('Usage: lv2_helper.py [list | list-names | info <uri> | process <uri> <in> <out>]\n')
             sys.exit(1)
     except Exception:
         sys.stderr.write(traceback.format_exc())

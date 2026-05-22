@@ -2983,16 +2983,7 @@ async function openLv2Browser(slotId) {
 	const listDiv = document.getElementById('lv2PluginList');
 	listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
 	if (!_lv2PluginsCache) {
-		const uris = await window.api.lv2List();
-		_lv2PluginsCache = [];
-		for (const uri of uris) {
-			try {
-				const info = await window.api.lv2Info(uri);
-				_lv2PluginsCache.push({ uri, name: info.name, controlPorts: info.controlPorts });
-			} catch (_) {
-				_lv2PluginsCache.push({ uri, name: uri, controlPorts: [] });
-			}
-		}
+		_lv2PluginsCache = await window.api.lv2ListNames();
 	}
 	lv2FilterPlugins('');
 	if (!popup._draggable) { dragElement(popup); popup._draggable = true; }
@@ -3011,7 +3002,7 @@ function lv2FilterPlugins(q) {
 
 async function selectLv2Plugin(uri) {
 	document.getElementById('popupLv2Browser').style.display = 'none';
-	const info = _lv2PluginsCache.find(p => p.uri === uri) || await window.api.lv2Info(uri);
+	const info = await window.api.lv2Info(uri);
 	const key = 'lv2:' + uri;
 
 	// Créer l'entrée listeFx pour ce plugin

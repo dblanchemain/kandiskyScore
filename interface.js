@@ -2099,8 +2099,8 @@ function drawFxAutomation(greffon) {
 			var tV  = parseFloat(cd[0] || 0);
 			var vV  = parseFloat(cd[1] || 0);
 			var mV  = parseInt(cd[2] || 0);
-			var r   = (h - ((60 / mx) * vV)) - 4;
-			var t   = tV * (200 / relative);
+			var r   = Math.max(0, Math.min(56, (h - ((60 / mx) * vV)) - 4));
+			var t   = Math.max(0, Math.min(196, tV * (200 / relative)));
 			var col = _FX_MODE_COLORS[mV] || _FX_MODE_COLORS[0];
 
 			if (j === 0) {
@@ -2114,7 +2114,7 @@ function drawFxAutomation(greffon) {
 				var tP   = parseFloat(cdP[0] || 0) * (200 / relative);
 				var vP   = parseFloat(cdP[1] || 0);
 				var mP   = parseInt(cdP[2] || 0);
-				var rP   = (h - ((60 / mx) * vP)) - 4;
+				var rP   = Math.max(0, Math.min(56, (h - ((60 / mx) * vP)) - 4));
 				svgInner += _fxAutoSegmentSvg(tP, rP, t, r, mP);
 				if (j === npoints.length - 1 && t < 200) {
 					svgInner += `<line x1='${t}' y1='${r+2}' x2='200' y2='${r+2}' stroke='#434343' stroke-width='2'/>`;
@@ -2126,13 +2126,17 @@ function drawFxAutomation(greffon) {
 			         title='fx${j}${i}:${vV}:${mV}'></div>`;
 		}
 
-		document.getElementById(tableLabel[i]).innerHTML = `<svg>${svgInner}</svg>${txt}`;
+		var _cell = document.getElementById(tableLabel[i]);
+		if (_cell) _cell.innerHTML = `<svg>${svgInner}</svg>${txt}`;
 	}
 
-	var tbdiv = document.getElementById(tableLabel[0]).parentNode.parentNode.parentNode.getElementsByTagName('div');
-	for (var k = 0; k < tbdiv.length; k++) {
-		if (tbdiv[k].id.substring(0, 2) === 'fx') {
-			dragElement(tbdiv[k]);
+	var _anchor = document.getElementById(tableLabel[0]);
+	if (_anchor) {
+		var tbdiv = _anchor.parentNode.parentNode.parentNode.getElementsByTagName('div');
+		for (var k = 0; k < tbdiv.length; k++) {
+			if (tbdiv[k].id.substring(0, 2) === 'fx') {
+				dragElement(tbdiv[k]);
+			}
 		}
 	}
 }
