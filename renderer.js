@@ -3049,7 +3049,7 @@ function buildLv2Interface(key, ports) {
 		         oninput="fxParamModifPV('${p.symbol}',${p.max},${p.min})"/>
 		</td></tr>`;
 	});
-	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;'><tbody>
+	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
 	  ${rows}
 	</tbody></table>
 	<div style='margin-top:6px;margin-left:10px;'>
