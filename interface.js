@@ -640,6 +640,14 @@ function dragElement(elmnt) {
     }
     if(elmnt.id.substring(0,2)=="fx"){
     	selectPointFx=elmnt.id;
+    	// Trouve le conteneur scrollable le plus proche pour corriger py pendant le drag
+    	elmnt._fxScroller = null; elmnt._fxScrollTop = 0;
+    	let _sp = elmnt.parentNode;
+    	while(_sp && _sp !== document.body){
+    		const _ov = window.getComputedStyle(_sp).overflowY;
+    		if(_ov==='auto' || _ov==='scroll'){ elmnt._fxScroller=_sp; elmnt._fxScrollTop=_sp.scrollTop; break; }
+    		_sp = _sp.parentNode;
+    	}
     	if(e.button==2 && parseInt(elmnt.id.substring(2,3))>0){
     		var pt=elmnt.parentNode.firstChild.nextSibling;
 		   elmnt.parentNode.removeChild(elmnt);
@@ -816,8 +824,15 @@ function dragElement(elmnt) {
 	    		tableObjet[objActif].basePosY=py*(1/ratioSpaceHeight);
 	    		}
 	    	}else if (elmnt.id.substring(0,2)=="fx"){
+				// Correction scrollTop : compense le scroll du conteneur depuis le début du drag
+				var _scrollCorr = 0;
+				if(elmnt._fxScroller){
+					var _newST = elmnt._fxScroller.scrollTop;
+					_scrollCorr = _newST - elmnt._fxScrollTop;
+					elmnt._fxScrollTop = _newST;
+				}
 				var px=parseFloat(elmnt.style.left||0) - pos1;
-				var py=parseFloat(elmnt.style.top||0) - pos2;	
+				var py=parseFloat(elmnt.style.top||0) - pos2 + _scrollCorr;
 	
 				if(px<0){
 					px=0;

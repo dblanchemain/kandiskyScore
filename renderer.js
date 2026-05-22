@@ -3064,6 +3064,9 @@ function openLv2ParamEditor(id, key) {
 	const useH   = Math.min(fxDesc.height, window.innerHeight - 20);
 	openPopup(key, 400, 10, fxDesc.width, useH, 0, fxDesc.interface);
 	document.getElementById('popup' + key).style.backgroundColor = '#3465a4';
+	const contentEl = document.getElementById('popupContent' + key);
+	contentEl.style.overflowY = 'auto';
+	contentEl.style.maxHeight = (useH - 26) + 'px';
 	drawFxAutomation(key);
 	const labels = fxDesc.label.split(',');
 	for (let j = 0; j < labels.length; j++) {
@@ -3167,6 +3170,9 @@ function openVst3ParamEditor(id, key) {
 	const useH   = Math.min(fxDesc.height, window.innerHeight - 20);
 	openPopup(key, 400, 10, fxDesc.width, useH, 0, fxDesc.interface);
 	document.getElementById('popup' + key).style.backgroundColor = '#4a6a34';
+	const contentEl = document.getElementById('popupContent' + key);
+	contentEl.style.overflowY = 'auto';
+	contentEl.style.maxHeight = (useH - 26) + 'px';
 	drawFxAutomation(key);
 	const labels = fxDesc.label.split(',');
 	for (let j = 0; j < labels.length; j++) {
