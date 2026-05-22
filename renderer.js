@@ -3061,8 +3061,12 @@ function buildLv2Interface(key, ports) {
 
 function openLv2ParamEditor(id, key) {
 	const fxDesc = listeFx[key];
-	openPopup(key, 400, 200, fxDesc.width, fxDesc.height, 0, fxDesc.interface);
+	const maxH   = Math.min(fxDesc.height, 520);
+	openPopup(key, 400, 200, fxDesc.width, maxH, 0, fxDesc.interface);
 	document.getElementById('popup' + key).style.backgroundColor = '#3465a4';
+	const contentEl = document.getElementById('popupContent' + key);
+	contentEl.style.overflowY = 'auto';
+	contentEl.style.maxHeight = (maxH - 26) + 'px';
 	drawFxAutomation(key);
 	const labels = fxDesc.label.split(',');
 	for (let j = 0; j < labels.length; j++) {
@@ -3163,8 +3167,12 @@ function buildVst3Interface(key, params) {
 
 function openVst3ParamEditor(id, key) {
 	const fxDesc = listeFx[key];
-	openPopup(key, 400, 200, fxDesc.width, fxDesc.height, 0, fxDesc.interface);
+	const maxH   = Math.min(fxDesc.height, 520);
+	openPopup(key, 400, 200, fxDesc.width, maxH, 0, fxDesc.interface);
 	document.getElementById('popup' + key).style.backgroundColor = '#4a6a34';
+	const contentEl = document.getElementById('popupContent' + key);
+	contentEl.style.overflowY = 'auto';
+	contentEl.style.maxHeight = (maxH - 26) + 'px';
 	drawFxAutomation(key);
 	const labels = fxDesc.label.split(',');
 	for (let j = 0; j < labels.length; j++) {
