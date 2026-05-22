@@ -669,6 +669,8 @@ let winTrajectoryEtat=0;
 let winSvgEtat=0;
 let winOpenWorkEtat=0;
 let interpretorPath='';
+let lv2Paths='';
+let vst3Paths='';
 let projetName='';
 let projetPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
 let audioPath=path.join(app.getPath('home'), 'kandiskyscore', 'Projets');
@@ -4422,6 +4424,27 @@ ipcMain.on ("toMain", (event, args) => {
 				if (winProjet) winProjet.webContents.send('fromMain', 'interpretorPathSelected;' + interpretorPath);
 			}).catch(err => console.error('browseInterpretor:', err));
 			break;
+		case 'browseLv2Path':
+			dialog.showOpenDialog({
+				properties: ['openDirectory'],
+				title: 'Sélectionner un dossier de plugins LV2'
+			}).then(result => {
+				if (result.canceled || !result.filePaths[0]) return;
+				if (winProjet) winProjet.webContents.send('fromMain', 'lv2PathSelected;' + result.filePaths[0]);
+			}).catch(err => console.error('browseLv2Path:', err));
+			break;
+		case 'browseVst3Path':
+			dialog.showOpenDialog({
+				properties: ['openDirectory'],
+				title: 'Sélectionner un dossier de plugins VST3'
+			}).then(result => {
+				if (result.canceled || !result.filePaths[0]) return;
+				if (winProjet) winProjet.webContents.send('fromMain', 'vst3PathSelected;' + result.filePaths[0]);
+			}).catch(err => console.error('browseVst3Path:', err));
+			break;
+		case 'rescanPlugins':
+			if (mainWindow) mainWindow.webContents.send('fromMain', 'rescanPlugins');
+			break;
 		case 'exportExterne':
 		console.log(`externe ${args} from renderer process`);
 			mainExternes(cmd[1]);
@@ -5774,6 +5797,8 @@ function mainExternes(txt) {
 	var defc=JSON.parse(atob(txt));
 	console.log('importExterne',defc);
 	interpretorPath=defc.interpretorPath||'';
+	lv2Paths=defc.lv2Paths||'';
+	vst3Paths=defc.vst3Paths||'';
 	editor=defc.editor;
 	daw=defc.daw;
 	cmdDaw=defc.cmdDaw;
@@ -7086,7 +7111,8 @@ const LV2_HELPER = path.join(__dirname, 'lv2_helper.py');
 
 function runLv2Helper(args, stdinData) {
     return new Promise((resolve, reject) => {
-        const proc = spawn('python3', [LV2_HELPER, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
+        const lv2Env = lv2Paths ? { ...process.env, LV2_PATH: (process.env.LV2_PATH ? process.env.LV2_PATH + ':' : '') + lv2Paths } : process.env;
+        const proc = spawn('python3', [LV2_HELPER, ...args], { stdio: ['pipe', 'pipe', 'pipe'], env: lv2Env });
         let stdout = '', stderr = '';
         proc.stdout.on('data', d => { stdout += d.toString(); });
         proc.stderr.on('data', d => { stderr += d.toString(); });
@@ -7152,8 +7178,9 @@ const VST3_HELPER = path.join(__dirname, 'vst3_helper.py');
 
 function runVst3Helper(args, stdinData) {
     return new Promise((resolve, reject) => {
+        const vst3Env = vst3Paths ? { ...process.env, KANDISKYSCORE_VST3_PATH: vst3Paths } : process.env;
         const proc = spawn('python3', [VST3_HELPER, ...args], {
-            stdio: ['pipe', 'pipe', 'pipe']
+            stdio: ['pipe', 'pipe', 'pipe'], env: vst3Env
         });
         let stdout = '', stderr = '';
         proc.stdout.on('data', d => { stdout += d.toString(); });

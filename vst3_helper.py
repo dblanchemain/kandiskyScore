@@ -32,6 +32,11 @@ VST3_DIRS = [
     '/usr/lib/vst3',
     '/usr/local/lib/vst3',
 ]
+# Chemins supplémentaires via Préférences > Externes > Path VST3
+for _p in os.environ.get('KANDISKYSCORE_VST3_PATH', '').split(':'):
+    _p = _p.strip()
+    if _p and _p not in VST3_DIRS:
+        VST3_DIRS.append(_p)
 
 
 def cmd_list():

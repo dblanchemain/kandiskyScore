@@ -641,6 +641,10 @@ window.api.receive("fromMain", (data) => {
 			case 'exportExterne':
 				importExterne(cmd[1]);
 				break;
+			case 'rescanPlugins':
+				_lv2PluginsCache = null;
+				_vst3PluginsCache = null;
+				break;
 			case 'exportInterface':
 				importInterface(cmd[1]);
 				defInterface();

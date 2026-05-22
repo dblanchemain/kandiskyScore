@@ -144,6 +144,18 @@
 			<tr ><td colspan="4"> <b>Interpréteur</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='interpretorPath' type="text" style="width:460px" value='' />&nbsp;<button onclick="browseInterpretor()">...</button></td></tr>
 			<tr ><td colspan="4">  </td></tr>
+			<tr ><td colspan="4"> <b>Path LV2</b> <span style="font-size:0.8em;color:#666;">(chemins supplémentaires, séparés par ':')</span></td></tr>
+			<tr><td></td><td colspan="3">
+				<input id='lv2Paths' type="text" style="width:400px" value='' placeholder="/chemin1:/chemin2" />
+				&nbsp;<button onclick="browseLv2Path()">...</button>
+				&nbsp;<button onclick="rescannerPlugins()" title="Rescanner LV2 et VST3">↻ Rescanner</button>
+			</td></tr>
+			<tr ><td colspan="4"> <b>Path VST3</b> <span style="font-size:0.8em;color:#666;">(chemins supplémentaires, séparés par ':')</span></td></tr>
+			<tr><td></td><td colspan="3">
+				<input id='vst3Paths' type="text" style="width:400px" value='' placeholder="/chemin1:/chemin2" />
+				&nbsp;<button onclick="browseVst3Path()">...</button>
+			</td></tr>
+			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>Éditeur</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='defEditor' type="texte" style="width:520px" value='' /></td></tr>
 			<tr ><td colspan="4">  </td></tr>
@@ -1107,6 +1119,8 @@ function externeRestore() {
 	paramExterne={}
 	paramExterne={
 	interpretorPath:'',
+	lv2Paths:'',
+	vst3Paths:'',
 	daw:0,
 	cmdDaw:'',
 	pdfPage:0,
@@ -1130,14 +1144,35 @@ function importExterne(txt){
 function browseInterpretor() {
 	window.api.send("toMain", "browseInterpretor");
 }
+function browseLv2Path() {
+	window.api.send("toMain", "browseLv2Path");
+}
+function browseVst3Path() {
+	window.api.send("toMain", "browseVst3Path");
+}
+function rescannerPlugins() {
+	defExterne();
+	exportExterne();
+	window.api.send("toMain", "rescanPlugins");
+}
 window.api.receive("fromMain", (msg) => {
 	const [cmd, ...rest] = msg.split(";");
 	if (cmd === "interpretorPathSelected") {
 		document.getElementById("interpretorPath").value = rest.join(";");
+	} else if (cmd === "lv2PathSelected") {
+		const cur = document.getElementById("lv2Paths").value;
+		const add = rest.join(";");
+		document.getElementById("lv2Paths").value = cur ? cur + ':' + add : add;
+	} else if (cmd === "vst3PathSelected") {
+		const cur = document.getElementById("vst3Paths").value;
+		const add = rest.join(";");
+		document.getElementById("vst3Paths").value = cur ? cur + ':' + add : add;
 	}
 });
 function configExterne(txt) {
 	document.getElementById("interpretorPath").value=paramExterne.interpretorPath||''
+	document.getElementById("lv2Paths").value=paramExterne.lv2Paths||''
+	document.getElementById("vst3Paths").value=paramExterne.vst3Paths||''
 	document.getElementById("defEditor").value=paramExterne.editor
 	if(paramExterne.daw=='reaper'){
 		document.getElementById("cmd3D0").checked=true
@@ -1174,6 +1209,8 @@ function configExterne(txt) {
 }
 function defExterne(txt) {
 	paramExterne.interpretorPath=document.getElementById("interpretorPath").value;
+	paramExterne.lv2Paths=document.getElementById("lv2Paths").value;
+	paramExterne.vst3Paths=document.getElementById("vst3Paths").value;
 	paramExterne.editor=document.getElementById("defEditor").value;
 	if(document.getElementById("cmd3D0").checked==true){
 		paramExterne.daw='reaper';
