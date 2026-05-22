@@ -96,6 +96,37 @@ def _interp(events, t):
     return float(events[-1][1])
 
 
+def _probe_plugin_channels(board, sr, block_size):
+    """Retourne le nombre de canaux (entrée=sortie) accepté par le plugin."""
+    for n in (2, 1, 4, 6, 8):
+        probe = np.zeros((n, min(block_size, 512)), dtype=np.float32)
+        try:
+            board(probe, sr, reset=True)
+            return n
+        except (ValueError, RuntimeError):
+            continue
+    return 2
+
+
+def _adapt_channels(chunk, target_ch):
+    """(src_ch, samples) → (target_ch, samples) par downmix/upmix."""
+    src_ch = chunk.shape[0]
+    if src_ch == target_ch:
+        return chunk
+    if src_ch > target_ch:
+        # downmix : moyenne des groupes de canaux
+        if src_ch % target_ch == 0:
+            return chunk.reshape(target_ch, src_ch // target_ch, -1).mean(axis=1)
+        result = chunk[:target_ch].copy()
+        for i in range(target_ch, src_ch):
+            result[i % target_ch] += chunk[i]
+        result /= (src_ch / target_ch)
+        return result
+    # upmix : répétition des canaux
+    repeats = (target_ch + src_ch - 1) // src_ch
+    return np.tile(chunk, (repeats, 1))[:target_ch]
+
+
 def cmd_process(plugin_path, in_path, out_path):
     data       = json.loads(sys.stdin.buffer.read())
     automation = data.get('automation', {})
@@ -105,8 +136,9 @@ def cmd_process(plugin_path, in_path, out_path):
     n_samples  = audio.shape[0]
     n_channels = audio.shape[1]
 
-    plugin = pedalboard.load_plugin(plugin_path)
-    board  = pedalboard.Pedalboard([plugin])
+    plugin    = pedalboard.load_plugin(plugin_path)
+    board     = pedalboard.Pedalboard([plugin])
+    plugin_ch = _probe_plugin_channels(board, sr, block_size)
 
     output = np.zeros((n_samples, n_channels), dtype=np.float32)
 
@@ -123,23 +155,21 @@ def cmd_process(plugin_path, in_path, out_path):
             except Exception:
                 pass
 
-        chunk = audio[offset:end].T           # (n_channels, block_len)
+        chunk = audio[offset:end].T                     # (n_channels, block_len)
+        chunk = _adapt_channels(chunk, plugin_ch)       # → (plugin_ch, block_len)
         out_chunk = board(chunk, sr, reset=first)
         first = False
 
-        # Garantir 2D même si pedalboard retourne 1D
         if out_chunk.ndim == 1:
             out_chunk = out_chunk[np.newaxis, :]
 
         out_ch   = out_chunk.shape[0]
         out_samp = out_chunk.shape[1]
         copy_len = min(out_samp, end - offset)
-        copy_ch  = min(out_ch, n_channels)
 
-        output[offset:offset + copy_len, :copy_ch] = out_chunk[:copy_ch, :copy_len].T
-        # canal manquant → duplique le dernier canal disponible
-        for c in range(copy_ch, n_channels):
-            output[offset:offset + copy_len, c] = out_chunk[copy_ch - 1, :copy_len]
+        # Upmix/downmix la sortie vers n_channels
+        out_adapted = _adapt_channels(out_chunk[:, :copy_len], n_channels)
+        output[offset:offset + copy_len] = out_adapted.T
 
         offset = end
 
