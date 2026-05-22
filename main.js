@@ -7082,74 +7082,51 @@ ipcMain.handle('lv2-list', async () => {
     return stdout.split('\n').map(l => l.trim()).filter(Boolean);
 });
 
-// Retourne les métadonnées d'un plugin LV2 (ports de contrôle)
-ipcMain.handle('lv2-info', async (event, uri) => {
-    const { stdout } = await execFileAsync('lv2info', [uri], { maxBuffer: 1024 * 1024 });
-    const lines = stdout.split('\n');
+const LV2_HELPER = path.join(__dirname, 'lv2_helper.py');
 
-    let pluginName = uri;
-    const ports = [];
-    let curPort = null;
-
-    for (const raw of lines) {
-        const line = raw.trim();
-        const nameMatch = line.match(/^Name:\s+(.+)/);
-        if (nameMatch && !curPort) { pluginName = nameMatch[1]; continue; }
-
-        const portMatch = line.match(/^Port \d+:/);
-        if (portMatch) {
-            if (curPort) ports.push(curPort);
-            curPort = { symbol: '', name: '', isControl: false, isInput: false, min: 0, max: 1, def: 0 };
-            continue;
+function runLv2Helper(args, stdinData) {
+    return new Promise((resolve, reject) => {
+        const proc = spawn('python3', [LV2_HELPER, ...args], { stdio: ['pipe', 'pipe', 'pipe'] });
+        let stdout = '', stderr = '';
+        proc.stdout.on('data', d => { stdout += d.toString(); });
+        proc.stderr.on('data', d => { stderr += d.toString(); });
+        proc.on('exit', code => {
+            if (code === 0) {
+                try { resolve(JSON.parse(stdout)); }
+                catch (e) { reject(new Error(`JSON invalide : ${stdout}`)); }
+            } else {
+                reject(new Error(stderr || `lv2_helper exit ${code}`));
+            }
+        });
+        proc.on('error', reject);
+        if (stdinData) {
+            proc.stdin.write(typeof stdinData === 'string' ? stdinData : JSON.stringify(stdinData));
         }
-        if (!curPort) continue;
+        proc.stdin.end();
+    });
+}
 
-        if (line.includes('lv2core#ControlPort')) curPort.isControl = true;
-        if (line.includes('lv2core#InputPort'))   curPort.isInput  = true;
-
-        const sym = line.match(/^Symbol:\s+(\S+)/);
-        if (sym) { curPort.symbol = sym[1]; curPort.name = sym[1]; }
-
-        const nm = line.match(/^Name:\s+(.+)/);
-        if (nm) curPort.name = nm[1];
-
-        const mn = line.match(/^Minimum:\s+([\d.eE+\-]+)/);
-        if (mn) curPort.min = parseFloat(mn[1]);
-
-        const mx = line.match(/^Maximum:\s+([\d.eE+\-]+)/);
-        if (mx) curPort.max = parseFloat(mx[1]);
-
-        const df = line.match(/^Default:\s+([\d.eE+\-]+)/);
-        if (df) curPort.def = parseFloat(df[1]);
-    }
-    if (curPort) ports.push(curPort);
-
-    const controlPorts = ports.filter(p => p.isControl && p.isInput);
-    return { name: pluginName, uri, controlPorts };
+// Retourne les métadonnées d'un plugin LV2 (ports de contrôle) via lv2_helper.py
+ipcMain.handle('lv2-info', async (event, uri) => {
+    return runLv2Helper(['info', uri]);
 });
 
-// Traite un buffer audio mono/stéréo à travers un plugin LV2
-// Params: { channels: [ArrayBuffer], sampleRate, uri, controlPorts: {symbol: value} }
-// Retourne: { channels: [ArrayBuffer] }
-ipcMain.handle('lv2-process', async (event, { channels, sampleRate, uri, controlPorts }) => {
+// Traite un buffer audio à travers un plugin LV2 via lv2_helper.py (supporte events_in)
+// Params: { channels: [ArrayBuffer], sampleRate, uri, automation: {sym:[[t,v,mode],...]}, blockSize }
+ipcMain.handle('lv2-process', async (event, { channels, sampleRate, uri, automation, controlPorts, blockSize }) => {
     const tmpIn  = path.join(os.tmpdir(), `lv2in_${Date.now()}.wav`);
     const tmpOut = path.join(os.tmpdir(), `lv2out_${Date.now()}.wav`);
     try {
-        // Écrire le WAV d'entrée
         const floatCh = channels.map(ab => new Float32Array(ab));
         const wavBuf = Buffer.from(await WavEncoder.encode({ sampleRate, channelData: floatCh }));
         fs.writeFileSync(tmpIn, wavBuf);
 
-        // Construire les args lv2proc
-        const args = ['-i', tmpIn, '-o', tmpOut];
-        for (const [sym, val] of Object.entries(controlPorts || {})) {
-            args.push('-c', `${sym}:${val}`);
-        }
-        args.push(uri);
+        await runLv2Helper(['process', uri, tmpIn, tmpOut], {
+            automation:   automation   || {},
+            controlPorts: controlPorts || {},
+            block_size:   blockSize    || 1024
+        });
 
-        await execFileAsync('lv2proc', args, { maxBuffer: 64 * 1024 * 1024 });
-
-        // Lire le WAV de sortie
         const outBuf = fs.readFileSync(tmpOut);
         const decoded = await WavDecoder.decode(outBuf);
         const outChannels = decoded.channelData.map(ch => {

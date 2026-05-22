@@ -1365,19 +1365,17 @@ async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sam
         if (fxDesc.type === 'lv2') {
             const uri = fxDesc.pluginUri;
             const syms = (fxDesc.paramname || '').split(',').map(s => s.trim()).filter(Boolean);
-            const controlPorts = {};
+            const automation = {};
             syms.forEach((sym, pi) => {
-                controlPorts[sym] = (paramBlocks[pi] && paramBlocks[pi].length) ? paramBlocks[pi][0].value : 0;
+                const events = paramBlocks[pi] || [];
+                if (events.length) automation[sym] = events.map(kf => [kf.time, kf.value, kf.mode]);
             });
             try {
                 const res = await window.api.lv2Process({
-                    channels:     currentChannels.map(ch => { const c = new Float32Array(ch.length); c.set(ch); return c.buffer; }),
-                    sampleRate,
-                    uri,
-                    controlPorts
+                    channels:   currentChannels.map(ch => { const c = new Float32Array(ch.length); c.set(ch); return c.buffer; }),
+                    sampleRate, uri, automation, blockSize: 1024
                 });
                 let outCh = res.channels.map(ab => new Float32Array(ab));
-                // aligner le nombre de canaux
                 while (outCh.length < numChannels) outCh.push(new Float32Array(outCh[0]));
                 currentChannels = outCh.slice(0, numChannels);
             } catch (err) {
