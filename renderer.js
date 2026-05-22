@@ -3079,16 +3079,20 @@ async function openVst3Browser(slotId) {
 	const listDiv = document.getElementById('vst3PluginList');
 	listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
 	if (!_vst3PluginsCache) {
-		const paths = await window.api.vst3List();
 		_vst3PluginsCache = [];
-		for (const pluginPath of paths) {
-			try {
-				const info = await window.api.vst3Info(pluginPath);
-				_vst3PluginsCache.push({ pluginPath, name: info.name, params: info.params });
-			} catch (_) {
-				const name = pluginPath.split('/').pop().replace(/\.vst3$/, '');
-				_vst3PluginsCache.push({ pluginPath, name, params: [] });
+		try {
+			const paths = await window.api.vst3List();
+			for (const pluginPath of paths) {
+				try {
+					const info = await window.api.vst3Info(pluginPath);
+					_vst3PluginsCache.push({ pluginPath, name: info.name, params: info.params });
+				} catch (_) {
+					const name = pluginPath.split('/').pop().replace(/\.vst3$/, '');
+					_vst3PluginsCache.push({ pluginPath, name, params: [] });
+				}
 			}
+		} catch (e) {
+			listDiv.innerHTML = `<div style="padding:8px;color:#c00;">Erreur VST3 : ${e.message}</div>`;
 		}
 	}
 	vst3FilterPlugins('');
@@ -3096,6 +3100,7 @@ async function openVst3Browser(slotId) {
 }
 
 function vst3FilterPlugins(q) {
+	if (!_vst3PluginsCache) return;
 	const listDiv = document.getElementById('vst3PluginList');
 	const lower = q.toLowerCase();
 	const filtered = _vst3PluginsCache.filter(p => p.name.toLowerCase().includes(lower) || p.pluginPath.toLowerCase().includes(lower));
