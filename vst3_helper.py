@@ -26,12 +26,28 @@ import numpy as np
 import soundfile as sf
 import pedalboard
 
-# Répertoires VST3 standard Linux
-VST3_DIRS = [
-    os.path.expanduser('~/.vst3'),
-    '/usr/lib/vst3',
-    '/usr/local/lib/vst3',
-]
+# Répertoires VST3 selon la plateforme
+import platform as _platform
+_sys = _platform.system()
+if _sys == 'Windows':
+    VST3_DIRS = [
+        os.path.join(os.environ.get('COMMONPROGRAMFILES', r'C:\Program Files\Common Files'), 'VST3'),
+        os.path.join(os.environ.get('COMMONPROGRAMFILES(X86)', r'C:\Program Files (x86)\Common Files'), 'VST3'),
+        os.path.expanduser(r'~\AppData\Local\Programs\Common\VST3'),
+    ]
+elif _sys == 'Darwin':
+    VST3_DIRS = [
+        os.path.expanduser('~/Library/Audio/Plug-Ins/VST3'),
+        '/Library/Audio/Plug-Ins/VST3',
+        '/Network/Library/Audio/Plug-Ins/VST3',
+    ]
+else:  # Linux
+    VST3_DIRS = [
+        os.path.expanduser('~/.vst3'),
+        '/usr/lib/vst3',
+        '/usr/local/lib/vst3',
+    ]
+
 # Chemins supplémentaires via Préférences > Externes > Path VST3
 for _p in os.environ.get('KANDISKYSCORE_VST3_PATH', '').split(':'):
     _p = os.path.expanduser(_p.strip())
