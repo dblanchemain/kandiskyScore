@@ -3003,7 +3003,7 @@ function lv2FilterPlugins(q) {
 	const lower = q.toLowerCase();
 	const filtered = _lv2PluginsCache.filter(p => p.name.toLowerCase().includes(lower) || p.uri.toLowerCase().includes(lower));
 	listDiv.innerHTML = filtered.map(p =>
-		`<div style="padding:4px 6px;cursor:pointer;border-bottom:1px solid #eee;"
+		`<div style="padding:4px 6px;cursor:pointer;border-bottom:1px solid #eee;color:#222;"
 		      onclick="selectLv2Plugin('${p.uri.replace(/'/g, "\\'")}')"
 		      title="${p.uri}">${p.name}</div>`
 	).join('');
