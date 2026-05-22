@@ -3114,7 +3114,7 @@ function vst3FilterPlugins(q) {
 	const lower = q.toLowerCase();
 	const filtered = _vst3PluginsCache.filter(p => (p.name||'').toLowerCase().includes(lower) || (p.pluginPath||'').toLowerCase().includes(lower));
 	listDiv.innerHTML = filtered.map(p =>
-		`<div style="padding:4px 6px;cursor:pointer;border-bottom:1px solid #eee;"
+		`<div style="padding:4px 6px;cursor:pointer;border-bottom:1px solid #ccc;color:#111;"
 		      onclick="selectVst3Plugin('${p.pluginPath.replace(/'/g, "\\'")}')"
 		      title="${p.pluginPath}">${p.name}</div>`
 	).join('');
