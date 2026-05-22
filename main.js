@@ -39,7 +39,7 @@ const wav = require("node-wav");
 const FFTModule = require('fft.js'); 
 
 var AudioBuffer = require('audiobuffer');
-const { exec, execSync, spawn , spawnSync} = require("child_process");
+const { exec, execSync, execFileSync, spawn , spawnSync} = require("child_process");
 const WebSocket = require('ws');
 const net = require('net');
 const { PDFDocument } = require("pdf-lib");
@@ -794,11 +794,40 @@ function buildSmoothRubberbandTimeMap(tempoCurve, sampleRate, durationSec, total
 // Cette méthode sera appelée quand Electron aura fini
 // de s'initialiser et sera prêt à créer des fenêtres de navigation.
 // Certaines APIs peuvent être utilisées uniquement quant cet événement est émit.
+// Vérifie et installe pedalboard si absent (macOS/Windows uniquement)
+async function ensurePedalboard() {
+    if (process.platform === 'linux') return; // géré par postinstall .deb/.rpm
+    const py = process.platform === 'win32' ? 'python' : 'python3';
+    try {
+        execFileSync(py, ['-c', 'import pedalboard'], { timeout: 8000 });
+    } catch (_) {
+        const { response } = await dialog.showMessageBox({
+            type: 'info',
+            title: 'kandiskyScore — plugins VST3',
+            message: 'La bibliothèque Python "pedalboard" est requise pour les plugins VST3.\n\nInstallation en cours…',
+            buttons: ['Installer', 'Ignorer'],
+            defaultId: 0,
+            cancelId: 1,
+        });
+        if (response !== 0) return;
+        try {
+            execFileSync(py, ['-m', 'pip', 'install', '--user', '--quiet', 'pedalboard'],
+                { timeout: 120000, stdio: 'inherit' });
+            dialog.showMessageBox({ type: 'info', title: 'kandiskyScore', message: 'pedalboard installé avec succès.', buttons: ['OK'] });
+        } catch (e) {
+            dialog.showErrorBox('Échec installation pedalboard',
+                `Installez manuellement :\n  ${py} -m pip install pedalboard\n\nErreur : ${e.message}`);
+        }
+    }
+}
+
 app.whenReady().then(async () => {
   if (app.isPackaged) {
     console.log = () => {};
     console.debug = () => {};
   }
+  // Vérifier/installer pedalboard (VST3) sur macOS et Windows
+  ensurePedalboard().catch(err => console.warn('ensurePedalboard:', err.message));
   // Démarrer le serveur audio Python en arrière-plan
   startAudioServer().catch(err => {
     console.error('⚠️ audio_server non disponible :', err.message);

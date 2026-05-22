@@ -4,5 +4,5 @@
 
 set -e
 
-pip3 install --user --quiet sounddevice soundfile numpy pyrubberband websockets 2>/dev/null || \
-  echo "[kandiskyScore] pip3 indisponible — lancez manuellement : pip3 install sounddevice soundfile numpy pyrubberband websockets"
+pip3 install --user --quiet sounddevice soundfile numpy pyrubberband websockets pedalboard 2>/dev/null || \
+  echo "[kandiskyScore] pip3 indisponible — lancez manuellement : pip3 install sounddevice soundfile numpy pyrubberband websockets pedalboard"
