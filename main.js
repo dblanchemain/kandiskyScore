@@ -7163,7 +7163,7 @@ function runVst3Helper(args, stdinData) {
                 try { resolve(JSON.parse(stdout)); }
                 catch (e) { resolve({ raw: stdout }); }
             } else {
-                reject(new Error(`vst3_helper exit ${code}: ${stderr.slice(0, 400)}`));
+                reject(new Error(`vst3_helper exit ${code}: ${stderr.slice(0, 2000)}`));
             }
         });
         proc.on('error', reject);

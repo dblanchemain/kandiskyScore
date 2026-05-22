@@ -98,11 +98,10 @@ def _interp(events, t):
 
 def cmd_process(plugin_path, in_path, out_path):
     data       = json.loads(sys.stdin.buffer.read())
-    automation = data.get('automation', {})   # {param: [[t,v,mode?], ...]}
+    automation = data.get('automation', {})
     block_size = int(data.get('block_size', 1024))
 
     audio, sr = sf.read(in_path, dtype='float32', always_2d=True)
-    # audio shape : (samples, channels)
     n_samples  = audio.shape[0]
     n_channels = audio.shape[1]
 
@@ -111,13 +110,12 @@ def cmd_process(plugin_path, in_path, out_path):
 
     output = np.zeros((n_samples, n_channels), dtype=np.float32)
 
-    offset   = 0
-    first    = True
+    offset = 0
+    first  = True
     while offset < n_samples:
         end   = min(offset + block_size, n_samples)
         t_sec = offset / sr
 
-        # Automation : interpoler chaque paramètre au temps courant
         for param_name, events in automation.items():
             val = _interp(events, t_sec)
             try:
@@ -125,13 +123,24 @@ def cmd_process(plugin_path, in_path, out_path):
             except Exception:
                 pass
 
-        chunk = audio[offset:end].T           # (channels, block)
+        chunk = audio[offset:end].T           # (n_channels, block_len)
         out_chunk = board(chunk, sr, reset=first)
         first = False
 
-        # pedalboard peut retourner moins ou plus de samples selon la latence
-        copy_len = min(out_chunk.shape[1], end - offset)
-        output[offset:offset + copy_len] = out_chunk[:, :copy_len].T
+        # Garantir 2D même si pedalboard retourne 1D
+        if out_chunk.ndim == 1:
+            out_chunk = out_chunk[np.newaxis, :]
+
+        out_ch   = out_chunk.shape[0]
+        out_samp = out_chunk.shape[1]
+        copy_len = min(out_samp, end - offset)
+        copy_ch  = min(out_ch, n_channels)
+
+        output[offset:offset + copy_len, :copy_ch] = out_chunk[:copy_ch, :copy_len].T
+        # canal manquant → duplique le dernier canal disponible
+        for c in range(copy_ch, n_channels):
+            output[offset:offset + copy_len, c] = out_chunk[copy_ch - 1, :copy_len]
+
         offset = end
 
     sf.write(out_path, output, sr, subtype='FLOAT')
