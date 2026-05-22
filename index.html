@@ -445,18 +445,24 @@ Teste de Editor
 
 <!--    **************************************   popup liste fx  **************************************     -->
 
-<div id="listNewFx"  class="popup"  style="width:180px;height:270px"  >
-	<div id="listNewFxHeader"  class="popupHeader"><b></b></div>
-	<form id="formSelecFx" action="">
-		<span id="selecFx" style="position:absolute;top:40px;left:10px;" >
-		
-		</span>
-		<span  style="position:absolute;top:40px;left:145px;" onclick='fxParam(0);'>
-			<img src="./images/png/clesFx.png" style="width=24px;" alt="">
-		</span>
-	</form>
-	<div style="position:absolute;top:240px;left:90px;" >
-	<button onclick='fxValidAddPlugin();'>Valider</button>
+<div id="listNewFx" class="popup" style="width:215px;height:295px">
+	<div id="listNewFxHeader" class="popupHeader"><b>FX</b></div>
+	<!-- Onglets WAM / LV2 / VST3 -->
+	<div style="display:flex;background:#c8c8c8;border-bottom:1px solid #999;">
+		<button id="fxTabBtnWam"  onclick="switchFxTab('wam')"  style="flex:1;border:none;border-right:1px solid #aaa;padding:4px 2px;font-size:11px;font-weight:bold;cursor:pointer;background:#d4b896;">WAM</button>
+		<button id="fxTabBtnLv2"  onclick="switchFxTab('lv2')"  style="flex:1;border:none;border-right:1px solid #aaa;padding:4px 2px;font-size:11px;cursor:pointer;background:#c8c8c8;">LV2</button>
+		<button id="fxTabBtnVst3" onclick="switchFxTab('vst3')" style="flex:1;border:none;padding:4px 2px;font-size:11px;cursor:pointer;background:#c8c8c8;">VST3</button>
+	</div>
+	<!-- Contenu onglet WAM -->
+	<div id="fxTabWam" style="display:block;overflow-y:auto;max-height:222px;">
+		<form id="formSelecFx" action=""></form>
+	</div>
+	<!-- Contenu onglet LV2 -->
+	<div id="fxTabLv2" style="display:none;overflow-y:auto;max-height:222px;"></div>
+	<!-- Contenu onglet VST3 -->
+	<div id="fxTabVst3" style="display:none;overflow-y:auto;max-height:222px;"></div>
+	<div style="position:absolute;bottom:6px;right:8px;">
+		<button onclick="fxValidAddPlugin()">Valider</button>
 	</div>
 </div>
 

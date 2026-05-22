@@ -2772,21 +2772,68 @@ function selectElement(id, valueToSelect) {
 function defSelectListeFx(){
 	var txt="";
 	for(let j=0;j<7;j++){
-		txt+=`<span style='position:absolute;top:${40+(28*j)}px;left:10px;'>`;
-		txt+=`<select id='selecFx${j}' size='1' onchange='fxOnChange(${j},value);'>`;
+		txt+=`<div style="display:flex;align-items:center;padding:2px 6px;border-bottom:1px solid #e0e0e0;">`;
+		txt+=`<select id='selecFx${j}' style="width:135px;font-size:11px;" onchange='fxOnChange(${j},value);'>`;
 		for(let i in listeFx){
 			const fd=listeFx[i];
-			// masquer les entrées dynamiques LV2/VST3 du sélecteur principal
+			// masquer les entrées dynamiques et les browsers LV2/VST3 (sur leurs propres onglets)
 			if(fd.type==='lv2'  && i.startsWith('lv2:'))  continue;
 			if(fd.type==='vst3' && i.startsWith('vst3:')) continue;
+			if(fd.type==='lv2-browser' || fd.type==='vst3-browser') continue;
 			const label=fd.displayName||fd.name||i;
 			txt+=`<option value='${fd.name}'>${label}</option>`;
 		}
-		txt+="</select></span>";
-		txt+=`<span style='position:absolute;top:${36+(28*j)}px;left:145px;'>`;
-		txt+=`<img src='./images/png/clesFx.png' style='width=24px;' onclick='fxParam(${j});'></span>`;
+		txt+=`</select>`;
+		txt+=`<img src='./images/png/clesFx.png' style='width:22px;cursor:pointer;margin-left:4px;' onclick='fxParam(${j});'>`;
+		txt+=`</div>`;
 	}
 	document.getElementById("formSelecFx").innerHTML=txt;
+}
+
+function switchFxTab(tab) {
+	['wam','lv2','vst3'].forEach(t => {
+		const cap = t.charAt(0).toUpperCase()+t.slice(1);
+		document.getElementById('fxTab'+cap).style.display    = t===tab ? 'block' : 'none';
+		const btn = document.getElementById('fxTabBtn'+cap);
+		btn.style.fontWeight = t===tab ? 'bold' : 'normal';
+		btn.style.background = t===tab ? '#d4b896' : '#c8c8c8';
+	});
+	if(tab==='lv2')  refreshFxTabLv2();
+	if(tab==='vst3') refreshFxTabVst3();
+}
+
+function refreshFxTabLv2() {
+	const div   = document.getElementById('fxTabLv2');
+	const slots = (tableObjet[objActif]||{}).tableFx || [];
+	let html = '';
+	for(let j=0;j<7;j++){
+		const key  = slots[j]||'';
+		const isLv2 = key.startsWith('lv2:');
+		const name  = isLv2 ? (listeFx[key]?.displayName||key.slice(4)) : '—';
+		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
+			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
+			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;" title="${name}">${name}</span>
+			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" onclick="openLv2Browser(${j})">…</button>
+		</div>`;
+	}
+	div.innerHTML = html;
+}
+
+function refreshFxTabVst3() {
+	const div   = document.getElementById('fxTabVst3');
+	const slots = (tableObjet[objActif]||{}).tableFx || [];
+	let html = '';
+	for(let j=0;j<7;j++){
+		const key   = slots[j]||'';
+		const isVst = key.startsWith('vst3:');
+		const name  = isVst ? (listeFx[key]?.displayName||key.slice(5)) : '—';
+		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
+			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
+			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;" title="${name}">${name}</span>
+			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" onclick="openVst3Browser(${j})">…</button>
+		</div>`;
+	}
+	div.innerHTML = html;
 }
 function fxOnChange(id, filtre) {
 	idFxParam = id;
@@ -2975,9 +3022,7 @@ async function selectLv2Plugin(uri) {
 	};
 	tableObjet[objActif].tableFx[idFxParam]      = key;
 	tableObjet[objActif].tableFxParam[idFxParam] = defaut;
-	// Rafraîchir le select du slot
-	defSelectListeFx();
-	selectElement('selecFx' + idFxParam, key);
+	refreshFxTabLv2();
 }
 
 function buildLv2Interface(key, ports) {
@@ -3078,8 +3123,7 @@ async function selectVst3Plugin(pluginPath) {
 	};
 	tableObjet[objActif].tableFx[idFxParam]      = key;
 	tableObjet[objActif].tableFxParam[idFxParam] = defaut;
-	defSelectListeFx();
-	selectElement('selecFx' + idFxParam, key);
+	refreshFxTabVst3();
 }
 
 function buildVst3Interface(key, params) {
@@ -3182,8 +3226,10 @@ function openListeFx() {
 	document.getElementById("listNewFx").style.display="block";
 	document.getElementById("listNewFx").style.backgroundColor='#ffdea4';
 	for(let j=0;j<7;j++){
-		selectElement("selecFx"+j,tableObjet[objActif].tableFx[j] );
+		selectElement("selecFx"+j, tableObjet[objActif].tableFx[j]);
 	}
+	refreshFxTabLv2();
+	refreshFxTabVst3();
 }
 /*
 function defautFxParam() {
