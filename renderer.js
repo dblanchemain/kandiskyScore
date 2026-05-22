@@ -1205,10 +1205,20 @@ function defautSpace(){
 		orZ:0
 	};
 }
+function _defaultPluginPaths(type) {
+	const p = (window.api && window.api.platform) || '';
+	if (type === 'lv2') {
+		if (p === 'linux') return '~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
+		return '';
+	}
+	if (p === 'win32')  return '%COMMONPROGRAMFILES%\\VST3:%COMMONPROGRAMFILES(X86)%\\VST3';
+	if (p === 'darwin') return '~/Library/Audio/Plug-Ins/VST3:/Library/Audio/Plug-Ins/VST3';
+	return '~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3';
+}
 function defautExterne() {
 	interpretorPath='';
-	lv2Paths='~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
-	vst3Paths='~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3';
+	lv2Paths=_defaultPluginPaths('lv2');
+	vst3Paths=_defaultPluginPaths('vst3');
 	daw=0;
 	cmdDaw='';
 	pdfPage=0;
@@ -2706,8 +2716,8 @@ function setPalette(){
 function importExterne(txt){
 	var defc=JSON.parse(atob(txt));
 	interpretorPath=defc.interpretorPath||'';
-	lv2Paths=defc.lv2Paths||'~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
-	vst3Paths=defc.vst3Paths||'~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3';
+	lv2Paths=defc.lv2Paths||_defaultPluginPaths('lv2');
+	vst3Paths=defc.vst3Paths||_defaultPluginPaths('vst3');
 	editor=defc.editor;
 	daw=defc.daw;
 	cmdDaw=defc.cmdDaw;

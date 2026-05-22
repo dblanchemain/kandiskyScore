@@ -143,6 +143,7 @@ contextBridge.exposeInMainWorld(
     copyGrpAudio: (files, srcDir, destDir) => ipcRenderer.invoke('copyGrpAudio', files, srcDir, destDir),
     copyGrpExports: (srcDir, destDir, srcIds, offset) => ipcRenderer.invoke('copyGrpExports', srcDir, destDir, srcIds, offset),
     isDev,
+    platform: process.platform,
     // ── LV2 ──
     lv2List:      ()                      => ipcRenderer.invoke('lv2-list'),
     lv2ListNames: ()                      => ipcRenderer.invoke('lv2-list-names'),

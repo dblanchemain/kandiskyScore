@@ -1377,8 +1377,8 @@ function defExterneConfig() {
 		pdfBkg = _tagVal(obj, "externepdfbkg");
 		editAudioCmd = _tagVal(obj, "externeaudioedit");
 		interpretorPath = _tagVal(obj, "externeinterpretorpath") || '';
-		lv2Paths  = decodeURIComponent(_tagVal(obj, "externelv2paths")  || '') || '~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
-		vst3Paths = decodeURIComponent(_tagVal(obj, "externevst3paths") || '') || '~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3';
+		lv2Paths  = decodeURIComponent(_tagVal(obj, "externelv2paths")  || '') || _defaultPluginPaths('lv2');
+		vst3Paths = decodeURIComponent(_tagVal(obj, "externevst3paths") || '') || _defaultPluginPaths('vst3');
 		if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png";
 		}else{
