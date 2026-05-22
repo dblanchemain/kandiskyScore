@@ -5838,6 +5838,8 @@ function mainExternes2(txt) {
 		}
 	}
 	interpretorPath=defc.interpretorPath||'';
+	lv2Paths=defc.lv2Paths||'~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
+	vst3Paths=defc.vst3Paths||'~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3';
 	editor=defc.editor;
 	daw=defc.daw;
 	cmdDaw=defc.cmdDaw;

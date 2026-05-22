@@ -369,6 +369,8 @@ function defProjetConf(txt) {
 	<externepdfbkg value='"+pdfBkg+"'></externepdfbkg>\n\
 	<externeaudioedit value='"+editAudioCmd+"'></externeaudioedit>\n\
 	<externeinterpretorpath value='"+interpretorPath+"'></externeinterpretorpath>\n\
+	<externelv2paths value='"+encodeURIComponent(lv2Paths||'')+"'></externelv2paths>\n\
+	<externevst3paths value='"+encodeURIComponent(vst3Paths||'')+"'></externevst3paths>\n\
 	</externe>\n";
 	return txt;
 }
@@ -902,7 +904,7 @@ function defObjets(i,liste,dx,dy){
 						break;
 				}
 			}
-			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd,interpretorPath}));
+			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd,interpretorPath,lv2Paths,vst3Paths}));
 			window.api.send("toMain", 'defExterne;'+txt);
 			actualiseObjets();
 			// Régénérer les -fx.wav au chargement du projet (séquentiel — renduout.wav partagé)
@@ -1375,6 +1377,8 @@ function defExterneConfig() {
 		pdfBkg = _tagVal(obj, "externepdfbkg");
 		editAudioCmd = _tagVal(obj, "externeaudioedit");
 		interpretorPath = _tagVal(obj, "externeinterpretorpath") || '';
+		lv2Paths  = decodeURIComponent(_tagVal(obj, "externelv2paths")  || '') || '~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
+		vst3Paths = decodeURIComponent(_tagVal(obj, "externevst3paths") || '') || '~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3';
 		if(daw=='reaper'){
 			document.getElementById("read3d").src="./images/png/reaper.png";
 		}else{
