@@ -144,16 +144,16 @@
 			<tr ><td colspan="4"> <b>Interpréteur</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='interpretorPath' type="text" style="width:460px" value='' />&nbsp;<button onclick="browseInterpretor()">...</button></td></tr>
 			<tr ><td colspan="4">  </td></tr>
-			<tr ><td colspan="4"> <b>Path LV2</b> <span style="font-size:0.8em;color:#666;">(chemins supplémentaires, séparés par ':')</span></td></tr>
+			<tr ><td colspan="4"> <b>Path LV2</b> <span style="font-size:0.8em;color:#666;">(chemins séparés par ':')</span></td></tr>
 			<tr><td></td><td colspan="3">
-				<input id='lv2Paths' type="text" style="width:400px" value='' placeholder="~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2" />
-				&nbsp;<button onclick="browseLv2Path()">...</button>
+				<textarea id='lv2Paths' style="width:460px;height:44px;resize:vertical;font-size:0.82em;font-family:monospace;" placeholder="~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2"></textarea>
+				<br/><button onclick="browseLv2Path()">...</button>
 				&nbsp;<button onclick="rescannerPlugins()" title="Rescanner LV2 et VST3">↻ Rescanner</button>
 			</td></tr>
-			<tr ><td colspan="4"> <b>Path VST3</b> <span style="font-size:0.8em;color:#666;">(chemins supplémentaires, séparés par ':')</span></td></tr>
+			<tr ><td colspan="4"> <b>Path VST3</b> <span style="font-size:0.8em;color:#666;">(chemins séparés par ':')</span></td></tr>
 			<tr><td></td><td colspan="3">
-				<input id='vst3Paths' type="text" style="width:400px" value='' placeholder="~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3" />
-				&nbsp;<button onclick="browseVst3Path()">...</button>
+				<textarea id='vst3Paths' style="width:460px;height:44px;resize:vertical;font-size:0.82em;font-family:monospace;" placeholder="~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3"></textarea>
+				<br/><button onclick="browseVst3Path()">...</button>
 			</td></tr>
 			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>Éditeur</b> </td></tr>
@@ -1138,8 +1138,13 @@ function externeRestore() {
 	}
 }
 function importExterne(txt){
-	paramExterne=JSON.parse(atob(txt));
-	console.log('importExterne',paramExterne)
+	const saved = JSON.parse(atob(txt));
+	// Fusionner avec les valeurs par défaut pour les champs absents (anciens projets)
+	externeRestore();
+	Object.assign(paramExterne, saved);
+	if (!paramExterne.lv2Paths)  paramExterne.lv2Paths  = '~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
+	if (!paramExterne.vst3Paths) paramExterne.vst3Paths = '~/.vst3:/usr/lib/vst3:/usr/local/lib/vst3';
+	console.log('importExterne', paramExterne);
 }
 function browseInterpretor() {
 	window.api.send("toMain", "browseInterpretor");
