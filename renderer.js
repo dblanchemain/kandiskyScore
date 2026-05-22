@@ -2776,8 +2776,9 @@ function defSelectListeFx(){
 		txt+=`<select id='selecFx${j}' size='1' onchange='fxOnChange(${j},value);'>`;
 		for(let i in listeFx){
 			const fd=listeFx[i];
-			// masquer les entrées LV2 dynamiques du sélecteur principal
-			if(fd.type==='lv2' && i.startsWith('lv2:')) continue;
+			// masquer les entrées dynamiques LV2/VST3 du sélecteur principal
+			if(fd.type==='lv2'  && i.startsWith('lv2:'))  continue;
+			if(fd.type==='vst3' && i.startsWith('vst3:')) continue;
 			const label=fd.displayName||fd.name||i;
 			txt+=`<option value='${fd.name}'>${label}</option>`;
 		}
@@ -2791,8 +2792,8 @@ function fxOnChange(id, filtre) {
 	idFxParam = id;
 	const fxDesc = listeFx[filtre];
 	if (!fxDesc) return;
-	// Pour LV2 browser et FaustCode, l'édition se fait via icône → ne pas écraser avec defaut
-	if (fxDesc.type === 'lv2-browser' || fxDesc.type === 'faust-code') {
+	// Pour LV2/VST3 browser et FaustCode, l'édition se fait via icône → ne pas écraser avec defaut
+	if (fxDesc.type === 'lv2-browser' || fxDesc.type === 'vst3-browser' || fxDesc.type === 'faust-code') {
 		tableObjet[objActif].tableFx[id] = fxDesc.name;
 		if (!tableObjet[objActif].tableFxParam[id]) tableObjet[objActif].tableFxParam[id] = '';
 		return;
@@ -2890,12 +2891,20 @@ function fxParam(id) {
 	// ── LV2 browser ──
 	if (fxDesc.type === 'lv2-browser') { openLv2Browser(id); return; }
 
+	// ── VST3 browser ──
+	if (fxDesc.type === 'vst3-browser') { openVst3Browser(id); return; }
+
 	// ── Faust code editor ──
 	if (fxDesc.type === 'faust-code') { openFaustEditor(id); return; }
 
 	// ── LV2 plugin : interface de paramètres inline ──
 	if (fxDesc.type === 'lv2') {
 		openLv2ParamEditor(id, greffon); return;
+	}
+
+	// ── VST3 plugin : interface de paramètres inline ──
+	if (fxDesc.type === 'vst3') {
+		openVst3ParamEditor(id, greffon); return;
 	}
 
 	// ── WAM / greffon classique ──
@@ -3002,6 +3011,109 @@ function openLv2ParamEditor(id, key) {
 	const fxDesc = listeFx[key];
 	openPopup(key, 400, 200, fxDesc.width, fxDesc.height, 0, fxDesc.interface);
 	document.getElementById('popup' + key).style.backgroundColor = '#3465a4';
+	drawFxAutomation(key);
+	const labels = fxDesc.label.split(',');
+	for (let j = 0; j < labels.length; j++) {
+		const el = document.getElementById(labels[j]);
+		if (el) el.addEventListener("mousedown", createFxPoint);
+	}
+}
+
+// ═══════════════════ VST3 Browser ═══════════════════
+
+let _vst3PluginsCache = null;
+
+async function openVst3Browser(slotId) {
+	idFxParam = slotId;
+	const popup = document.getElementById('popupVst3Browser');
+	popup.style.display = 'block';
+	const listDiv = document.getElementById('vst3PluginList');
+	listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
+	if (!_vst3PluginsCache) {
+		const paths = await window.api.vst3List();
+		_vst3PluginsCache = [];
+		for (const pluginPath of paths) {
+			try {
+				const info = await window.api.vst3Info(pluginPath);
+				_vst3PluginsCache.push({ pluginPath, name: info.name, params: info.params });
+			} catch (_) {
+				const name = pluginPath.split('/').pop().replace(/\.vst3$/, '');
+				_vst3PluginsCache.push({ pluginPath, name, params: [] });
+			}
+		}
+	}
+	vst3FilterPlugins('');
+	if (!popup._draggable) { dragElement(popup); popup._draggable = true; }
+}
+
+function vst3FilterPlugins(q) {
+	const listDiv = document.getElementById('vst3PluginList');
+	const lower = q.toLowerCase();
+	const filtered = _vst3PluginsCache.filter(p => p.name.toLowerCase().includes(lower) || p.pluginPath.toLowerCase().includes(lower));
+	listDiv.innerHTML = filtered.map(p =>
+		`<div style="padding:4px 6px;cursor:pointer;border-bottom:1px solid #eee;"
+		      onclick="selectVst3Plugin('${p.pluginPath.replace(/'/g, "\\'")}')"
+		      title="${p.pluginPath}">${p.name}</div>`
+	).join('');
+}
+
+async function selectVst3Plugin(pluginPath) {
+	document.getElementById('popupVst3Browser').style.display = 'none';
+	const info = _vst3PluginsCache.find(p => p.pluginPath === pluginPath) || await window.api.vst3Info(pluginPath);
+	const baseName = pluginPath.split('/').pop().replace(/\.vst3$/, '');
+	const key = 'vst3:' + pluginPath;
+
+	const paramname = info.params.map(p => p.name).join(',');
+	const label     = info.params.map(p => p.name).join(',');
+	const defaut    = info.params.map(p => `0?${p.default}`).join('/');
+	const min       = info.params.map(p => p.min).join(',');
+	const max       = info.params.map(p => p.max).join(',');
+
+	listeFx[key] = {
+		name: key, displayName: info.name || baseName,
+		type: 'vst3', pluginPath,
+		paramname, label, defaut, min, max,
+		interface: buildVst3Interface(key, info.params),
+		width: 420, height: Math.max(160, 80 + info.params.length * 30)
+	};
+	tableObjet[objActif].tableFx[idFxParam]      = key;
+	tableObjet[objActif].tableFxParam[idFxParam] = defaut;
+	defSelectListeFx();
+	selectElement('selecFx' + idFxParam, key);
+}
+
+function buildVst3Interface(key, params) {
+	const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+	let rows = '';
+	params.forEach((p, i) => {
+		const step = ((p.max - p.min) / 100).toPrecision(2);
+		rows += `<tr><td style="font-size:11px;">${p.name}${p.units ? ' ('+p.units+')' : ''}</td>
+		<td rowspan='2' style='padding-left:6px;width:200px;height:54px;'>
+		  <div id='vst3p_${safeKey}_${i}' style='position:absolute;width:200px;height:54px;'>
+		    <svg><line x1='0' y1='28' x2='200' y2='28' stroke='#43434366' stroke-width='2'/></svg>
+		    <div id='fx0${i}' style='position:absolute;top:25px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx0${i}:${p.default}'></div>
+		  </div></td></tr>
+		<tr><td style='text-align:center'>
+		  <input id='X${p.name}' style='width:50px;' type='number' value='0' min='0' max='60' step='0.01' oninput="fxParamModifPT('${p.name}')"/>
+		  <input id='Y${p.name}' style='width:70px;' type='number' value='${p.default}' min='${p.min}' max='${p.max}' step='${step}'
+		         oninput="fxParamModifPV('${p.name}',${p.max},${p.min})"/>
+		</td></tr>`;
+	});
+	const escapedKey = key.replace(/'/g, "\\'");
+	return `<table id='${safeKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#ffe8d4;font-size:11px;'><tbody>
+	  ${rows}
+	</tbody></table>
+	<div style='margin-top:6px;margin-left:10px;'>
+	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
+	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
+	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
+	</div>`;
+}
+
+function openVst3ParamEditor(id, key) {
+	const fxDesc = listeFx[key];
+	openPopup(key, 400, 200, fxDesc.width, fxDesc.height, 0, fxDesc.interface);
+	document.getElementById('popup' + key).style.backgroundColor = '#4a6a34';
 	drawFxAutomation(key);
 	const labels = fxDesc.label.split(',');
 	for (let j = 0; j < labels.length; j++) {

@@ -330,6 +330,14 @@ listeFx["LV2..."] = {
 	label: '', paramname: '', greffon: null, defaut: '', min: '', max: ''
 };
 
+listeFx["VST3..."] = {
+	name: "VST3...",
+	displayName: "VST3 Plugin…",
+	type: 'vst3-browser',
+	interface: "", width: 0, height: 0,
+	label: '', paramname: '', greffon: null, defaut: '', min: '', max: ''
+};
+
 listeFx["FaustCode"] = {
 	name: "FaustCode",
 	displayName: "Faust (code)",

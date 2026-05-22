@@ -143,9 +143,13 @@ contextBridge.exposeInMainWorld(
     copyGrpAudio: (files, srcDir, destDir) => ipcRenderer.invoke('copyGrpAudio', files, srcDir, destDir),
     copyGrpExports: (srcDir, destDir, srcIds, offset) => ipcRenderer.invoke('copyGrpExports', srcDir, destDir, srcIds, offset),
     isDev,
-    // ── LV2 / VST3 ──
+    // ── LV2 ──
     lv2List:    ()                        => ipcRenderer.invoke('lv2-list'),
     lv2Info:    (uri)                     => ipcRenderer.invoke('lv2-info', uri),
     lv2Process: (params)                  => ipcRenderer.invoke('lv2-process', params),
+    // ── VST3 (pedalboard) ──
+    vst3List:    ()                       => ipcRenderer.invoke('vst3-list'),
+    vst3Info:    (pluginPath)             => ipcRenderer.invoke('vst3-info', pluginPath),
+    vst3Process: (params)                 => ipcRenderer.invoke('vst3-process', params),
     }
 );

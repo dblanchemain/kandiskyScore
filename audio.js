@@ -1386,6 +1386,31 @@ async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sam
             continue;
         }
 
+        // ══════ VST3 (pedalboard) ══════
+        if (fxDesc.type === 'vst3') {
+            const pluginPath = fxDesc.pluginPath;
+            const syms = (fxDesc.paramname || '').split(',').map(s => s.trim()).filter(Boolean);
+            const automation = {};
+            syms.forEach((sym, pi) => {
+                const events = paramBlocks[pi] || [];
+                if (events.length) {
+                    automation[sym] = events.map(kf => [kf.time, kf.value, kf.mode]);
+                }
+            });
+            try {
+                const res = await window.api.vst3Process({
+                    channels:   currentChannels.map(ch => { const c = new Float32Array(ch.length); c.set(ch); return c.buffer; }),
+                    sampleRate, pluginPath, automation, blockSize: 1024
+                });
+                let outCh = res.channels.map(ab => new Float32Array(ab));
+                while (outCh.length < numChannels) outCh.push(new Float32Array(outCh[0]));
+                currentChannels = outCh.slice(0, numChannels);
+            } catch (err) {
+                console.warn(`[pipeline] VST3 ${pluginPath} → passthrough`, err);
+            }
+            continue;
+        }
+
         // ══════ Faust code inline ══════
         if (fxDesc.type === 'faust-code') {
             const dspSource = (obj.tableFxCode || [])[slotIndex] || '';

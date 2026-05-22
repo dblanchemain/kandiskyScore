@@ -521,6 +521,19 @@ Teste de Editor
   </div>
 </div>
 
+<!-- ══════════════════ VST3 Browser ══════════════════ -->
+<div id="popupVst3Browser" class="popup" style="width:480px;height:420px;display:none;top:160px;left:220px;">
+  <div id="popupVst3BrowserHeader" class="popupHeader"><b>Choisir un plugin VST3</b></div>
+  <div style="padding:8px;">
+    <input id="vst3SearchInput" type="text" placeholder="Rechercher..." style="width:100%;box-sizing:border-box;margin-bottom:6px;"
+           oninput="vst3FilterPlugins(this.value)">
+    <div id="vst3PluginList" style="height:290px;overflow-y:auto;border:1px solid #888;background:#fff;font-size:12px;"></div>
+    <div style="margin-top:6px;display:flex;justify-content:flex-end;gap:6px;">
+      <button onclick="document.getElementById('popupVst3Browser').style.display='none'">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════ Faust Code Editor ══════════════════ -->
 <div id="popupFaustEditor" class="popup" style="width:560px;height:480px;display:none;top:120px;left:180px;">
   <div id="popupFaustEditorHeader" class="popupHeader"><b>Éditeur Faust DSP</b></div>

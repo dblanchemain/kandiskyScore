@@ -942,6 +942,36 @@ function defObjets(i,liste,dx,dy){
 					}
 				}
 			})();
+			// Reconstruire les entrées listeFx pour les plugins VST3 chargés depuis un projet
+			(async()=>{
+				const done = new Set();
+				for(let k=0;k<nbObjets;k++){
+					const obj=tableObjet[k];
+					if(!obj || !obj.tableFx) continue;
+					for(const fxKey of obj.tableFx){
+						if(fxKey && fxKey.startsWith('vst3:') && !listeFx[fxKey] && !done.has(fxKey)){
+							done.add(fxKey);
+							const pluginPath=fxKey.slice(5);
+							try{
+								const info=await window.api.vst3Info(pluginPath);
+								const paramname=info.params.map(p=>p.name).join(',');
+								const label    =info.params.map(p=>p.name).join(',');
+								const defaut   =info.params.map(p=>`0?${p.default}`).join('/');
+								const minS     =info.params.map(p=>p.min).join(',');
+								const maxS     =info.params.map(p=>p.max).join(',');
+								const baseName =pluginPath.split('/').pop().replace(/\.vst3$/,'');
+								listeFx[fxKey]={
+									name:fxKey, displayName:info.name||baseName,
+									type:'vst3', pluginPath,
+									paramname, label, defaut, min:minS, max:maxS,
+									interface:buildVst3Interface(fxKey,info.params),
+									width:420, height:Math.max(160,80+info.params.length*30)
+								};
+							}catch(e){ console.warn('[VST3 restore]',fxKey,e.message); }
+						}
+					}
+				}
+			})();
 }
 function initTableBuffer(i,liste,dx,dy) {
 	var _absPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),liste[i]);

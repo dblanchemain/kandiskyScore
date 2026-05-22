@@ -7164,6 +7164,75 @@ ipcMain.handle('lv2-process', async (event, { channels, sampleRate, uri, control
     }
 });
 
+// ============================== VST3 (pedalboard) =======================
+
+const VST3_HELPER = path.join(__dirname, 'vst3_helper.py');
+
+function runVst3Helper(args, stdinData) {
+    return new Promise((resolve, reject) => {
+        const proc = spawn('python3', [VST3_HELPER, ...args], {
+            stdio: ['pipe', 'pipe', 'pipe']
+        });
+        let stdout = '', stderr = '';
+        proc.stdout.on('data', d => { stdout += d.toString(); });
+        proc.stderr.on('data', d => { stderr += d.toString(); });
+        proc.on('exit', code => {
+            if (code === 0) {
+                try { resolve(JSON.parse(stdout)); }
+                catch (e) { resolve({ raw: stdout }); }
+            } else {
+                reject(new Error(`vst3_helper exit ${code}: ${stderr.slice(0, 400)}`));
+            }
+        });
+        proc.on('error', reject);
+        if (stdinData) {
+            proc.stdin.write(stdinData);
+            proc.stdin.end();
+        } else {
+            proc.stdin.end();
+        }
+    });
+}
+
+// Liste des plugins VST3 installés (chemins)
+ipcMain.handle('vst3-list', async () => {
+    return runVst3Helper(['list']);
+});
+
+// Métadonnées d'un plugin VST3 : {name, path, params:[{name,min,max,default,units}]}
+ipcMain.handle('vst3-info', async (event, pluginPath) => {
+    return runVst3Helper(['info', pluginPath]);
+});
+
+// Traitement audio VST3 avec automation par blocs
+// Params: { channels:[ArrayBuffer], sampleRate, pluginPath,
+//           automation:{paramName:[[t,v,mode?],...], ...}, blockSize? }
+// Retourne: { channels:[ArrayBuffer], sampleRate }
+ipcMain.handle('vst3-process', async (event, { channels, sampleRate, pluginPath, automation, blockSize }) => {
+    const tmpIn  = path.join(os.tmpdir(), `vst3in_${Date.now()}.wav`);
+    const tmpOut = path.join(os.tmpdir(), `vst3out_${Date.now()}.wav`);
+    try {
+        const floatCh = channels.map(ab => new Float32Array(ab));
+        const wavBuf = Buffer.from(await WavEncoder.encode({ sampleRate, channelData: floatCh }));
+        fs.writeFileSync(tmpIn, wavBuf);
+
+        const stdinJson = JSON.stringify({ automation: automation || {}, block_size: blockSize || 1024 });
+        await runVst3Helper(['process', pluginPath, tmpIn, tmpOut], stdinJson);
+
+        const outBuf  = fs.readFileSync(tmpOut);
+        const decoded = await WavDecoder.decode(outBuf);
+        const outChannels = decoded.channelData.map(ch => {
+            const fa = new Float32Array(ch.length);
+            fa.set(ch);
+            return fa.buffer;
+        });
+        return { channels: outChannels, sampleRate: decoded.sampleRate };
+    } finally {
+        try { fs.unlinkSync(tmpIn);  } catch (_) {}
+        try { fs.unlinkSync(tmpOut); } catch (_) {}
+    }
+});
+
 // ============================== FIN LV2 / VST3 ==========================
 
 // ****************************************************************************************************************
