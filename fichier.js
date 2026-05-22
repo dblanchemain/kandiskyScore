@@ -926,7 +926,7 @@ function defObjets(i,liste,dx,dy){
 							try{
 								const info=await window.api.lv2Info(uri);
 								const paramname=info.controlPorts.map(p=>p.symbol).join(',');
-								const label    =info.controlPorts.map(p=>p.name).join(',');
+								const label    =info.controlPorts.map(p=>p.symbol).join(',');
 								const defaut   =info.controlPorts.map(p=>`0?${p.def}`).join('/');
 								const minS     =info.controlPorts.map(p=>p.min).join(',');
 								const maxS     =info.controlPorts.map(p=>p.max).join(',');
@@ -935,7 +935,7 @@ function defObjets(i,liste,dx,dy){
 									type:'lv2', pluginUri:uri,
 									paramname, label, defaut, min:minS, max:maxS,
 									interface:buildLv2Interface(fxKey,info.controlPorts),
-									width:420, height:Math.max(160,80+info.controlPorts.length*30)
+									width:420, height:Math.max(180,75+info.controlPorts.length*62)
 								};
 							}catch(e){ console.warn('[LV2 restore]',fxKey,e.message); }
 						}
@@ -955,7 +955,7 @@ function defObjets(i,liste,dx,dy){
 							try{
 								const info=await window.api.vst3Info(pluginPath);
 								const paramname=info.params.map(p=>p.name).join(',');
-								const label    =info.params.map(p=>p.name).join(',');
+								const label    =info.params.map((p,i)=>'vp'+i+'_'+p.name.replace(/[^a-zA-Z0-9]/g,'_')).join(',');
 								const defaut   =info.params.map(p=>`0?${p.default}`).join('/');
 								const minS     =info.params.map(p=>p.min).join(',');
 								const maxS     =info.params.map(p=>p.max).join(',');
@@ -965,7 +965,7 @@ function defObjets(i,liste,dx,dy){
 									type:'vst3', pluginPath,
 									paramname, label, defaut, min:minS, max:maxS,
 									interface:buildVst3Interface(fxKey,info.params),
-									width:420, height:Math.max(160,80+info.params.length*30)
+									width:420, height:Math.max(180,75+info.params.length*62)
 								};
 							}catch(e){ console.warn('[VST3 restore]',fxKey,e.message); }
 						}

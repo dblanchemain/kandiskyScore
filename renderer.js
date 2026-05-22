@@ -2815,7 +2815,7 @@ function refreshFxTabLv2() {
 			: `<img src='./images/png/clesFx.png' style='width:18px;opacity:0.25;margin-right:3px;flex-shrink:0;'>`;
 		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
 			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
-			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;" title="${name}">${name}</span>
+			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;color:#222;" title="${name}">${name}</span>
 			${keyIcon}
 			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" title="Choisir plugin LV2" onclick="openLv2Browser(${j})">…</button>
 		</div>`;
@@ -2836,7 +2836,7 @@ function refreshFxTabVst3() {
 			: `<img src='./images/png/clesFx.png' style='width:18px;opacity:0.25;margin-right:3px;flex-shrink:0;'>`;
 		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
 			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
-			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;" title="${name}">${name}</span>
+			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;color:#222;" title="${name}">${name}</span>
 			${keyIcon}
 			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" title="Choisir plugin VST3" onclick="openVst3Browser(${j})">…</button>
 		</div>`;
@@ -3016,7 +3016,7 @@ async function selectLv2Plugin(uri) {
 
 	// Créer l'entrée listeFx pour ce plugin
 	const paramname = info.controlPorts.map(p => p.symbol).join(',');
-	const label     = info.controlPorts.map(p => p.name).join(',');
+	const label     = info.controlPorts.map(p => p.symbol).join(',');  // symboles = IDs des divs automation
 	const defaut    = info.controlPorts.map(p => `0?${p.def}`).join('/');
 	const min       = info.controlPorts.map(p => p.min).join(',');
 	const max       = info.controlPorts.map(p => p.max).join(',');
@@ -3026,7 +3026,7 @@ async function selectLv2Plugin(uri) {
 		type: 'lv2', pluginUri: uri,
 		paramname, label, defaut, min, max,
 		interface: buildLv2Interface(key, info.controlPorts),
-		width: 420, height: Math.max(160, 80 + info.controlPorts.length * 30)
+		width: 420, height: Math.max(180, 75 + info.controlPorts.length * 62)
 	};
 	tableObjet[objActif].tableFx[idFxParam]      = key;
 	tableObjet[objActif].tableFxParam[idFxParam] = defaut;
@@ -3034,14 +3034,14 @@ async function selectLv2Plugin(uri) {
 }
 
 function buildLv2Interface(key, ports) {
-	const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+	const escapedKey = key.replace(/'/g, "\\'");
 	let rows = '';
 	ports.forEach((p, i) => {
 		rows += `<tr><td style="font-size:11px;">${p.name}</td>
-		<td rowspan='2' style='padding-left:6px;width:200px;height:54px;'>
-		  <div id='${p.symbol}' style='position:absolute;width:200px;height:54px;'>
-		    <svg><line x1='0' y1='28' x2='200' y2='28' stroke='#43434366' stroke-width='2'/></svg>
-		    <div id='fx0${i}' style='position:absolute;top:25px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx0${i}:${p.def}'></div>
+		<td rowspan='2' style='width:200px;height:60px;position:relative;'>
+		  <div id='${p.symbol}' style='position:absolute;top:0;left:0;width:200px;height:60px;'>
+		    <svg><line x1='0' y1='30' x2='200' y2='30' stroke='#43434366' stroke-width='2'/></svg>
+		    <div id='fx0${i}' style='position:absolute;top:25px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx0${i}:${p.def}:0'></div>
 		  </div></td></tr>
 		<tr><td style='text-align:center'>
 		  <input id='X${p.symbol}' style='width:50px;' type='number' value='0' min='0' max='60' step='0.01' oninput="fxParamModifPT('${p.symbol}')"/>
@@ -3049,8 +3049,7 @@ function buildLv2Interface(key, ports) {
 		         oninput="fxParamModifPV('${p.symbol}',${p.max},${p.min})"/>
 		</td></tr>`;
 	});
-	const escapedKey = key.replace(/'/g, "\\'");
-	return `<table id='${safeKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;'><tbody>
+	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;'><tbody>
 	  ${rows}
 	</tbody></table>
 	<div style='margin-top:6px;margin-left:10px;'>
@@ -3117,7 +3116,7 @@ async function selectVst3Plugin(pluginPath) {
 	const key = 'vst3:' + pluginPath;
 
 	const paramname = info.params.map(p => p.name).join(',');
-	const label     = info.params.map(p => p.name).join(',');
+	const label     = info.params.map((p, i) => 'vp' + i + '_' + p.name.replace(/[^a-zA-Z0-9]/g, '_')).join(',');
 	const defaut    = info.params.map(p => `0?${p.default}`).join('/');
 	const min       = info.params.map(p => p.min).join(',');
 	const max       = info.params.map(p => p.max).join(',');
@@ -3127,7 +3126,7 @@ async function selectVst3Plugin(pluginPath) {
 		type: 'vst3', pluginPath,
 		paramname, label, defaut, min, max,
 		interface: buildVst3Interface(key, info.params),
-		width: 420, height: Math.max(160, 80 + info.params.length * 30)
+		width: 420, height: Math.max(180, 75 + info.params.length * 62)
 	};
 	tableObjet[objActif].tableFx[idFxParam]      = key;
 	tableObjet[objActif].tableFxParam[idFxParam] = defaut;
@@ -3135,24 +3134,24 @@ async function selectVst3Plugin(pluginPath) {
 }
 
 function buildVst3Interface(key, params) {
-	const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+	const escapedKey = key.replace(/'/g, "\\'");
 	let rows = '';
 	params.forEach((p, i) => {
+		const pid  = 'vp' + i + '_' + p.name.replace(/[^a-zA-Z0-9]/g, '_');
 		const step = ((p.max - p.min) / 100).toPrecision(2);
 		rows += `<tr><td style="font-size:11px;">${p.name}${p.units ? ' ('+p.units+')' : ''}</td>
-		<td rowspan='2' style='padding-left:6px;width:200px;height:54px;'>
-		  <div id='vst3p_${safeKey}_${i}' style='position:absolute;width:200px;height:54px;'>
-		    <svg><line x1='0' y1='28' x2='200' y2='28' stroke='#43434366' stroke-width='2'/></svg>
-		    <div id='fx0${i}' style='position:absolute;top:25px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx0${i}:${p.default}'></div>
+		<td rowspan='2' style='width:200px;height:60px;position:relative;'>
+		  <div id='${pid}' style='position:absolute;top:0;left:0;width:200px;height:60px;'>
+		    <svg><line x1='0' y1='30' x2='200' y2='30' stroke='#43434366' stroke-width='2'/></svg>
+		    <div id='fx0${i}' style='position:absolute;top:25px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx0${i}:${p.default}:0'></div>
 		  </div></td></tr>
 		<tr><td style='text-align:center'>
-		  <input id='X${p.name}' style='width:50px;' type='number' value='0' min='0' max='60' step='0.01' oninput="fxParamModifPT('${p.name}')"/>
-		  <input id='Y${p.name}' style='width:70px;' type='number' value='${p.default}' min='${p.min}' max='${p.max}' step='${step}'
-		         oninput="fxParamModifPV('${p.name}',${p.max},${p.min})"/>
+		  <input id='X${pid}' style='width:50px;' type='number' value='0' min='0' max='60' step='0.01' oninput="fxParamModifPT('${pid}')"/>
+		  <input id='Y${pid}' style='width:70px;' type='number' value='${p.default}' min='${p.min}' max='${p.max}' step='${step}'
+		         oninput="fxParamModifPV('${pid}',${p.max},${p.min})"/>
 		</td></tr>`;
 	});
-	const escapedKey = key.replace(/'/g, "\\'");
-	return `<table id='${safeKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#ffe8d4;font-size:11px;'><tbody>
+	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#ffe8d4;font-size:11px;'><tbody>
 	  ${rows}
 	</tbody></table>
 	<div style='margin-top:6px;margin-left:10px;'>
