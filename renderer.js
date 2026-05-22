@@ -3085,7 +3085,8 @@ async function openVst3Browser(slotId) {
 			for (const pluginPath of paths) {
 				try {
 					const info = await window.api.vst3Info(pluginPath);
-					_vst3PluginsCache.push({ pluginPath, name: info.name, params: info.params });
+					const fallbackName = pluginPath.split('/').pop().replace(/\.vst3$/, '');
+					_vst3PluginsCache.push({ pluginPath, name: info.name || fallbackName, params: info.params || [] });
 				} catch (_) {
 					const name = pluginPath.split('/').pop().replace(/\.vst3$/, '');
 					_vst3PluginsCache.push({ pluginPath, name, params: [] });
@@ -3103,7 +3104,7 @@ function vst3FilterPlugins(q) {
 	if (!_vst3PluginsCache) return;
 	const listDiv = document.getElementById('vst3PluginList');
 	const lower = q.toLowerCase();
-	const filtered = _vst3PluginsCache.filter(p => p.name.toLowerCase().includes(lower) || p.pluginPath.toLowerCase().includes(lower));
+	const filtered = _vst3PluginsCache.filter(p => (p.name||'').toLowerCase().includes(lower) || (p.pluginPath||'').toLowerCase().includes(lower));
 	listDiv.innerHTML = filtered.map(p =>
 		`<div style="padding:4px 6px;cursor:pointer;border-bottom:1px solid #eee;"
 		      onclick="selectVst3Plugin('${p.pluginPath.replace(/'/g, "\\'")}')"
