@@ -7147,7 +7147,9 @@ ipcMain.handle('lv2-list', async () => {
     return stdout.split('\n').map(l => l.trim()).filter(Boolean);
 });
 
-const LV2_HELPER = path.join(__dirname, 'lv2_helper.py');
+const LV2_HELPER = app.isPackaged
+    ? path.join(process.resourcesPath, 'lv2_helper.py')
+    : path.join(__dirname, 'lv2_helper.py');
 
 function runLv2Helper(args, stdinData) {
     return new Promise((resolve, reject) => {
@@ -7215,7 +7217,9 @@ ipcMain.handle('lv2-process', async (event, { channels, sampleRate, uri, automat
 
 // ============================== VST3 (pedalboard) =======================
 
-const VST3_HELPER = path.join(__dirname, 'vst3_helper.py');
+const VST3_HELPER = app.isPackaged
+    ? path.join(process.resourcesPath, 'vst3_helper.py')
+    : path.join(__dirname, 'vst3_helper.py');
 
 function runVst3Helper(args, stdinData) {
     return new Promise((resolve, reject) => {
