@@ -2807,13 +2807,17 @@ function refreshFxTabLv2() {
 	const slots = (tableObjet[objActif]||{}).tableFx || [];
 	let html = '';
 	for(let j=0;j<7;j++){
-		const key  = slots[j]||'';
+		const key   = slots[j]||'';
 		const isLv2 = key.startsWith('lv2:');
 		const name  = isLv2 ? (listeFx[key]?.displayName||key.slice(4)) : '—';
+		const keyIcon = isLv2
+			? `<img src='./images/png/clesFx.png' style='width:18px;cursor:pointer;margin-right:3px;flex-shrink:0;' title='Paramètres / automation' onclick='fxParam(${j});'>`
+			: `<img src='./images/png/clesFx.png' style='width:18px;opacity:0.25;margin-right:3px;flex-shrink:0;'>`;
 		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
 			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
 			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;" title="${name}">${name}</span>
-			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" onclick="openLv2Browser(${j})">…</button>
+			${keyIcon}
+			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" title="Choisir plugin LV2" onclick="openLv2Browser(${j})">…</button>
 		</div>`;
 	}
 	div.innerHTML = html;
@@ -2827,10 +2831,14 @@ function refreshFxTabVst3() {
 		const key   = slots[j]||'';
 		const isVst = key.startsWith('vst3:');
 		const name  = isVst ? (listeFx[key]?.displayName||key.slice(5)) : '—';
+		const keyIcon = isVst
+			? `<img src='./images/png/clesFx.png' style='width:18px;cursor:pointer;margin-right:3px;flex-shrink:0;' title='Paramètres / automation' onclick='fxParam(${j});'>`
+			: `<img src='./images/png/clesFx.png' style='width:18px;opacity:0.25;margin-right:3px;flex-shrink:0;'>`;
 		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
 			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
 			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;" title="${name}">${name}</span>
-			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" onclick="openVst3Browser(${j})">…</button>
+			${keyIcon}
+			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" title="Choisir plugin VST3" onclick="openVst3Browser(${j})">…</button>
 		</div>`;
 	}
 	div.innerHTML = html;
