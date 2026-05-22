@@ -3049,14 +3049,14 @@ function buildLv2Interface(key, ports) {
 		         oninput="fxParamModifPV('${p.symbol}',${p.max},${p.min})"/>
 		</td></tr>`;
 	});
-	return `<div style='margin:4px 6px 2px;'>
+	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
+	  ${rows}
+	</tbody></table>
+	<div style='margin-top:6px;margin-left:10px;'>
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
-	</div>
-	<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
-	  ${rows}
-	</tbody></table>`;
+	</div>`;
 }
 
 function openLv2ParamEditor(id, key) {
@@ -3155,14 +3155,14 @@ function buildVst3Interface(key, params) {
 		         oninput="fxParamModifPV('${pid}',${p.max},${p.min})"/>
 		</td></tr>`;
 	});
-	return `<div style='margin:4px 6px 2px;'>
+	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#ffe8d4;font-size:11px;'><tbody>
+	  ${rows}
+	</tbody></table>
+	<div style='margin-top:6px;margin-left:10px;'>
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
-	</div>
-	<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#ffe8d4;font-size:11px;'><tbody>
-	  ${rows}
-	</tbody></table>`;
+	</div>`;
 }
 
 function openVst3ParamEditor(id, key) {
