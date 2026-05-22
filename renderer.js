@@ -2831,10 +2831,14 @@ function refreshFxTabLv2() {
 		const keyIcon = isLv2
 			? `<img src='./images/png/clesFx.png' style='width:18px;cursor:pointer;margin-right:3px;flex-shrink:0;' title='Paramètres / automation' onclick='fxParam(${j});'>`
 			: `<img src='./images/png/clesFx.png' style='width:18px;opacity:0.25;margin-right:3px;flex-shrink:0;'>`;
+		const removeBtn = isLv2
+			? `<button style="font-size:11px;padding:1px 4px;flex-shrink:0;color:#c00;border:none;background:none;cursor:pointer;" title="Supprimer ce plugin LV2" onclick="removeFxSlot(${j},'lv2')">×</button>`
+			: `<span style="width:18px;flex-shrink:0;"></span>`;
 		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
 			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
 			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;color:#222;" title="${name}">${name}</span>
 			${keyIcon}
+			${removeBtn}
 			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" title="Choisir plugin LV2" onclick="openLv2Browser(${j})">…</button>
 		</div>`;
 	}
@@ -2852,15 +2856,27 @@ function refreshFxTabVst3() {
 		const keyIcon = isVst
 			? `<img src='./images/png/clesFx.png' style='width:18px;cursor:pointer;margin-right:3px;flex-shrink:0;' title='Paramètres / automation' onclick='fxParam(${j});'>`
 			: `<img src='./images/png/clesFx.png' style='width:18px;opacity:0.25;margin-right:3px;flex-shrink:0;'>`;
+		const removeBtn = isVst
+			? `<button style="font-size:11px;padding:1px 4px;flex-shrink:0;color:#c00;border:none;background:none;cursor:pointer;" title="Supprimer ce plugin VST3" onclick="removeFxSlot(${j},'vst3')">×</button>`
+			: `<span style="width:18px;flex-shrink:0;"></span>`;
 		html+=`<div style="display:flex;align-items:center;padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px;">
 			<span style="width:14px;color:#888;flex-shrink:0;">${j}</span>
 			<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0 4px;color:#222;" title="${name}">${name}</span>
 			${keyIcon}
+			${removeBtn}
 			<button style="font-size:10px;padding:1px 5px;flex-shrink:0;" title="Choisir plugin VST3" onclick="openVst3Browser(${j})">…</button>
 		</div>`;
 	}
 	div.innerHTML = html;
 }
+function removeFxSlot(j, type) {
+	if (!tableObjet[objActif]) return;
+	tableObjet[objActif].tableFx[j]      = '';
+	tableObjet[objActif].tableFxParam[j] = '';
+	if (type === 'lv2')  refreshFxTabLv2();
+	if (type === 'vst3') refreshFxTabVst3();
+}
+
 function fxOnChange(id, filtre) {
 	idFxParam = id;
 	const fxDesc = listeFx[filtre];
