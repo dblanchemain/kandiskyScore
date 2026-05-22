@@ -7111,7 +7111,8 @@ const LV2_HELPER = path.join(__dirname, 'lv2_helper.py');
 
 function runLv2Helper(args, stdinData) {
     return new Promise((resolve, reject) => {
-        const lv2Env = lv2Paths ? { ...process.env, LV2_PATH: (process.env.LV2_PATH ? process.env.LV2_PATH + ':' : '') + lv2Paths } : process.env;
+        const _expandPaths = p => p.split(':').map(s => s.replace(/^~/, os.homedir())).join(':');
+        const lv2Env = lv2Paths ? { ...process.env, LV2_PATH: (process.env.LV2_PATH ? process.env.LV2_PATH + ':' : '') + _expandPaths(lv2Paths) } : process.env;
         const proc = spawn('python3', [LV2_HELPER, ...args], { stdio: ['pipe', 'pipe', 'pipe'], env: lv2Env });
         let stdout = '', stderr = '';
         proc.stdout.on('data', d => { stdout += d.toString(); });
@@ -7178,7 +7179,8 @@ const VST3_HELPER = path.join(__dirname, 'vst3_helper.py');
 
 function runVst3Helper(args, stdinData) {
     return new Promise((resolve, reject) => {
-        const vst3Env = vst3Paths ? { ...process.env, KANDISKYSCORE_VST3_PATH: vst3Paths } : process.env;
+        const _expandVst3 = p => p.split(':').map(s => s.replace(/^~/, os.homedir())).join(':');
+        const vst3Env = vst3Paths ? { ...process.env, KANDISKYSCORE_VST3_PATH: _expandVst3(vst3Paths) } : process.env;
         const proc = spawn('python3', [VST3_HELPER, ...args], {
             stdio: ['pipe', 'pipe', 'pipe'], env: vst3Env
         });

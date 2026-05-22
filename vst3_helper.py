@@ -34,7 +34,7 @@ VST3_DIRS = [
 ]
 # Chemins supplémentaires via Préférences > Externes > Path VST3
 for _p in os.environ.get('KANDISKYSCORE_VST3_PATH', '').split(':'):
-    _p = _p.strip()
+    _p = os.path.expanduser(_p.strip())
     if _p and _p not in VST3_DIRS:
         VST3_DIRS.append(_p)
 
