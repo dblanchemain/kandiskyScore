@@ -128,8 +128,12 @@ function defObjGrp(id,nbobjets,cla) {
 			}
 			newStr = txt2.substring(0, txt2.length - 1);
 			
-			txt=txt+newStr+"'></tablefxparam>\n\
-		<type value='"+id.type+"'></type>\n";
+			txt=txt+newStr+"'></tablefxparam>\n";
+			// tableFxCode (code Faust inline) — stocké en JSON encodé
+			if(id.tableFxCode && id.tableFxCode.some(c=>c)){
+				txt=txt+"		<tablefxcode value='"+encodeURIComponent(JSON.stringify(id.tableFxCode))+"'></tablefxcode>\n";
+			}
+			txt=txt+"		<type value='"+id.type+"'></type>\n";
 		if(parseInt(id.type)==11){
 			txt=txt+"<x1 value='"+id.x1+"'></x1>\n\
 			<y1 value='"+id.y1+"'></y1>\n\
@@ -603,6 +607,7 @@ async function objXmlToScore(id,i) {
 		spZ:_tagVal(org, "spz", "").split(','),
 		tableFx:_tagVal(org, "tableFx", "").split(','),
 		tableFxParam:_tagVal(org, "tableFxParam", "").split(','),
+		tableFxCode:(()=>{const raw=_tagVal(org,"tablefxcode",""); try{return raw?JSON.parse(decodeURIComponent(raw)):[];}catch(_){return [];}})(),
 		type:parseInt(_tagVal(org, "type")),
 		width:parseFloat(_tagVal(org, "width")),
 		flagRevalider:0
@@ -905,6 +910,35 @@ function defObjets(i,liste,dx,dy){
 				for(let k=0;k<nbObjets;k++){
 					if(tableObjet[k] && tableObjet[k].class===1 && tableObjet[k].file && tableObjet[k].file!==""){
 						await readSimpleAudioA(k,0);
+					}
+				}
+			})();
+			// Reconstruire les entrées listeFx pour les plugins LV2 chargés depuis un projet
+			(async()=>{
+				const urisDone = new Set();
+				for(let k=0;k<nbObjets;k++){
+					const obj=tableObjet[k];
+					if(!obj || !obj.tableFx) continue;
+					for(const fxKey of obj.tableFx){
+						if(fxKey && fxKey.startsWith('lv2:') && !listeFx[fxKey] && !urisDone.has(fxKey)){
+							urisDone.add(fxKey);
+							const uri=fxKey.slice(4);
+							try{
+								const info=await window.api.lv2Info(uri);
+								const paramname=info.controlPorts.map(p=>p.symbol).join(',');
+								const label    =info.controlPorts.map(p=>p.name).join(',');
+								const defaut   =info.controlPorts.map(p=>`0?${p.def}`).join('/');
+								const minS     =info.controlPorts.map(p=>p.min).join(',');
+								const maxS     =info.controlPorts.map(p=>p.max).join(',');
+								listeFx[fxKey]={
+									name:fxKey, displayName:info.name,
+									type:'lv2', pluginUri:uri,
+									paramname, label, defaut, min:minS, max:maxS,
+									interface:buildLv2Interface(fxKey,info.controlPorts),
+									width:420, height:Math.max(160,80+info.controlPorts.length*30)
+								};
+							}catch(e){ console.warn('[LV2 restore]',fxKey,e.message); }
+						}
 					}
 				}
 			})();

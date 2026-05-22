@@ -1297,109 +1297,161 @@ async function endTrim(renderedBuffer, nsecondes) {
 
     return trimmed;
 }
-async function applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate) {
-	
-    // ----- WAM / GREFFONS -----
-    const fxSlots = obj.tableFx || [];
+// Évalue un paramètre d'automation à l'instant t avec interpolation par mode
+// Format keyframe : { time, value, mode }  — mode : 0=linéaire 1=step 2=exp 3=ease-in-out
+function evalAutoParam(events, t) {
+    if (!events.length) return 0;
+    if (t <= events[0].time) return events[0].value;
+    const last = events[events.length - 1];
+    if (t >= last.time) return last.value;
+    for (let i = 0; i < events.length - 1; i++) {
+        const a = events[i], b = events[i + 1];
+        if (t >= a.time && t < b.time) {
+            const frac = (t - a.time) / (b.time - a.time);
+            switch (a.mode) {
+                case 1: return a.value;                                                         // step
+                case 2: { const k = 4; return a.value + (b.value - a.value) * (Math.exp(k * frac) - 1) / (Math.exp(k) - 1); } // exp
+                case 3: return a.value + (b.value - a.value) * frac * frac * (3 - 2 * frac);   // ease-in-out
+                default: return a.value + frac * (b.value - a.value);                          // linear
+            }
+        }
+    }
+    return last.value;
+}
+
+// Parse la chaîne d'automation d'un slot : "t?v?mode&t?v?mode/.../..."
+// Retourne un tableau de tableaux de keyframes (un par paramètre)
+function parseAutoBlocks(fxParamString) {
+    return (fxParamString || "").split("/").map(blockStr => {
+        if (!blockStr) return [];
+        return blockStr.split("&").map(seg => {
+            const parts = seg.split("?");
+            return {
+                time:  parseFloat(parts[0] || 0),
+                value: parseFloat(parts[1] || 0),
+                mode:  parseInt(parts[2]  || 0)   // 0=lin, 1=step, 2=exp, 3=ease
+            };
+        }).sort((a, b) => a.time - b.time);
+    });
+}
+
+async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sampleRate) {
+
+    const fxSlots   = obj.tableFx || [];
     const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
+    const blockSize  = 1024;
 
-    const blockSize = 1024;
-
-    // Import faustwasm once
-    const appPaths = await window.api.getPaths();
-    const faust=window.api.joinPath(window.api.resources,"@grame","faustwasm","dist","esm","index.js");
-    const faustPkg = await import(`file://${faust}`);
-    const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = faustPkg;
-    const faustModule = await instantiateFaustModuleFromFile(window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'libfaust-wasm', 'libfaust-wasm.js'));
-    const libFaust = new LibFaust(faustModule);
-    const compiler = new FaustCompiler(libFaust);
+    // Compiler Faust (lazy — instancié une seule fois si au moins un slot WAM/FaustCode)
+    let _faustCtx = null;
+    async function getFaustCtx() {
+        if (_faustCtx) return _faustCtx;
+        const faust = window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'dist', 'esm', 'index.js');
+        const pkg = await import(`file://${faust}`);
+        const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = pkg;
+        const faustModule = await instantiateFaustModuleFromFile(
+            window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'libfaust-wasm', 'libfaust-wasm.js')
+        );
+        _faustCtx = { compiler: new FaustCompiler(new LibFaust(faustModule)), FaustMonoDspGenerator };
+        return _faustCtx;
+    }
 
     for (let slotIndex = 0; slotIndex < validSlots.length; slotIndex++) {
-        const fxKey = validSlots[slotIndex];
+        const fxKey  = validSlots[slotIndex];
         const fxDesc = listeFx[fxKey];
-        const dspName = fxDesc.greffon;
+        const tableFxParam = obj.tableFxParam || [];
+        const paramBlocks  = parseAutoBlocks(tableFxParam[slotIndex]);
 
-        let processor = null;
-        let paramsPaths = [];
-
-        try {
-            const generator = new FaustMonoDspGenerator();
-            let dspSource = await window.api.readFxFile(`./greffons/${dspName}-wasm/${dspName}.dsp`);
-            if (dspSource instanceof Uint8Array || dspSource instanceof ArrayBuffer) {
-                dspSource = new TextDecoder().decode(dspSource);
+        // ══════ LV2 ══════
+        if (fxDesc.type === 'lv2') {
+            const uri = fxDesc.pluginUri;
+            const syms = (fxDesc.paramname || '').split(',').map(s => s.trim()).filter(Boolean);
+            const controlPorts = {};
+            syms.forEach((sym, pi) => {
+                controlPorts[sym] = (paramBlocks[pi] && paramBlocks[pi].length) ? paramBlocks[pi][0].value : 0;
+            });
+            try {
+                const res = await window.api.lv2Process({
+                    channels:     currentChannels.map(ch => { const c = new Float32Array(ch.length); c.set(ch); return c.buffer; }),
+                    sampleRate,
+                    uri,
+                    controlPorts
+                });
+                let outCh = res.channels.map(ab => new Float32Array(ab));
+                // aligner le nombre de canaux
+                while (outCh.length < numChannels) outCh.push(new Float32Array(outCh[0]));
+                currentChannels = outCh.slice(0, numChannels);
+            } catch (err) {
+                console.warn(`[pipeline] LV2 ${uri} → passthrough`, err);
             }
-
-            await generator.compile(compiler, dspName, dspSource, "");
-            processor = await generator.createOfflineProcessor(sampleRate, blockSize);
-
-            // récupère les paramètres WAM
-            const paramDest = processor.getParams();
-            if (paramDest && paramDest.length > 0) {
-                paramsPaths = paramDest.map(p => p.path || p);
-            }
-        } catch (err) {
-            console.warn(`[pipeline] DSP compilation failed for slot ${slotIndex} → passthrough`, err);
-            processor = null;
+            continue;
         }
 
-        // ----- Parse automation -----
-        const tableFxParam = obj.tableFxParam || [];
-        const fxParamString = tableFxParam[slotIndex] || "";
-        const paramBlocks = fxParamString.split("/").map(blockStr => {
-            if (!blockStr) return [];
-            return blockStr.split("&").map(seg => {
-                const [t, v] = seg.split("?");
-                return { time: parseFloat(t||0), value: parseFloat(v||0) };
-            }).sort((a,b)=>a.time-b.time);
-        });
+        // ══════ Faust code inline ══════
+        if (fxDesc.type === 'faust-code') {
+            const dspSource = (obj.tableFxCode || [])[slotIndex] || '';
+            if (!dspSource.trim()) continue;
+            try {
+                const { compiler, FaustMonoDspGenerator } = await getFaustCtx();
+                const gen = new FaustMonoDspGenerator();
+                await gen.compile(compiler, 'userDsp', dspSource, '');
+                const proc = await gen.createOfflineProcessor(sampleRate, blockSize);
+                const paths = (proc.getParams() || []).map(p => p.path || p);
+                const processed = new Array(numChannels);
+                for (let ch = 0; ch < numChannels; ch++) {
+                    const inBuf = currentChannels[ch];
+                    const outBuf = new Float32Array(numSamples);
+                    for (let off = 0; off < numSamples; off += blockSize) {
+                        const len = Math.min(blockSize, numSamples - off);
+                        const t0  = off / sampleRate;
+                        paths.forEach((p, pi) => { try { proc.setParamValue(p, evalAutoParam(paramBlocks[pi] || [], t0)); } catch (_) {} });
+                        const tmp = proc.render([inBuf.subarray(off, off + len)], len);
+                        outBuf.set(Array.isArray(tmp) ? tmp[0] : tmp, off);
+                    }
+                    processed[ch] = outBuf;
+                }
+                currentChannels = processed.map(c => new Float32Array(c));
+            } catch (err) {
+                console.warn(`[pipeline] FaustCode → passthrough`, err);
+            }
+            continue;
+        }
 
-        // ----- Traitement multi-canaux -----
-        const processedChannels = new Array(numChannels);
+        // ══════ Faust/WAM classique ══════
+        const dspName = fxDesc.greffon;
+        let processor = null, paramsPaths = [];
+        try {
+            const { compiler, FaustMonoDspGenerator } = await getFaustCtx();
+            const gen = new FaustMonoDspGenerator();
+            let src = await window.api.readFxFile(`./greffons/${dspName}-wasm/${dspName}.dsp`);
+            if (src instanceof Uint8Array || src instanceof ArrayBuffer) src = new TextDecoder().decode(src);
+            await gen.compile(compiler, dspName, src, '');
+            processor = await gen.createOfflineProcessor(sampleRate, blockSize);
+            paramsPaths = (processor.getParams() || []).map(p => p.path || p);
+        } catch (err) {
+            console.warn(`[pipeline] DSP compile slot ${slotIndex} → passthrough`, err);
+        }
 
+        const processed = new Array(numChannels);
         for (let ch = 0; ch < numChannels; ch++) {
             const inBuf = currentChannels[ch];
             const outBuf = new Float32Array(numSamples);
-
-            for (let offset = 0; offset < numSamples; offset += blockSize) {
-                const len = Math.min(blockSize, numSamples - offset);
-                const t0 = offset / sampleRate;
-                
-                // --- Automation WAM ---
-                for (let pIndex = 0; pIndex < paramsPaths.length; pIndex++) {
-                    const path = paramsPaths[pIndex];
-                    const events = paramBlocks[pIndex] || [];
-                    if (!events.length) continue;
-
-                    let val = events[0].value;
-                    if (t0 <= events[0].time) val = events[0].value;
-                    else if (t0 >= events[events.length-1].time) val = events[events.length-1].value;
-                    else {
-                        for (let i = 0; i < events.length-1; i++) {
-                            const a = events[i], b = events[i+1];
-                            if (t0 >= a.time && t0 < b.time) {
-                                const frac = (t0 - a.time)/(b.time - a.time);
-                                val = a.value + frac*(b.value - a.value);
-                                break;
-                            }
-                        }
-                    }
-                    try { processor.setParamValue(path, val); } catch(e){}
-                }
-
-                // --- Process block ---
-                const sliceIn = inBuf.subarray(offset, offset+len);
-                let blockOut = sliceIn;
+            for (let off = 0; off < numSamples; off += blockSize) {
+                const len = Math.min(blockSize, numSamples - off);
+                const t0  = off / sampleRate;
                 if (processor) {
-                    const tmp = processor.render([sliceIn], len);
-                    blockOut = Array.isArray(tmp)?tmp[0]:tmp;
+                    paramsPaths.forEach((p, pi) => { try { processor.setParamValue(p, evalAutoParam(paramBlocks[pi] || [], t0)); } catch (_) {} });
                 }
-                outBuf.set(blockOut, offset);
+                const slice = inBuf.subarray(off, off + len);
+                let out = slice;
+                if (processor) {
+                    const tmp = processor.render([slice], len);
+                    out = Array.isArray(tmp) ? tmp[0] : tmp;
+                }
+                outBuf.set(out, off);
             }
-            processedChannels[ch] = outBuf;
+            processed[ch] = outBuf;
         }
-
-        // mise à jour pour le slot suivant
-        currentChannels = processedChannels.map(c => new Float32Array(c));
+        currentChannels = processed.map(c => new Float32Array(c));
     }
     return currentChannels;
 }

@@ -508,6 +508,34 @@ Teste de Editor
 </div>
 
 
+<!-- ══════════════════ LV2 Browser ══════════════════ -->
+<div id="popupLv2Browser" class="popup" style="width:480px;height:420px;display:none;top:150px;left:200px;">
+  <div id="popupLv2BrowserHeader" class="popupHeader"><b>Choisir un plugin LV2</b></div>
+  <div style="padding:8px;">
+    <input id="lv2SearchInput" type="text" placeholder="Rechercher..." style="width:100%;box-sizing:border-box;margin-bottom:6px;"
+           oninput="lv2FilterPlugins(this.value)">
+    <div id="lv2PluginList" style="height:290px;overflow-y:auto;border:1px solid #888;background:#fff;font-size:12px;"></div>
+    <div style="margin-top:6px;display:flex;justify-content:flex-end;gap:6px;">
+      <button onclick="document.getElementById('popupLv2Browser').style.display='none'">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ Faust Code Editor ══════════════════ -->
+<div id="popupFaustEditor" class="popup" style="width:560px;height:480px;display:none;top:120px;left:180px;">
+  <div id="popupFaustEditorHeader" class="popupHeader"><b>Éditeur Faust DSP</b></div>
+  <div style="padding:8px;">
+    <textarea id="faustDspCode" style="width:100%;height:300px;font-family:monospace;font-size:12px;box-sizing:border-box;resize:vertical;"
+              placeholder="// Écrivez votre code Faust DSP ici&#10;process = _;"></textarea>
+    <div id="faustCompileStatus" style="min-height:24px;padding:4px;font-size:11px;color:#333;"></div>
+    <div style="margin-top:4px;display:flex;gap:6px;">
+      <button onclick="compileFaustEditorCode()">Compiler</button>
+      <button onclick="saveFaustEditorCode()">Valider</button>
+      <button onclick="document.getElementById('popupFaustEditor').style.display='none'">Annuler</button>
+    </div>
+  </div>
+</div>
+
 	<script type="text/javascript" src="./logger.js"></script>
 <!--	<script  type="text/javascript" src='./config.js'></script> -->
 

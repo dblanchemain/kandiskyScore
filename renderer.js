@@ -2772,19 +2772,33 @@ function selectElement(id, valueToSelect) {
 function defSelectListeFx(){
 	var txt="";
 	for(let j=0;j<7;j++){
-		txt=txt+"<span style='position:absolute;top:"+(40+(28*j))+"px;left:10px;' ><select id='selecFx"+j+"' size='1' value='0' onchange='fxOnChange("+j+",value);'>";
+		txt+=`<span style='position:absolute;top:${40+(28*j)}px;left:10px;'>`;
+		txt+=`<select id='selecFx${j}' size='1' onchange='fxOnChange(${j},value);'>`;
 		for(let i in listeFx){
-			txt=txt+"<option value='"+listeFx[i].name+"'>"+listeFx[i].name+"</option>";
+			const fd=listeFx[i];
+			// masquer les entrées LV2 dynamiques du sélecteur principal
+			if(fd.type==='lv2' && i.startsWith('lv2:')) continue;
+			const label=fd.displayName||fd.name||i;
+			txt+=`<option value='${fd.name}'>${label}</option>`;
 		}
-		txt=txt+"</select></span>";
-		txt=txt+"<span  style='position:absolute;top:"+(36+(28*j))+"px;left:145px;' ><img src='./images/png/clesFx.png' style='width=24px;'  onclick='fxParam("+j+");'></span>";
+		txt+="</select></span>";
+		txt+=`<span style='position:absolute;top:${36+(28*j)}px;left:145px;'>`;
+		txt+=`<img src='./images/png/clesFx.png' style='width=24px;' onclick='fxParam(${j});'></span>`;
 	}
 	document.getElementById("formSelecFx").innerHTML=txt;
 }
-function fxOnChange(id,filtre) {
-	idFxParam=id;
-	tableObjet[objActif].tableFx[id]=listeFx[filtre].name;
-	tableObjet[objActif].tableFxParam[idFxParam]=listeFx[filtre].defaut;
+function fxOnChange(id, filtre) {
+	idFxParam = id;
+	const fxDesc = listeFx[filtre];
+	if (!fxDesc) return;
+	// Pour LV2 browser et FaustCode, l'édition se fait via icône → ne pas écraser avec defaut
+	if (fxDesc.type === 'lv2-browser' || fxDesc.type === 'faust-code') {
+		tableObjet[objActif].tableFx[id] = fxDesc.name;
+		if (!tableObjet[objActif].tableFxParam[id]) tableObjet[objActif].tableFxParam[id] = '';
+		return;
+	}
+	tableObjet[objActif].tableFx[id]      = fxDesc.name;
+	tableObjet[objActif].tableFxParam[id] = fxDesc.defaut || '';
 }
 /*
 function fxParam(id) {
@@ -2834,39 +2848,214 @@ function fxParam(id) {
 }
 */
 function createFxPoint(e) {
-	if(e.button==2){
-	var dest=e.target.parentNode;
-	var txt="";
-	var nbdiv=dest.getElementsByTagName('div').length;
-	var dupnode=document.createElement('div');
-	var greffon=e.target.parentNode.parentNode.parentNode.parentNode.parentNode.id;
-	var tableLabel=listeFx[greffon].label.split(',');
-	var index2=tableLabel.indexOf(e.target.parentNode.id);
-	dupnode.setAttribute("id",'fx'+nbdiv+index2);
-	dupnode.setAttribute("title",'fx'+nbdiv+index2+":");
-	var posx=parseFloat(document.getElementById('fx'+(nbdiv-1)+index2).style.left)+4;
-	var st='position:absolute;top:30px;left:'+posx+'px;width:5px;height:5px;background-color:#f100fa;';
-	dupnode.setAttribute("style",st);
-	dest.appendChild(dupnode);
-	dragElement(dupnode);
-	updateFxAutomation(dupnode);
+	if (e.button == 2) {
+		const dest   = e.target.parentNode;
+		const nbdiv  = dest.getElementsByTagName('div').length;
+		const greffon = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.id;
+		const tableLabel = listeFx[greffon].label.split(',');
+		const index2 = tableLabel.indexOf(e.target.parentNode.id);
+		const dupnode = document.createElement('div');
+		dupnode.setAttribute("id", 'fx' + nbdiv + index2);
+		dupnode.setAttribute("title", 'fx' + nbdiv + index2 + ':0:0');
+		dupnode.dataset.mode = '0';
+		const posx = parseFloat(document.getElementById('fx' + (nbdiv - 1) + index2).style.left) + 4;
+		dupnode.setAttribute("style",
+			'position:absolute;top:30px;left:' + posx + 'px;width:5px;height:5px;background-color:#f100fa;');
+		dest.appendChild(dupnode);
+		dragElement(dupnode);
+		updateFxAutomation(dupnode);
 	}
 }
+
+// Touche M = cycle le mode d'interpolation du keyframe sélectionné
+document.addEventListener('keydown', e => {
+	if ((e.key === 'm' || e.key === 'M') && selectPointFx) {
+		const el = document.getElementById(selectPointFx);
+		if (el) {
+			const cur  = parseInt(el.dataset.mode || '0');
+			const next = (cur + 1) % 4;
+			el.dataset.mode = next;
+			el.style.backgroundColor = FX_MODE_COLORS[next];
+			const parts = el.title.split(':');
+			el.title = parts[0] + ':' + (parts[1] || '0') + ':' + next;
+		}
+	}
+});
 function fxParam(id) {
-	idFxParam=id;
-	var content=listeFx[tableObjet[objActif].tableFx[id]].interface;
-	var wd=listeFx[tableObjet[objActif].tableFx[id]].width;
-	var wh=listeFx[tableObjet[objActif].tableFx[id]].height;
-	openPopup(tableObjet[objActif].tableFx[id],400,200,wd,wh,0,content);
-	var nt=tableObjet[objActif].tableFx[id];
-	var greffon=tableObjet[objActif].tableFx[idFxParam];
-	document.getElementById('popup'+nt).style.backgroundColor='#a46345';
+	idFxParam = id;
+	const greffon = tableObjet[objActif].tableFx[id];
+	const fxDesc  = listeFx[greffon];
+	if (!fxDesc) return;
+
+	// ── LV2 browser ──
+	if (fxDesc.type === 'lv2-browser') { openLv2Browser(id); return; }
+
+	// ── Faust code editor ──
+	if (fxDesc.type === 'faust-code') { openFaustEditor(id); return; }
+
+	// ── LV2 plugin : interface de paramètres inline ──
+	if (fxDesc.type === 'lv2') {
+		openLv2ParamEditor(id, greffon); return;
+	}
+
+	// ── WAM / greffon classique ──
+	openPopup(greffon, 400, 200, fxDesc.width, fxDesc.height, 0, fxDesc.interface);
+	document.getElementById('popup' + greffon).style.backgroundColor = '#a46345';
 	drawFxAutomation(greffon);
-	
-	var tbdefaut=listeFx[greffon].label.split(',');
-	for(j=0;j<tbdefaut.length;j++){
+	const tbdefaut = fxDesc.label.split(',');
+	for (let j = 0; j < tbdefaut.length; j++) {
 		document.getElementById(tbdefaut[j]).addEventListener("mousedown", createFxPoint);
 	}
+}
+
+// ═══════════════════ LV2 Browser ═══════════════════
+
+let _lv2PluginsCache = null;
+
+async function openLv2Browser(slotId) {
+	idFxParam = slotId;
+	const popup = document.getElementById('popupLv2Browser');
+	popup.style.display = 'block';
+	const listDiv = document.getElementById('lv2PluginList');
+	listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
+	if (!_lv2PluginsCache) {
+		const uris = await window.api.lv2List();
+		_lv2PluginsCache = [];
+		for (const uri of uris) {
+			try {
+				const info = await window.api.lv2Info(uri);
+				_lv2PluginsCache.push({ uri, name: info.name, controlPorts: info.controlPorts });
+			} catch (_) {
+				_lv2PluginsCache.push({ uri, name: uri, controlPorts: [] });
+			}
+		}
+	}
+	lv2FilterPlugins('');
+	if (!popup._draggable) { dragElement(popup); popup._draggable = true; }
+}
+
+function lv2FilterPlugins(q) {
+	const listDiv = document.getElementById('lv2PluginList');
+	const lower = q.toLowerCase();
+	const filtered = _lv2PluginsCache.filter(p => p.name.toLowerCase().includes(lower) || p.uri.toLowerCase().includes(lower));
+	listDiv.innerHTML = filtered.map(p =>
+		`<div style="padding:4px 6px;cursor:pointer;border-bottom:1px solid #eee;"
+		      onclick="selectLv2Plugin('${p.uri.replace(/'/g, "\\'")}')"
+		      title="${p.uri}">${p.name}</div>`
+	).join('');
+}
+
+async function selectLv2Plugin(uri) {
+	document.getElementById('popupLv2Browser').style.display = 'none';
+	const info = _lv2PluginsCache.find(p => p.uri === uri) || await window.api.lv2Info(uri);
+	const key = 'lv2:' + uri;
+
+	// Créer l'entrée listeFx pour ce plugin
+	const paramname = info.controlPorts.map(p => p.symbol).join(',');
+	const label     = info.controlPorts.map(p => p.name).join(',');
+	const defaut    = info.controlPorts.map(p => `0?${p.def}`).join('/');
+	const min       = info.controlPorts.map(p => p.min).join(',');
+	const max       = info.controlPorts.map(p => p.max).join(',');
+
+	listeFx[key] = {
+		name: key, displayName: info.name,
+		type: 'lv2', pluginUri: uri,
+		paramname, label, defaut, min, max,
+		interface: buildLv2Interface(key, info.controlPorts),
+		width: 420, height: Math.max(160, 80 + info.controlPorts.length * 30)
+	};
+	tableObjet[objActif].tableFx[idFxParam]      = key;
+	tableObjet[objActif].tableFxParam[idFxParam] = defaut;
+	// Rafraîchir le select du slot
+	defSelectListeFx();
+	selectElement('selecFx' + idFxParam, key);
+}
+
+function buildLv2Interface(key, ports) {
+	const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+	let rows = '';
+	ports.forEach((p, i) => {
+		rows += `<tr><td style="font-size:11px;">${p.name}</td>
+		<td rowspan='2' style='padding-left:6px;width:200px;height:54px;'>
+		  <div id='${p.symbol}' style='position:absolute;width:200px;height:54px;'>
+		    <svg><line x1='0' y1='28' x2='200' y2='28' stroke='#43434366' stroke-width='2'/></svg>
+		    <div id='fx0${i}' style='position:absolute;top:25px;left:0px;width:5px;height:5px;background-color:#f100fa;' title='fx0${i}:${p.def}'></div>
+		  </div></td></tr>
+		<tr><td style='text-align:center'>
+		  <input id='X${p.symbol}' style='width:50px;' type='number' value='0' min='0' max='60' step='0.01' oninput="fxParamModifPT('${p.symbol}')"/>
+		  <input id='Y${p.symbol}' style='width:70px;' type='number' value='${p.def}' min='${p.min}' max='${p.max}' step='${((p.max - p.min) / 100).toPrecision(2)}'
+		         oninput="fxParamModifPV('${p.symbol}',${p.max},${p.min})"/>
+		</td></tr>`;
+	});
+	const escapedKey = key.replace(/'/g, "\\'");
+	return `<table id='${safeKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;'><tbody>
+	  ${rows}
+	</tbody></table>
+	<div style='margin-top:6px;margin-left:10px;'>
+	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
+	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
+	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
+	</div>`;
+}
+
+function openLv2ParamEditor(id, key) {
+	const fxDesc = listeFx[key];
+	openPopup(key, 400, 200, fxDesc.width, fxDesc.height, 0, fxDesc.interface);
+	document.getElementById('popup' + key).style.backgroundColor = '#3465a4';
+	drawFxAutomation(key);
+	const labels = fxDesc.label.split(',');
+	for (let j = 0; j < labels.length; j++) {
+		const el = document.getElementById(labels[j]);
+		if (el) el.addEventListener("mousedown", createFxPoint);
+	}
+}
+
+// ═══════════════════ Faust Code Editor ═══════════════════
+
+let _faustEditorSlot = 0;
+
+function openFaustEditor(slotId) {
+	_faustEditorSlot = slotId;
+	const popup = document.getElementById('popupFaustEditor');
+	popup.style.display = 'block';
+	const code = (tableObjet[objActif].tableFxCode || [])[slotId] || 'process = _;';
+	document.getElementById('faustDspCode').value = code;
+	document.getElementById('faustCompileStatus').textContent = '';
+	if (!popup._draggable) { dragElement(popup); popup._draggable = true; }
+}
+
+async function compileFaustEditorCode() {
+	const statusEl = document.getElementById('faustCompileStatus');
+	statusEl.style.color = '#666';
+	statusEl.textContent = 'Compilation…';
+	const code = document.getElementById('faustDspCode').value;
+	try {
+		const faust = window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'dist', 'esm', 'index.js');
+		const pkg = await import(`file://${faust}`);
+		const { instantiateFaustModuleFromFile, LibFaust, FaustCompiler, FaustMonoDspGenerator } = pkg;
+		const faustModule = await instantiateFaustModuleFromFile(
+			window.api.joinPath(window.api.resources, '@grame', 'faustwasm', 'libfaust-wasm', 'libfaust-wasm.js')
+		);
+		const compiler = new FaustCompiler(new LibFaust(faustModule));
+		const gen = new FaustMonoDspGenerator();
+		await gen.compile(compiler, 'userDsp', code, '');
+		const proc = await gen.createOfflineProcessor(44100, 512);
+		const params = (proc.getParams() || []).map(p => p.path || p);
+		statusEl.style.color = '#006600';
+		statusEl.textContent = `✓ Compilation OK — ${params.length} paramètre(s) : ${params.join(', ')}`;
+	} catch (err) {
+		statusEl.style.color = '#cc0000';
+		statusEl.textContent = '✗ Erreur : ' + err.message;
+	}
+}
+
+function saveFaustEditorCode() {
+	const code = document.getElementById('faustDspCode').value;
+	if (!tableObjet[objActif].tableFxCode) tableObjet[objActif].tableFxCode = [];
+	tableObjet[objActif].tableFxCode[_faustEditorSlot] = code;
+	tableObjet[objActif].tableFx[_faustEditorSlot]      = 'FaustCode';
+	tableObjet[objActif].tableFxParam[_faustEditorSlot] = '';
+	document.getElementById('popupFaustEditor').style.display = 'none';
 }
 
 function fxAnnulAddPlugin(){
@@ -2924,38 +3113,49 @@ function defautFxParam(NameGreffon) {
 function annulFxParam(title) {
 	closePopup(title);
 }
+// Modes d'automation : 0=linéaire 1=step 2=exp 3=ease-in-out
+const FX_MODE_COLORS = ['#f100fa', '#fa1a00', '#fa8000', '#0088fa'];
+const FX_MODE_NAMES  = ['Lin', 'Step', 'Exp', 'Ease'];
+
+function fxGetMode(div) {
+	return parseInt(div.dataset.mode || '0');
+}
+function fxSetMode(div, mode) {
+	const m = ((mode % 4) + 4) % 4;
+	div.dataset.mode = m;
+	div.style.backgroundColor = FX_MODE_COLORS[m];
+	div.title = div.title.replace(/:[0-3]$/, '') + ':' + m;
+}
+
+function fxCycleMode(e) {
+	if (e.button !== 2) return;  // clic droit sur le point
+	e.stopPropagation();
+	fxSetMode(e.currentTarget, fxGetMode(e.currentTarget) + 1);
+	e.preventDefault();
+}
+
 function validFxParam(greffon) {
-	var tableLabel=listeFx[greffon].label.split(',');
-	var npoints;
-	var txt="";
-	var rw;
-	var nduree;
-	var relative;
-	for(i=0;i<tableLabel.length;i++){
-		npoints=document.getElementById(tableLabel[i]).getElementsByTagName('div');
-		for(j=0;j<npoints.length;j++){
-			rw=tableObjet[objActif].fin-tableObjet[objActif].debut;
-			nduree=tableObjet[objActif].duree/tableObjet[objActif].transposition;
-			relative=nduree*rw;
-			var tbmin=listeFx[greffon].min.split(",");
-			var tbmax=listeFx[greffon].max.split(",");
-			
-			var vy=parseFloat(npoints[j].title.substring(5));
-			var nbv=document.getElementById("Y"+npoints[j].parentNode.id).step.toString().split(".");
-				if(nbv[1]){
-					vy=vy.toFixed(nbv[1].length);
-				}else{
-					vy=parseInt(vy);
-				}
-			var vx=((parseFloat(npoints[j].style.left)/200)*relative).toFixed(2);
-			txt=txt+vx+"?"+vy+"&";
+	const tableLabel = listeFx[greffon].label.split(',');
+	let txt = "";
+	for (let i = 0; i < tableLabel.length; i++) {
+		const npoints = document.getElementById(tableLabel[i]).getElementsByTagName('div');
+		for (let j = 0; j < npoints.length; j++) {
+			const rw       = tableObjet[objActif].fin - tableObjet[objActif].debut;
+			const nduree   = tableObjet[objActif].duree / tableObjet[objActif].transposition;
+			const relative = nduree * rw;
+			const titleParts = npoints[j].title.split(':');  // "fxJI:value[:mode]"
+			let vy = parseFloat(titleParts[1] || 0);
+			const mode = parseInt(titleParts[2] || npoints[j].dataset.mode || '0');
+			const nbv = document.getElementById('Y' + npoints[j].parentNode.id).step.toString().split('.');
+			vy = nbv[1] ? vy.toFixed(nbv[1].length) : parseInt(vy);
+			const vx = ((parseFloat(npoints[j].style.left) / 200) * relative).toFixed(2);
+			txt += vx + '?' + vy + '?' + mode + '&';
 		}
-		txt = txt.substring(0, txt.length - 1);
-		txt=txt+"/";
+		txt = txt.slice(0, -1) + '/';
 	}
-	txt = txt.substring(0, txt.length - 1);
-	var index=tableObjet[objActif].tableFx.indexOf(greffon);
-	tableObjet[objActif].tableFxParam[index]=txt;
+	txt = txt.slice(0, -1);
+	const index = tableObjet[objActif].tableFx.indexOf(greffon);
+	tableObjet[objActif].tableFxParam[index] = txt;
 	closePopup(greffon);
 }
 let selectPointFx="";

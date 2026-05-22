@@ -319,3 +319,21 @@ listeFx["Volume"]={
 	max:'4'
 };
 
+
+// ══════ Entrées spéciales ══════
+
+listeFx["LV2..."] = {
+	name: "LV2...",
+	displayName: "LV2 Plugin…",
+	type: 'lv2-browser',
+	interface: "", width: 0, height: 0,
+	label: '', paramname: '', greffon: null, defaut: '', min: '', max: ''
+};
+
+listeFx["FaustCode"] = {
+	name: "FaustCode",
+	displayName: "Faust (code)",
+	type: 'faust-code',
+	interface: "", width: 0, height: 0,
+	label: '', paramname: '', greffon: null, defaut: '', min: '', max: ''
+};

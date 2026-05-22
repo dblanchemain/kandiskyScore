@@ -142,6 +142,10 @@ contextBridge.exposeInMainWorld(
     admStreamEnd:   (data) => ipcRenderer.invoke('adm-stream-end',   data),
     copyGrpAudio: (files, srcDir, destDir) => ipcRenderer.invoke('copyGrpAudio', files, srcDir, destDir),
     copyGrpExports: (srcDir, destDir, srcIds, offset) => ipcRenderer.invoke('copyGrpExports', srcDir, destDir, srcIds, offset),
-    isDev
+    isDev,
+    // ── LV2 / VST3 ──
+    lv2List:    ()                        => ipcRenderer.invoke('lv2-list'),
+    lv2Info:    (uri)                     => ipcRenderer.invoke('lv2-info', uri),
+    lv2Process: (params)                  => ipcRenderer.invoke('lv2-process', params),
     }
 );

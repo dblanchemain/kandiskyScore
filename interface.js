@@ -650,8 +650,10 @@ function dragElement(elmnt) {
 			var index=tableLabel.indexOf(pt.parentNode.id);
 		   for(i=0;i<tbdiv.length;i++){
 				if(tbdiv[i].id.substring(0,2)=='fx'){
+					const _m=tbdiv[i].dataset.mode||'0';
+					const _v=tbdiv[i].title.split(':')[1]||'0';
 					tbdiv[i].id="fx"+i+index;
-					tbdiv[i].title="fx"+i+index;
+					tbdiv[i].title="fx"+i+index+":"+_v+":"+_m;
 				}
 			}
     		updateFxAutomation(pt);
@@ -662,7 +664,7 @@ function dragElement(elmnt) {
 			}
     	}else{
    		elmnt.style.backgroundColor='green';
-   		document.getElementById('Y'+elmnt.parentNode.id).value=elmnt.title.substring(5);
+   		document.getElementById('Y'+elmnt.parentNode.id).value=elmnt.title.split(':')[1]||'0';
    	}
     }
     /*
@@ -853,10 +855,11 @@ function dragElement(elmnt) {
 					document.getElementById("Y"+inp).value=parseInt(rp);
 				}
 				document.getElementById("X"+inp).value=((px/200)*relative).toFixed(2);
-				elmnt.title=elmnt.id+":"+document.getElementById("Y"+inp).value;
+				const _modeKeep = elmnt.dataset.mode || '0';
+				elmnt.title=elmnt.id+":"+document.getElementById("Y"+inp).value+":"+_modeKeep;
 				elmnt.style.top = py+'px';
 				elmnt.style.left = px+'px';
-				
+
 				updateFxAutomation(elmnt);
 	    	}else if (elmnt.id.substring(0,5)=="butta"){
 	    		var pp=elmnt.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
@@ -2000,80 +2003,121 @@ function redrawArpege(actif) {
 		showArpegeHandles(actif);
 }
 function updateFxAutomation(obj) {
-	var liste=tableObjet[objActif].tableFxParam;
-	var greffon=obj.parentNode.parentNode.parentNode.parentNode.parentNode.id;
-	var index=tableObjet[objActif].tableFx.indexOf(greffon);
-	var fxParam=liste[index].split("/");
-	var tableLabel=listeFx[greffon].label.split(',');
-	var index2=tableLabel.indexOf(obj.parentNode.id);
-	var FxparamValue= fxParam[index2].split("&");
-	var listPoints=obj.parentNode.getElementsByTagName('div');
-	txt="<line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' />";
-	for(i=1;i< listPoints.length;i++){
-		txt=txt+"<line  x1="+(parseFloat(listPoints[i-1].style.left)+3)+" y1="+(parseFloat(listPoints[i-1].style.top)+3)+" x2="+parseFloat(listPoints[i].style.left)+" y2="+(parseFloat(listPoints[i].style.top)+3)+" strocke-width='2' stroke='#434343' />";
+	const listPoints = obj.parentNode.getElementsByTagName('div');
+	let svgInner = "<line x1='0' y1='32' x2='200' y2='32' stroke='#43434366' stroke-width='2'/>";
+
+	for (let i = 1; i < listPoints.length; i++) {
+		const prev = listPoints[i - 1];
+		const curr = listPoints[i];
+		const x0 = parseFloat(prev.style.left) + 3;
+		const y0 = parseFloat(prev.style.top)  + 3;
+		const x1 = parseFloat(curr.style.left) + 3;
+		const y1 = parseFloat(curr.style.top)  + 3;
+		const mode = parseInt(prev.dataset.mode || '0');
+		svgInner += _fxAutoSegmentSvg(x0, y0 - 3, x1, y1 - 3, mode);
 	}
-	if(parseFloat(listPoints[listPoints.length-1].style.left)<200){
-		txt=txt+"<line  x1="+(parseFloat(listPoints[listPoints.length-1].style.left)+3)+" y1="+(parseFloat(listPoints[listPoints.length-1].style.top)+3)+" x2='200' y2="+(parseFloat(listPoints[listPoints.length-1].style.top)+3)+" strocke-width='2' stroke='#434343' />";
+	const last = listPoints[listPoints.length - 1];
+	if (last && parseFloat(last.style.left) + 3 < 200) {
+		svgInner += `<line x1='${parseFloat(last.style.left)+3}' y1='${parseFloat(last.style.top)+3}' x2='200' y2='${parseFloat(last.style.top)+3}' stroke='#434343' stroke-width='2'/>`;
 	}
-	var dest=obj.parentNode.getElementsByTagName('svg');
-	dest[0].innerHTML=txt;
+	const dest = obj.parentNode.getElementsByTagName('svg');
+	if (dest[0]) dest[0].innerHTML = svgInner;
 }
-function drawFxAutomation(greffon) {
-	var rw=tableObjet[objActif].fin-tableObjet[objActif].debut;
-	var nduree=tableObjet[objActif].duree/tableObjet[objActif].transposition;
-	var relative=nduree*rw;
-	var txt="";
-	var txt1="<line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' />";
-	var index=tableObjet[objActif].tableFx.indexOf(greffon);
-	var fx=tableObjet[objActif].tableFxParam[index];
-	var fxParam=fx.split("/");
-	var fxDefMax=listeFx[greffon].max.split(",");
-	var fxDefMin=listeFx[greffon].min.split(",");
-	var tableLabel=listeFx[greffon].label.split(',');
-	for(i=0;i<fxParam.length;i++){
-		var mx=parseFloat(fxDefMax[i])-parseFloat(fxDefMin[i]);
-		var h=60-(60*(-parseFloat(fxDefMin[i])/mx));
-		var npoints=fxParam[i].split("&");
-		var r0;
-		var t0;
-		for(j=0;j<npoints.length;j++){
-			if(j==0){
-				var cd0=npoints[0].split("?");
-				r0=(h-((60/mx)*parseFloat(cd0[1])))-4;
-				t0=0;
-				document.getElementById('Y'+tableLabel[i]).value=cd0[1];
-			}else{
-				var cd0=npoints[j-1].split("?");
-				t0=cd0[0]*(200/relative);
+// Couleurs par mode d'automation : 0=lin, 1=step, 2=exp, 3=ease
+const _FX_MODE_COLORS = ['#f100fa','#fa1a00','#fa8000','#0088fa'];
+
+// Génère le SVG d'une courbe d'automation entre deux keyframes selon le mode
+function _fxAutoSegmentSvg(x0, y0, x1, y1, mode) {
+	const pts = 8;  // segments pour les courbes non-linéaires
+	switch (mode) {
+		case 1: // step
+			return `<line x1='${x0}' y1='${y0+2}' x2='${x1}' y2='${y0+2}' stroke='#fa1a00' stroke-width='2'/>` +
+			       `<line x1='${x1}' y1='${y0+2}' x2='${x1}' y2='${y1+2}' stroke='#fa1a00' stroke-width='2'/>`;
+		case 2: { // exp
+			const k = 4;
+			let d = `M ${x0} ${y0+2}`;
+			for (let s = 1; s <= pts; s++) {
+				const f  = s / pts;
+				const t2 = x0 + (x1 - x0) * f;
+				const fv = (Math.exp(k * f) - 1) / (Math.exp(k) - 1);
+				const yv = y0 + (y1 - y0) * fv;
+				d += ` L ${t2} ${yv+2}`;
 			}
-			r0=(h-((60/mx)*parseFloat(cd0[1])))-4;
-			var cd=npoints[j].split("?");
-			r=(h-((60/mx)*parseFloat(cd[1])))-4;
-			t=cd[0]*(200/relative);
-			if(j==0 && npoints.length==1){
-				txt1=txt1+"<line  x1='0' y1='"+(r0+2)+"' x2='200' y2='"+(r0+2)+"' strocke-width='2' stroke='#434343' />";
-			}else{
-				if(j==npoints.length-1 && r<200){
-					txt1=txt1+"<line  x1='"+t0+"' y1='"+(r0+2)+"' x2='"+t+"' y2='"+(r+2)+"' strocke-width='2' stroke='#434343' />";
-					txt1=txt1+"<line  x1='"+t+"' y1='"+(r+2)+"' x2='200' y2='"+(r+2)+"' strocke-width='2' stroke='#434343' />";
-				}else{
-					txt1=txt1+"<line  x1='"+t0+"' y1='"+(r0+2)+"' x2='"+t+"' y2='"+(r+2)+"' strocke-width='2' stroke='#434343' />";
+			return `<path d='${d}' fill='none' stroke='#fa8000' stroke-width='2'/>`;
+		}
+		case 3: { // ease-in-out
+			let d = `M ${x0} ${y0+2}`;
+			for (let s = 1; s <= pts; s++) {
+				const f  = s / pts;
+				const t2 = x0 + (x1 - x0) * f;
+				const fv = f * f * (3 - 2 * f);
+				const yv = y0 + (y1 - y0) * fv;
+				d += ` L ${t2} ${yv+2}`;
+			}
+			return `<path d='${d}' fill='none' stroke='#0088fa' stroke-width='2'/>`;
+		}
+		default: // linear
+			return `<line x1='${x0}' y1='${y0+2}' x2='${x1}' y2='${y1+2}' stroke='#434343' stroke-width='2'/>`;
+	}
+}
+
+function drawFxAutomation(greffon) {
+	var rw       = tableObjet[objActif].fin - tableObjet[objActif].debut;
+	var nduree   = tableObjet[objActif].duree / tableObjet[objActif].transposition;
+	var relative = nduree * rw;
+	var index    = tableObjet[objActif].tableFx.indexOf(greffon);
+	var fx       = tableObjet[objActif].tableFxParam[index] || '';
+	var fxParam  = fx.split('/');
+	var fxDefMax = (listeFx[greffon].max || '1').split(',');
+	var fxDefMin = (listeFx[greffon].min || '0').split(',');
+	var tableLabel = listeFx[greffon].label.split(',');
+
+	for (var i = 0; i < fxParam.length; i++) {
+		var mx      = parseFloat(fxDefMax[i]) - parseFloat(fxDefMin[i]) || 1;
+		var h       = 60 - (60 * (-parseFloat(fxDefMin[i]) / mx));
+		var npoints = fxParam[i].split('&');
+		var txt     = '';
+		var svgInner = "<line x1='0' y1='32' x2='200' y2='32' stroke='#43434366' stroke-width='2'/>";
+
+		for (var j = 0; j < npoints.length; j++) {
+			var cd  = npoints[j].split('?');  // [time, value, mode?]
+			var tV  = parseFloat(cd[0] || 0);
+			var vV  = parseFloat(cd[1] || 0);
+			var mV  = parseInt(cd[2] || 0);
+			var r   = (h - ((60 / mx) * vV)) - 4;
+			var t   = tV * (200 / relative);
+			var col = _FX_MODE_COLORS[mV] || _FX_MODE_COLORS[0];
+
+			if (j === 0) {
+				document.getElementById('Y' + tableLabel[i]).value = vV;
+			}
+
+			if (j === 0 && npoints.length === 1) {
+				svgInner += `<line x1='0' y1='${r+2}' x2='200' y2='${r+2}' stroke='#434343' stroke-width='2'/>`;
+			} else if (j > 0) {
+				var cdP  = npoints[j-1].split('?');
+				var tP   = parseFloat(cdP[0] || 0) * (200 / relative);
+				var vP   = parseFloat(cdP[1] || 0);
+				var mP   = parseInt(cdP[2] || 0);
+				var rP   = (h - ((60 / mx) * vP)) - 4;
+				svgInner += _fxAutoSegmentSvg(tP, rP, t, r, mP);
+				if (j === npoints.length - 1 && t < 200) {
+					svgInner += `<line x1='${t}' y1='${r+2}' x2='200' y2='${r+2}' stroke='#434343' stroke-width='2'/>`;
 				}
 			}
-		//console.log("id","fx"+j+i,"j",j,'y1',r0+2,"y2",r+2)
-		txt=txt+"<div id='fx"+j+i+"' style='position:absolute;top:"+r+"px;left:"+t+"px;width:5px;height:5px;background-color:#f100fa;' title='fx"+j+i+":"+cd[1]+"'></div>";
-		document.getElementById(tableLabel[i]).innerHTML="";
-		document.getElementById(tableLabel[i]).innerHTML="<svg>"+txt1+"</svg>"+txt;
+
+			txt += `<div id='fx${j}${i}' data-mode='${mV}'
+			         style='position:absolute;top:${r}px;left:${t}px;width:5px;height:5px;background-color:${col};'
+			         title='fx${j}${i}:${vV}:${mV}'></div>`;
 		}
-		
-		txt="";
-		txt1="<line  x1='0' y1='32' x2='200' y2='32' strocke-width='2' stroke='#43434366' />";
+
+		document.getElementById(tableLabel[i]).innerHTML = `<svg>${svgInner}</svg>${txt}`;
 	}
-	
-	var tbdiv=document.getElementById(tableLabel[0]).parentNode.parentNode.parentNode.getElementsByTagName('div');
-	for(i=0;i<tbdiv.length;i++){
-		if(tbdiv[i].id.substring(0,2)=='fx'){
-			dragElement(tbdiv[i]);
+
+	var tbdiv = document.getElementById(tableLabel[0]).parentNode.parentNode.parentNode.getElementsByTagName('div');
+	for (var k = 0; k < tbdiv.length; k++) {
+		if (tbdiv[k].id.substring(0, 2) === 'fx') {
+			dragElement(tbdiv[k]);
 		}
 	}
 }
