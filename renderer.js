@@ -3000,16 +3000,30 @@ async function openLv2Browser(slotId) {
 	popup.style.display = 'block';
 	const listDiv = document.getElementById('lv2PluginList');
 	listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
-	if (!_lv2PluginsCache) {
-		_lv2PluginsCache = [];
-		_lv2PluginsCache = await window.api.lv2ListNames();
+	if (!_lv2PluginsCache || _lv2PluginsCache.length === 0) {
+		_lv2PluginsCache = null;
+		try {
+			const fn = window.api.lv2ListNames || window.api.lv2List;
+			if (!fn) throw new Error('API lv2ListNames introuvable — redémarrez l\'application');
+			let result = await fn();
+			// lv2List retourne ["uri",...], lv2ListNames retourne [{uri,name},...]
+			if (Array.isArray(result) && result.length && typeof result[0] === 'string') {
+				result = result.map(uri => ({ uri, name: uri.split('/').pop() }));
+			}
+			_lv2PluginsCache = Array.isArray(result) ? result : [];
+		} catch (e) {
+			_lv2PluginsCache = null;
+			listDiv.innerHTML = `<div style="padding:8px;color:#c00;">Erreur LV2 : ${e.message}</div>`;
+			console.error('[LV2 browser]', e);
+			return;
+		}
 	}
 	lv2FilterPlugins('');
 	if (!popup._draggable) { dragElement(popup); popup._draggable = true; }
 }
 
 function lv2FilterPlugins(q) {
-	if (!_lv2PluginsCache) return;
+	if (!_lv2PluginsCache || !_lv2PluginsCache.length) return;
 	const listDiv = document.getElementById('lv2PluginList');
 	const lower = q.toLowerCase();
 	const filtered = _lv2PluginsCache.filter(p => p.name.toLowerCase().includes(lower) || p.uri.toLowerCase().includes(lower));
