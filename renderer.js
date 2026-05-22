@@ -3049,24 +3049,21 @@ function buildLv2Interface(key, ports) {
 		         oninput="fxParamModifPV('${p.symbol}',${p.max},${p.min})"/>
 		</td></tr>`;
 	});
-	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
-	  ${rows}
-	</tbody></table>
-	<div style='margin-top:6px;margin-left:10px;'>
+	return `<div style='margin:4px 6px 2px;'>
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
-	</div>`;
+	</div>
+	<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
+	  ${rows}
+	</tbody></table>`;
 }
 
 function openLv2ParamEditor(id, key) {
 	const fxDesc = listeFx[key];
-	const maxH   = Math.min(fxDesc.height, 520);
-	openPopup(key, 400, 200, fxDesc.width, maxH, 0, fxDesc.interface);
+	const useH   = Math.min(fxDesc.height, window.innerHeight - 20);
+	openPopup(key, 400, 10, fxDesc.width, useH, 0, fxDesc.interface);
 	document.getElementById('popup' + key).style.backgroundColor = '#3465a4';
-	const contentEl = document.getElementById('popupContent' + key);
-	contentEl.style.overflowY = 'auto';
-	contentEl.style.maxHeight = (maxH - 26) + 'px';
 	drawFxAutomation(key);
 	const labels = fxDesc.label.split(',');
 	for (let j = 0; j < labels.length; j++) {
@@ -3155,24 +3152,21 @@ function buildVst3Interface(key, params) {
 		         oninput="fxParamModifPV('${pid}',${p.max},${p.min})"/>
 		</td></tr>`;
 	});
-	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#ffe8d4;font-size:11px;'><tbody>
-	  ${rows}
-	</tbody></table>
-	<div style='margin-top:6px;margin-left:10px;'>
+	return `<div style='margin:4px 6px 2px;'>
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
-	</div>`;
+	</div>
+	<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#ffe8d4;font-size:11px;'><tbody>
+	  ${rows}
+	</tbody></table>`;
 }
 
 function openVst3ParamEditor(id, key) {
 	const fxDesc = listeFx[key];
-	const maxH   = Math.min(fxDesc.height, 520);
-	openPopup(key, 400, 200, fxDesc.width, maxH, 0, fxDesc.interface);
+	const useH   = Math.min(fxDesc.height, window.innerHeight - 20);
+	openPopup(key, 400, 10, fxDesc.width, useH, 0, fxDesc.interface);
 	document.getElementById('popup' + key).style.backgroundColor = '#4a6a34';
-	const contentEl = document.getElementById('popupContent' + key);
-	contentEl.style.overflowY = 'auto';
-	contentEl.style.maxHeight = (maxH - 26) + 'px';
 	drawFxAutomation(key);
 	const labels = fxDesc.label.split(',');
 	for (let j = 0; j < labels.length; j++) {
