@@ -173,18 +173,20 @@ function foo() {
 		 for(i=0;i<tableListSource.length;i++){
 			if(tableListSource[i].etat==0 && tableListSource[i].start<=parseFloat(document.getElementById("barVerticale").style.left)/(18*zoomScale)){
 				tableListSource[i].etat=1;
-				try {
-					var obj=tableObjet[tableListSource[i].obj];
-					var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
-					const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
-					const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
-					const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
-					const fadeIn  = obj.fadeIn  || 'l';
-					const fadeOut = obj.fadeOut || fadeIn;
-					const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" fade "+fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
-					const soxParams="pitch "+obj.detune+" speed "+obj.transposition+" vol "+(obj.gain*soxVolume)+" trim "+obj.debut+" "+durationAfterSpeed+" fade "+defFade;
-					window.api.playDirectFile(1, outPath, soxParams);
-				} catch(e) { console.error("playback trigger error",e); }
+				if(tableListSource[i].triggerAudio !== false){
+					try {
+						var obj=tableObjet[tableListSource[i].obj];
+						var outPath=window.api.joinPath(toAbsPath(paramProjet.audioPath),'tmp',`${obj.id}-fx.wav`);
+						const durationAfterSpeed=((obj.duree*obj.fin)-(obj.duree*obj.debut))/obj.transposition;
+						const envX0 = (obj.envX && obj.envX[0] !== undefined) ? obj.envX[0] : 0;
+						const envX1 = (obj.envX && obj.envX[1] !== undefined) ? obj.envX[1] : 1;
+						const fadeIn  = obj.fadeIn  || 'l';
+						const fadeOut = obj.fadeOut || fadeIn;
+						const defFade=fadeIn+" "+(durationAfterSpeed*envX0)+" fade "+fadeOut+" 0 "+durationAfterSpeed+" "+durationAfterSpeed*(1-envX1);
+						const soxParams="pitch "+obj.detune+" speed "+obj.transposition+" vol "+(obj.gain*soxVolume)+" trim "+obj.debut+" "+durationAfterSpeed+" fade "+defFade;
+						window.api.playDirectFile(1, outPath, soxParams);
+					} catch(e) { console.error("playback trigger error",e); }
+				}
 		 	}
 		 }
 		 
