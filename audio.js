@@ -482,10 +482,12 @@ async function readSimpleAudio() {
 				 clockManager.start(parseFloat(document.getElementById("barVerticale").style.left));
 	  			 foo();
 			 const soxParamsSpeaker = "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade;
+			 const premixPath     = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-premix.wav`);
 			 const soxProcPath    = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-spk-proc.wav`);
 			 const spatSpeakerPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-spk-spat.wav`);
 			 try {
-			     await window.api.soxProcessTo(outPath, soxProcPath, soxParamsSpeaker);
+			     // Utiliser le premix mono (pas le fx.wav déjà spatialisé) pour éviter la double spatialisation
+			     await window.api.soxProcessTo(premixPath, soxProcPath, soxParamsSpeaker);
 			     const rtSpk = await window.api.loadBuffers(soxProcPath);
 			     await spatialiseBuffer(objActif, spatSpeakerPath, rtSpk.numChannels, rtSpk.numSamples, rtSpk.sampleRate, rtSpk.channels.map(ch => new Float32Array(ch)));
 			     window.api.playDirectFile(0, spatSpeakerPath, "");
