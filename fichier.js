@@ -907,16 +907,9 @@ function defObjets(i,liste,dx,dy){
 			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd,interpretorPath,lv2Paths,vst3Paths}));
 			window.api.send("toMain", 'defExterne;'+txt);
 			actualiseObjets();
-			// Régénérer les -fx.wav au chargement du projet (séquentiel — renduout.wav partagé)
+			// Reconstruire listeFx LV2+VST3, puis régénérer les -fx.wav (ordre séquentiel obligatoire)
 			(async()=>{
-				for(let k=0;k<nbObjets;k++){
-					if(tableObjet[k] && tableObjet[k].class===1 && tableObjet[k].file && tableObjet[k].file!==""){
-						await readSimpleAudioA(k,0);
-					}
-				}
-			})();
-			// Reconstruire les entrées listeFx pour les plugins LV2 chargés depuis un projet
-			(async()=>{
+				// 1. Reconstruire listeFx pour les plugins LV2
 				const urisDone = new Set();
 				for(let k=0;k<nbObjets;k++){
 					const obj=tableObjet[k];
@@ -943,9 +936,7 @@ function defObjets(i,liste,dx,dy){
 						}
 					}
 				}
-			})();
-			// Reconstruire les entrées listeFx pour les plugins VST3 chargés depuis un projet
-			(async()=>{
+				// 2. Reconstruire listeFx pour les plugins VST3
 				const done = new Set();
 				for(let k=0;k<nbObjets;k++){
 					const obj=tableObjet[k];
@@ -971,6 +962,12 @@ function defObjets(i,liste,dx,dy){
 								};
 							}catch(e){ console.warn('[VST3 restore]',fxKey,e.message); }
 						}
+					}
+				}
+				// 3. Régénérer les -fx.wav une fois les plugins disponibles dans listeFx
+				for(let k=0;k<nbObjets;k++){
+					if(tableObjet[k] && tableObjet[k].class===1 && tableObjet[k].file && tableObjet[k].file!==""){
+						await readSimpleAudioA(k,0);
 					}
 				}
 			})();
