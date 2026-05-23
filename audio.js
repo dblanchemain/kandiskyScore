@@ -481,20 +481,7 @@ async function readSimpleAudio() {
 				 maxDuree=durationAfterSpeed+(obj.posX/18);
 				 clockManager.start(parseFloat(document.getElementById("barVerticale").style.left));
 	  			 foo();
-			 const soxParamsSpeaker = "pitch "+options.pitchSemitones+" speed "+options.speedFactor+" vol "+(options.gain*soxVolume)+" trim "+options.startSec+" "+options.lengthSec+" fade "+options.fade;
-			 const premixPath     = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-premix.wav`);
-			 const soxProcPath    = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-spk-proc.wav`);
-			 const spatSpeakerPath = window.api.joinPath(toAbsPath(paramProjet.audioPath), 'tmp', `${obj.id}-spk-spat.wav`);
-			 try {
-			     // Utiliser le premix mono (pas le fx.wav déjà spatialisé) pour éviter la double spatialisation
-			     await window.api.soxProcessTo(premixPath, soxProcPath, soxParamsSpeaker);
-			     const rtSpk = await window.api.loadBuffers(soxProcPath);
-			     await spatialiseBuffer(objActif, spatSpeakerPath, rtSpk.numChannels, rtSpk.numSamples, rtSpk.sampleRate, rtSpk.channels.map(ch => new Float32Array(ch)));
-			     window.api.playDirectFile(0, spatSpeakerPath, "");
-			 } catch(e) {
-			     console.warn("[speaker] spatialisation échouée, lecture directe:", e);
-			     window.api.playDirectFile(0, outPath, soxParamsSpeaker);
-			 }
+			 // La lecture est gérée par foo() via playDirectFile(1, outPath, soxParams)
 			}else if(grpSelect==1 ||  tableObjet[objActif].class==4){
 				playerStat=1;
 				readGrpAudio(0);
