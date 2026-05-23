@@ -60,11 +60,15 @@ function readPart(){
 			_stopAtFinPx=-1;
 		}
 		buildPlaylist(lsgrp);
-		maxDuree = tableListSource.reduce((m, src) => Math.max(m, src.end), 0);
-		// Si la barre est déjà après la fin du score, revenir au début
 		const _barNow = parseFloat(document.getElementById("barVerticale").style.left) / (18 * zoomScale);
+		maxDuree = tableListSource.reduce((m, src) => Math.max(m, src.end), 0);
+		// Si la barre est déjà après la fin du score, revenir au début et réinitialiser
 		if (_barNow >= maxDuree) {
 			document.getElementById("barVerticale").style.left = "0px";
+			tableListSource.forEach(src => { src.etat = 0; });
+		} else {
+			// Pré-marquer les objets dont le déclenchement précède la barre comme terminés
+			tableListSource.forEach(src => { if (src.start < _barNow) src.etat = 3; });
 		}
 		curTempo=0;
 
