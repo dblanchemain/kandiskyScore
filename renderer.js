@@ -883,6 +883,15 @@ window.api.receive("fromMain", (data) => {
 					}
 				});
  				break;
+ 			case 'processRubberbandError': {
+				const _eid = parseInt(cmd[1]);
+				if (_processAudioResolvers.has(_eid)) {
+					_processAudioResolvers.get(_eid).reject(new Error(cmd[2] || 'processRubberbandError'));
+					_processAudioResolvers.delete(_eid);
+				}
+				document.getElementById("loading").style.display = "none";
+				break;
+			}
  			case 'tempoError':
 				document.getElementById("loading").style.display = "none";
 				break;

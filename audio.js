@@ -1186,6 +1186,71 @@ function applyEnvelopeToGainNode(gainNode, localEnv) {
 }
 
 
+async function generateFxWavForLoad(id) {
+    const obj = tableObjet[id];
+    if (!obj || !obj.file) throw new Error("Objet ou fichier introuvable");
+
+    const filePath = window.api.joinPath(toAbsPath(paramProjet.audioPath), obj.file);
+    const dir = await rdDirName(filePath);
+
+    const rt = await window.api.loadBuffers(filePath);
+    if (!rt || !Array.isArray(rt.channels) || rt.channels.length === 0)
+        throw new Error("loadBuffers: aucun canal renvoyé");
+
+    const numChannels = rt.numChannels;
+    const numSamples  = rt.numSamples;
+    const sampleRate  = rt.sampleRate;
+    tableObjet[id].canaux = numChannels;
+
+    let currentChannels = rt.channels.map(ch => new Float32Array(ch));
+
+    let nbrms = 0;
+    for (let i = 0; i < numChannels; i++)
+        nbrms += rmsToDb(currentChannels[i], obj.gain);
+    tableObjet[id].rmsdb = nbrms / numChannels;
+
+    if (obj.reverse)
+        currentChannels = await reverseMultiBuffersFloat32(currentChannels);
+
+    if (obj.convolver && tableBufferIR[obj.convolver]) {
+        const convResult = await convolveMultiBuffers(rt, tableBufferIR[obj.convolver]);
+        currentChannels = convResult.buffers.map(b => new Float32Array(b));
+    }
+
+    currentChannels = await applyFxBuffers(obj, numChannels, currentChannels, numSamples, sampleRate);
+    const monoBuffer = await mixToMono(currentChannels);
+
+    // Appliquer l'enveloppe de gain globale (identique à postRubberband mode 0)
+    const offlineCtx = new OfflineAudioContext(1, monoBuffer.length, sampleRate);
+    const song = offlineCtx.createBufferSource();
+    const resultBuffer = offlineCtx.createBuffer(1, monoBuffer.length, sampleRate);
+    resultBuffer.copyToChannel(monoBuffer, 0);
+    song.buffer = resultBuffer;
+    const gainNode = offlineCtx.createGain();
+    const extracted = extractEnvelopeForObject(gainPoints, obj.posX, song.buffer.duration * 18);
+    const localEnv  = convertToLocalEnvelope(extracted, song.buffer.duration);
+    applyEnvelopeToGainNode(gainNode, localEnv);
+    song.connect(gainNode);
+    gainNode.connect(offlineCtx.destination);
+    song.start(0);
+    const renderedBuffer = await offlineCtx.startRendering();
+
+    const envelopedChannels = [new Float32Array(renderedBuffer.getChannelData(0))];
+    const finalSamples = envelopedChannels[0].length;
+
+    const premixPath = window.api.joinPath(dir, "tmp", `${obj.id}-premix.wav`);
+    await window.api.saveAudioBuffer({ filePath: premixPath, buffer: { sampleRate, channels: envelopedChannels } });
+
+    const outPath = window.api.joinPath(dir, "tmp", `${obj.id}-fx.wav`);
+    await spatialiseBuffer(id, outPath, 1, finalSamples, sampleRate, envelopedChannels, "linear");
+
+    tableObjet[id].flagRevalider = 0;
+    const _el = document.getElementById(obj.id);
+    if (_el) _el.style.outline = '';
+
+    return true;
+}
+
 async function readSimpleAudioA(id,mode) {
     const obj = tableObjet[id];
     console.time();
