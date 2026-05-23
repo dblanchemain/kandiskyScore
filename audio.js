@@ -1226,27 +1226,7 @@ async function readSimpleAudioA(id,mode) {
         currentChannels = convResult.buffers.map(b => new Float32Array(b));
     }
     
-	    const options = {
-	    pitchSemitones: obj.detune/100,  // équivalent à -500 cents
-	    speedFactor: obj.transposition,       // speed 2x
-	    gain: obj.gain,
-	    startSec: obj.debut,
-	    lengthSec: (obj.duree*obj.fin)-(obj.duree*obj.debut)
-		 };
-		
-    // ----- Sauvegarde finale ----- 
-    //
-    const startSample = Math.floor(options.startSec * sampleRate);
-    const endSample = Math.min(Math.floor((options.startSec + options.lengthSec) * sampleRate), numSamples);
-    const trimmedLength = endSample - startSample;
-
-    // ----- NOUVELLE DURÉE APRÈS SPEED -----
-    const renderedLength = Math.floor(trimmedLength / options.speedFactor);
-    numSamples =  renderedLength;
-    
-	    
-	
-	 currentChannels = await applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate); 
+	 currentChannels = await applyFxBuffers(obj,numChannels,currentChannels,numSamples,sampleRate);
 	 const monoBuffer = await mixToMono(currentChannels);
 	 
 	  
