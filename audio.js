@@ -1246,7 +1246,10 @@ async function readSimpleAudioA(id,mode) {
 	      duration: numSamples*sampleRate,
 	      tempoMap,
 	    };
-    window.api.send("toMain", "processAudio;" + JSON.stringify(info));
+    await new Promise((resolve, reject) => {
+	 	_processAudioResolvers.set(id, { resolve, reject });
+	 	window.api.send("toMain", "processAudio;" + JSON.stringify(info));
+	 });
 	 }else{
 	 	await window.api.saveAudioBuffer({
         filePath: window.api.joinPath(`${baseDatatPath}`,"renduout.wav"),

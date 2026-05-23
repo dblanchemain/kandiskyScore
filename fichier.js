@@ -967,7 +967,8 @@ function defObjets(i,liste,dx,dy){
 				// 3. Régénérer les -fx.wav une fois les plugins disponibles dans listeFx
 				for(let k=0;k<nbObjets;k++){
 					if(tableObjet[k] && tableObjet[k].class===1 && tableObjet[k].file && tableObjet[k].file!==""){
-						await readSimpleAudioA(k,0);
+						try{ await readSimpleAudioA(k,0); }
+						catch(e){ console.warn('[load] readSimpleAudioA objet'+k, e.message||e); }
 					}
 				}
 			})();

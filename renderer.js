@@ -3,6 +3,7 @@
 var mainwinWidth=1510;
 var mainwinheight=894;
 let baseDatatPath="";
+const _processAudioResolvers = new Map();
 
 window.api.send("toMain", "basePath");
 
@@ -868,8 +869,19 @@ window.api.receive("fromMain", (data) => {
 					} else {
 						await postRubberband(cmd[1],cmd[2],cmd[3]);
 					}
-				})().catch(e => console.warn('processRubberband:', e));
-				
+					const _rid = parseInt(cmd[1]);
+					if (_processAudioResolvers.has(_rid)) {
+						_processAudioResolvers.get(_rid).resolve();
+						_processAudioResolvers.delete(_rid);
+					}
+				})().catch(e => {
+					console.warn('processRubberband:', e);
+					const _rid = parseInt(cmd[1]);
+					if (_processAudioResolvers.has(_rid)) {
+						_processAudioResolvers.get(_rid).reject(e);
+						_processAudioResolvers.delete(_rid);
+					}
+				});
  				break;
  			case 'tempoError':
 				document.getElementById("loading").style.display = "none";
