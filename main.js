@@ -7192,8 +7192,12 @@ ipcMain.handle('lv2-process', async (event, { channels, sampleRate, uri, automat
     const tmpOut = path.join(os.tmpdir(), `lv2out_${Date.now()}.wav`);
     try {
         const floatCh = channels.map(ab => new Float32Array(ab));
-        const wavBuf = Buffer.from(await WavEncoder.encode({ sampleRate, channelData: floatCh }));
-        fs.writeFileSync(tmpIn, wavBuf);
+        const nCh = floatCh.length, nSamp = floatCh[0].length;
+        const interleaved = new Float32Array(nCh * nSamp);
+        for (let s = 0; s < nSamp; s++) for (let c = 0; c < nCh; c++) interleaved[s * nCh + c] = floatCh[c][s];
+        const wfIn = new WaveFile();
+        wfIn.fromScratch(nCh, sampleRate, '32f', interleaved);
+        fs.writeFileSync(tmpIn, Buffer.from(wfIn.toBuffer()));
 
         await runLv2Helper(['process', uri, tmpIn, tmpOut], {
             automation:   automation   || {},
@@ -7268,8 +7272,12 @@ ipcMain.handle('vst3-process', async (event, { channels, sampleRate, pluginPath,
     const tmpOut = path.join(os.tmpdir(), `vst3out_${Date.now()}.wav`);
     try {
         const floatCh = channels.map(ab => new Float32Array(ab));
-        const wavBuf = Buffer.from(await WavEncoder.encode({ sampleRate, channelData: floatCh }));
-        fs.writeFileSync(tmpIn, wavBuf);
+        const nCh2 = floatCh.length, nSamp2 = floatCh[0].length;
+        const interleaved2 = new Float32Array(nCh2 * nSamp2);
+        for (let s = 0; s < nSamp2; s++) for (let c = 0; c < nCh2; c++) interleaved2[s * nCh2 + c] = floatCh[c][s];
+        const wfIn2 = new WaveFile();
+        wfIn2.fromScratch(nCh2, sampleRate, '32f', interleaved2);
+        fs.writeFileSync(tmpIn, Buffer.from(wfIn2.toBuffer()));
 
         const stdinJson = JSON.stringify({ automation: automation || {}, block_size: blockSize || 1024 });
         await runVst3Helper(['process', pluginPath, tmpIn, tmpOut], stdinJson);

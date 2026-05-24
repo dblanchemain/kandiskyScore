@@ -283,56 +283,76 @@ def cmd_process(uri, in_path, out_path):
         _connect(desc, hdl, i, buf)
 
     # Buffers audio — alloués comme tableaux C contigus (adresse stable)
-    fp = ctypes.POINTER(ctypes.c_float)
     in_bufs  = [(ctypes.c_float * block_size)() for _ in a_in]
     out_bufs = [(ctypes.c_float * block_size)() for _ in a_out]
     for pi, idx in enumerate(a_in):
         _connect(desc, hdl, idx, in_bufs[pi])
     for pi, idx in enumerate(a_out):
         _connect(desc, hdl, idx, out_bufs[pi])
-
     _activate(desc, hdl)
 
-    n_out_ch = max(len(a_out), n_ch)
-    output   = np.zeros((n_samples, n_out_ch), dtype=np.float32)
+    output = np.zeros((n_samples, n_ch), dtype=np.float32)
+    n_plugin_in  = max(len(a_in),  1)
+    n_plugin_out = max(len(a_out), 1)
+    # Nombre de passes : un plugin mono traite les canaux stéréo séparément
+    n_passes = math.ceil(n_ch / n_plugin_in)
 
-    for off in range(0, n_samples, block_size):
-        end  = min(off + block_size, n_samples)
-        blen = end - off
-        t_sec= off / sr
+    def _connect_audio():
+        for pi, idx in enumerate(a_in):  _connect(desc, hdl, idx, in_bufs[pi])
+        for pi, idx in enumerate(a_out): _connect(desc, hdl, idx, out_bufs[pi])
+        for i_ci, (f, _sym) in ctrl_floats.items(): _connect(desc, hdl, i_ci, ctypes.byref(f))
+        for ci, i_co in enumerate(c_out): _connect(desc, hdl, i_co, ctypes.byref(dummy_floats[ci]))
+        for oi, i_ot in enumerate(other): _connect(desc, hdl, i_ot, dummy_bufs[oi])
 
-        # Automation
-        for sym, events in automation.items():
-            if sym in sym_to_idx:
-                ctrl_floats[sym_to_idx[sym]][0].value = _interp(events, t_sec)
+    for pass_idx in range(n_passes):
+        ch_start = pass_idx * n_plugin_in
 
-        # Audio en entrée
-        for pi in range(len(a_in)):
-            ch = pi % n_ch
-            chunk = audio[off:end, ch]
-            ctypes.memmove(in_bufs[pi], chunk.ctypes.data, blen * 4)
-            if blen < block_size:
-                ctypes.memset(ctypes.addressof(in_bufs[pi]) + blen * 4, 0,
-                              (block_size - blen) * 4)
+        if pass_idx > 0:
+            # Nouvelle instance pour chaque passe (état interne indépendant)
+            _deactivate(desc, hdl)
+            _L.lilv_instance_free(inst_ptr)
+            inst_ptr = _L.lilv_plugin_instantiate(plugin, float(sr), None)
+            if not inst_ptr:
+                break
+            inst = ctypes.cast(inst_ptr, ctypes.POINTER(_LilvInstance)).contents
+            desc = inst.lv2_descriptor.contents
+            hdl  = inst.lv2_handle
+            _connect_audio()
+            _activate(desc, hdl)
 
-        _run(desc, hdl, block_size)
+        for off in range(0, n_samples, block_size):
+            end   = min(off + block_size, n_samples)
+            blen  = end - off
+            t_sec = off / sr
 
-        for pi in range(len(a_out)):
-            ch = pi % n_out_ch
-            # Copie bloc → tableau numpy de sortie
-            tmp = np.frombuffer(out_bufs[pi], dtype=np.float32)
-            output[off:end, ch] = tmp[:blen]
+            # Automation
+            for sym, events in automation.items():
+                if sym in sym_to_idx:
+                    ctrl_floats[sym_to_idx[sym]][0].value = _interp(events, t_sec)
+
+            # Audio en entrée pour cette passe
+            for pi in range(n_plugin_in):
+                ch = min(ch_start + pi, n_ch - 1)
+                # np.ascontiguousarray obligatoire : audio[:,ch] a stride=n_ch*4
+                # et memmove ne connaît pas les strides numpy
+                chunk = np.ascontiguousarray(audio[off:end, ch])
+                ctypes.memmove(in_bufs[pi], chunk.ctypes.data, blen * 4)
+                if blen < block_size:
+                    ctypes.memset(ctypes.addressof(in_bufs[pi]) + blen * 4, 0,
+                                  (block_size - blen) * 4)
+
+            _run(desc, hdl, block_size)
+
+            for pi in range(n_plugin_out):
+                ch = ch_start + pi
+                if ch >= n_ch:
+                    break
+                tmp = np.frombuffer(out_bufs[pi], dtype=np.float32).copy()
+                output[off:end, ch] = tmp[:blen]
 
     _deactivate(desc, hdl)
     _L.lilv_instance_free(inst_ptr)
     _L.lilv_world_free(world)
-
-    # Aligner le nombre de canaux de sortie
-    if output.shape[1] > n_ch:
-        output = output[:, :n_ch]
-    elif output.shape[1] < n_ch:
-        last = output[:, -1:]
-        output = np.hstack([output] + [last] * (n_ch - output.shape[1]))
 
     sf.write(out_path, output, sr, subtype='FLOAT')
     print(json.dumps({'ok': True}))
