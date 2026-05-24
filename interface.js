@@ -863,7 +863,7 @@ function dragElement(elmnt) {
 				var inp=elmnt.parentNode.id;
 				var _ymax=parseFloat(document.getElementById("Y"+inp).max);
 				var _ymin=parseFloat(document.getElementById("Y"+inp).min);
-				var rp=Math.max(_ymin,Math.min(_ymax,_ymax-(_ymax-_ymin)*((py+4)/60)));
+				var rp=Math.max(_ymin,Math.min(_ymax,_ymax-(_ymax-_ymin)*(py/56)));
 				var nbv=document.getElementById("Y"+inp).step.toString().split(".");
 				
 				if(nbv.length>1){
@@ -2091,17 +2091,18 @@ function drawFxAutomation(greffon) {
 
 	for (var i = 0; i < fxParam.length; i++) {
 		var mx      = parseFloat(fxDefMax[i]) - parseFloat(fxDefMin[i]) || 1;
-		var h       = 60 - (60 * (-parseFloat(fxDefMin[i]) / mx));
+		var _vmax_i = parseFloat(fxDefMax[i]);
 		var npoints = fxParam[i].split('&');
 		var txt     = '';
-		var svgInner = "<line x1='0' y1='32' x2='200' y2='32' stroke='#43434366' stroke-width='2'/>";
+		var _rBase  = Math.max(0, Math.min(56, Math.round(_vmax_i * 56 / mx)));
+		var svgInner = `<line x1='0' y1='${_rBase+2}' x2='200' y2='${_rBase+2}' stroke='#43434366' stroke-width='2'/>`;
 
 		for (var j = 0; j < npoints.length; j++) {
 			var cd  = npoints[j].split('?');  // [time, value, mode?]
 			var tV  = parseFloat(cd[0] || 0);
 			var vV  = parseFloat(cd[1] || 0);
 			var mV  = parseInt(cd[2] || 0);
-			var r   = Math.max(0, Math.min(56, (h - ((60 / mx) * vV)) - 4));
+			var r   = Math.max(0, Math.min(56, Math.round((_vmax_i - vV) * 56 / mx)));
 			var t   = Math.max(0, Math.min(196, tV * (200 / relative)));
 			var col = _FX_MODE_COLORS[mV] || _FX_MODE_COLORS[0];
 
@@ -2116,7 +2117,7 @@ function drawFxAutomation(greffon) {
 				var tP   = parseFloat(cdP[0] || 0) * (200 / relative);
 				var vP   = parseFloat(cdP[1] || 0);
 				var mP   = parseInt(cdP[2] || 0);
-				var rP   = Math.max(0, Math.min(56, (h - ((60 / mx) * vP)) - 4));
+				var rP   = Math.max(0, Math.min(56, Math.round((_vmax_i - vP) * 56 / mx)));
 				svgInner += _fxAutoSegmentSvg(tP, rP, t, r, mP);
 				if (j === npoints.length - 1 && t < 200) {
 					svgInner += `<line x1='${t}' y1='${r+2}' x2='200' y2='${r+2}' stroke='#434343' stroke-width='2'/>`;
