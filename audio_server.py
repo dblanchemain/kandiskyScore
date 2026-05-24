@@ -350,7 +350,7 @@ class NsmClient:
 
 HOST        = "127.0.0.1"
 PORT        = 9876
-BLOCK_SIZE  = 512   # frames par callback ≈ 11 ms @ 44100 Hz
+BLOCK_SIZE  = 1024  # frames par callback ≈ 23 ms @ 44100 Hz (correspond à la période JACK typique)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -534,6 +534,7 @@ class AudioMixer:
         # Injectés depuis la boucle asyncio pour notifier les fins de voix
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._notify_queue: Optional[asyncio.Queue]     = None
+        self._last_status_warn = 0.0  # throttle : 1 log / 5 s max
 
     # ── Injection de la boucle asyncio ───────────────────────────────────────
 
@@ -545,7 +546,10 @@ class AudioMixer:
 
     def _audio_callback(self, outdata: np.ndarray, frames: int, time_info, status):
         if status:
-            log.warning("sounddevice status : %s", status)
+            now = time.monotonic()
+            if now - self._last_status_warn >= 5.0:
+                log.warning("sounddevice status : %s", status)
+                self._last_status_warn = now
 
         mix   = np.zeros((frames, self.channels), dtype=np.float32)
         ended = []
