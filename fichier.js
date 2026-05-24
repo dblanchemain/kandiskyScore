@@ -936,6 +936,38 @@ function defObjets(i,liste,dx,dy){
 						}
 					}
 				}
+				// Migration : corriger les valeurs par défaut erronées dues au bug swap df/mx de lv2_helper.py
+				// (si la valeur initiale d'un port = son max ET son défaut ≠ son max → ancienne valeur fautive)
+				for(let k=0;k<nbObjets;k++){
+					const obj=tableObjet[k];
+					if(!obj || !obj.tableFx) continue;
+					for(let si=0;si<obj.tableFx.length;si++){
+						const fxKey=obj.tableFx[si];
+						if(!fxKey || !fxKey.startsWith('lv2:') || !listeFx[fxKey]) continue;
+						const fxDesc=listeFx[fxKey];
+						const maxArr=(fxDesc.max||'').split(',');
+						const defBlocks=(fxDesc.defaut||'').split('/');
+						const stored=obj.tableFxParam[si]||'';
+						const paramBlocks=stored.split('/');
+						let changed=false;
+						for(let pi=0;pi<Math.min(paramBlocks.length,maxArr.length,defBlocks.length);pi++){
+							const kfs=paramBlocks[pi].split('&');
+							if(kfs.length!==1) continue;  // courbe multi-keyframes → ne pas toucher
+							const parts=kfs[0].split('?');
+							if(Math.abs(parseFloat(parts[0]||0))>0.001) continue;  // pas à t=0
+							const v=parseFloat(parts[1]||0);
+							const portMax=parseFloat(maxArr[pi]);
+							const portDef=parseFloat((defBlocks[pi]||'0?0').split('?')[1]||0);
+							if(!isNaN(portMax)&&!isNaN(portDef)&&Math.abs(v-portMax)<0.001&&Math.abs(portDef-portMax)>0.001){
+								kfs[0]=`0?${portDef}?${parts[2]||'0'}`;
+								paramBlocks[pi]=kfs.join('&');
+								changed=true;
+								console.log(`[migration LV2] ${fxDesc.displayName||fxKey} objet${k} port${pi}: ${v} → ${portDef}`);
+							}
+						}
+						if(changed) obj.tableFxParam[si]=paramBlocks.join('/');
+					}
+				}
 				// 2. Reconstruire listeFx pour les plugins VST3
 				const done = new Set();
 				for(let k=0;k<nbObjets;k++){
