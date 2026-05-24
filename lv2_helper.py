@@ -185,7 +185,8 @@ def cmd_info(uri):
     mn_arr  = (_f32 * n)(); df_arr = (_f32 * n)(); mx_arr = (_f32 * n)()
     # NaN = "pas de valeur définie"
     for i in range(n): mn_arr[i] = df_arr[i] = mx_arr[i] = float('nan')
-    _L.lilv_plugin_get_port_ranges_float(plugin, mn_arr, df_arr, mx_arr)
+    # L'ordre réel de liblilv 0.24 est (min, max, def) malgré ce que dit la doc
+    _L.lilv_plugin_get_port_ranges_float(plugin, mn_arr, mx_arr, df_arr)
 
     _, _, c_in, _, _ = _classify_ports(world, plugin)
     ports = []
@@ -238,7 +239,8 @@ def cmd_process(uri, in_path, out_path):
     n_ports = _L.lilv_plugin_get_num_ports(plugin)
     mn_arr  = (_f32 * n_ports)(); df_arr = (_f32 * n_ports)(); mx_arr = (_f32 * n_ports)()
     for i in range(n_ports): mn_arr[i] = df_arr[i] = mx_arr[i] = float('nan')
-    _L.lilv_plugin_get_port_ranges_float(plugin, mn_arr, df_arr, mx_arr)
+    # L'ordre réel de liblilv 0.24 est (min, max, def) malgré ce que dit la doc
+    _L.lilv_plugin_get_port_ranges_float(plugin, mn_arr, mx_arr, df_arr)
 
     a_in, a_out, c_in, c_out, other = _classify_ports(world, plugin)
 
