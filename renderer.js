@@ -3146,23 +3146,19 @@ async function openVst3Browser(slotId) {
 	const popup = document.getElementById('popupVst3Browser');
 	popup.style.display = 'block';
 	const listDiv = document.getElementById('vst3PluginList');
-	listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
 	if (!_vst3PluginsCache) {
+		listDiv.innerHTML = '<div style="padding:8px;color:#666;">Chargement…</div>';
 		_vst3PluginsCache = [];
 		try {
 			const paths = await window.api.vst3List();
 			for (const pluginPath of paths) {
-				try {
-					const info = await window.api.vst3Info(pluginPath);
-					const fallbackName = pluginPath.split('/').pop().replace(/\.vst3$/, '');
-					_vst3PluginsCache.push({ pluginPath, name: info.name || fallbackName, params: info.params || [] });
-				} catch (_) {
-					const name = pluginPath.split('/').pop().replace(/\.vst3$/, '');
-					_vst3PluginsCache.push({ pluginPath, name, params: [] });
-				}
+				const name = pluginPath.split('/').pop().replace(/\.vst3$/, '');
+				_vst3PluginsCache.push({ pluginPath, name, params: null });
 			}
 		} catch (e) {
 			listDiv.innerHTML = `<div style="padding:8px;color:#c00;">Erreur VST3 : ${e.message}</div>`;
+			_vst3PluginsCache = null;
+			return;
 		}
 	}
 	vst3FilterPlugins('');
@@ -3183,22 +3179,29 @@ function vst3FilterPlugins(q) {
 
 async function selectVst3Plugin(pluginPath) {
 	document.getElementById('popupVst3Browser').style.display = 'none';
-	const info = _vst3PluginsCache.find(p => p.pluginPath === pluginPath) || await window.api.vst3Info(pluginPath);
+	let cached = _vst3PluginsCache && _vst3PluginsCache.find(p => p.pluginPath === pluginPath);
+	if (!cached || cached.params === null) {
+		const fetched = await window.api.vst3Info(pluginPath);
+		if (cached) { cached.name = fetched.name || cached.name; cached.params = fetched.params || []; }
+		else { cached = fetched; }
+	}
+	const info = cached;
+	const params = Array.isArray(info.params) ? info.params : [];
 	const baseName = pluginPath.split('/').pop().replace(/\.vst3$/, '');
 	const key = 'vst3:' + pluginPath;
 
-	const paramname = info.params.map(p => p.name).join(',');
-	const label     = info.params.map((p, i) => 'vp' + i + '_' + p.name.replace(/[^a-zA-Z0-9]/g, '_')).join(',');
-	const defaut    = info.params.map(p => `0?${p.default}`).join('/');
-	const min       = info.params.map(p => p.min).join(',');
-	const max       = info.params.map(p => p.max).join(',');
+	const paramname = params.map(p => p.name).join(',');
+	const label     = params.map((p, i) => 'vp' + i + '_' + p.name.replace(/[^a-zA-Z0-9]/g, '_')).join(',');
+	const defaut    = params.map(p => `0?${p.default}`).join('/');
+	const min       = params.map(p => p.min).join(',');
+	const max       = params.map(p => p.max).join(',');
 
 	listeFx[key] = {
 		name: key, displayName: info.name || baseName,
 		type: 'vst3', pluginPath,
 		paramname, label, defaut, min, max,
-		interface: buildVst3Interface(key, info.params),
-		width: 420, height: Math.max(180, 75 + info.params.length * 62)
+		interface: buildVst3Interface(key, params),
+		width: 420, height: Math.max(180, 75 + params.length * 62)
 	};
 	tableObjet[objActif].tableFx[idFxParam]      = key;
 	tableObjet[objActif].tableFxParam[idFxParam] = defaut;
