@@ -852,16 +852,18 @@ function dragElement(elmnt) {
 				if(py<0){
 					py=0;
 				}
-				if(py>60){
-					py=60;
+				if(py>56){
+					py=56;
 				}
-				
-				
+
+
 				var rw=tableObjet[objActif].fin-tableObjet[objActif].debut;
 				var nduree=tableObjet[objActif].duree/tableObjet[objActif].transposition;
 				var relative=nduree*rw;
 				var inp=elmnt.parentNode.id;
-				var rp=document.getElementById("Y"+inp).max-((document.getElementById("Y"+inp).max-document.getElementById("Y"+inp).min))*(py/60);
+				var _ymax=parseFloat(document.getElementById("Y"+inp).max);
+				var _ymin=parseFloat(document.getElementById("Y"+inp).min);
+				var rp=Math.max(_ymin,Math.min(_ymax,_ymax-(_ymax-_ymin)*((py+4)/60)));
 				var nbv=document.getElementById("Y"+inp).step.toString().split(".");
 				
 				if(nbv.length>1){

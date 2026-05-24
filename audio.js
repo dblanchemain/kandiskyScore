@@ -1381,7 +1381,6 @@ function parseAutoBlocks(fxParamString) {
 async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sampleRate) {
 
     const fxSlots   = obj.tableFx || [];
-    const validSlots = fxSlots.filter(k => k && listeFx && listeFx[k]);
     const blockSize  = 1024;
 
     // Compiler Faust (lazy — instancié une seule fois si au moins un slot WAM/FaustCode)
@@ -1398,8 +1397,9 @@ async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sam
         return _faustCtx;
     }
 
-    for (let slotIndex = 0; slotIndex < validSlots.length; slotIndex++) {
-        const fxKey  = validSlots[slotIndex];
+    for (let slotIndex = 0; slotIndex < fxSlots.length; slotIndex++) {
+        const fxKey  = fxSlots[slotIndex];
+        if (!fxKey || !listeFx || !listeFx[fxKey]) continue;
         const fxDesc = listeFx[fxKey];
         const tableFxParam = obj.tableFxParam || [];
         const paramBlocks  = parseAutoBlocks(tableFxParam[slotIndex]);

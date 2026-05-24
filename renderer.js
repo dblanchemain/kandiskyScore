@@ -3414,7 +3414,7 @@ function fxParamModifPT(bloc) {
 function fxParamModifPV(bloc,bmax,bmin) {
 	var parentPoint=document.getElementById(selectPointFx).parentNode.id;
 	if(selectPointFx!="" && bloc==parentPoint){
-		var vy=((document.getElementById("Y"+bloc).value-bmax)*60)/-(bmax-bmin);
+		var vy=Math.max(0,Math.min(56,((document.getElementById("Y"+bloc).value-bmax)*60)/-(bmax-bmin)-4));
 		document.getElementById(selectPointFx).style.top=vy+"px";
 		document.getElementById(selectPointFx).title=selectPointFx+":"+document.getElementById("Y"+bloc).value;
 		updateFxAutomation(document.getElementById(selectPointFx));
