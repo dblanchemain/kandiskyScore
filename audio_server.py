@@ -350,7 +350,7 @@ class NsmClient:
 
 HOST        = "127.0.0.1"
 PORT        = 9876
-BLOCK_SIZE  = 1024  # frames par callback ≈ 23 ms @ 44100 Hz (correspond à la période JACK typique)
+BLOCK_SIZE  = 0     # 0 = laisse sounddevice/JACK choisir la période optimale (fonctionne quel que soit le sample rate)
 
 logging.basicConfig(
     level=logging.INFO,
