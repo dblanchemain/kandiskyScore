@@ -1,49 +1,40 @@
-var tablePiste=[];
-var maxPiste=0;
-function tableObjetToPistes(ntableObjet,i,j){
-	
-	var ratioT=(720/12960);
-	var lgi=0;
-	var localDuree=0;
-	if (i<ntableObjet.length ){
-		if(ntableObjet[i].mute==0 && ntableObjet[i].etat==1  && ntableObjet[i].class==1){
-			
-			if(j>tablePiste.length-1){
-				if(ntableObjet[i].id.substring(0,5)=="objet"){
-					var id=parseInt(ntableObjet[i].id.substring(5));
-				}
-				tablePiste[j]=id+",";
-				tableObjet[id].piste=j;
-				i++;
-				if(j>maxPiste){
-					maxPiste=j;
-				}
-				tableObjetToPistes(ntableObjet,i,1);
-			}else{
-				var ls=tablePiste[j].split(",");
-				var lg=ls.length-2;
-				var last=parseInt(ls[lg]);
-				localDuree=(ntableObjet[last].duree/ntableObjet[last].transposition);
-				if(ntableObjet[last].convolver=="cathedrale"){
-					localDuree=7/ntableObjet[last].transposition;
-				}
-				lgi= localDuree/ratioT;
-				if(ntableObjet[i].posX>ntableObjet[last].posX+lgi){
-					if(ntableObjet[i].id.substring(0,5)=="objet"){
-						var id=parseInt(ntableObjet[i].id.substring(5));
-					}
-					tablePiste[j]=tablePiste[j]+id+",";
-					tableObjet[id].piste=j;
-					i++;
-					tableObjetToPistes(ntableObjet,i,1);
-				}else{
-					j++;
-					tableObjetToPistes(ntableObjet,i,j);
-				}
+// Assigne à chaque objet audio une piste (obj.piste) de façon à éviter tout
+// chevauchement temporel. Algorithme greedy : pour chaque objet (trié par posX),
+// on choisit la première piste dont la fin est <= au début de l'objet courant.
+// Retourne le nombre de pistes utilisées.
+function assignPistesExport(objets) {
+	var ratioT = 720 / 12960; // pixels → secondes
+	var pisteFin = []; // pisteFin[j] = posX de fin du dernier objet sur la piste j
+
+	for (var i = 0; i < objets.length; i++) {
+		var obj = objets[i];
+		var transpo = obj.transposition || 1;
+		var duree = obj.duree / transpo;
+		if (obj.convolver === "cathedrale") {
+			duree = 7 / transpo;
+		}
+		var dureePixels = duree / ratioT;
+
+		// Cherche la première piste libre (fin <= début de l'objet)
+		var piste = -1;
+		for (var j = 0; j < pisteFin.length; j++) {
+			if (obj.posX >= pisteFin[j]) {
+				piste = j;
+				break;
 			}
 		}
+		if (piste === -1) {
+			// Aucune piste libre → ouvrir une nouvelle
+			piste = pisteFin.length;
+			pisteFin.push(0);
+		}
+		pisteFin[piste] = obj.posX + dureePixels;
+
+		var id = parseInt(obj.id.substring(5));
+		tableObjet[id].piste = piste;
 	}
-	return maxPiste;
+
+	return pisteFin.length;
 }
 
 async function exportIntv(){
@@ -60,6 +51,7 @@ async function exportIntv(){
 	exportTable=exportTable.sort((s1, s2) => {
  		return s1.posX - s2.posX;
 	});
+	assignPistesExport(exportTable);
 	await exportAudioObjet(exportTable[0].id.substring(5),0);
 	exportToSeq(1,exportTable);
 }
@@ -85,9 +77,10 @@ async function exportGrp(){
 	exportTable=exportTable.sort((s1, s2) => {
  		return s1.posX - s2.posX;
 	});
+	assignPistesExport(exportTable);
 	await exportAudioObjet(exportTable[0].id.substring(5),0);
 	exportToSeq(1,exportTable);
-	
+
 }
 
 async function exportPart(adm){
@@ -104,6 +97,7 @@ async function exportPart(adm){
 	});
 
 	if(adm==0){
+		assignPistesExport(exportTable);
 		exportToSeq(1,exportTable);
 	}
 }
