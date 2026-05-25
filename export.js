@@ -8,6 +8,9 @@ function assignPistesExport(objets) {
 
 	for (var i = 0; i < objets.length; i++) {
 		var obj = objets[i];
+		// Ignorer tout ce qui n'est pas un objet audio numéroté
+		if (!obj || !obj.id || obj.id.substring(0, 5) !== "objet") continue;
+
 		var transpo = obj.transposition || 1;
 		var duree = obj.duree / transpo;
 		if (obj.convolver === "cathedrale") {
@@ -29,9 +32,8 @@ function assignPistesExport(objets) {
 			pisteFin.push(0);
 		}
 		pisteFin[piste] = obj.posX + dureePixels;
-
-		var id = parseInt(obj.id.substring(5));
-		tableObjet[id].piste = piste;
+		// obj est une référence directe à tableObjet[id] — mise à jour en place
+		obj.piste = piste;
 	}
 
 	return pisteFin.length;
@@ -84,7 +86,6 @@ async function exportGrp(){
 }
 
 async function exportPart(adm){
-	tablePiste=[];
 	exportTable=[];
 	for(let i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1 && tableObjet[i].file && tableObjet[i].class==1 ){
