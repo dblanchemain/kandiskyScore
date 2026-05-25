@@ -2097,6 +2097,36 @@ async function exportObjAudio(mode){
 let exportTable=[];
 let exportCompteur=0;
 let renderBinauralMode = false;
+
+// Assigne tableObjet[idx].piste pour chaque objet de lsgrp (indices triés par posX)
+// de façon à éviter tout chevauchement temporel.
+// Durée réelle = duree * (fin - debut) / transposition (durée relative).
+function assignPistesExport(lsgrp) {
+	var ratioT = 720 / 12960; // secondes par pixel
+	var pisteFin = []; // pisteFin[j] = posX de fin du dernier objet sur la piste j
+
+	for (var i = 0; i < lsgrp.length; i++) {
+		var obj = tableObjet[lsgrp[i]];
+		if (!obj) continue;
+		var transpo  = obj.transposition || 1;
+		var rw       = (obj.fin !== undefined ? obj.fin : 1) - (obj.debut || 0);
+		var duree    = obj.duree * rw / transpo; // durée réelle jouée en secondes
+		var dureePixels = duree / ratioT;
+
+		var piste = -1;
+		for (var j = 0; j < pisteFin.length; j++) {
+			if (obj.posX >= pisteFin[j]) { piste = j; break; }
+		}
+		if (piste === -1) {
+			piste = pisteFin.length;
+			pisteFin.push(0);
+		}
+		pisteFin[piste] = obj.posX + dureePixels;
+		obj.piste = piste;
+	}
+	return pisteFin.length;
+}
+
 async function exportIntv(){
 	var lsgrp=[];
 	var tempoMap=[];
@@ -2118,7 +2148,7 @@ async function exportIntv(){
 	exportTable=lsgrp;
 	exportCompteur=0;
 	await readSimpleAudioA(lsgrp[0],1);
-
+	assignPistesExport(lsgrp);
 	exportToSeq(lsgrp);
 }
 async function exportGrp(){
@@ -2138,6 +2168,7 @@ async function exportGrp(){
 	exportTable=lsgrp;
 	exportCompteur=0;
 	await readSimpleAudioA(lsgrp[0],1);
+	assignPistesExport(lsgrp);
 	exportToSeq(lsgrp);
 }
 async function exportPart(){
@@ -2167,6 +2198,7 @@ async function exportPart(){
 		document.getElementById("popupLoader").style.display="none";
 		return;
 	}
+	assignPistesExport(lsgrp);
 	exportToSeq(lsgrp);
 }
 function exportToSeq(refGrp){
