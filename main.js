@@ -6579,14 +6579,10 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         // Durée dans la timeline : obj.duree est la source de vérité (comme partout dans audio.js)
         durationAfterSpeed = obj.duree * portion / speedFactor;
 
-        console.log(
-            "realDuration=", realDuration, "objDuree=", obj.duree,
-            "trim=", trimmedDuration, "afterSpeed=", durationAfterSpeed
-        );
-
         // Fin dans la timeline
         const tEnd = tStart + durationAfterSpeed;
         endTimes.push(tEnd);
+        console.log(`[render] ${obj.id} tStart=${tStart.toFixed(2)} duree=${obj.duree} portion=${portion.toFixed(3)} speed=${speedFactor} afterSpeed=${durationAfterSpeed.toFixed(3)} tEnd=${tEnd.toFixed(2)}`);
 
         const tmpOut = path.join(tmpDir, `object_${idx}.wav`);
         console.log("path", input, tmpOut);
