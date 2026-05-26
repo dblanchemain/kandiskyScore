@@ -6538,26 +6538,39 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         const input = fs.existsSync(premixFile) ? premixFile
                     : fs.existsSync(fxFile)     ? fxFile
                     : objfile;
-			console.log("sox_dir", input);
+        console.log("sox_dir", input);
+
+        if (!fs.existsSync(input)) {
+            console.warn(`renderGroupWidthSoX: fichier introuvable, objet ignoré: ${input}`);
+            continue;
+        }
+
         // Position dans la timeline (en secondes)
         const tStart = (obj.posX - start) / 18;
 
         // Durée réelle du fichier
         let realDuration;
-        if(platform=='win32'){
-        		var wsoxPath = path.join(baseDir, "win", "sox.exe ");
-        		realDuration = parseFloat(
-            execSync(`"${wsoxPath}" --info -D "${input}"`).toString()
-        		);
-        }else{
-        	console.log("soxi",soxiPath);
-	        realDuration = parseFloat(execSync(`"${soxiPath}" -D "${input}"`).toString());
+        try {
+            if(platform=='win32'){
+                var wsoxPath = path.join(baseDir, "win", "sox.exe ");
+                realDuration = parseFloat(
+                    execSync(`"${wsoxPath}" --info -D "${input}"`).toString()
+                );
+            }else{
+                realDuration = parseFloat(execSync(`"${soxiPath}" -D "${input}"`).toString());
+            }
+        } catch(e) {
+            console.error(`soxi échoué pour ${input}:`, e.message);
+            continue;
+        }
+        if (isNaN(realDuration) || realDuration <= 0) {
+            console.warn(`durée invalide pour ${input}, objet ignoré`);
+            continue;
         }
 
         // Durée demandée après trim
         let trimmedDuration = (obj.fin - obj.debut)*realDuration ;
         if (trimmedDuration < 0) trimmedDuration = 0;
-
 
         // SPEED dans SoX : si transposition < 1 → ralentissement
         const speedFactor = obj.transposition || 1;
