@@ -10,7 +10,7 @@ const extraResource = [...allResources.filter(p => fs.existsSync(p)), ...rootFil
 module.exports = {
   packagerConfig: {
     asar: {
-      unpackDir: path.join('**', 'node_modules', 'h5wasm'),
+      unpackDir: '**/node_modules/h5wasm',
     },
     extraResource,
     ignore: [
@@ -19,6 +19,8 @@ module.exports = {
       /^\/out\//,
       /^\/\.git\//,
       /^\/Wam2\//,
+      /^\/dist\//,
+      /^\/build\//,
     ]
   },
   rebuildConfig: {},
