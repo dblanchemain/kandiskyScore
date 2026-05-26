@@ -6528,44 +6528,62 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const obj = tableObjet[i];
 
-        // Objet muté : ignoré dans le rendu
+        // Objet muté ou sans fichier : ignoré
         if (obj.mute == 1) continue;
+        if (!obj.file) continue;
 
         const objfile = path.join(audioPath,obj.file);
         const { dir, name } = path.parse(objfile);
         const premixFile = path.join(tmpDir, `${obj.id}-premix.wav`);
-        const input = fs.existsSync(premixFile) ? premixFile : path.join(tmpDir, `${obj.id}-fx.wav`);
-			console.log("sox_dir", input);
+        const fxFile = path.join(tmpDir, `${obj.id}-fx.wav`);
+        const input = fs.existsSync(premixFile) ? premixFile
+                    : fs.existsSync(fxFile)     ? fxFile
+                    : objfile;
+        console.log("sox_dir", input);
+
+        if (!fs.existsSync(input)) {
+            console.warn(`renderGroupWidthSoX: fichier introuvable, objet ignoré: ${input}`);
+            continue;
+        }
+
         // Position dans la timeline (en secondes)
         const tStart = (obj.posX - start) / 18;
 
         // Durée réelle du fichier
         let realDuration;
-        if(platform=='win32'){
-        		var wsoxPath = path.join(baseDir, "win", "sox.exe ");
-        		realDuration = parseFloat(
-            execSync(`"${wsoxPath}" --info -D "${input}"`).toString()
-        		);
-        }else{
-        	console.log("soxi",soxiPath);
-	        realDuration = parseFloat(execSync(`"${soxiPath}" -D "${input}"`).toString());
+        try {
+            if(platform=='win32'){
+                var wsoxPath = path.join(baseDir, "win", "sox.exe ");
+                realDuration = parseFloat(
+                    execSync(`"${wsoxPath}" --info -D "${input}"`).toString()
+                );
+            }else{
+                realDuration = parseFloat(execSync(`"${soxiPath}" -D "${input}"`).toString());
+            }
+        } catch(e) {
+            console.error(`soxi échoué pour ${input}:`, e.message);
+            continue;
+        }
+        if (isNaN(realDuration) || realDuration <= 0) {
+            console.warn(`durée invalide pour ${input}, objet ignoré`);
+            continue;
         }
 
-        // Durée demandée après trim
-        let trimmedDuration = (obj.fin - obj.debut)*realDuration ;
+        // Portion du fichier à extraire (trim SoX, basé sur realDuration)
+        const portion = obj.fin - obj.debut;
+        let trimmedDuration = portion * realDuration;
         if (trimmedDuration < 0) trimmedDuration = 0;
-
 
         // SPEED dans SoX : si transposition < 1 → ralentissement
         const speedFactor = obj.transposition || 1;
 
-        // Durée finale après speed
-        durationAfterSpeed = trimmedDuration / speedFactor;
+        // Durée dans la timeline : obj.duree est la source de vérité, fallback realDuration si absent
+        const dureeRef = (obj.duree && !isNaN(obj.duree) && obj.duree > 0) ? obj.duree : realDuration;
+        durationAfterSpeed = dureeRef * portion / speedFactor;
 
         console.log(
-            "realDuration=", realDuration,
-            "trim=", trimmedDuration,
-            "afterSpeed=", durationAfterSpeed
+            "realDuration=", realDuration, "objDuree=", obj.duree,
+            "trim=", trimmedDuration, "afterSpeed=", durationAfterSpeed
         );
 
         // Fin dans la timeline
@@ -6574,13 +6592,15 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const tmpOut = path.join(tmpDir, `object_${idx}.wav`);
         console.log("path", input, tmpOut);
-        const fadeInType  = obj.fadeIn  || 'l';
-        const fadeOutType = obj.fadeOut || fadeInType;
+        const validFade = new Set(['q','h','t','l','p']);
+        const fadeInType  = validFade.has(obj.fadeIn)  ? obj.fadeIn  : 'l';
+        const fadeOutType = validFade.has(obj.fadeOut) ? obj.fadeOut : fadeInType;
         // -- COMMAND SOX ---------------------------------------------------
+        const trimStartSec = obj.debut * realDuration;
         const soxArgs = [
 			  input,
 			  tmpOut,
-			  "trim", obj.debut.toString(), trimmedDuration.toString(),
+			  "trim", trimStartSec.toString(), trimmedDuration.toString(),
 			  "pitch", obj.detune.toString(),
 			  "speed", speedFactor.toString(),
 			  "vol", obj.gain.toString(),
