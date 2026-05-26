@@ -6593,10 +6593,11 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         const fadeInType  = obj.fadeIn  || 'l';
         const fadeOutType = obj.fadeOut || fadeInType;
         // -- COMMAND SOX ---------------------------------------------------
+        const trimStartSec = obj.debut * realDuration;
         const soxArgs = [
 			  input,
 			  tmpOut,
-			  "trim", obj.debut.toString(), trimmedDuration.toString(),
+			  "trim", trimStartSec.toString(), trimmedDuration.toString(),
 			  "pitch", obj.detune.toString(),
 			  "speed", speedFactor.toString(),
 			  "vol", obj.gain.toString(),
