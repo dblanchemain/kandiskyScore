@@ -6528,8 +6528,9 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const obj = tableObjet[i];
 
-        // Objet muté : ignoré dans le rendu
+        // Objet muté ou sans fichier : ignoré
         if (obj.mute == 1) continue;
+        if (!obj.file) continue;
 
         const objfile = path.join(audioPath,obj.file);
         const { dir, name } = path.parse(objfile);
