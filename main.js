@@ -6568,20 +6568,20 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
             continue;
         }
 
-        // Durée demandée après trim
-        let trimmedDuration = (obj.fin - obj.debut)*realDuration ;
+        // Portion du fichier à extraire (trim SoX, basé sur realDuration)
+        const portion = obj.fin - obj.debut;
+        let trimmedDuration = portion * realDuration;
         if (trimmedDuration < 0) trimmedDuration = 0;
 
         // SPEED dans SoX : si transposition < 1 → ralentissement
         const speedFactor = obj.transposition || 1;
 
-        // Durée finale après speed
-        durationAfterSpeed = trimmedDuration / speedFactor;
+        // Durée dans la timeline : obj.duree est la source de vérité (comme partout dans audio.js)
+        durationAfterSpeed = obj.duree * portion / speedFactor;
 
         console.log(
-            "realDuration=", realDuration,
-            "trim=", trimmedDuration,
-            "afterSpeed=", durationAfterSpeed
+            "realDuration=", realDuration, "objDuree=", obj.duree,
+            "trim=", trimmedDuration, "afterSpeed=", durationAfterSpeed
         );
 
         // Fin dans la timeline
