@@ -879,22 +879,14 @@ async function renderPartAudio(mode){
 	var lsgrp=[];
 	var startx=parseFloat(document.getElementById("barVerticale").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
-		const o=tableObjet[i];
-		if(o.etat==1){
-			if (o.file!=="" && o.file!==undefined) {
-				if (o.type<23 && o.posX>=startx) {
+		if(tableObjet[i].etat==1){
+			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
+				if (tableObjet[i].type<23 && tableObjet[i].posX>=startx) {
 					lsgrp.push(i);
-				} else {
-					console.log("renderPartAudio exclu type/pos:", i, o.id, "type=",o.type,"posX=",o.posX,"startx=",startx);
 				}
-			} else {
-				console.log("renderPartAudio exclu file vide:", i, o.id, "file=",o.file);
 			}
-		} else {
-			if(o.file && o.type<23) console.log("renderPartAudio exclu etat:", i, o.id, "etat=",o.etat);
 		}
 	}
-	console.log("renderPartAudio: lsgrp=",lsgrp.length, lsgrp);
 	if (window.wamSpat?.mode === 'hoa') {
 		await renderHoaBinaural(lsgrp);
 		return;
