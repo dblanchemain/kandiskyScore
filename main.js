@@ -6576,13 +6576,14 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         // SPEED dans SoX : si transposition < 1 → ralentissement
         const speedFactor = obj.transposition || 1;
 
-        // Durée dans la timeline : obj.duree est la source de vérité (comme partout dans audio.js)
-        durationAfterSpeed = obj.duree * portion / speedFactor;
+        // Durée dans la timeline : obj.duree est la source de vérité, fallback realDuration si absent
+        const dureeRef = (obj.duree && !isNaN(obj.duree) && obj.duree > 0) ? obj.duree : realDuration;
+        durationAfterSpeed = dureeRef * portion / speedFactor;
 
         // Fin dans la timeline
         const tEnd = tStart + durationAfterSpeed;
         endTimes.push(tEnd);
-        console.log(`[render] ${obj.id} tStart=${tStart.toFixed(2)} duree=${obj.duree} portion=${portion.toFixed(3)} speed=${speedFactor} afterSpeed=${durationAfterSpeed.toFixed(3)} tEnd=${tEnd.toFixed(2)}`);
+        console.log(`[render] ${obj.id} tStart=${tStart.toFixed(2)} duree=${obj.duree} dureeRef=${dureeRef.toFixed(3)} portion=${portion.toFixed(3)} speed=${speedFactor} afterSpeed=${durationAfterSpeed.toFixed(3)} tEnd=${tEnd.toFixed(2)}`);
 
         const tmpOut = path.join(tmpDir, `object_${idx}.wav`);
         console.log("path", input, tmpOut);
