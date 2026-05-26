@@ -6534,7 +6534,10 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         const objfile = path.join(audioPath,obj.file);
         const { dir, name } = path.parse(objfile);
         const premixFile = path.join(tmpDir, `${obj.id}-premix.wav`);
-        const input = fs.existsSync(premixFile) ? premixFile : path.join(tmpDir, `${obj.id}-fx.wav`);
+        const fxFile = path.join(tmpDir, `${obj.id}-fx.wav`);
+        const input = fs.existsSync(premixFile) ? premixFile
+                    : fs.existsSync(fxFile)     ? fxFile
+                    : objfile;
 			console.log("sox_dir", input);
         // Position dans la timeline (en secondes)
         const tStart = (obj.posX - start) / 18;

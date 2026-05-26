@@ -877,14 +877,12 @@ function renderIntervalleAudio(){
 }
 async function renderPartAudio(mode){
 	var lsgrp=[];
-	var lstate=[];
 	var startx=parseFloat(document.getElementById("barVerticale").style.left)/zoomScale;
 	for(i=0;i<tableObjet.length;i++){
 		if(tableObjet[i].etat==1){
 			if (tableObjet[i].file!=="" && tableObjet[i].file!==undefined) {
-				if (tableObjet[i].class==1 && tableObjet[i].type<23 && tableObjet[i].posX>startx) {
+				if (tableObjet[i].type<23 && tableObjet[i].posX>=startx) {
 					lsgrp.push(i);
-					lstate.push(0);
 				}
 			}
 		}
@@ -894,9 +892,7 @@ async function renderPartAudio(mode){
 		return;
 	}
 	const rt= await window.api.renderGroupWidthSoX(lsgrp,JSON.stringify(tableObjet),startx);
-	var start=startx/18;
-	var end=rt.duration-start;
-	saveRenduAudio(rt.duration+start,rt.output);
+	saveRenduAudio(rt.duration,rt.output);
 }
 
 function defSourceEnveloppe(id, nduree, gainNode, dtime) {
