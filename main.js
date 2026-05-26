@@ -6587,8 +6587,9 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 
         const tmpOut = path.join(tmpDir, `object_${idx}.wav`);
         console.log("path", input, tmpOut);
-        const fadeInType  = obj.fadeIn  || 'l';
-        const fadeOutType = obj.fadeOut || fadeInType;
+        const validFade = new Set(['q','h','t','l','p']);
+        const fadeInType  = validFade.has(obj.fadeIn)  ? obj.fadeIn  : 'l';
+        const fadeOutType = validFade.has(obj.fadeOut) ? obj.fadeOut : fadeInType;
         // -- COMMAND SOX ---------------------------------------------------
         const trimStartSec = obj.debut * realDuration;
         const soxArgs = [
