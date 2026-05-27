@@ -2197,6 +2197,63 @@ async function exportPart(){
 	assignPistesExport(lsgrp);
 	exportToSeq(lsgrp);
 }
+async function exportPartSpat() {
+	var lsgrp = [];
+	for (var i = 0; i < tableObjet.length; i++) {
+		if (tableObjet[i].etat == 1 && tableObjet[i].mute == 0) {
+			if (tableObjet[i].file !== "" && tableObjet[i].file !== undefined) {
+				if (tableObjet[i].type < 23) {
+					lsgrp.push(i);
+				}
+			}
+		}
+	}
+	lsgrp.sort((a, b) => tableObjet[a].posX - tableObjet[b].posX);
+	if (lsgrp.length === 0) return;
+
+	document.getElementById("sliderLParam").style.width = "0%";
+	document.getElementById("popupLoader").style.display = "block";
+
+	try {
+		// Mode HOA : déléguer au pipeline existant
+		if (window.wamSpat?.mode === 'hoa') {
+			await renderHoaBinaural(lsgrp);
+			return;
+		}
+
+		// Spatialiser chaque objet → génère les -fx.wav
+		for (var k = 0; k < lsgrp.length; k++) {
+			document.getElementById("sliderLParam").style.width =
+				(Math.floor((k / lsgrp.length) * 80)) + "%";
+			await readSimpleAudioA(lsgrp[k], 0);
+		}
+
+		document.getElementById("sliderLParam").style.width = "90%";
+
+		// Mix final via SoX (utilise les -fx.wav spatialisés)
+		const minPosX = tableObjet[lsgrp[0]].posX;
+		const rt = await window.api.renderGroupWidthSoX(
+			lsgrp, JSON.stringify(tableObjet), minPosX
+		);
+
+		document.getElementById("sliderLParam").style.width = "100%";
+		document.getElementById("popupLoader").style.display = "none";
+
+		// Dialog de sauvegarde
+		const suggested = window.api.joinPath(
+			toAbsPath(paramProjet.audioPath), 'partition-spat.wav'
+		);
+		const destPath = await window.api.showSaveDialog(suggested);
+		if (!destPath) return;
+
+		await window.api.copyFileToPath(rt.output, destPath);
+		saveRenduAudio(rt.duration, destPath);
+
+	} catch (e) {
+		console.error('[exportPartSpat] erreur:', e.message || e);
+		document.getElementById("popupLoader").style.display = "none";
+	}
+}
 function exportToSeq(refGrp){
 	var autoGain="";
 	for(i=0;i<gainPoints.length;i++){

@@ -81,6 +81,8 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("renderBinauralFromAmbiX", ambiXPath, outPath),
     fileExists: (filePath) =>
         ipcRenderer.invoke("fileExists", filePath),
+    copyFileToPath: (src, dest) =>
+        ipcRenderer.invoke("copyFileToPath", src, dest),
     cleanHoaAmbiX: (exportDir) =>
         ipcRenderer.invoke("cleanHoaAmbiX", exportDir),
     launchReaperHoaBinaural: (ambiXPath, hoaOrder, sampleRate) =>

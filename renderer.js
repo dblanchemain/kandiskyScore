@@ -741,6 +741,9 @@ window.api.receive("fromMain", (data) => {
 			case 'exportPart':
 				exportPart(0);
 				break;
+			case 'exportPartSpat':
+				exportPartSpat();
+				break;
 			case 'owExportStart': {
 				// cmd[1]=grpDir, cmd[2]=imgDir, cmd[3]=destDir, reste=partitionXML
 				const owGrpDir2  = cmd[1];

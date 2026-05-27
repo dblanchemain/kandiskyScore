@@ -607,6 +607,7 @@ if (fs.existsSync(path.join(app.getPath('appData'), 'kandiskyscore', 'config.js'
 copyFileOutsideOfElectronAsar('./menuDefaut.js', path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
 const Mn = require(path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
 if (typeof Mstretching === 'undefined') Mstretching = 'Stretching (objet)';
+if (typeof MexportPartSpat === 'undefined') MexportPartSpat = 'Export.Partition (spat)';
 console.log('copy menuDefaut');
 
 const themesPath = app.isPackaged
@@ -889,6 +890,7 @@ const template = [
 						{ label: MexportPart,  click: () => exportPart() },
 					]
 				},
+				{ label: MexportPartSpat, click: () => exportPartSpat() },
 				{ label: "ADM",
 					submenu: [
 						{ label: "Exports", click: () => exportAdm() },
@@ -3392,6 +3394,9 @@ function exportIntv(){
 }
 function exportPart(){
 	mainWindow.webContents.send("fromMain", "exportPart");
+}
+function exportPartSpat(){
+	mainWindow.webContents.send("fromMain", "exportPartSpat");
 }
 function exportAdm(){
 	mainWindow.webContents.send("fromMain", "exportAdm");
@@ -6423,6 +6428,15 @@ ipcMain.handle("showSaveDialog", async (event, defaultPath) => {
 
 ipcMain.handle('fileExists', async (event, filePath) => {
     return fs.existsSync(filePath);
+});
+
+ipcMain.handle('copyFileToPath', async (event, src, dest) => {
+    try {
+        await fs.promises.copyFile(src, dest);
+        return { ok: true };
+    } catch (e) {
+        return { ok: false, error: e.message };
+    }
 });
 
 ipcMain.handle('cleanHoaAmbiX', async (event, exportDir) => {
