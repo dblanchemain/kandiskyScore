@@ -6516,7 +6516,7 @@ ipcMain.handle('renderHoaAmbiXMix', async (event, objects, exportDir) => {
 });
 
 
-ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start,preferFx=false) => {
+ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start,preferFx=false,normalize=false) => {
 
 
     tableObjet = JSON.parse(tbobjets);
@@ -6660,6 +6660,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start,preferF
 		  args.push(output);
 		  args.push("fade", "0.005", "0", "0.1");
 		}
+	  if (normalize) args.push("norm", "-1");
 	
 	  console.log("Commande SoX:", [soxPath, ...args].join(" "));
 	

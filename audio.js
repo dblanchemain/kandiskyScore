@@ -2230,10 +2230,10 @@ async function exportPartSpat() {
 
 		document.getElementById("sliderLParam").style.width = "90%";
 
-		// Mix final via SoX — preferFx=true pour utiliser les -fx.wav multicanaux (VBAP)
+		// Mix final via SoX — preferFx=true (VBAP multicanal), normalize=true (norm -1 dBFS)
 		const minPosX = tableObjet[lsgrp[0]].posX;
 		const rt = await window.api.renderGroupWidthSoX(
-			lsgrp, JSON.stringify(tableObjet), minPosX, true
+			lsgrp, JSON.stringify(tableObjet), minPosX, true, true
 		);
 
 		document.getElementById("sliderLParam").style.width = "100%";
