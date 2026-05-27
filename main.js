@@ -6516,7 +6516,7 @@ ipcMain.handle('renderHoaAmbiXMix', async (event, objects, exportDir) => {
 });
 
 
-ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
+ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start,preferFx=false) => {
 
 
     tableObjet = JSON.parse(tbobjets);
@@ -6550,9 +6550,9 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         const { dir, name } = path.parse(objfile);
         const premixFile = path.join(tmpDir, `${obj.id}-premix.wav`);
         const fxFile = path.join(tmpDir, `${obj.id}-fx.wav`);
-        const input = fs.existsSync(premixFile) ? premixFile
-                    : fs.existsSync(fxFile)     ? fxFile
-                    : objfile;
+        const input = preferFx
+                    ? (fs.existsSync(fxFile)     ? fxFile     : fs.existsSync(premixFile) ? premixFile : objfile)
+                    : (fs.existsSync(premixFile) ? premixFile : fs.existsSync(fxFile)     ? fxFile     : objfile);
         console.log("sox_dir", input);
 
         if (!fs.existsSync(input)) {

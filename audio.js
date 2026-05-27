@@ -2230,10 +2230,10 @@ async function exportPartSpat() {
 
 		document.getElementById("sliderLParam").style.width = "90%";
 
-		// Mix final via SoX (utilise les -fx.wav spatialisés)
+		// Mix final via SoX — preferFx=true pour utiliser les -fx.wav multicanaux (VBAP)
 		const minPosX = tableObjet[lsgrp[0]].posX;
 		const rt = await window.api.renderGroupWidthSoX(
-			lsgrp, JSON.stringify(tableObjet), minPosX
+			lsgrp, JSON.stringify(tableObjet), minPosX, true
 		);
 
 		document.getElementById("sliderLParam").style.width = "100%";
@@ -2247,7 +2247,6 @@ async function exportPartSpat() {
 		if (!destPath) return;
 
 		await window.api.copyFileToPath(rt.output, destPath);
-		saveRenduAudio(rt.duration, destPath);
 
 	} catch (e) {
 		console.error('[exportPartSpat] erreur:', e.message || e);
