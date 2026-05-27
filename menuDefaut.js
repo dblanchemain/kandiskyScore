@@ -75,6 +75,7 @@
  MexportGrp='Export.Groupe';
  MexportInterv='Export.Intervalle';
  MexportPart='Export.Partition';
+ MexportPartSpat='Export.Partition (spat)';
  Mconfig='Configuration';
  Mdoc='Documentation';
  Mhelp='Aide';

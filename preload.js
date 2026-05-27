@@ -73,14 +73,16 @@ contextBridge.exposeInMainWorld(
         ipcRenderer.invoke("audioSelect"),
     infoFile: (filePath) =>
         ipcRenderer.invoke("infoFile", filePath),
-	 renderGroupWidthSoX: (lsgrp,tbobjets,start) =>
-        ipcRenderer.invoke("renderGroupWidthSoX",lsgrp,tbobjets,start),
+	 renderGroupWidthSoX: (lsgrp,tbobjets,start,preferFx,normalize) =>
+        ipcRenderer.invoke("renderGroupWidthSoX",lsgrp,tbobjets,start,preferFx,normalize),
     renderHoaAmbiXMix: (objects, exportDir) =>
         ipcRenderer.invoke("renderHoaAmbiXMix", objects, exportDir),
     renderBinauralFromAmbiX: (ambiXPath, outPath) =>
         ipcRenderer.invoke("renderBinauralFromAmbiX", ambiXPath, outPath),
     fileExists: (filePath) =>
         ipcRenderer.invoke("fileExists", filePath),
+    copyFileToPath: (src, dest) =>
+        ipcRenderer.invoke("copyFileToPath", src, dest),
     cleanHoaAmbiX: (exportDir) =>
         ipcRenderer.invoke("cleanHoaAmbiX", exportDir),
     launchReaperHoaBinaural: (ambiXPath, hoaOrder, sampleRate) =>

@@ -607,6 +607,7 @@ if (fs.existsSync(path.join(app.getPath('appData'), 'kandiskyscore', 'config.js'
 copyFileOutsideOfElectronAsar('./menuDefaut.js', path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
 const Mn = require(path.join(app.getPath('appData'), 'kandiskyscore', 'menuDefaut.js'));
 if (typeof Mstretching === 'undefined') Mstretching = 'Stretching (objet)';
+if (typeof MexportPartSpat === 'undefined') MexportPartSpat = 'Export.Partition (spat)';
 console.log('copy menuDefaut');
 
 const themesPath = app.isPackaged
@@ -889,6 +890,7 @@ const template = [
 						{ label: MexportPart,  click: () => exportPart() },
 					]
 				},
+				{ label: MexportPartSpat, click: () => exportPartSpat() },
 				{ label: "ADM",
 					submenu: [
 						{ label: "Exports", click: () => exportAdm() },
@@ -3392,6 +3394,9 @@ function exportIntv(){
 }
 function exportPart(){
 	mainWindow.webContents.send("fromMain", "exportPart");
+}
+function exportPartSpat(){
+	mainWindow.webContents.send("fromMain", "exportPartSpat");
 }
 function exportAdm(){
 	mainWindow.webContents.send("fromMain", "exportAdm");
@@ -6425,6 +6430,15 @@ ipcMain.handle('fileExists', async (event, filePath) => {
     return fs.existsSync(filePath);
 });
 
+ipcMain.handle('copyFileToPath', async (event, src, dest) => {
+    try {
+        await fs.promises.copyFile(src, dest);
+        return { ok: true };
+    } catch (e) {
+        return { ok: false, error: e.message };
+    }
+});
+
 ipcMain.handle('cleanHoaAmbiX', async (event, exportDir) => {
     if (!fs.existsSync(exportDir)) return { deleted: [], totalMB: 0 };
 
@@ -6502,7 +6516,7 @@ ipcMain.handle('renderHoaAmbiXMix', async (event, objects, exportDir) => {
 });
 
 
-ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
+ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start,preferFx=false,normalize=false) => {
 
 
     tableObjet = JSON.parse(tbobjets);
@@ -6536,9 +6550,9 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         const { dir, name } = path.parse(objfile);
         const premixFile = path.join(tmpDir, `${obj.id}-premix.wav`);
         const fxFile = path.join(tmpDir, `${obj.id}-fx.wav`);
-        const input = fs.existsSync(premixFile) ? premixFile
-                    : fs.existsSync(fxFile)     ? fxFile
-                    : objfile;
+        const input = preferFx
+                    ? (fs.existsSync(fxFile)     ? fxFile     : fs.existsSync(premixFile) ? premixFile : objfile)
+                    : (fs.existsSync(premixFile) ? premixFile : fs.existsSync(fxFile)     ? fxFile     : objfile);
         console.log("sox_dir", input);
 
         if (!fs.existsSync(input)) {
@@ -6580,11 +6594,6 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
         // Durée dans la timeline : obj.duree est la source de vérité, fallback realDuration si absent
         const dureeRef = (obj.duree && !isNaN(obj.duree) && obj.duree > 0) ? obj.duree : realDuration;
         durationAfterSpeed = dureeRef * portion / speedFactor;
-
-        console.log(
-            "realDuration=", realDuration, "objDuree=", obj.duree,
-            "trim=", trimmedDuration, "afterSpeed=", durationAfterSpeed
-        );
 
         // Fin dans la timeline
         const tEnd = tStart + durationAfterSpeed;
@@ -6651,6 +6660,7 @@ ipcMain.handle('renderGroupWidthSoX', async (event, lsgrp,tbobjets,start) => {
 		  args.push(output);
 		  args.push("fade", "0.005", "0", "0.1");
 		}
+	  if (normalize) args.push("norm", "-1");
 	
 	  console.log("Commande SoX:", [soxPath, ...args].join(" "));
 	
