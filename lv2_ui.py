@@ -35,8 +35,8 @@ _LV2_Descriptor._fields_ = [
     ('cleanup',        _vp),
     ('extension_data', _vp),
 ]
-_InstFn    = ctypes.CFUNCTYPE(_vp,  ctypes.c_void_p, ctypes.c_double, _sp, _vp)
-_CleanupFn = ctypes.CFUNCTYPE(None, _vp)
+_InstFn      = ctypes.CFUNCTYPE(_vp,  ctypes.c_void_p, ctypes.c_double, _sp, _vp)
+_CleanupFn   = ctypes.CFUNCTYPE(None, _vp)
 
 def _instantiate_dsp(plugin, uri, bundle_path_b, features_ptr):
     """
@@ -298,13 +298,11 @@ def cmd_ui(uri, initial_str=None):
 
     # ── Callback suil : changements de ports ─────────────────────────────
     def write_fn(controller, port_index, buffer_size, protocol, buffer):
-        _dbg(f'write_fn: port={port_index} size={buffer_size} proto={protocol} buf={buffer}')
         # protocol=0 → float brut
         if protocol == 0 and buffer_size >= 4 and buffer:
             try:
                 value = ctypes.cast(buffer, ctypes.POINTER(_f32)).contents.value
                 sym   = idx_to_sym.get(port_index, f'port_{port_index}')
-                _dbg(f'write_fn → sym={sym} value={value}')
                 print(json.dumps({'idx': int(port_index), 'sym': sym, 'value': float(value)}), flush=True)
             except Exception as e:
                 _dbg(f'write_fn erreur: {e}')
@@ -320,8 +318,6 @@ def cmd_ui(uri, initial_str=None):
     binary_path_str = binary_path_b.decode() if isinstance(binary_path_b, bytes) else binary_path_b
     bundle_path_str = bundle_path_b.decode() if isinstance(bundle_path_b, bytes) else bundle_path_b
     binary_exists = os.path.exists(binary_path_str)
-    _dbg(f'binary_path={binary_path_str!r} exists={binary_exists}')
-    _dbg(f'bundle_path={bundle_path_str!r}')
 
     if not binary_exists:
         print(json.dumps({'error': 'binary_missing',
@@ -331,8 +327,11 @@ def cmd_ui(uri, initial_str=None):
         return
 
     # ── Instance suil ────────────────────────────────────────────────────
+    # controller non-NULL : FRUT v2.0.0 vérifie (writeFunction && controller)
+    # avant d'appeler write_fn — passer NULL bloque l'appel.
+    _ctrl_dummy = ctypes.c_uint8(0)
     instance = _S.suil_instance_new(
-        host, None,
+        host, ctypes.addressof(_ctrl_dummy),
         _GTK3_URI,
         uri.encode(), ui_uri_b, ui_type_b,
         bundle_path_b, binary_path_b,
@@ -351,17 +350,50 @@ def cmd_ui(uri, initial_str=None):
     widget_ptr = _S.suil_instance_get_widget(instance)
     _dbg(f'widget_ptr={widget_ptr}')
 
-    # ── ui:idleInterface (JUCE) ───────────────────────────────────────────
-    _IDLE_URI = b'http://lv2plug.in/ns/ext/ui#idleInterface'
-    idle_data = _S.suil_instance_extension_data(instance, _IDLE_URI)
-    if idle_data:
-        _idle_iface = ctypes.cast(idle_data, ctypes.POINTER(_IdleIface)).contents
-        _ui_handle  = _S.suil_instance_get_handle(instance)
-        _dbg(f'idle interface trouvée (handle={_ui_handle})')
-    else:
-        _idle_iface = None
-        _ui_handle  = None
-        _dbg('pas d\'idle interface')
+    # ── ui:idleInterface (JUCE) — direct sur le binaire UI ───────────────
+    # suil_instance_extension_data ne propage pas extension_data pour X11-in-GTK3 ;
+    # on charge le descripteur UI directement depuis le binaire.
+    _IDLE_URI   = b'http://lv2plug.in/ns/ext/ui#idleInterface'
+    _idle_iface = None
+    _ui_handle  = None
+    _ui_lib     = None
+
+    class _LV2UI_Descriptor(ctypes.Structure):
+        _fields_ = [
+            ('URI',            _sp),
+            ('instantiate',    _vp),
+            ('cleanup',        _vp),
+            ('port_event',     _vp),
+            ('extension_data', _vp),
+        ]
+    _ExtDataFn = ctypes.CFUNCTYPE(_vp, _sp)
+
+    try:
+        _ui_lib = ctypes.CDLL(binary_path_str)
+        _ui_lib.lv2ui_descriptor.restype  = ctypes.POINTER(_LV2UI_Descriptor)
+        _ui_lib.lv2ui_descriptor.argtypes = [ctypes.c_uint32]
+        for _idx in range(100):
+            _dp = _ui_lib.lv2ui_descriptor(_idx)
+            if not _dp:
+                break
+            if _dp.contents.URI == ui_uri_b:
+                _dbg(f'UI descriptor trouvé index={_idx}')
+                if _dp.contents.extension_data:
+                    _idle_ptr = _ExtDataFn(_dp.contents.extension_data)(_IDLE_URI)
+                    if _idle_ptr:
+                        _idle_iface = ctypes.cast(_idle_ptr, ctypes.POINTER(_IdleIface)).contents
+                        _ui_handle  = _S.suil_instance_get_handle(instance)
+                        _dbg(f'idle interface directe trouvée (handle={_ui_handle})')
+                    else:
+                        _dbg('extension_data ne retourne pas idle')
+                else:
+                    _dbg('UI descriptor : pas d\'extension_data')
+                break
+    except Exception as e:
+        _dbg(f'accès direct UI descriptor: {e}')
+
+    if not _idle_iface:
+        _dbg('idle interface non disponible')
 
     # ── Fenêtre GTK3 ─────────────────────────────────────────────────────
     window = _G3.gtk_window_new(0)   # GTK_WINDOW_TOPLEVEL
