@@ -384,8 +384,11 @@ def cmd_ui(uri, initial_str=None):
         return
 
     # ── Instance suil ────────────────────────────────────────────────────
+    # controller non-NULL : FRUT v2.0.0 vérifie (writeFunction && controller)
+    # avant d'appeler write_fn — passer NULL bloque l'appel.
+    _ctrl_dummy = ctypes.c_uint8(0)
     instance = _S.suil_instance_new(
-        host, None,
+        host, ctypes.addressof(_ctrl_dummy),
         _GTK3_URI,
         uri.encode(), ui_uri_b, ui_type_b,
         bundle_path_b, binary_path_b,
