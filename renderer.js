@@ -3127,13 +3127,9 @@ function buildLv2Interface(key, ports) {
 // Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
 // Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
 async function openLv2NativeUi(key) {
-	alert('openLv2NativeUi appelée : ' + key);
-	console.log('[openLv2NativeUi] key=', key);
 	const fxDesc = listeFx[key];
-	console.log('[openLv2NativeUi] fxDesc=', fxDesc ? fxDesc.type : 'undefined');
 	if (!fxDesc || fxDesc.type !== 'lv2') return;
 	const uri    = fxDesc.pluginUri;
-	console.log('[openLv2NativeUi] uri=', uri);
 	const index  = tableObjet[objActif].tableFx.indexOf(key);
 	const labels = fxDesc.label.split(',');
 	const fxParamArr = (tableObjet[objActif].tableFxParam[index] || '').split('/');
@@ -3148,10 +3144,13 @@ async function openLv2NativeUi(key) {
 
 	const btn = document.getElementById('btnUiNative');
 	if (btn) btn.textContent = '…';
-	console.log('[openLv2NativeUi] lv2OpenUi disponible?', typeof window.api.lv2OpenUi);
+	if (typeof window.api.lv2OpenUi !== 'function') {
+		alert('Erreur : window.api.lv2OpenUi non disponible — redémarre l\'application');
+		if (btn) btn.textContent = 'UI native';
+		return;
+	}
 	try {
-		const r = await window.api.lv2OpenUi(uri, initialValues);
-		console.log('[openLv2NativeUi] réponse IPC=', r);
+		await window.api.lv2OpenUi(uri, initialValues);
 	} catch (e) {
 		console.error('[LV2 UI native]', e);
 		if (btn) btn.textContent = 'UI native';
@@ -3212,20 +3211,20 @@ function openLv2ParamEditor(id, key) {
 		const el = document.getElementById(labels[j]);
 		if (el) el.addEventListener("mousedown", createFxPoint);
 	}
-	// Injecter dynamiquement le bouton "UI native" (toujours frais, pas de cache HTML)
-	const escapedKey = key.replace(/'/g, "\\'");
-	const btnsDiv = document.getElementById('lv2Btns' + escapedKey);
-	console.log('[openLv2ParamEditor] btnsDiv=', btnsDiv, 'key=', key);
-	if (btnsDiv && !btnsDiv.querySelector('#btnUiNative')) {
-		const btn = document.createElement('button');
-		btn.id = 'btnUiNative';
-		btn.textContent = 'UI native';
-		btn.style.cssText = 'margin-left:8px;background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;';
-		btn.addEventListener('click', () => { console.log('[btn click] key=', key); openLv2NativeUi(key); });
-		btnsDiv.appendChild(btn);
-		console.log('[openLv2ParamEditor] bouton UI native injecté');
-	} else {
-		console.log('[openLv2ParamEditor] btnsDiv absent ou bouton déjà présent');
+	// Injecter le bouton "UI native" — cherche le conteneur des boutons Défaut/Annuler/Valider
+	// (robuste face au cache HTML, indépendant de l'ID du div)
+	if (!contentEl.querySelector('#btnUiNative')) {
+		const defBtn = contentEl.querySelector('button[onclick*="defautFxParam"]');
+		const container = defBtn ? defBtn.parentElement
+		                         : document.getElementById('lv2Btns' + key.replace(/'/g, "\\'"));
+		if (container) {
+			const btn = document.createElement('button');
+			btn.id = 'btnUiNative';
+			btn.textContent = 'UI native';
+			btn.style.cssText = 'margin-left:8px;background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;';
+			btn.addEventListener('click', () => openLv2NativeUi(key));
+			container.appendChild(btn);
+		}
 	}
 }
 
