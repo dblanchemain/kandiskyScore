@@ -3117,7 +3117,7 @@ function buildLv2Interface(key, ports) {
 	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
 	  ${rows}
 	</tbody></table>
-	<div style='margin-top:6px;margin-left:10px;' id='lv2Btns${escapedKey}'>
+	<div style='margin-top:6px;margin-left:10px;position:relative;z-index:10;' id='lv2Btns${escapedKey}'>
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
@@ -3128,7 +3128,6 @@ function buildLv2Interface(key, ports) {
 // Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
 // Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
 async function openLv2NativeUi(key) {
-	alert('[DEBUG] openLv2NativeUi appelé, key=' + key);
 	console.log('[openLv2NativeUi] key=', key);
 	const fxDesc = listeFx[key];
 	if (!fxDesc || fxDesc.type !== 'lv2') {
@@ -3231,6 +3230,9 @@ function openLv2ParamEditor(id, key) {
 	}
 	const btnUi = document.getElementById('btnUiNative');
 	if (btnUi) {
+		// z-index sur le div parent pour passer au-dessus des divs d'automation position:absolute
+		const btnsDiv = btnUi.parentElement;
+		if (btnsDiv) { btnsDiv.style.position = 'relative'; btnsDiv.style.zIndex = '10'; }
 		btnUi.onmousedown = (e) => {
 			if (e.button !== 0) return;
 			e.stopPropagation();
