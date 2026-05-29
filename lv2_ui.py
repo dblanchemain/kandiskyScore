@@ -351,17 +351,50 @@ def cmd_ui(uri, initial_str=None):
     widget_ptr = _S.suil_instance_get_widget(instance)
     _dbg(f'widget_ptr={widget_ptr}')
 
-    # ── ui:idleInterface (JUCE) ───────────────────────────────────────────
-    _IDLE_URI = b'http://lv2plug.in/ns/ext/ui#idleInterface'
-    idle_data = _S.suil_instance_extension_data(instance, _IDLE_URI)
-    if idle_data:
-        _idle_iface = ctypes.cast(idle_data, ctypes.POINTER(_IdleIface)).contents
-        _ui_handle  = _S.suil_instance_get_handle(instance)
-        _dbg(f'idle interface trouvée (handle={_ui_handle})')
-    else:
-        _idle_iface = None
-        _ui_handle  = None
-        _dbg('pas d\'idle interface')
+    # ── ui:idleInterface (JUCE) — direct sur le binaire UI ───────────────
+    # suil_instance_extension_data ne propage pas extension_data pour X11-in-GTK3 ;
+    # on charge le descripteur UI directement depuis le binaire.
+    _IDLE_URI   = b'http://lv2plug.in/ns/ext/ui#idleInterface'
+    _idle_iface = None
+    _ui_handle  = None
+    _ui_lib     = None
+
+    class _LV2UI_Descriptor(ctypes.Structure):
+        _fields_ = [
+            ('URI',            _sp),
+            ('instantiate',    _vp),
+            ('cleanup',        _vp),
+            ('port_event',     _vp),
+            ('extension_data', _vp),
+        ]
+    _ExtDataFn = ctypes.CFUNCTYPE(_vp, _sp)
+
+    try:
+        _ui_lib = ctypes.CDLL(binary_path_str)
+        _ui_lib.lv2ui_descriptor.restype  = ctypes.POINTER(_LV2UI_Descriptor)
+        _ui_lib.lv2ui_descriptor.argtypes = [ctypes.c_uint32]
+        for _idx in range(100):
+            _dp = _ui_lib.lv2ui_descriptor(_idx)
+            if not _dp:
+                break
+            if _dp.contents.URI == ui_uri_b:
+                _dbg(f'UI descriptor trouvé index={_idx}')
+                if _dp.contents.extension_data:
+                    _idle_ptr = _ExtDataFn(_dp.contents.extension_data)(_IDLE_URI)
+                    if _idle_ptr:
+                        _idle_iface = ctypes.cast(_idle_ptr, ctypes.POINTER(_IdleIface)).contents
+                        _ui_handle  = _S.suil_instance_get_handle(instance)
+                        _dbg(f'idle interface directe trouvée (handle={_ui_handle})')
+                    else:
+                        _dbg('extension_data ne retourne pas idle')
+                else:
+                    _dbg('UI descriptor : pas d\'extension_data')
+                break
+    except Exception as e:
+        _dbg(f'accès direct UI descriptor: {e}')
+
+    if not _idle_iface:
+        _dbg('idle interface non disponible')
 
     # ── Fenêtre GTK3 ─────────────────────────────────────────────────────
     window = _G3.gtk_window_new(0)   # GTK_WINDOW_TOPLEVEL
