@@ -240,6 +240,23 @@ def cmd_ui(uri, initial_str=None):
     host     = _S.suil_host_new(write_cb, None, None, None)
     _dbg('suil host créé')
 
+    # ── Vérifications avant suil_instance_new ───────────────────────────
+    supported = _S.suil_ui_supported(_GTK3_URI, ui_type_b)
+    _dbg(f'suil_ui_supported={supported}')
+
+    binary_path_str = binary_path_b.decode() if isinstance(binary_path_b, bytes) else binary_path_b
+    bundle_path_str = bundle_path_b.decode() if isinstance(bundle_path_b, bytes) else bundle_path_b
+    binary_exists = os.path.exists(binary_path_str)
+    _dbg(f'binary_path={binary_path_str!r} exists={binary_exists}')
+    _dbg(f'bundle_path={bundle_path_str!r}')
+
+    if not binary_exists:
+        print(json.dumps({'error': 'binary_missing',
+                          'message': f'UI binary introuvable : {binary_path_str}'}), flush=True)
+        _S.suil_host_free(host)
+        _L.lilv_world_free(world)
+        return
+
     # ── Instance suil ────────────────────────────────────────────────────
     instance = _S.suil_instance_new(
         host, None,
@@ -252,7 +269,7 @@ def cmd_ui(uri, initial_str=None):
     if not instance:
         _dbg('suil_instance_new a retourné NULL')
         print(json.dumps({'error': 'suil_error',
-                          'message': 'suil_instance_new a échoué'}), flush=True)
+                          'message': f'suil_instance_new a échoué (suil_ui_supported={supported}, binary={binary_path_str})'}), flush=True)
         _S.suil_host_free(host)
         _L.lilv_world_free(world)
         return
