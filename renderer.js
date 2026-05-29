@@ -3128,6 +3128,7 @@ function buildLv2Interface(key, ports) {
 // Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
 // Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
 async function openLv2NativeUi(key) {
+	alert('[DEBUG] openLv2NativeUi appelé, key=' + key);
 	console.log('[openLv2NativeUi] key=', key);
 	const fxDesc = listeFx[key];
 	if (!fxDesc || fxDesc.type !== 'lv2') {
