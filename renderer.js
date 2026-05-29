@@ -3211,20 +3211,14 @@ function openLv2ParamEditor(id, key) {
 		const el = document.getElementById(labels[j]);
 		if (el) el.addEventListener("mousedown", createFxPoint);
 	}
-	// Injecter le bouton "UI native" — cherche le conteneur des boutons Défaut/Annuler/Valider
-	// (robuste face au cache HTML, indépendant de l'ID du div)
-	if (!contentEl.querySelector('#btnUiNative')) {
-		const defBtn = contentEl.querySelector('button[onclick*="defautFxParam"]');
-		const container = defBtn ? defBtn.parentElement
-		                         : document.getElementById('lv2Btns' + key.replace(/'/g, "\\'"));
-		if (container) {
-			const btn = document.createElement('button');
-			btn.id = 'btnUiNative';
-			btn.textContent = 'UI native';
-			btn.style.cssText = 'margin-left:8px;background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;';
-			btn.addEventListener('click', () => openLv2NativeUi(key));
-			container.appendChild(btn);
-		}
+	// Bouton "UI native" — injecté directement dans contentEl, jamais dans le HTML statique
+	if (!document.getElementById('btnUiNative')) {
+		const btnUi = document.createElement('button');
+		btnUi.id = 'btnUiNative';
+		btnUi.textContent = 'UI native';
+		btnUi.style.cssText = 'display:block;margin:4px 10px;background:#3a5f8a;color:#fff;border:none;padding:3px 8px;cursor:pointer;';
+		btnUi.addEventListener('click', () => openLv2NativeUi(key));
+		contentEl.appendChild(btnUi);
 	}
 }
 
