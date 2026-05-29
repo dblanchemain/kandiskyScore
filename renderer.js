@@ -3121,7 +3121,7 @@ function buildLv2Interface(key, ports) {
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
-	  <button id='btnUiNative' onclick="openLv2NativeUi('${escapedKey}')" style='background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;'>UI native</button>
+	  <button id='btnUiNative' style='background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;'>UI native</button>
 	</div>`;
 }
 
@@ -3228,6 +3228,10 @@ function openLv2ParamEditor(id, key) {
 	for (let j = 0; j < labels.length; j++) {
 		const el = document.getElementById(labels[j]);
 		if (el) el.addEventListener("mousedown", createFxPoint);
+	}
+	const btnUi = document.getElementById('btnUiNative');
+	if (btnUi) {
+		btnUi.onclick = (e) => { e.stopPropagation(); e.preventDefault(); openLv2NativeUi(key); };
 	}
 }
 
