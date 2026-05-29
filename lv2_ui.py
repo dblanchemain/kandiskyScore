@@ -21,6 +21,54 @@ def _sig(fn, res, *args):
     fn.restype = res
     fn.argtypes = list(args)
 
+# ── LV2_Descriptor (DSP) ──────────────────────────────────────────────────────
+class _LV2_Descriptor(ctypes.Structure):
+    pass
+
+_LV2_Descriptor._fields_ = [
+    ('URI',            _sp),
+    ('instantiate',    _vp),
+    ('connect_port',   _vp),
+    ('activate',       _vp),
+    ('run',            _vp),
+    ('deactivate',     _vp),
+    ('cleanup',        _vp),
+    ('extension_data', _vp),
+]
+_InstFn    = ctypes.CFUNCTYPE(_vp,  ctypes.c_void_p, ctypes.c_double, _sp, _vp)
+_CleanupFn = ctypes.CFUNCTYPE(None, _vp)
+
+def _instantiate_dsp(plugin, uri, bundle_path_b, features_ptr):
+    """
+    Charge la bibliothèque DSP du plugin et instancie-le (pour instance-access).
+    Retourne (handle, desc_ptr, lib) ou (None, None, None).
+    """
+    try:
+        _sig(_L.lilv_plugin_get_library_uri, _vp, _vp)
+        lib_node = _L.lilv_plugin_get_library_uri(plugin)
+        lib_path = _uri_to_path(lib_node) if lib_node else None
+        if lib_node:
+            _L.lilv_node_free(lib_node)
+        if not lib_path or not os.path.exists(lib_path):
+            return None, None, None
+
+        lib = ctypes.CDLL(lib_path)
+        lib.lv2_descriptor.restype  = ctypes.POINTER(_LV2_Descriptor)
+        lib.lv2_descriptor.argtypes = [ctypes.c_uint32]
+
+        target = uri.encode() if isinstance(uri, str) else uri
+        for idx in range(200):
+            desc_ptr = lib.lv2_descriptor(idx)
+            if not desc_ptr:
+                break
+            if desc_ptr.contents.URI == target:
+                inst_fn = _InstFn(desc_ptr.contents.instantiate)
+                handle  = inst_fn(ctypes.cast(desc_ptr, _vp), 44100.0, bundle_path_b, features_ptr)
+                return handle, desc_ptr, lib
+    except Exception as e:
+        sys.stderr.write(f'[lv2_ui] _instantiate_dsp erreur: {e}\n')
+    return None, None, None
+
 # ── Signatures liblilv : UI ────────────────────────────────────────────────
 _sig(_L.lilv_plugin_get_uis,    _vp,  _vp)
 _sig(_L.lilv_uis_free,          None, _vp)
@@ -219,11 +267,29 @@ def cmd_ui(uri, initial_str=None):
         ctypes.cast(ctypes.pointer(urid_map), _vp)
     )
 
-    # Tableau de features NULL-terminé
+    # Tableau de features minimal (urid#map) pour l'instanciation DSP
     features_arr = (ctypes.c_void_p * 2)(
         ctypes.cast(ctypes.pointer(feat_urid), ctypes.c_void_p),
         None
     )
+
+    # ── instance-access : instancier le DSP pour les UIs qui l'exigent ───
+    dsp_handle, dsp_desc_ptr, dsp_lib = _instantiate_dsp(
+        plugin, uri, bundle_path_b, ctypes.cast(features_arr, _vp)
+    )
+    if dsp_handle:
+        feat_inst = _LV2Feature(
+            b'http://lv2plug.in/ns/ext/instance-access',
+            dsp_handle
+        )
+        features_arr = (ctypes.c_void_p * 3)(
+            ctypes.cast(ctypes.pointer(feat_urid),  ctypes.c_void_p),
+            ctypes.cast(ctypes.pointer(feat_inst),  ctypes.c_void_p),
+            None
+        )
+        _dbg(f'instance-access fourni (handle={dsp_handle})')
+    else:
+        _dbg('instance-access non disponible')
 
     # ── Callback suil : changements de ports ─────────────────────────────
     def write_fn(controller, port_index, buffer_size, protocol, buffer):
@@ -317,6 +383,11 @@ def cmd_ui(uri, initial_str=None):
     # ── Nettoyage ─────────────────────────────────────────────────────────
     _S.suil_instance_free(instance)
     _S.suil_host_free(host)
+    if dsp_handle and dsp_desc_ptr:
+        try:
+            _CleanupFn(dsp_desc_ptr.contents.cleanup)(dsp_handle)
+        except Exception:
+            pass
     _L.lilv_world_free(world)
     print(json.dumps({'closed': True}), flush=True)
 
