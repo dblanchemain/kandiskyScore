@@ -3121,6 +3121,7 @@ function buildLv2Interface(key, ports) {
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
+	  <button id='btnUiNative' onclick="openLv2NativeUi('${escapedKey}')" style='background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;'>UI native</button>
 	</div>`;
 }
 
@@ -3210,15 +3211,6 @@ function openLv2ParamEditor(id, key) {
 	for (let j = 0; j < labels.length; j++) {
 		const el = document.getElementById(labels[j]);
 		if (el) el.addEventListener("mousedown", createFxPoint);
-	}
-	// Bouton "UI native" — injecté directement dans contentEl, jamais dans le HTML statique
-	if (!document.getElementById('btnUiNative')) {
-		const btnUi = document.createElement('button');
-		btnUi.id = 'btnUiNative';
-		btnUi.textContent = 'UI native';
-		btnUi.style.cssText = 'display:block;margin:4px 10px;background:#3a5f8a;color:#fff;border:none;padding:3px 8px;cursor:pointer;';
-		btnUi.addEventListener('click', () => openLv2NativeUi(key));
-		contentEl.appendChild(btnUi);
 	}
 }
 
