@@ -3117,12 +3117,91 @@ function buildLv2Interface(key, ports) {
 	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
 	  ${rows}
 	</tbody></table>
-	<div style='margin-top:6px;margin-left:10px;'>
+	<div style='margin-top:6px;margin-left:10px;position:relative;z-index:10;' id='lv2Btns${escapedKey}'>
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
+	  <button id='btnUiNative' style='background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;'>UI native</button>
 	</div>`;
 }
+
+// Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
+// Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
+async function openLv2NativeUi(key) {
+	const fxDesc = listeFx[key];
+	if (!fxDesc || fxDesc.type !== 'lv2') return;
+	const uri = fxDesc.pluginUri;
+
+	// Valeurs initiales = premier point t=0 de chaque lane
+	const initialValues = {};
+	try {
+		const obj = tableObjet[objActif];
+		if (obj) {
+			const index = obj.tableFx.indexOf(key);
+			const labels = fxDesc.label.split(',');
+			const fxParamArr = (obj.tableFxParam[index] || '').split('/');
+			labels.forEach((sym, i) => {
+				const pts = (fxParamArr[i] || '').split('&');
+				const cd  = pts[0] ? pts[0].split('?') : [];
+				initialValues[sym] = parseFloat(cd[1] ?? (fxDesc.defaut.split('/')[i] || '').split('?')[1] ?? 0);
+			});
+		}
+	} catch (_) {}
+
+	const btn = document.getElementById('btnUiNative');
+	if (btn) btn.textContent = '…';
+	if (typeof window.api.lv2OpenUi !== 'function') {
+		alert('Erreur : window.api.lv2OpenUi non disponible — redémarre l\'application');
+		if (btn) btn.textContent = 'UI native';
+		return;
+	}
+	try {
+		await window.api.lv2OpenUi(uri, initialValues);
+	} catch (e) {
+		alert('Erreur LV2 UI : ' + e.message);
+		if (btn) btn.textContent = 'UI native';
+	}
+}
+
+// Listener global : reçoit les mises à jour de ports depuis la UI GTK3 native
+window.api.receive('lv2-ui-change', function(data) {
+	if (!data || !data.uri) return;
+	const key   = 'lv2:' + data.uri;
+	const fxDesc = listeFx[key];
+
+	// Rétablir le bouton quand la fenêtre est prête ou fermée
+	const btn = document.getElementById('btnUiNative');
+	if (data.ready && btn) { btn.textContent = 'UI ouverte'; btn.style.background = '#2a7a2a'; }
+	if (data.closed && btn) { btn.textContent = 'UI native'; btn.style.background = '#3a5f8a'; }
+	if (data.error) {
+		if (btn) { btn.textContent = 'UI native'; btn.style.background = '#3a5f8a'; }
+		alert('LV2 UI : ' + (data.message || data.error));
+	}
+	if (data.closed || data.error || data.ready || !fxDesc) return;
+
+	// Mettre à jour le premier curseur (t=0) du paramètre modifié
+	if (!objActif || !tableObjet[objActif]) return;
+	const index = tableObjet[objActif].tableFx.indexOf(key);
+	if (index < 0) return;
+
+	const labels     = fxDesc.label.split(',');
+	const symIdx     = labels.indexOf(data.sym);
+	if (symIdx < 0) return;
+
+	const fxParamArr = (tableObjet[objActif].tableFxParam[index] || fxDesc.defaut).split('/');
+	const pts        = (fxParamArr[symIdx] || `0?${data.value}`).split('&');
+	const cd         = pts[0] ? pts[0].split('?') : ['0', String(data.value)];
+	cd[1]   = String(data.value);   // nouvelle valeur, temps t=0 inchangé
+	pts[0]  = cd.join('?');
+	fxParamArr[symIdx] = pts.join('&');
+	tableObjet[objActif].tableFxParam[index] = fxParamArr.join('/');
+
+	// Mettre à jour le champ Y si le popup est ouvert
+	const yEl = document.getElementById('Y' + data.sym);
+	if (yEl) yEl.value = data.value;
+
+	drawFxAutomation(key);
+});
 
 function openLv2ParamEditor(id, key) {
 	const fxDesc = listeFx[key];
@@ -3137,6 +3216,18 @@ function openLv2ParamEditor(id, key) {
 	for (let j = 0; j < labels.length; j++) {
 		const el = document.getElementById(labels[j]);
 		if (el) el.addEventListener("mousedown", createFxPoint);
+	}
+	const btnUi = document.getElementById('btnUiNative');
+	if (btnUi) {
+		// z-index sur le div parent pour passer au-dessus des divs d'automation position:absolute
+		const btnsDiv = btnUi.parentElement;
+		if (btnsDiv) { btnsDiv.style.position = 'relative'; btnsDiv.style.zIndex = '10'; }
+		btnUi.onmousedown = (e) => {
+			if (e.button !== 0) return;
+			e.stopPropagation();
+			e.preventDefault();
+			openLv2NativeUi(key);
+		};
 	}
 }
 
