@@ -3162,9 +3162,12 @@ window.api.receive('lv2-ui-change', function(data) {
 
 	// Rétablir le bouton quand la fenêtre est prête ou fermée
 	const btn = document.getElementById('btnUiNative' + key.replace(/'/g, "\\'"));
-	if (data.ready && btn) btn.textContent = 'UI ouverte';
-	if (data.closed && btn) btn.textContent = 'UI native';
-	if (data.error && btn) { btn.textContent = 'UI native'; console.warn('[LV2 UI]', data.message); }
+	if (data.ready && btn) { btn.textContent = 'UI ouverte'; btn.style.background = '#2a7a2a'; }
+	if (data.closed && btn) { btn.textContent = 'UI native'; btn.style.background = '#3a5f8a'; }
+	if (data.error) {
+		if (btn) { btn.textContent = 'UI native'; btn.style.background = '#3a5f8a'; }
+		alert('LV2 UI : ' + (data.message || data.error));
+	}
 	if (data.closed || data.error || data.ready || !fxDesc) return;
 
 	// Mettre à jour le premier curseur (t=0) du paramètre modifié

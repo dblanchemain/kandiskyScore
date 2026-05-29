@@ -120,6 +120,11 @@ def _find_supported_ui(world, plugin):
     return result
 
 
+def _dbg(msg):
+    sys.stderr.write(f'[lv2_ui] {msg}\n')
+    sys.stderr.flush()
+
+
 def cmd_ui(uri, initial_str=None):
     initial = {}
     if initial_str:
@@ -128,9 +133,12 @@ def cmd_ui(uri, initial_str=None):
         except Exception:
             pass
 
+    _dbg(f'démarrage pour {uri}')
+
     # ── Init GTK + suil ──────────────────────────────────────────────────
     _G3.gtk_init(None, None)
     _S.suil_init(None, None, 0)   # SUIL_ARG_NONE = 0
+    _dbg('GTK + suil initialisés')
 
     # ── Charger le plugin ────────────────────────────────────────────────
     world  = _world()
@@ -140,6 +148,7 @@ def cmd_ui(uri, initial_str=None):
     plugin_name = _nstr(nm_n) or uri
     if nm_n:
         _L.lilv_node_free(nm_n)
+    _dbg(f'plugin: {plugin_name}')
 
     # ── Index des ports de contrôle ──────────────────────────────────────
     n_ports = _L.lilv_plugin_get_num_ports(plugin)
@@ -156,12 +165,14 @@ def cmd_ui(uri, initial_str=None):
     # ── Trouver une UI native ────────────────────────────────────────────
     ui_info = _find_supported_ui(world, plugin)
     if not ui_info:
+        _dbg('aucune UI native trouvée')
         print(json.dumps({'error': 'no_ui',
                           'message': 'Aucune UI X11/GTK trouvée pour ce plugin'}), flush=True)
         _L.lilv_world_free(world)
         return
 
     ui_uri_b, ui_type_b, bundle_path_b, binary_path_b = ui_info
+    _dbg(f'UI trouvée: {ui_uri_b} type={ui_type_b} bundle={bundle_path_b}')
 
     # ── LV2_URID_Map (feature requise par la plupart des UIs) ─────────
     MapFnType = ctypes.CFUNCTYPE(ctypes.c_uint32, ctypes.c_void_p, ctypes.c_char_p)
@@ -198,14 +209,18 @@ def cmd_ui(uri, initial_str=None):
 
     # ── Callback suil : changements de ports ─────────────────────────────
     def write_fn(controller, port_index, buffer_size, protocol, buffer):
-        # protocol=0 → float brut
-        if protocol == 0 and buffer_size == 4:
-            value = ctypes.cast(buffer, ctypes.POINTER(_f32)).contents.value
-            sym   = idx_to_sym.get(port_index, f'port_{port_index}')
-            print(json.dumps({'idx': port_index, 'sym': sym, 'value': float(value)}), flush=True)
+        # protocol=0 → float brut (LV2_ATOM__Float)
+        if protocol == 0 and buffer_size >= 4 and buffer:
+            try:
+                value = ctypes.cast(buffer, ctypes.POINTER(_f32)).contents.value
+                sym   = idx_to_sym.get(port_index, f'port_{port_index}')
+                print(json.dumps({'idx': int(port_index), 'sym': sym, 'value': float(value)}), flush=True)
+            except Exception as e:
+                _dbg(f'write_fn erreur: {e}')
 
     write_cb = WriteFn(write_fn)
     host     = _S.suil_host_new(write_cb, None, None, None)
+    _dbg('suil host créé')
 
     # ── Instance suil ────────────────────────────────────────────────────
     instance = _S.suil_instance_new(
@@ -217,13 +232,16 @@ def cmd_ui(uri, initial_str=None):
     )
 
     if not instance:
+        _dbg('suil_instance_new a retourné NULL')
         print(json.dumps({'error': 'suil_error',
                           'message': 'suil_instance_new a échoué'}), flush=True)
         _S.suil_host_free(host)
         _L.lilv_world_free(world)
         return
 
+    _dbg('suil instance créée')
     widget_ptr = _S.suil_instance_get_widget(instance)
+    _dbg(f'widget_ptr={widget_ptr}')
 
     # ── Fenêtre GTK3 ─────────────────────────────────────────────────────
     window = _G3.gtk_window_new(0)   # GTK_WINDOW_TOPLEVEL
@@ -231,12 +249,14 @@ def cmd_ui(uri, initial_str=None):
     _G3.gtk_window_set_default_size(window, 400, 300)
     _G3.gtk_container_add(window, widget_ptr)
     _G3.gtk_widget_show_all(window)
+    _dbg('fenêtre GTK3 affichée')
 
     # ── Signal destroy ────────────────────────────────────────────────────
     stop = [False]
     DestroyCb = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p)
 
     def on_destroy(w, d):
+        _dbg('destroy signal reçu')
         stop[0] = True
 
     destroy_cb = DestroyCb(on_destroy)
@@ -248,10 +268,11 @@ def cmd_ui(uri, initial_str=None):
     for sym, value in initial.items():
         idx = sym_to_idx.get(sym)
         if idx is not None:
-            v = _f32(float(value))
-            _S.suil_instance_port_event(instance, idx, 4, 0, ctypes.byref(v))
+            v = (_f32 * 1)(float(value))
+            _S.suil_instance_port_event(instance, idx, 4, 0, ctypes.cast(v, _vp))
 
     print(json.dumps({'ready': True}), flush=True)
+    _dbg('prêt, boucle principale')
 
     # ── Boucle principale ─────────────────────────────────────────────────
     while not stop[0]:

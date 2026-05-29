@@ -7258,7 +7258,8 @@ const LV2_UI_HELPER = app.isPackaged
 const _lv2UiProcs = new Map();  // uri → ChildProcess
 
 ipcMain.handle('lv2-open-ui', async (event, { uri, initialValues }) => {
-    // Fermer l'instance existante pour cet URI
+    const sender = event.sender;  // stocker avant tout callback async
+
     const old = _lv2UiProcs.get(uri);
     if (old) { try { old.kill(); } catch (_) {} _lv2UiProcs.delete(uri); }
 
@@ -7267,11 +7268,13 @@ ipcMain.handle('lv2-open-ui', async (event, { uri, initialValues }) => {
         ? { ...process.env, LV2_PATH: (process.env.LV2_PATH ? process.env.LV2_PATH + ':' : '') + _expandPaths(lv2Paths) }
         : process.env;
 
-    const proc = require('child_process').spawn(
+    const proc = spawn(
         'python3', [LV2_UI_HELPER, uri, JSON.stringify(initialValues || {})],
         { stdio: ['pipe', 'pipe', 'pipe'], env: { ...lv2Env, DISPLAY: process.env.DISPLAY || ':0' } }
     );
     _lv2UiProcs.set(uri, proc);
+
+    const _send = msg => { if (!sender.isDestroyed()) sender.send('lv2-ui-change', { uri, ...msg }); };
 
     let buf = '';
     proc.stdout.on('data', d => {
@@ -7283,19 +7286,17 @@ ipcMain.handle('lv2-open-ui', async (event, { uri, initialValues }) => {
             if (!s) continue;
             try {
                 const msg = JSON.parse(s);
-                if (msg.closed) { _lv2UiProcs.delete(uri); }
-                if (!event.sender.isDestroyed()) {
-                    event.sender.send('lv2-ui-change', { uri, ...msg });
-                }
+                console.log('[lv2-ui stdout]', s);
+                if (msg.closed) _lv2UiProcs.delete(uri);
+                _send(msg);
             } catch (_) {}
         }
     });
-    proc.stderr.on('data', d => console.error('[lv2-ui]', d.toString()));
-    proc.on('exit', () => {
+    proc.stderr.on('data', d => console.error('[lv2-ui stderr]', d.toString().trim()));
+    proc.on('exit', (code) => {
+        console.log('[lv2-ui] exit code', code);
         _lv2UiProcs.delete(uri);
-        if (!event.sender.isDestroyed()) {
-            event.sender.send('lv2-ui-change', { uri, closed: true });
-        }
+        _send({ closed: true });
     });
     return { ok: true };
 });
