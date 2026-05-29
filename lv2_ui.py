@@ -37,9 +37,6 @@ _LV2_Descriptor._fields_ = [
 ]
 _InstFn      = ctypes.CFUNCTYPE(_vp,  ctypes.c_void_p, ctypes.c_double, _sp, _vp)
 _CleanupFn   = ctypes.CFUNCTYPE(None, _vp)
-_ActivateFn  = ctypes.CFUNCTYPE(None, _vp)
-_ConnectFn   = ctypes.CFUNCTYPE(None, _vp, ctypes.c_uint32, _vp)
-_RunFn       = ctypes.CFUNCTYPE(None, _vp, ctypes.c_uint32)
 
 def _instantiate_dsp(plugin, uri, bundle_path_b, features_ptr):
     """
@@ -299,65 +296,13 @@ def cmd_ui(uri, initial_str=None):
     else:
         _dbg('instance-access non disponible')
 
-    # ── Activer le DSP + connexion ports pour polling ─────────────────────
-    _BUF_N   = 64   # frames audio
-    _dsp_port_bufs = []
-    _run_fn        = None
-    _ctrl_prev     = {}   # port_index → last known value
-
-    if dsp_handle and dsp_desc_ptr:
-        try:
-            a_in_p, a_out_p, _, _, _ = _classify_ports(world, plugin)
-            audio_set = set(a_in_p) | set(a_out_p)
-
-            _sig(_L.lilv_new_uri,        _vp,            _vp, _sp)
-            _sig(_L.lilv_port_get,       _vp,            _vp, _vp, _vp)
-            _sig(_L.lilv_node_as_float,  ctypes.c_float, _vp)
-            _sig(_L.lilv_node_is_float,  _b,             _vp)
-            n_def = _L.lilv_new_uri(world, b'http://lv2plug.in/ns/lv2core#default')
-
-            connect_fn = _ConnectFn(dsp_desc_ptr.contents.connect_port)
-            for i in range(n_ports):
-                if i in audio_set:
-                    buf = (ctypes.c_float * _BUF_N)(*([0.0] * _BUF_N))
-                else:
-                    # Valeur par défaut lilv, ou valeur initiale passée par le renderer
-                    dv = 0.0
-                    port_n = _L.lilv_plugin_get_port_by_index(plugin, i)
-                    vn = _L.lilv_port_get(plugin, port_n, n_def)
-                    if vn:
-                        if _L.lilv_node_is_float(vn):
-                            dv = float(_L.lilv_node_as_float(vn))
-                        _L.lilv_node_free(vn)
-                    sym_i = idx_to_sym.get(i)
-                    if sym_i and sym_i in initial:
-                        dv = float(initial[sym_i])
-                    buf = (ctypes.c_float * 1)(dv)
-                _dsp_port_bufs.append(buf)
-                connect_fn(dsp_handle, i, ctypes.cast(buf, _vp))
-
-            _L.lilv_node_free(n_def)
-
-            if dsp_desc_ptr.contents.activate:
-                _ActivateFn(dsp_desc_ptr.contents.activate)(dsp_handle)
-                _dbg('DSP activé')
-            if dsp_desc_ptr.contents.run:
-                _run_fn = _RunFn(dsp_desc_ptr.contents.run)
-                _run_fn(dsp_handle, _BUF_N)   # 1er run pour stabiliser
-                for i in c_in:
-                    _ctrl_prev[i] = float(_dsp_port_bufs[i][0])
-                _dbg(f'ports initiaux: { {idx_to_sym[i]: _ctrl_prev[i] for i in list(_ctrl_prev)[:4]} }')
-        except Exception as e:
-            _dbg(f'DSP activate/connect erreur: {e}')
-
-    # ── Callback suil : changements de ports (autres plugins non-JUCE) ────
+    # ── Callback suil : changements de ports ─────────────────────────────
     def write_fn(controller, port_index, buffer_size, protocol, buffer):
         # protocol=0 → float brut
         if protocol == 0 and buffer_size >= 4 and buffer:
             try:
                 value = ctypes.cast(buffer, ctypes.POINTER(_f32)).contents.value
                 sym   = idx_to_sym.get(port_index, f'port_{port_index}')
-                _dbg(f'write_fn → sym={sym} value={value}')
                 print(json.dumps({'idx': int(port_index), 'sym': sym, 'value': float(value)}), flush=True)
             except Exception as e:
                 _dbg(f'write_fn erreur: {e}')
@@ -373,8 +318,6 @@ def cmd_ui(uri, initial_str=None):
     binary_path_str = binary_path_b.decode() if isinstance(binary_path_b, bytes) else binary_path_b
     bundle_path_str = bundle_path_b.decode() if isinstance(bundle_path_b, bytes) else bundle_path_b
     binary_exists = os.path.exists(binary_path_str)
-    _dbg(f'binary_path={binary_path_str!r} exists={binary_exists}')
-    _dbg(f'bundle_path={bundle_path_str!r}')
 
     if not binary_exists:
         print(json.dumps({'error': 'binary_missing',
@@ -488,16 +431,6 @@ def cmd_ui(uri, initial_str=None):
         _GL.g_main_context_iteration(None, ctypes.c_bool(False))
         if _idle_iface and _ui_handle:
             _idle_iface.idle(_ui_handle)
-        if _run_fn:
-            _run_fn(dsp_handle, _BUF_N)
-            # Détecter les changements via les buffers ports (stratégie AP→port de FRUT)
-            for i, sym in idx_to_sym.items():
-                if i < len(_dsp_port_bufs):
-                    val  = float(_dsp_port_bufs[i][0])
-                    prev = _ctrl_prev.get(i, val)
-                    if abs(val - prev) > 1e-7:
-                        _ctrl_prev[i] = val
-                        print(json.dumps({'idx': i, 'sym': sym, 'value': val}), flush=True)
         time.sleep(0.005)
 
     # ── Nettoyage ─────────────────────────────────────────────────────────
