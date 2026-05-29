@@ -90,11 +90,16 @@ WriteFn = ctypes.CFUNCTYPE(None, _vp, _u32, _u32, _u32, _vp)
 _sig(_S.suil_init,                 None,          ctypes.c_void_p, ctypes.c_void_p, _i)
 _sig(_S.suil_host_new,             _vp,           WriteFn, _vp, _vp, _vp)
 _sig(_S.suil_host_free,            None,          _vp)
-_sig(_S.suil_instance_new,         _vp,           _vp, _vp, _sp, _sp, _sp, _sp, _sp, _sp, _vp)
-_sig(_S.suil_instance_get_widget,  _vp,           _vp)
-_sig(_S.suil_instance_port_event,  None,          _vp, _u32, _u32, _u32, _vp)
-_sig(_S.suil_instance_free,        None,          _vp)
-_sig(_S.suil_ui_supported,         ctypes.c_uint, _sp, _sp)
+_sig(_S.suil_instance_new,            _vp,           _vp, _vp, _sp, _sp, _sp, _sp, _sp, _sp, _vp)
+_sig(_S.suil_instance_get_widget,     _vp,           _vp)
+_sig(_S.suil_instance_get_handle,     _vp,           _vp)
+_sig(_S.suil_instance_extension_data, _vp,           _vp, _sp)
+_sig(_S.suil_instance_port_event,     None,          _vp, _u32, _u32, _u32, _vp)
+_sig(_S.suil_instance_free,           None,          _vp)
+_sig(_S.suil_ui_supported,            ctypes.c_uint, _sp, _sp)
+
+class _IdleIface(ctypes.Structure):
+    _fields_ = [('idle', ctypes.CFUNCTYPE(ctypes.c_int, _vp))]
 
 # ── libgtk-3 / libgobject / libglib ────────────────────────────────────────
 _G3 = ctypes.CDLL('libgtk-3.so.0')
@@ -346,6 +351,18 @@ def cmd_ui(uri, initial_str=None):
     widget_ptr = _S.suil_instance_get_widget(instance)
     _dbg(f'widget_ptr={widget_ptr}')
 
+    # ── ui:idleInterface (JUCE) ───────────────────────────────────────────
+    _IDLE_URI = b'http://lv2plug.in/ns/ext/ui#idleInterface'
+    idle_data = _S.suil_instance_extension_data(instance, _IDLE_URI)
+    if idle_data:
+        _idle_iface = ctypes.cast(idle_data, ctypes.POINTER(_IdleIface)).contents
+        _ui_handle  = _S.suil_instance_get_handle(instance)
+        _dbg(f'idle interface trouvée (handle={_ui_handle})')
+    else:
+        _idle_iface = None
+        _ui_handle  = None
+        _dbg('pas d\'idle interface')
+
     # ── Fenêtre GTK3 ─────────────────────────────────────────────────────
     window = _G3.gtk_window_new(0)   # GTK_WINDOW_TOPLEVEL
     _G3.gtk_window_set_title(window, plugin_name.encode())
@@ -380,6 +397,8 @@ def cmd_ui(uri, initial_str=None):
     # ── Boucle principale ─────────────────────────────────────────────────
     while not stop[0]:
         _GL.g_main_context_iteration(None, ctypes.c_bool(False))
+        if _idle_iface and _ui_handle:
+            _idle_iface.idle(_ui_handle)
         time.sleep(0.005)
 
     # ── Nettoyage ─────────────────────────────────────────────────────────
