@@ -82,7 +82,7 @@ def _uri_to_path(node):
 def _find_supported_ui(world, plugin):
     """
     Cherche une UI LV2 supportable via suil+GTK3.
-    Retourne (ui_uri_b, ui_type_b, bundle_path_b, binary_path_b) ou None.
+    Retourne (ui_uri_b, ui_type_b, bundle_path_b, binary_path_b) ou (None, 'gtk2', None, None) si GTK2 seulement.
     """
     uis = _L.lilv_plugin_get_uis(plugin)
     if not uis or _L.lilv_uis_size(uis) == 0:
@@ -90,10 +90,18 @@ def _find_supported_ui(world, plugin):
             _L.lilv_uis_free(uis)
         return None
 
+    # Vérifier si le plugin a une UI GTK2 (non supportée) mais pas X11
+    has_gtk2 = False
+
     result = None
     it = _L.lilv_uis_begin(uis)
     while not _L.lilv_uis_is_end(uis, it):
         ui = _L.lilv_uis_get(uis, it)
+        # Détecter GTK2 (non embarquable dans GTK3)
+        n_gtk2 = _urinode(world, _GTK2_URI)
+        if _L.lilv_ui_is_a(ui, n_gtk2):
+            has_gtk2 = True
+        _L.lilv_node_free(n_gtk2)
         for ui_type in _CANDIDATE_UI_TYPES:
             if _S.suil_ui_supported(_GTK3_URI, ui_type) == 0:
                 continue
@@ -117,6 +125,8 @@ def _find_supported_ui(world, plugin):
         it = _L.lilv_uis_next(uis, it)
 
     _L.lilv_uis_free(uis)
+    if result is None and has_gtk2:
+        return (None, 'gtk2', None, None)   # signal explicite
     return result
 
 
@@ -167,11 +177,19 @@ def cmd_ui(uri, initial_str=None):
     if not ui_info:
         _dbg('aucune UI native trouvée')
         print(json.dumps({'error': 'no_ui',
-                          'message': 'Aucune UI X11/GTK trouvée pour ce plugin'}), flush=True)
+                          'message': f'{plugin_name} : aucune UI native trouvée'}), flush=True)
         _L.lilv_world_free(world)
         return
 
     ui_uri_b, ui_type_b, bundle_path_b, binary_path_b = ui_info
+
+    if ui_type_b == 'gtk2':
+        _dbg('UI GTK2 non supportée par suil+GTK3')
+        print(json.dumps({'error': 'gtk2_unsupported',
+                          'message': f'{plugin_name} : UI GTK2 non embarquable dans GTK3 — pas de fenêtre native disponible'}), flush=True)
+        _L.lilv_world_free(world)
+        return
+
     _dbg(f'UI trouvée: {ui_uri_b} type={ui_type_b} bundle={bundle_path_b}')
 
     # ── LV2_URID_Map (feature requise par la plupart des UIs) ─────────
