@@ -7249,6 +7249,63 @@ ipcMain.handle('lv2-process', async (event, { channels, sampleRate, uri, automat
     }
 });
 
+// ============================== LV2 UI native (suil+GTK3) =======================
+
+const LV2_UI_HELPER = app.isPackaged
+    ? path.join(process.resourcesPath, 'lv2_ui.py')
+    : path.join(__dirname, 'lv2_ui.py');
+
+const _lv2UiProcs = new Map();  // uri → ChildProcess
+
+ipcMain.handle('lv2-open-ui', async (event, { uri, initialValues }) => {
+    // Fermer l'instance existante pour cet URI
+    const old = _lv2UiProcs.get(uri);
+    if (old) { try { old.kill(); } catch (_) {} _lv2UiProcs.delete(uri); }
+
+    const _expandPaths = p => p.split(':').map(s => s.replace(/^~/, os.homedir())).join(':');
+    const lv2Env = lv2Paths
+        ? { ...process.env, LV2_PATH: (process.env.LV2_PATH ? process.env.LV2_PATH + ':' : '') + _expandPaths(lv2Paths) }
+        : process.env;
+
+    const proc = require('child_process').spawn(
+        'python3', [LV2_UI_HELPER, uri, JSON.stringify(initialValues || {})],
+        { stdio: ['pipe', 'pipe', 'pipe'], env: { ...lv2Env, DISPLAY: process.env.DISPLAY || ':0' } }
+    );
+    _lv2UiProcs.set(uri, proc);
+
+    let buf = '';
+    proc.stdout.on('data', d => {
+        buf += d.toString();
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        for (const line of lines) {
+            const s = line.trim();
+            if (!s) continue;
+            try {
+                const msg = JSON.parse(s);
+                if (msg.closed) { _lv2UiProcs.delete(uri); }
+                if (!event.sender.isDestroyed()) {
+                    event.sender.send('lv2-ui-change', { uri, ...msg });
+                }
+            } catch (_) {}
+        }
+    });
+    proc.stderr.on('data', d => console.error('[lv2-ui]', d.toString()));
+    proc.on('exit', () => {
+        _lv2UiProcs.delete(uri);
+        if (!event.sender.isDestroyed()) {
+            event.sender.send('lv2-ui-change', { uri, closed: true });
+        }
+    });
+    return { ok: true };
+});
+
+ipcMain.handle('lv2-close-ui', async (event, uri) => {
+    const proc = _lv2UiProcs.get(uri);
+    if (proc) { try { proc.kill(); } catch (_) {} _lv2UiProcs.delete(uri); }
+    return { ok: true };
+});
+
 // ============================== VST3 (pedalboard) =======================
 
 const VST3_HELPER = app.isPackaged

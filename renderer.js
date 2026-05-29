@@ -3121,8 +3121,75 @@ function buildLv2Interface(key, ports) {
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
+	  <button id='btnUiNative${escapedKey}' style='margin-left:8px;background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;'
+	          onclick="openLv2NativeUi('${escapedKey}')">UI native</button>
 	</div>`;
 }
+
+// Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
+// Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
+async function openLv2NativeUi(key) {
+	const fxDesc = listeFx[key];
+	if (!fxDesc || fxDesc.type !== 'lv2') return;
+	const uri    = fxDesc.pluginUri;
+	const index  = tableObjet[objActif].tableFx.indexOf(key);
+	const labels = fxDesc.label.split(',');
+	const fxParamArr = (tableObjet[objActif].tableFxParam[index] || '').split('/');
+
+	// Valeurs initiales = premier point (t=0) de chaque lane
+	const initialValues = {};
+	labels.forEach((sym, i) => {
+		const pts  = (fxParamArr[i] || '').split('&');
+		const cd   = pts[0] ? pts[0].split('?') : [];
+		initialValues[sym] = parseFloat(cd[1] ?? (fxDesc.defaut.split('/')[i] || '').split('?')[1] ?? 0);
+	});
+
+	const btn = document.getElementById('btnUiNative' + key.replace(/'/g, "\\'"));
+	if (btn) btn.textContent = '…';
+	try {
+		await window.api.lv2OpenUi(uri, initialValues);
+	} catch (e) {
+		console.error('[LV2 UI native]', e);
+		if (btn) btn.textContent = 'UI native';
+	}
+}
+
+// Listener global : reçoit les mises à jour de ports depuis la UI GTK3 native
+window.api.receive('lv2-ui-change', function(data) {
+	if (!data || !data.uri) return;
+	const key   = 'lv2:' + data.uri;
+	const fxDesc = listeFx[key];
+
+	// Rétablir le bouton quand la fenêtre est prête ou fermée
+	const btn = document.getElementById('btnUiNative' + key.replace(/'/g, "\\'"));
+	if (data.ready && btn) btn.textContent = 'UI ouverte';
+	if (data.closed && btn) btn.textContent = 'UI native';
+	if (data.error && btn) { btn.textContent = 'UI native'; console.warn('[LV2 UI]', data.message); }
+	if (data.closed || data.error || data.ready || !fxDesc) return;
+
+	// Mettre à jour le premier curseur (t=0) du paramètre modifié
+	if (!objActif || !tableObjet[objActif]) return;
+	const index = tableObjet[objActif].tableFx.indexOf(key);
+	if (index < 0) return;
+
+	const labels     = fxDesc.label.split(',');
+	const symIdx     = labels.indexOf(data.sym);
+	if (symIdx < 0) return;
+
+	const fxParamArr = (tableObjet[objActif].tableFxParam[index] || fxDesc.defaut).split('/');
+	const pts        = (fxParamArr[symIdx] || `0?${data.value}`).split('&');
+	const cd         = pts[0] ? pts[0].split('?') : ['0', String(data.value)];
+	cd[1]   = String(data.value);   // nouvelle valeur, temps t=0 inchangé
+	pts[0]  = cd.join('?');
+	fxParamArr[symIdx] = pts.join('&');
+	tableObjet[objActif].tableFxParam[index] = fxParamArr.join('/');
+
+	// Mettre à jour le champ Y si le popup est ouvert
+	const yEl = document.getElementById('Y' + data.sym);
+	if (yEl) yEl.value = data.value;
+
+	drawFxAutomation(key);
+});
 
 function openLv2ParamEditor(id, key) {
 	const fxDesc = listeFx[key];

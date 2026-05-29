@@ -22,7 +22,7 @@ contextBridge.exposeInMainWorld(
             }
         },
         receive: (channel, func) => {
-            let validChannels = ["fromMain",'fromparam'];
+            let validChannels = ["fromMain", "fromparam", "lv2-ui-change"];
             if (validChannels.includes(channel)) {
                 // Deliberately strip event as it includes `sender` 
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
@@ -151,6 +151,8 @@ contextBridge.exposeInMainWorld(
     lv2ListNames: ()                      => ipcRenderer.invoke('lv2-list-names'),
     lv2Info:      (uri)                   => ipcRenderer.invoke('lv2-info', uri),
     lv2Process: (params)                  => ipcRenderer.invoke('lv2-process', params),
+    lv2OpenUi:  (uri, initialValues)      => ipcRenderer.invoke('lv2-open-ui', { uri, initialValues }),
+    lv2CloseUi: (uri)                     => ipcRenderer.invoke('lv2-close-ui', uri),
     // ── VST3 (pedalboard) ──
     vst3List:    ()                       => ipcRenderer.invoke('vst3-list'),
     vst3Info:    (pluginPath)             => ipcRenderer.invoke('vst3-info', pluginPath),
