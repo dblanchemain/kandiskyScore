@@ -293,11 +293,13 @@ def cmd_ui(uri, initial_str=None):
 
     # ── Callback suil : changements de ports ─────────────────────────────
     def write_fn(controller, port_index, buffer_size, protocol, buffer):
-        # protocol=0 → float brut (LV2_ATOM__Float)
+        _dbg(f'write_fn: port={port_index} size={buffer_size} proto={protocol} buf={buffer}')
+        # protocol=0 → float brut
         if protocol == 0 and buffer_size >= 4 and buffer:
             try:
                 value = ctypes.cast(buffer, ctypes.POINTER(_f32)).contents.value
                 sym   = idx_to_sym.get(port_index, f'port_{port_index}')
+                _dbg(f'write_fn → sym={sym} value={value}')
                 print(json.dumps({'idx': int(port_index), 'sym': sym, 'value': float(value)}), flush=True)
             except Exception as e:
                 _dbg(f'write_fn erreur: {e}')
