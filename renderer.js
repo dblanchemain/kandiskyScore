@@ -3129,9 +3129,12 @@ function buildLv2Interface(key, ports) {
 // Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
 // Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
 async function openLv2NativeUi(key) {
+	console.log('[openLv2NativeUi] key=', key);
 	const fxDesc = listeFx[key];
+	console.log('[openLv2NativeUi] fxDesc=', fxDesc ? fxDesc.type : 'undefined');
 	if (!fxDesc || fxDesc.type !== 'lv2') return;
 	const uri    = fxDesc.pluginUri;
+	console.log('[openLv2NativeUi] uri=', uri);
 	const index  = tableObjet[objActif].tableFx.indexOf(key);
 	const labels = fxDesc.label.split(',');
 	const fxParamArr = (tableObjet[objActif].tableFxParam[index] || '').split('/');
@@ -3146,8 +3149,10 @@ async function openLv2NativeUi(key) {
 
 	const btn = document.getElementById('btnUiNative' + key.replace(/'/g, "\\'"));
 	if (btn) btn.textContent = '…';
+	console.log('[openLv2NativeUi] lv2OpenUi disponible?', typeof window.api.lv2OpenUi);
 	try {
-		await window.api.lv2OpenUi(uri, initialValues);
+		const r = await window.api.lv2OpenUi(uri, initialValues);
+		console.log('[openLv2NativeUi] réponse IPC=', r);
 	} catch (e) {
 		console.error('[LV2 UI native]', e);
 		if (btn) btn.textContent = 'UI native';

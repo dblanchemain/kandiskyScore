@@ -7258,6 +7258,7 @@ const LV2_UI_HELPER = app.isPackaged
 const _lv2UiProcs = new Map();  // uri → ChildProcess
 
 ipcMain.handle('lv2-open-ui', async (event, { uri, initialValues }) => {
+    console.log('[lv2-open-ui] reçu uri=', uri, 'helper=', LV2_UI_HELPER);
     const sender = event.sender;  // stocker avant tout callback async
 
     const old = _lv2UiProcs.get(uri);
