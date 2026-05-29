@@ -3127,6 +3127,7 @@ function buildLv2Interface(key, ports) {
 // Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
 // Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
 async function openLv2NativeUi(key) {
+	alert('openLv2NativeUi appelée : ' + key);
 	console.log('[openLv2NativeUi] key=', key);
 	const fxDesc = listeFx[key];
 	console.log('[openLv2NativeUi] fxDesc=', fxDesc ? fxDesc.type : 'undefined');
@@ -3214,13 +3215,17 @@ function openLv2ParamEditor(id, key) {
 	// Injecter dynamiquement le bouton "UI native" (toujours frais, pas de cache HTML)
 	const escapedKey = key.replace(/'/g, "\\'");
 	const btnsDiv = document.getElementById('lv2Btns' + escapedKey);
+	console.log('[openLv2ParamEditor] btnsDiv=', btnsDiv, 'key=', key);
 	if (btnsDiv && !btnsDiv.querySelector('#btnUiNative')) {
 		const btn = document.createElement('button');
 		btn.id = 'btnUiNative';
 		btn.textContent = 'UI native';
 		btn.style.cssText = 'margin-left:8px;background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;';
-		btn.addEventListener('click', () => openLv2NativeUi(key));
+		btn.addEventListener('click', () => { console.log('[btn click] key=', key); openLv2NativeUi(key); });
 		btnsDiv.appendChild(btn);
+		console.log('[openLv2ParamEditor] bouton UI native injecté');
+	} else {
+		console.log('[openLv2ParamEditor] btnsDiv absent ou bouton déjà présent');
 	}
 }
 
