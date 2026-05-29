@@ -3117,12 +3117,10 @@ function buildLv2Interface(key, ports) {
 	return `<table id='${escapedKey}' align='center' border='1' cellpadding='3' cellspacing='0' style='background-color:#d4e8ff;font-size:11px;color:#222;'><tbody>
 	  ${rows}
 	</tbody></table>
-	<div style='margin-top:6px;margin-left:10px;'>
+	<div style='margin-top:6px;margin-left:10px;' id='lv2Btns${escapedKey}'>
 	  <button onclick="defautFxParam('${escapedKey}')">Défaut</button>
 	  <button onclick="annulFxParam('${escapedKey}')">Annuler</button>
 	  <button onclick="validFxParam('${escapedKey}')">Valider</button>
-	  <button id='btnUiNative${escapedKey}' style='margin-left:8px;background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;'
-	          onclick="openLv2NativeUi('${escapedKey}')">UI native</button>
 	</div>`;
 }
 
@@ -3147,7 +3145,7 @@ async function openLv2NativeUi(key) {
 		initialValues[sym] = parseFloat(cd[1] ?? (fxDesc.defaut.split('/')[i] || '').split('?')[1] ?? 0);
 	});
 
-	const btn = document.getElementById('btnUiNative' + key.replace(/'/g, "\\'"));
+	const btn = document.getElementById('btnUiNative');
 	if (btn) btn.textContent = '…';
 	console.log('[openLv2NativeUi] lv2OpenUi disponible?', typeof window.api.lv2OpenUi);
 	try {
@@ -3166,7 +3164,7 @@ window.api.receive('lv2-ui-change', function(data) {
 	const fxDesc = listeFx[key];
 
 	// Rétablir le bouton quand la fenêtre est prête ou fermée
-	const btn = document.getElementById('btnUiNative' + key.replace(/'/g, "\\'"));
+	const btn = document.getElementById('btnUiNative');
 	if (data.ready && btn) { btn.textContent = 'UI ouverte'; btn.style.background = '#2a7a2a'; }
 	if (data.closed && btn) { btn.textContent = 'UI native'; btn.style.background = '#3a5f8a'; }
 	if (data.error) {
@@ -3212,6 +3210,17 @@ function openLv2ParamEditor(id, key) {
 	for (let j = 0; j < labels.length; j++) {
 		const el = document.getElementById(labels[j]);
 		if (el) el.addEventListener("mousedown", createFxPoint);
+	}
+	// Injecter dynamiquement le bouton "UI native" (toujours frais, pas de cache HTML)
+	const escapedKey = key.replace(/'/g, "\\'");
+	const btnsDiv = document.getElementById('lv2Btns' + escapedKey);
+	if (btnsDiv && !btnsDiv.querySelector('#btnUiNative')) {
+		const btn = document.createElement('button');
+		btn.id = 'btnUiNative';
+		btn.textContent = 'UI native';
+		btn.style.cssText = 'margin-left:8px;background:#3a5f8a;color:#fff;border:none;padding:2px 7px;cursor:pointer;';
+		btn.addEventListener('click', () => openLv2NativeUi(key));
+		btnsDiv.appendChild(btn);
 	}
 }
 
