@@ -35,8 +35,11 @@ _LV2_Descriptor._fields_ = [
     ('cleanup',        _vp),
     ('extension_data', _vp),
 ]
-_InstFn    = ctypes.CFUNCTYPE(_vp,  ctypes.c_void_p, ctypes.c_double, _sp, _vp)
-_CleanupFn = ctypes.CFUNCTYPE(None, _vp)
+_InstFn      = ctypes.CFUNCTYPE(_vp,  ctypes.c_void_p, ctypes.c_double, _sp, _vp)
+_CleanupFn   = ctypes.CFUNCTYPE(None, _vp)
+_ActivateFn  = ctypes.CFUNCTYPE(None, _vp)
+_ConnectFn   = ctypes.CFUNCTYPE(None, _vp, ctypes.c_uint32, _vp)
+_RunFn       = ctypes.CFUNCTYPE(None, _vp, ctypes.c_uint32)
 
 def _instantiate_dsp(plugin, uri, bundle_path_b, features_ptr):
     """
@@ -296,8 +299,32 @@ def cmd_ui(uri, initial_str=None):
     else:
         _dbg('instance-access non disponible')
 
+    # ── Activer le DSP (JUCE/FRUT n'appelle write_fn qu'après activate) ──
+    _dsp_port_bufs = []
+    _run_fn = None
+    if dsp_handle and dsp_desc_ptr:
+        try:
+            n_p = _L.lilv_plugin_get_num_ports(plugin)
+            connect_fn = _ConnectFn(dsp_desc_ptr.contents.connect_port)
+            for i in range(n_p):
+                buf = (ctypes.c_float * 2)(0.0, 0.0)
+                _dsp_port_bufs.append(buf)
+                connect_fn(dsp_handle, i, ctypes.cast(buf, _vp))
+            if dsp_desc_ptr.contents.activate:
+                _ActivateFn(dsp_desc_ptr.contents.activate)(dsp_handle)
+                _dbg('DSP activé')
+            if dsp_desc_ptr.contents.run:
+                _run_fn = _RunFn(dsp_desc_ptr.contents.run)
+        except Exception as e:
+            _dbg(f'DSP activate/connect erreur: {e}')
+
     # ── Callback suil : changements de ports ─────────────────────────────
+    _libc = ctypes.CDLL('libc.so.6')
+    _libc.write.restype  = ctypes.c_ssize_t
+    _libc.write.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_size_t]
+
     def write_fn(controller, port_index, buffer_size, protocol, buffer):
+        _libc.write(2, b'[write_fn] port=' + str(port_index).encode() + b'\n', 20)
         _dbg(f'write_fn: port={port_index} size={buffer_size} proto={protocol} buf={buffer}')
         # protocol=0 → float brut
         if protocol == 0 and buffer_size >= 4 and buffer:
@@ -432,6 +459,8 @@ def cmd_ui(uri, initial_str=None):
         _GL.g_main_context_iteration(None, ctypes.c_bool(False))
         if _idle_iface and _ui_handle:
             _idle_iface.idle(_ui_handle)
+        if _run_fn:
+            _run_fn(dsp_handle, 64)
         time.sleep(0.005)
 
     # ── Nettoyage ─────────────────────────────────────────────────────────
