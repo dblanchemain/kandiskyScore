@@ -3230,6 +3230,7 @@ function openLv2ParamEditor(id, key) {
 		if (el) el.addEventListener("mousedown", createFxPoint);
 	}
 	const btnUi = document.getElementById('btnUiNative');
+	alert('[DEBUG openLv2ParamEditor] btnUiNative trouvé: ' + (btnUi ? 'OUI' : 'NON') + '\nkey=' + key);
 	if (btnUi) {
 		btnUi.onclick = (e) => { e.stopPropagation(); e.preventDefault(); openLv2NativeUi(key); };
 	}
