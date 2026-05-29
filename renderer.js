@@ -3128,16 +3128,11 @@ function buildLv2Interface(key, ports) {
 // Ouvre la fenêtre GTK3 native du plugin LV2 via suil.
 // Les changements de paramètres mettent à jour le premier curseur (t=0) de chaque lane.
 async function openLv2NativeUi(key) {
-	console.log('[openLv2NativeUi] key=', key);
 	const fxDesc = listeFx[key];
-	if (!fxDesc || fxDesc.type !== 'lv2') {
-		console.warn('[openLv2NativeUi] fxDesc absent ou type incorrect', fxDesc);
-		return;
-	}
+	if (!fxDesc || fxDesc.type !== 'lv2') return;
 	const uri = fxDesc.pluginUri;
-	console.log('[openLv2NativeUi] uri=', uri, 'objActif=', objActif);
 
-	// Récupérer les valeurs initiales (premier point t=0 de chaque lane)
+	// Valeurs initiales = premier point t=0 de chaque lane
 	const initialValues = {};
 	try {
 		const obj = tableObjet[objActif];
@@ -3151,10 +3146,7 @@ async function openLv2NativeUi(key) {
 				initialValues[sym] = parseFloat(cd[1] ?? (fxDesc.defaut.split('/')[i] || '').split('?')[1] ?? 0);
 			});
 		}
-	} catch (e) {
-		console.warn('[openLv2NativeUi] erreur initialValues:', e);
-	}
-	console.log('[openLv2NativeUi] initialValues=', initialValues);
+	} catch (_) {}
 
 	const btn = document.getElementById('btnUiNative');
 	if (btn) btn.textContent = '…';
@@ -3164,11 +3156,8 @@ async function openLv2NativeUi(key) {
 		return;
 	}
 	try {
-		console.log('[openLv2NativeUi] appel IPC lv2-open-ui…');
-		const res = await window.api.lv2OpenUi(uri, initialValues);
-		console.log('[openLv2NativeUi] réponse IPC:', res);
+		await window.api.lv2OpenUi(uri, initialValues);
 	} catch (e) {
-		console.error('[openLv2NativeUi] erreur IPC:', e);
 		alert('Erreur LV2 UI : ' + e.message);
 		if (btn) btn.textContent = 'UI native';
 	}
