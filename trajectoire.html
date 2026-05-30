@@ -177,13 +177,9 @@ function delPointsSpacial() {
 	defSpacialisation();
 }
 function defaut() {
-	for(let i=1;i<spT.length;i++){
-		var dest=document.getElementById("pointTmp");
-		dest.removeChild(document.getElementById("pt"+i));
-		
-	}
-	spT.splice(1,spT.length);
-	ptSpActif=0
+	spT.splice(1, spT.length);
+	ptSpActif = 0;
+	defSpacialisation();
 }
 function annulPointsSpacial(){
 	spT=[].concat(rspT)
