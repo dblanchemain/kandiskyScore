@@ -3449,6 +3449,8 @@ function defautFxParam(NameGreffon) {
 	drawFxAutomation(NameGreffon);
 }
 function annulFxParam(title) {
+	if (title.startsWith('lv2:') && typeof window.api?.lv2CloseUi === 'function')
+		window.api.lv2CloseUi(title.slice(4));
 	closePopup(title);
 }
 // Modes d'automation : 0=linéaire 1=step 2=exp 3=ease-in-out
@@ -3494,6 +3496,8 @@ function validFxParam(greffon) {
 	txt = txt.slice(0, -1);
 	const index = tableObjet[objActif].tableFx.indexOf(greffon);
 	tableObjet[objActif].tableFxParam[index] = txt;
+	if (greffon.startsWith('lv2:') && typeof window.api?.lv2CloseUi === 'function')
+		window.api.lv2CloseUi(greffon.slice(4));
 	closePopup(greffon);
 }
 let selectPointFx="";
