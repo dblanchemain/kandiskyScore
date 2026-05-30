@@ -180,6 +180,7 @@ function defaut() {
 	spT.splice(1, spT.length);
 	ptSpActif = 0;
 	defSpacialisation();
+	window.api.send("toMain", "spatialDefaut;"+spatialId);
 }
 function annulPointsSpacial(){
 	spT=[].concat(rspT)

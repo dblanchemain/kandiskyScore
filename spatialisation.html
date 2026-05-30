@@ -70,6 +70,9 @@ window.api.receive("fromMain", (data) => {
 			case 'openStudio3D':
 				winStudio3D=1
 				break;
+			case 'spatialDefaut':
+				defautSpacialisation();
+				break
 			case 'defTrajectory':
 				var id=cmd[1];
 				console.log(`obj spatial ${data}`);
