@@ -5,7 +5,7 @@ Usage: python3 lv2_ui.py <uri> [initial_json]
   Stdout (JSON lignes): {"ready":true} | {"idx":N,"sym":"...","value":V} | {"closed":true} | {"error":...}
 """
 
-import sys, os, json, ctypes, time, traceback
+import sys, os, json, ctypes, time, traceback, signal
 from urllib.parse import unquote
 
 # ── Partager le setup lilv depuis lv2_helper ───────────────────────────────
@@ -246,10 +246,18 @@ def cmd_ui(uri, initial_str=None):
         if initial_str:
             args.append(initial_str)
         proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=sys.stderr)
+
+        def _on_sigterm(signum, frame):
+            try: proc.kill()
+            except Exception: pass
+            sys.exit(0)
+
+        signal.signal(signal.SIGTERM, _on_sigterm)
         for line in proc.stdout:
             sys.stdout.buffer.write(line)
             sys.stdout.buffer.flush()
         proc.wait()
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
         return
 
     _dbg(f'UI trouvée: {ui_uri_b} type={ui_type_b} bundle={bundle_path_b}')
