@@ -62,7 +62,9 @@ window.api.receive("fromMain", (data) => {
 				spatialId=cmd[1]
 				trajectoire(cmd[2])
 				break;
-			
+			case 'defautTrajectoire':
+				resetTrajectoire();
+				break;
 			default :
 				
 				
@@ -176,10 +178,13 @@ function delPointsSpacial() {
 	
 	defSpacialisation();
 }
-function defaut() {
+function resetTrajectoire() {
 	spT.splice(1, spT.length);
 	ptSpActif = 0;
 	defSpacialisation();
+}
+function defaut() {
+	resetTrajectoire();
 	window.api.send("toMain", "spatialDefaut;"+spatialId);
 }
 function annulPointsSpacial(){

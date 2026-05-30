@@ -71,7 +71,7 @@ window.api.receive("fromMain", (data) => {
 				winStudio3D=1
 				break;
 			case 'spatialDefaut':
-				defautSpacialisation();
+				resetSpacialisation();
 				break
 			case 'defTrajectory':
 				var id=cmd[1];
@@ -100,7 +100,7 @@ function annulSpacialisation() {
 function validSpacialisation() {
 	window.api.send("toMain", "spatialValid;"+spatialId+";"+svSpatial)
 }
-function defautSpacialisation() {
+function resetSpacialisation() {
 	spX=[];
 	spY=[];
 	spZ=[];
@@ -112,6 +112,10 @@ function defautSpacialisation() {
 	spT[0]=0;
 	spD[0]=1;
 	defSpacialisation();
+}
+function defautSpacialisation() {
+	resetSpacialisation();
+	window.api.send("toMain", "trajectoireDefaut;"+spatialId);
 }
 function defSpatial(tt,tx,ty,tz,d,g) {
 	var tbt=tt.split(",")

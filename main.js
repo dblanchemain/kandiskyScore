@@ -3868,6 +3868,11 @@ ipcMain.on ("toMain", (event, args) => {
 				winSpatial.webContents.send("fromMain", "spatialDefaut");
 			}
 			break;
+		case "trajectoireDefaut":
+			if(winTrajectoireEtat==1){
+				winTrajectoire.webContents.send("fromMain", "defautTrajectoire");
+			}
+			break;
 		case "spatialAnnulPoints":
 			winTrajectoire.destroy();
 		   winTrajectoireEtat=0;
