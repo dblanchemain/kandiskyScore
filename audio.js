@@ -1465,9 +1465,12 @@ async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sam
                     for (let off = 0; off < numSamples; off += blockSize) {
                         const len = Math.min(blockSize, numSamples - off);
                         const t0  = off / sampleRate;
-                        paths.forEach((p, pi) => { try { proc.setParamValue(p, evalAutoParam(paramBlocks[pi] || [], t0)); } catch (_) {} });
-                        const tmp = proc.render([inBuf.subarray(off, off + len)], len);
-                        outBuf.set(Array.isArray(tmp) ? tmp[0] : tmp, off);
+                        paths.forEach((p, pi) => { const blk = paramBlocks[pi] || []; if (!blk.length) return; try { const v = evalAutoParam(blk, t0); if (isFinite(v)) proc.setParamValue(p, v); } catch (_) {} });
+                        try {
+                            const tmp = proc.render([inBuf.subarray(off, off + len)], len);
+                            const raw = Array.isArray(tmp) ? tmp[0] : tmp;
+                            if (raw && raw.length > 0 && raw.length <= outBuf.length - off) outBuf.set(raw, off);
+                        } catch (renderErr) { console.warn('[pipeline] faust-code render error → passthrough block', renderErr); }
                     }
                     processed[ch] = outBuf;
                 }
@@ -1501,7 +1504,7 @@ async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sam
                 const len = Math.min(blockSize, numSamples - off);
                 const t0  = off / sampleRate;
                 if (processor) {
-                    paramsPaths.forEach((p, pi) => { try { const v = evalAutoParam(paramBlocks[pi] || [], t0); if (isFinite(v)) processor.setParamValue(p, v); } catch (_) {} });
+                    paramsPaths.forEach((p, pi) => { const blk = paramBlocks[pi] || []; if (!blk.length) return; try { const v = evalAutoParam(blk, t0); if (isFinite(v)) processor.setParamValue(p, v); } catch (_) {} });
                 }
                 const slice = inBuf.subarray(off, off + len);
                 let out = slice;
@@ -2005,6 +2008,7 @@ async function postRubberband(id,mode,file) {
         const sox5  = `pitch ${detune5} speed ${spd5} vol ${gain5} trim ${debut5} ${dur5} fade ${fade5}`;
         console.log('[owExport mode5]', obj5.id, sox5);
         await window.api.soxProcessExport(outPath, sox5);
+        document.getElementById("loading").style.display = "none";
 
     } else {
         // ===== MODE EXPORT DAW (mode=1) : audio sec + SoX =====
