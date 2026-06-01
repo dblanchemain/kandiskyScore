@@ -1986,13 +1986,18 @@ async function postRubberband(id,mode,file) {
         outPath = window.api.joinPath(owExportDestDir, 'Audios', obj5.id + '.wav');
         await window.api.saveAudioBuffer({ filePath: outPath, buffer: { sampleRate, channels: currentChannels } });
         const spd5 = (obj5.transposition > 0) ? obj5.transposition : 1;
-        const dur5 = ((obj5.duree * obj5.fin) - (obj5.duree * obj5.debut)) / spd5;
+        const fileDur5 = numSamples / sampleRate;
+        const dur5Raw  = ((obj5.duree * obj5.fin) - (obj5.duree * obj5.debut)) / spd5;
+        const dur5     = (isFinite(dur5Raw) && dur5Raw > 0) ? dur5Raw : fileDur5 / spd5;
         const ex05 = obj5.envX?.[0] ?? 0;
         const ex15 = obj5.envX?.[1] ?? 1;
         const fi5  = (obj5.fadeIn  && obj5.fadeIn  !== 'undefined') ? obj5.fadeIn  : 'l';
         const fo5  = (obj5.fadeOut && obj5.fadeOut !== 'undefined') ? obj5.fadeOut : fi5;
         const fade5 = `${fi5} ${dur5 * ex05} fade ${fo5} 0 ${dur5} ${dur5 * (1 - ex15)}`;
-        const sox5  = `pitch ${obj5.detune} speed ${spd5} vol ${obj5.gain} trim ${obj5.debut} ${dur5} fade ${fade5}`;
+        const debut5 = (isFinite(obj5.debut) && obj5.debut >= 0) ? obj5.debut : 0;
+        const detune5 = isFinite(obj5.detune) ? obj5.detune : 0;
+        const gain5   = (isFinite(obj5.gain) && obj5.gain > 0) ? obj5.gain : 1;
+        const sox5  = `pitch ${detune5} speed ${spd5} vol ${gain5} trim ${debut5} ${dur5} fade ${fade5}`;
         console.log('[owExport mode5]', obj5.id, sox5);
         await window.api.soxProcessExport(outPath, sox5);
 
@@ -2460,7 +2465,9 @@ async function owExportProcess(partitionXML, destDir, grpDir, imgDir) {
     }
     function tagNum(xml, tag) {
         const m = xml.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));
-        return m ? parseFloat(m[1]) : null;
+        if (!m) return null;
+        const v = parseFloat(m[1]);
+        return isNaN(v) ? null : v;
     }
     function tagStr(xml, tag) {
         const m = xml.match(new RegExp('<' + tag + '\\s+value=\'([^\']+)\''));

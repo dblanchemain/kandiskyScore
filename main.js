@@ -5217,8 +5217,9 @@ ipcMain.handle('soxProcessExport', async (event, filePath, soxParams) => {
     console.log('[soxProcessExport]', args.join(' '));
     return new Promise((resolve, reject) => {
         const proc = spawn(soxPath, args, { shell: false });
+        let stderrMsg = '';
         if (proc.stderr) {
-            proc.stderr.on('data', d => console.error('soxProcessExport stderr:', d.toString()));
+            proc.stderr.on('data', d => { stderrMsg += d.toString(); console.error('soxProcessExport stderr:', d.toString()); });
         }
         proc.on('exit', (code) => {
             if (code === 0) {
@@ -5229,7 +5230,8 @@ ipcMain.handle('soxProcessExport', async (event, filePath, soxParams) => {
                     reject(e);
                 }
             } else {
-                reject(new Error(`soxProcessExport: SoX exit code ${code}`));
+                const detail = stderrMsg.trim().split('\n').pop() || '';
+                reject(new Error(detail || `soxProcessExport: SoX exit code ${code}`));
             }
         });
         proc.on('error', reject);
