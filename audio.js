@@ -1346,7 +1346,7 @@ function evalAutoParam(events, t) {
     for (let i = 0; i < events.length - 1; i++) {
         const a = events[i], b = events[i + 1];
         if (t >= a.time && t < b.time) {
-            const frac = (t - a.time) / (b.time - a.time);
+            const frac = b.time > a.time ? (t - a.time) / (b.time - a.time) : 0;
             switch (a.mode) {
                 case 1: return a.value;                                                         // step
                 case 2: { const k = 4; return a.value + (b.value - a.value) * (Math.exp(k * frac) - 1) / (Math.exp(k) - 1); } // exp
@@ -1501,15 +1501,20 @@ async function applyFxBuffers(obj, numChannels, currentChannels, numSamples, sam
                 const len = Math.min(blockSize, numSamples - off);
                 const t0  = off / sampleRate;
                 if (processor) {
-                    paramsPaths.forEach((p, pi) => { try { processor.setParamValue(p, evalAutoParam(paramBlocks[pi] || [], t0)); } catch (_) {} });
+                    paramsPaths.forEach((p, pi) => { try { const v = evalAutoParam(paramBlocks[pi] || [], t0); if (isFinite(v)) processor.setParamValue(p, v); } catch (_) {} });
                 }
                 const slice = inBuf.subarray(off, off + len);
                 let out = slice;
                 if (processor) {
-                    const tmp = processor.render([slice], len);
-                    out = Array.isArray(tmp) ? tmp[0] : tmp;
+                    try {
+                        const tmp = processor.render([slice], len);
+                        const raw = Array.isArray(tmp) ? tmp[0] : tmp;
+                        if (raw && raw.length > 0) out = raw.length === len ? raw : raw.subarray(0, Math.min(raw.length, len));
+                    } catch (renderErr) {
+                        console.warn('[pipeline] Faust render error → passthrough block', renderErr);
+                    }
                 }
-                outBuf.set(out, off);
+                if (out.length <= outBuf.length - off) outBuf.set(out, off);
             }
             processed[ch] = outBuf;
         }
