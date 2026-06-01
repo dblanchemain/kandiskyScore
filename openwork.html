@@ -525,6 +525,14 @@
       <label for="gpVariationIntensite">Variation intensité</label>
     </div>
 
+    <!-- Position temporelle -->
+    <div class="gp-hdr">Position temporelle</div>
+
+    <div class="gp-row">
+      <input type="checkbox" id="gpPositionTemporelle" onchange="owUpdateGrp()"/>
+      <label for="gpPositionTemporelle">Position temporelle</label>
+    </div>
+
     <!-- Position relative -->
     <div class="gp-hdr">Position relative</div>
 
@@ -741,6 +749,7 @@ function owParseData(txt, label) {
           expansionMax:     gf(grpEl,'expansionMax',2.0),
           variationTempo:   gb(grpEl,'variationTempo',false),
           variationIntensite: gb(grpEl,'variationIntensite',false),
+          positionTemporelle: gb(grpEl,'positionTemporelle',false),
           posRelDebut:      gb(grpEl,'posRelDebut',false),
           posRelDebutAvant: g(grpEl,'posRelDebutAvant','debut'),
           posRelDebutGroupe:g(grpEl,'posRelDebutGroupe',''),
@@ -787,6 +796,7 @@ function owSerialise() {
       xml += `              augDim="${b(grp.augDim)}" augDimMin="${grp.augDimMin??-2}" augDimMax="${grp.augDimMax??2}"\n`;
       xml += `              expansion="${b(grp.expansion)}" expansionMin="${grp.expansionMin??0.5}" expansionMax="${grp.expansionMax??2.0}"\n`;
       xml += `              variationTempo="${b(grp.variationTempo)}" variationIntensite="${b(grp.variationIntensite)}"\n`;
+      xml += `              positionTemporelle="${b(grp.positionTemporelle)}"\n`;
       xml += `              posRelDebut="${b(grp.posRelDebut)}" posRelDebutAvant="${x(grp.posRelDebutAvant)}" posRelDebutGroupe="${x(grp.posRelDebutGroupe)}"\n`;
       xml += `              posRelFin="${b(grp.posRelFin)}" posRelFinAvant="${x(grp.posRelFinAvant)}" posRelFinGroupe="${x(grp.posRelFinGroupe)}"\n`;
       xml += `              posX="${grp.posX}" posY="${grp.posY}" w="${grp.w}" h="${grp.h}" color="${x(grp.color)}" opacity="${grp.opacity}"/>\n`;
@@ -1035,6 +1045,8 @@ async function owParamsGroupe() {
   cb('gpVariationTempo',     grp.variationTempo    ?? false);
   cb('gpVariationIntensite', grp.variationIntensite ?? false);
 
+  cb('gpPositionTemporelle', grp.positionTemporelle ?? false);
+
   cb('gpPosRelDebut',        grp.posRelDebut       ?? false);
   $('gpPosRelDebutAvant').value  = grp.posRelDebutAvant  || 'debut';
   $('gpPosRelDebutGroupe').value = grp.posRelDebutGroupe || '';
@@ -1072,6 +1084,7 @@ function owUpdateGrp() {
   grp.expansionMax       = parseFloat($('gpExpansionMax').value) || 2.0;
   grp.variationTempo     = cb('gpVariationTempo');
   grp.variationIntensite = cb('gpVariationIntensite');
+  grp.positionTemporelle = cb('gpPositionTemporelle');
   grp.posRelDebut        = cb('gpPosRelDebut');
   grp.posRelDebutAvant   = $('gpPosRelDebutAvant').value;
   grp.posRelDebutGroupe  = $('gpPosRelDebutGroupe').value;
