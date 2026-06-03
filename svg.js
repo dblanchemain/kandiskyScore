@@ -936,9 +936,23 @@ async function vueGrpSvg(mode, returnSvg=false){
 	var actif=lsgrp.length-1;
 	var _svgW=lsgrp[actif].bkgWidth||lsgrp[actif].width;
 	var _svgH=lsgrp[actif].bkgHeight||lsgrp[actif].height;
+	// Calculer l'extension verticale des symboles rotatés via x2/y2 (types 56-64)
+	var _svgYMin=0;
+	for(var _si=0;_si<lsgrp.length-1;_si++){
+		var _so=lsgrp[_si];
+		if(_so.class===3 && _so.type>=56 && _so.type<=64){
+			var _sx2=isFinite(_so.x2)?parseFloat(_so.x2):94;
+			var _sy2=isFinite(_so.y2)?parseFloat(_so.y2):0;
+			var _sd=Math.hypot(_sx2,_sy2)||94;
+			var _sa=Math.atan2(_sy2,_sx2);
+			var _syMin=_so.posY+Math.min(0,_sd*Math.sin(_sa))-7;
+			if(_syMin<_svgYMin) _svgYMin=_syMin;
+		}
+	}
+	var _yOff=Math.min(0,Math.floor(_svgYMin));
 	document.getElementById("svgGrpVue").firstChild.setAttribute("width",_svgW);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("height",_svgH);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+_svgW+" "+_svgH);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("height",_svgH-_yOff);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 "+_yOff+" "+_svgW+" "+(_svgH-_yOff));
 	}
 	
 	var obj=document.getElementById("svgGrpVue");
