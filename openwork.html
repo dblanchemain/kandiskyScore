@@ -732,6 +732,7 @@ function owParseData(txt, label) {
           posY:             gf(grpEl,'posY',20),
           w:                gi(grpEl,'w',120),
           h:                gi(grpEl,'h',60),
+          sizeSet:          true,
           color:            g(grpEl,'color','#c8dcff'),
           opacity:          gf(grpEl,'opacity',0.5),
           direct:           gb(grpEl,'direct',true),
@@ -956,6 +957,7 @@ async function owAjouterGroupe() {
     posX: 20, posY: 20,
     w: 120, h: 60,
     color: '#c8dcff', opacity: 0.5,
+    sizeSet: false,
     direct: true,
     renversement: false, retrograde: false, renvRetrograde: false,
     repetition: false, repetitionMax: 2,
@@ -1179,9 +1181,10 @@ function owRenderGroups() {
     const img = document.createElement('img');
     img.className = 'ow-grp-img';
     img.addEventListener('load', function() {
-      if (img.naturalWidth && img.naturalHeight) {
+      if (img.naturalWidth && img.naturalHeight && !grp.sizeSet) {
         grp.w = img.naturalWidth;
         grp.h = img.naturalHeight + 20;
+        grp.sizeSet = true;
         owApplyGrpStyle(div, grp);
       }
     }, { once: true });
@@ -1457,6 +1460,7 @@ if (typeof window.api !== 'undefined') {
           if (grp) {
             grp.dir    = grpDir;
             grp.svgData = svgB64 ? 'data:image/svg+xml;base64,' + svgB64 : '';
+            grp.sizeSet = false;
             owRenderGroups();
           }
         }
@@ -1473,9 +1477,10 @@ if (typeof window.api !== 'undefined') {
             const imgEl = document.querySelector('#grp' + grpId + ' .ow-grp-img');
             if (imgEl) {
               imgEl.addEventListener('load', function() {
-                if (imgEl.naturalWidth && imgEl.naturalHeight) {
+                if (imgEl.naturalWidth && imgEl.naturalHeight && !grp.sizeSet) {
                   grp.w = imgEl.naturalWidth;
                   grp.h = imgEl.naturalHeight + 20;
+                  grp.sizeSet = true;
                   const container = document.getElementById('grp' + grpId);
                   if (container) owApplyGrpStyle(container, grp);
                 }

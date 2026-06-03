@@ -934,9 +934,11 @@ async function vueGrpSvg(mode, returnSvg=false){
 		document.getElementById("space").removeChild(document.getElementById("grpSelect"));
 	}else{
 	var actif=lsgrp.length-1;
-	document.getElementById("svgGrpVue").firstChild.setAttribute("width",lsgrp[actif].width);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("height",lsgrp[actif].height);
-	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+lsgrp[actif].width+" "+lsgrp[actif].height);
+	var _svgW=lsgrp[actif].bkgWidth||lsgrp[actif].width;
+	var _svgH=lsgrp[actif].bkgHeight||lsgrp[actif].height;
+	document.getElementById("svgGrpVue").firstChild.setAttribute("width",_svgW);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("height",_svgH);
+	document.getElementById("svgGrpVue").firstChild.setAttribute("viewBox","0 0 "+_svgW+" "+_svgH);
 	}
 	
 	var obj=document.getElementById("svgGrpVue");
