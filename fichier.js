@@ -385,6 +385,7 @@ function saveProjetA(t,offset,tabgrp,svgB64){
 	}
 	if(t==2){
 		txt=txt+"<dirorg dir='"+paramProjet.audioPath+"'></dirorg>\n";
+		txt=txt+"<zoomscale value='"+zoomScale+"'></zoomscale>\n";
 	}
 	
 	var lsgrp=[];
