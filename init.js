@@ -102,7 +102,7 @@ function defInterface() {
  document.getElementById("bfsvgt").setAttribute("style","fill:"+fontIntervalColor+";font-size:"+intervalFontSize+"em;");
  document.getElementById("bdsvgt").setAttribute("font-size",intervalFontSize);
  document.getElementById("bfsvgt").setAttribute("font-size",intervalFontSize);
- document.getElementById("space").style.backgroundColor="transparent";
+ document.getElementById("space").style.backgroundColor=workSpaceBkg;
  /*
  document.getElementById("clgrilleBkg").style.backgroundColor=colorGrille;
  document.getElementById("opacityGrille").value=spaceGrilleOpacity;
