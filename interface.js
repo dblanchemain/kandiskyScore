@@ -247,7 +247,7 @@ function regSolfege(scale,dest,fontSize,fontColor,bkg,opac){
 	}
 }
 function deleteGrille(){
-	var obj=document.getElementById("space");
+	var obj=document.getElementById("spaceBkg");
 	var tabg=obj.getElementsByClassName("grille");
 	if(tabg.length>0){
 		for(let i in tabg){
