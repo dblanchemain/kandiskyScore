@@ -369,6 +369,7 @@ function defProjetConf(txt) {
 	<externepdfbkg value='"+pdfBkg+"'></externepdfbkg>\n\
 	<externeaudioedit value='"+editAudioCmd+"'></externeaudioedit>\n\
 	<externeinterpretorpath value='"+interpretorPath+"'></externeinterpretorpath>\n\
+	<externemcmidikeyboardpath value='"+mcMidiKeyboardPath+"'></externemcmidikeyboardpath>\n\
 	<externelv2paths value='"+encodeURIComponent(lv2Paths||'')+"'></externelv2paths>\n\
 	<externevst3paths value='"+encodeURIComponent(vst3Paths||'')+"'></externevst3paths>\n\
 	</externe>\n";
@@ -905,7 +906,7 @@ function defObjets(i,liste,dx,dy){
 						break;
 				}
 			}
-			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd,interpretorPath,lv2Paths,vst3Paths}));
+			var txt=btoa(JSON.stringify({name:paramProjet.name,path:paramProjet.path,audioPath:toAbsPath(paramProjet.audioPath),imgPath:toAbsPath(paramProjet.imgPath),editor,daw,cmdDaw,pdfPage,pdfLandscape,pdfScale,pdfMgTop,pdfMgBot,pdfMgLeft,pdfMgRight,pdfBkg,editAudioCmd,interpretorPath,mcMidiKeyboardPath,lv2Paths,vst3Paths}));
 			window.api.send("toMain", 'defExterne;'+txt);
 			actualiseObjets();
 			// Reconstruire listeFx LV2+VST3, puis régénérer les -fx.wav (ordre séquentiel obligatoire)
@@ -1408,6 +1409,7 @@ function defExterneConfig() {
 		pdfBkg = _tagVal(obj, "externepdfbkg");
 		editAudioCmd = _tagVal(obj, "externeaudioedit");
 		interpretorPath = _tagVal(obj, "externeinterpretorpath") || '';
+		mcMidiKeyboardPath = _tagVal(obj, "externemcmidikeyboardpath") || '';
 		lv2Paths  = decodeURIComponent(_tagVal(obj, "externelv2paths")  || '') || _defaultPluginPaths('lv2');
 		vst3Paths = decodeURIComponent(_tagVal(obj, "externevst3paths") || '') || _defaultPluginPaths('vst3');
 		if(daw=='reaper'){
