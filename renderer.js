@@ -1241,6 +1241,7 @@ function _defaultPluginPaths(type) {
 }
 function defautExterne() {
 	interpretorPath='';
+	mcMidiKeyboardPath='';
 	lv2Paths=_defaultPluginPaths('lv2');
 	vst3Paths=_defaultPluginPaths('vst3');
 	daw=0;
@@ -1261,7 +1262,7 @@ var txt=JSON.stringify(paramProjet);
 var txt3=JSON.stringify({paletteBkg, fontPalette, fontPaletteSize, separateurPalette, fontSizeMenu:0, bkgInfo, fontInfoSize, fontInfoColor, regleBackground, regleFontSize, regleFontColor, intervalBackground, intervalFontSize, fontIntervalColor, workSpaceBkg, spaceGrilleOpacity, colorGrille, suiveurBkg, popupTitreBkg, popupHeaderFontSize, popupFontTitreColor, popupFontColor, popupBkgColor, popupFontSize, popupOngletFontColor, popupFontOngletSize, popupOngletBkg, popupOngletActifBkg, lang, vueSvgBackground, vueSvgFontSize, vueSvgFontColor});
 var txt4=JSON.stringify({paletteDisque, paletteCarre, paletteTriangle, paletteEllipse, paletteRectangle, paletteTrianglelong, paletteRondlong, paletteCarrelong, paletteCrescendo, paletteLigne, paletteGlissando, paletteBlock, paletteDecresc, paletteDecrescb, paletteCresc, paletteCrescb, paletteAgregat, paletteArpege, paletteMultilignes, paletteNuage, paletteTexture, paletteImage, paletteSymb, paletteFleche, paletteMarque1, paletteMarque2, paletteLecteur});
 
-txt5=btoa(JSON.stringify({editor, daw, cmdDaw, pdfPage, pdfLandscape, pdfScale, pdfMgTop, pdfMgBot, pdfMgLeft, pdfMgRight, pdfBkg, editAudioCmd, interpretorPath, lv2Paths, vst3Paths}));
+txt5=btoa(JSON.stringify({editor, daw, cmdDaw, pdfPage, pdfLandscape, pdfScale, pdfMgTop, pdfMgBot, pdfMgLeft, pdfMgRight, pdfBkg, editAudioCmd, interpretorPath, mcMidiKeyboardPath, lv2Paths, vst3Paths}));
 window.api.send("toMain", 'configProjet;'+lang+";"+txt+";"+txt3+";"+txt4+";"+txt5);
 }
 function objetParamsToString(id) {
@@ -2740,6 +2741,7 @@ function setPalette(){
 function importExterne(txt){
 	var defc=JSON.parse(atob(txt));
 	interpretorPath=defc.interpretorPath||'';
+	mcMidiKeyboardPath=defc.mcMidiKeyboardPath||'';
 	lv2Paths=defc.lv2Paths||_defaultPluginPaths('lv2');
 	vst3Paths=defc.vst3Paths||_defaultPluginPaths('vst3');
 	editor=defc.editor;
