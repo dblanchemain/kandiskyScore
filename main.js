@@ -670,6 +670,7 @@ let winTrajectoryEtat=0;
 let winSvgEtat=0;
 let winOpenWorkEtat=0;
 let interpretorPath='';
+let mcMidiKeyboardPath='';
 function _defaultPluginPaths(type) {
     if (type === 'lv2') {
         if (process.platform === 'linux') return '~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
@@ -1070,6 +1071,8 @@ const template = [
 				click: () => openOpenWork() },
       { label: 'Interpretor',
 				click: () => openInterpretor() },
+      { label: 'mcMidiKeyboard',
+				click: () => openMcMidiKeyboard() },
       { type: 'separator' },
       { label: Mtempo,
 				click: () => tempoAudio() },
@@ -4477,6 +4480,16 @@ ipcMain.on ("toMain", (event, args) => {
 				if (winProjet) winProjet.webContents.send('fromMain', 'interpretorPathSelected;' + interpretorPath);
 			}).catch(err => console.error('browseInterpretor:', err));
 			break;
+		case 'browseMcMidiKeyboard':
+			dialog.showOpenDialog({
+				properties: ['openFile'],
+				title: 'Sélectionner l\'application mcMidiKeyboard'
+			}).then(result => {
+				if (result.canceled || !result.filePaths[0]) return;
+				mcMidiKeyboardPath = result.filePaths[0];
+				if (winProjet) winProjet.webContents.send('fromMain', 'mcMidiKeyboardPathSelected;' + mcMidiKeyboardPath);
+			}).catch(err => console.error('browseMcMidiKeyboard:', err));
+			break;
 		case 'browseLv2Path':
 			dialog.showOpenDialog({
 				properties: ['openDirectory'],
@@ -5852,6 +5865,7 @@ function mainExternes(txt) {
 	var defc=JSON.parse(atob(txt));
 	console.log('importExterne',defc);
 	interpretorPath=defc.interpretorPath||'';
+	mcMidiKeyboardPath=defc.mcMidiKeyboardPath||'';
 	lv2Paths=defc.lv2Paths||'';
 	vst3Paths=defc.vst3Paths||'';
 	editor=defc.editor;
@@ -5893,6 +5907,7 @@ function mainExternes2(txt) {
 		}
 	}
 	interpretorPath=defc.interpretorPath||'';
+	mcMidiKeyboardPath=defc.mcMidiKeyboardPath||'';
 	lv2Paths=defc.lv2Paths||_defaultPluginPaths('lv2');
 	vst3Paths=defc.vst3Paths||_defaultPluginPaths('vst3');
 	editor=defc.editor;
@@ -6855,6 +6870,19 @@ function openInterpretor() {
 		return;
 	}
 	const child = spawn(interpretorPath, [], { detached: true, stdio: 'ignore' });
+	child.unref();
+}
+
+function openMcMidiKeyboard() {
+	if (!mcMidiKeyboardPath) {
+		dialog.showErrorBox('mcMidiKeyboard', 'Chemin de l\'application mcMidiKeyboard non défini.\nVeuillez le renseigner dans Préférences > Externes.');
+		return;
+	}
+	if (!fs.existsSync(mcMidiKeyboardPath)) {
+		dialog.showErrorBox('mcMidiKeyboard', `Application introuvable :\n${mcMidiKeyboardPath}`);
+		return;
+	}
+	const child = spawn(mcMidiKeyboardPath, [], { detached: true, stdio: 'ignore' });
 	child.unref();
 }
 

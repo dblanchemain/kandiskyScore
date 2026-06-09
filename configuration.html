@@ -144,6 +144,9 @@
 			<tr ><td colspan="4"> <b>Interpréteur</b> </td></tr>
 			<tr><td></td><td colspan="3"><input id='interpretorPath' type="text" style="width:460px" value='' />&nbsp;<button onclick="browseInterpretor()">...</button></td></tr>
 			<tr ><td colspan="4">  </td></tr>
+			<tr ><td colspan="4"> <b>mcMidiKeyboard</b> </td></tr>
+			<tr><td></td><td colspan="3"><input id='mcMidiKeyboardPath' type="text" style="width:460px" value='' />&nbsp;<button onclick="browseMcMidiKeyboard()">...</button></td></tr>
+			<tr ><td colspan="4">  </td></tr>
 			<tr ><td colspan="4"> <b>Path LV2</b> <span style="font-size:0.8em;color:#666;">(chemins séparés par ':')</span></td></tr>
 			<tr><td></td><td colspan="3">
 				<textarea id='lv2Paths' style="width:460px;height:44px;resize:vertical;font-size:0.82em;font-family:monospace;"></textarea>
@@ -1122,6 +1125,7 @@ function externeRestore() {
 	paramExterne={}
 	paramExterne={
 	interpretorPath:'',
+	mcMidiKeyboardPath:'',
 	lv2Paths:_defaultLv2Paths(),
 	vst3Paths:_defaultVst3Paths(),
 	daw:0,
@@ -1164,6 +1168,9 @@ function importExterne(txt){
 function browseInterpretor() {
 	window.api.send("toMain", "browseInterpretor");
 }
+function browseMcMidiKeyboard() {
+	window.api.send("toMain", "browseMcMidiKeyboard");
+}
 function browseLv2Path() {
 	window.api.send("toMain", "browseLv2Path");
 }
@@ -1179,6 +1186,8 @@ window.api.receive("fromMain", (msg) => {
 	const [cmd, ...rest] = msg.split(";");
 	if (cmd === "interpretorPathSelected") {
 		document.getElementById("interpretorPath").value = rest.join(";");
+	} else if (cmd === "mcMidiKeyboardPathSelected") {
+		document.getElementById("mcMidiKeyboardPath").value = rest.join(";");
 	} else if (cmd === "lv2PathSelected") {
 		const cur = document.getElementById("lv2Paths").value;
 		const add = rest.join(";");
@@ -1191,6 +1200,7 @@ window.api.receive("fromMain", (msg) => {
 });
 function configExterne(txt) {
 	document.getElementById("interpretorPath").value=paramExterne.interpretorPath||''
+	document.getElementById("mcMidiKeyboardPath").value=paramExterne.mcMidiKeyboardPath||''
 	document.getElementById("lv2Paths").value=paramExterne.lv2Paths||''
 	document.getElementById("vst3Paths").value=paramExterne.vst3Paths||''
 	document.getElementById("defEditor").value=paramExterne.editor
@@ -1229,6 +1239,7 @@ function configExterne(txt) {
 }
 function defExterne(txt) {
 	paramExterne.interpretorPath=document.getElementById("interpretorPath").value;
+	paramExterne.mcMidiKeyboardPath=document.getElementById("mcMidiKeyboardPath").value;
 	paramExterne.lv2Paths=document.getElementById("lv2Paths").value;
 	paramExterne.vst3Paths=document.getElementById("vst3Paths").value;
 	paramExterne.editor=document.getElementById("defEditor").value;
