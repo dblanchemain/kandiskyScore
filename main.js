@@ -671,6 +671,7 @@ let winSvgEtat=0;
 let winOpenWorkEtat=0;
 let interpretorPath='';
 let mcMidiKeyboardPath='';
+let mcMidiPlayerPath='';
 function _defaultPluginPaths(type) {
     if (type === 'lv2') {
         if (process.platform === 'linux') return '~/.lv2:/usr/lib/lv2:/usr/local/lib/lv2';
@@ -1073,6 +1074,8 @@ const template = [
 				click: () => openInterpretor() },
       { label: 'mcMidiKeyboard',
 				click: () => openMcMidiKeyboard() },
+      { label: 'mcMidiPlayer',
+				click: () => openMcMidiPlayer() },
       { type: 'separator' },
       { label: Mtempo,
 				click: () => tempoAudio() },
@@ -4490,6 +4493,16 @@ ipcMain.on ("toMain", (event, args) => {
 				if (winProjet) winProjet.webContents.send('fromMain', 'mcMidiKeyboardPathSelected;' + mcMidiKeyboardPath);
 			}).catch(err => console.error('browseMcMidiKeyboard:', err));
 			break;
+		case 'browseMcMidiPlayer':
+			dialog.showOpenDialog({
+				properties: ['openFile'],
+				title: 'Sélectionner l\'application mcMidiPlayer'
+			}).then(result => {
+				if (result.canceled || !result.filePaths[0]) return;
+				mcMidiPlayerPath = result.filePaths[0];
+				if (winProjet) winProjet.webContents.send('fromMain', 'mcMidiPlayerPathSelected;' + mcMidiPlayerPath);
+			}).catch(err => console.error('browseMcMidiPlayer:', err));
+			break;
 		case 'browseLv2Path':
 			dialog.showOpenDialog({
 				properties: ['openDirectory'],
@@ -5866,6 +5879,7 @@ function mainExternes(txt) {
 	console.log('importExterne',defc);
 	interpretorPath=defc.interpretorPath||'';
 	mcMidiKeyboardPath=defc.mcMidiKeyboardPath||'';
+	mcMidiPlayerPath=defc.mcMidiPlayerPath||'';
 	lv2Paths=defc.lv2Paths||'';
 	vst3Paths=defc.vst3Paths||'';
 	editor=defc.editor;
@@ -5908,6 +5922,7 @@ function mainExternes2(txt) {
 	}
 	interpretorPath=defc.interpretorPath||'';
 	mcMidiKeyboardPath=defc.mcMidiKeyboardPath||'';
+	mcMidiPlayerPath=defc.mcMidiPlayerPath||'';
 	lv2Paths=defc.lv2Paths||_defaultPluginPaths('lv2');
 	vst3Paths=defc.vst3Paths||_defaultPluginPaths('vst3');
 	editor=defc.editor;
@@ -6883,6 +6898,19 @@ function openMcMidiKeyboard() {
 		return;
 	}
 	const child = spawn(mcMidiKeyboardPath, [], { detached: true, stdio: 'ignore' });
+	child.unref();
+}
+
+function openMcMidiPlayer() {
+	if (!mcMidiPlayerPath) {
+		dialog.showErrorBox('mcMidiPlayer', 'Chemin de l\'application mcMidiPlayer non défini.\nVeuillez le renseigner dans Préférences > Externes.');
+		return;
+	}
+	if (!fs.existsSync(mcMidiPlayerPath)) {
+		dialog.showErrorBox('mcMidiPlayer', `Application introuvable :\n${mcMidiPlayerPath}`);
+		return;
+	}
+	const child = spawn(mcMidiPlayerPath, [], { detached: true, stdio: 'ignore' });
 	child.unref();
 }
 
